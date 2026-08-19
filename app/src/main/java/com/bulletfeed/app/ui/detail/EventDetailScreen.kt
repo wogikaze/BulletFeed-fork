@@ -27,12 +27,24 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventDetailScreen(event: FeedEvent, onBack: () -> Unit, onFeedback: (Feedback) -> Unit, onFollow: () -> Unit) {
-    Scaffold(topBar = { TopAppBar(title = { Text("イベント詳細") }, navigationIcon = { Text("‹", modifier = Modifier.clickable(onClick = onBack).padding(18.dp), fontSize = 30.sp) }) }) { padding ->
+fun EventDetailScreen(
+    event: FeedEvent,
+    onBack: () -> Unit,
+    onFeedback: (Feedback) -> Unit,
+    onFollow: () -> Unit,
+) {
+    Scaffold(topBar = {
+        TopAppBar(title = {
+            Text("イベント詳細")
+        }, navigationIcon = { Text("‹", modifier = Modifier.clickable(onClick = onBack).padding(18.dp), fontSize = 30.sp) })
+    }) { padding ->
         LazyColumn(modifier = Modifier.padding(padding).fillMaxSize()) {
             item {
                 Column(Modifier.padding(20.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { StatusPill(event.importance.label, event.importance.color); StatusPill(event.relation.label, event.relation.color, true) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StatusPill(event.importance.label, event.importance.color)
+                        StatusPill(event.relation.label, event.relation.color, true)
+                    }
                     Spacer(Modifier.height(16.dp))
                     Text(event.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, lineHeight = 30.sp)
                     Spacer(Modifier.height(12.dp))
@@ -49,7 +61,10 @@ fun EventDetailScreen(event: FeedEvent, onBack: () -> Unit, onFeedback: (Feedbac
                     Spacer(Modifier.height(24.dp))
                     SectionTitle("影響")
                     ImpactBlock("公式に明示された影響", event.explicitImpact, Color(0xFF4A2A7A))
-                    event.inferredImpact?.let { Spacer(Modifier.height(8.dp)); ImpactBlock("推定される影響", it, Color(0xFF8A5A00)) }
+                    event.inferredImpact?.let {
+                        Spacer(Modifier.height(8.dp))
+                        ImpactBlock("推定される影響", it, Color(0xFF8A5A00))
+                    }
                     Spacer(Modifier.height(24.dp))
                     SectionTitle("時系列")
                     event.timeline.forEach { TimelineRow(it) }
@@ -58,10 +73,27 @@ fun EventDetailScreen(event: FeedEvent, onBack: () -> Unit, onFeedback: (Feedbac
                     event.sources.forEach { SourceBlock(it) }
                     Spacer(Modifier.height(20.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        Button(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) { Text(if (event.markedImportant) "重要を解除" else "重要") }
-                        OutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) { Text(if (event.following) "フォロー中" else "フォロー") }
+                        Button(
+                            onClick = { onFeedback(Feedback.IMPORTANT) },
+                            modifier = Modifier.weight(1f),
+                        ) { Text(if (event.markedImportant) "重要を解除" else "重要") }
+                        OutlinedButton(
+                            onClick = onFollow,
+                            modifier = Modifier.weight(1f),
+                        ) { Text(if (event.following) "フォロー中" else "フォロー") }
                     }
-                    Text("不要", modifier = Modifier.align(Alignment.CenterHorizontally).clickable { onFeedback(Feedback.NOT_RELEVANT); onBack() }.padding(16.dp), color = Color(0xFF655F69), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        "不要",
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .clickable {
+                                    onFeedback(Feedback.NOT_RELEVANT)
+                                    onBack()
+                                }.padding(16.dp),
+                        color = Color(0xFF655F69),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                 }
             }
         }

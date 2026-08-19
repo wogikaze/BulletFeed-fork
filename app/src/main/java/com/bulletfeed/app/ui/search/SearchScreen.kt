@@ -34,12 +34,28 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(events: List<FeedEvent>, onEventClick: (FeedEvent) -> Unit, modifier: Modifier = Modifier) {
+fun SearchScreen(
+    events: List<FeedEvent>,
+    onEventClick: (FeedEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var query by remember { mutableStateOf("") }
-    val results = events.filter { event ->
-        !event.dismissed && (query.isBlank() || listOf(event.title, event.summary, event.relationReason, event.importanceReason, event.relation.label, event.importance.label)
-            .plus(event.sources.flatMap { listOf(it.publisher, it.title, it.evidence) }).any { it.contains(query, ignoreCase = true) })
-    }
+    val results =
+        events.filter { event ->
+            !event.dismissed &&
+                (
+                    query.isBlank() ||
+                        listOf(
+                            event.title,
+                            event.summary,
+                            event.relationReason,
+                            event.importanceReason,
+                            event.relation.label,
+                            event.importance.label,
+                        ).plus(event.sources.flatMap { listOf(it.publisher, it.title, it.evidence) })
+                            .any { it.contains(query, ignoreCase = true) }
+                )
+        }
     Scaffold(topBar = { TopAppBar(title = { Text("情報を検索") }) }) { padding ->
         LazyColumn(modifier = modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp)) {
             item {
@@ -47,24 +63,57 @@ fun SearchScreen(events: List<FeedEvent>, onEventClick: (FeedEvent) -> Unit, mod
                 Text("追跡中の変化を探す", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("テーマ、企業、技術、イベント内容、情報源から検索できます。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 6.dp))
                 Spacer(Modifier.height(16.dp))
-                OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), singleLine = true, label = { Text("例: Cloudflare、料金、Kotlin") }, leadingIcon = { Text("⌕", fontSize = 22.sp) }, shape = RoundedCornerShape(18.dp))
+                OutlinedTextField(query, {
+                    query = it
+                }, Modifier.fillMaxWidth(), singleLine = true, label = {
+                    Text("例: Cloudflare、料金、Kotlin")
+                }, leadingIcon = { Text("⌕", fontSize = 22.sp) }, shape = RoundedCornerShape(18.dp))
                 Spacer(Modifier.height(16.dp))
-                Text(if (query.isBlank()) "最近のイベント" else "${results.size}件の検索結果", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    if (query.isBlank()) "最近のイベント" else "${results.size}件の検索結果",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
                 Spacer(Modifier.height(4.dp))
             }
-            if (results.isEmpty()) item { Text("一致するイベントはありません。別の言葉で検索してください。", color = Color(0xFF655F69), modifier = Modifier.padding(vertical = 28.dp)) }
-            else items(results, key = { it.id }) { event -> SearchResultCard(event) { onEventClick(event) } }
+            if (results.isEmpty()) {
+                item { Text("一致するイベントはありません。別の言葉で検索してください。", color = Color(0xFF655F69), modifier = Modifier.padding(vertical = 28.dp)) }
+            } else {
+                items(results, key = { it.id }) { event -> SearchResultCard(event) { onEventClick(event) } }
+            }
         }
     }
 }
 
 @Composable
-private fun SearchResultCard(event: FeedEvent, onClick: () -> Unit) = Card(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable(onClick = onClick), colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(18.dp), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+private fun SearchResultCard(
+    event: FeedEvent,
+    onClick: () -> Unit,
+) = Card(
+    modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable(onClick = onClick),
+    colors = CardDefaults.cardColors(containerColor = Color.White),
+    shape = RoundedCornerShape(18.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+) {
     Column(Modifier.padding(15.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { StatusPill(event.importance.label, event.importance.color); StatusPill(event.relation.label, event.relation.color, pale = true) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StatusPill(event.importance.label, event.importance.color)
+            StatusPill(event.relation.label, event.relation.color, pale = true)
+        }
         Spacer(Modifier.height(10.dp))
         Text(event.title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-        Text(event.summary, modifier = Modifier.padding(top = 5.dp), maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color(0xFF49454F))
-        Text("${event.announcedAt}  ·  ${event.sources.first().publisher}", modifier = Modifier.padding(top = 10.dp), color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
+        Text(
+            event.summary,
+            modifier = Modifier.padding(top = 5.dp),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            color = Color(0xFF49454F),
+        )
+        Text(
+            "${event.announcedAt}  ·  ${event.sources.first().publisher}",
+            modifier = Modifier.padding(top = 10.dp),
+            color = Color(0xFF655F69),
+            style = MaterialTheme.typography.labelMedium,
+        )
     }
 }

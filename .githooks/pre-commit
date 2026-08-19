@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+
+# Android Studio's bundled JBR lets the hook work even when Java is not on PATH.
+if [ -z "${JAVA_HOME:-}" ] && [ -x "/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/java" ]; then
+  export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+fi
+
+# Format first so Kotlin code is kept consistent before every commit.
+./gradlew --quiet ktlintFormat
+
+# Stage only Kotlin files that the developer already selected for this commit.
+git diff --cached --name-only --diff-filter=ACMR -- '*.kt' '*.kts' | while IFS= read -r file; do
+  if [ -n "$file" ] && [ -f "$file" ]; then
+    git add -- "$file"
+  fi
+done
+
+./gradlew --quiet ktlintCheck lint
