@@ -14,17 +14,34 @@ MVPは一般ニュースを大量に集めない。**ユーザーの利用技術
 
 Hacker Newsなどのコミュニティ情報は、イベントの根拠ではなく「公式情報を探索する候補」の発見にのみ使う。
 
-## 2. 優先データソース
+## 2. 取得可能なデータソース一覧
 
-| 優先 | 取得元 | 取得する変化 | このアプリでの用途 |
-| --- | --- | --- | --- |
-| P0 | GitHub Releases / Webhooks | SDK、ライブラリ、CLI、Actionのリリース | ユーザーが追うリポジトリや技術の更新 |
-| P0 | GitHub SBOM | リポジトリの直接・間接依存関係とバージョン | 「使っているか」を判定する根拠 |
-| P0 | OSV API | 利用依存関係に影響する脆弱性、修正版 | 直接影響のセキュリティイベント |
-| P1 | GitHub Advisory Database | エコシステム別の公開セキュリティアドバイザリ | OSVとの相互補完、根拠URL |
-| P1 | 公式RSS / Atom / Changelog | API廃止、料金、機能、規約、リリースノート | テーマに対する信頼できる変化 |
-| P1 | Statuspage public API | 障害、復旧、予定メンテナンス | 継続するイベントの時系列 |
-| P2 | Hacker News API | 新着・注目・更新された話題 | 一次情報を探すための候補発見 |
+| 優先 | 取得元 | 取得する変化 | 認証 | このアプリでの用途 |
+| --- | --- | --- | --- | --- |
+| P0 | GitHub Releases API | SDK、ライブラリ、CLI、Actionのリリース | 公開は不要、非公開はGitHub連携 | ユーザーが追うリポジトリや技術の更新 |
+| P0 | GitHub Webhooks | release、push、advisory等の即時通知 | GitHub App | ポーリングを減らした高速な変更検知 |
+| P0 | GitHub SBOM API | リポジトリの直接・間接依存関係とバージョン | GitHub連携 | 「使っているか」を判定する根拠 |
+| P0 | OSV API | 利用依存関係に影響する脆弱性、修正版 | 不要 | 直接影響のセキュリティイベント |
+| P0 | 公式RSS / Atom / Changelog | API廃止、料金、機能、規約、リリースノート | 通常不要 | テーマに対する信頼できる変化 |
+| P0 | Statuspage public API / RSS | 障害、復旧、予定メンテナンス | 公開ページは不要 | 継続するイベントの時系列 |
+| P1 | GitHub Advisory Database | エコシステム別の公開セキュリティアドバイザリ | 基本不要 | OSVとの相互補完、根拠URL |
+| P1 | npm Registry API | npmパッケージの新バージョン・公開日時 | 不要 | JavaScript系の依存関係更新 |
+| P1 | PyPI JSON API | Pythonパッケージの新バージョン | 不要 | Python系の依存関係更新 |
+| P1 | Maven Central | Android / Kotlin / Javaライブラリの更新 | 不要 | Android開発者向けの依存関係更新 |
+| P1 | Hacker News API | 新着・注目・更新された話題 | 不要 | 一次情報を探すための候補発見 |
+| P1 | Stack Exchange API | 特定技術の新質問・注目Q&A | 不要 | 現場で起きている問題の補助シグナル |
+| P2 | GDELT | 一般ニュースの検索・大量収集 | 不要 | 企業・地域テーマの候補発見。ノイズが多いため根拠にしない |
+
+### MVPで実装する4系統
+
+最初の実装は次に限定する。これで「自分の依存関係への影響」「公式な製品変更」「障害」をカバーできる。
+
+1. GitHub Releases / Webhooks
+2. GitHub SBOM + OSV
+3. ユーザーが選んだ公式RSS・変更履歴
+4. 追跡サービスのStatuspage
+
+パッケージレジストリ、Hacker News、Stack Exchange、GDELTは、イベント統合・関連性判定が安定してから追加する。コミュニティ／一般ニュースは、公式発表へのリンクを見つけるための候補であり、事実の根拠には使わない。
 
 GitHubは公開リポジトリのReleaseを認証なしで取得でき、私有リポジトリはユーザー認可後に扱える。[GitHub Releases API](https://docs.github.com/en/rest/releases/releases)
 

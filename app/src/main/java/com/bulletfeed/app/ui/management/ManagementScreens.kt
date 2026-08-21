@@ -15,14 +15,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,16 +46,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopicsScreen(
+    topics: List<String>,
     githubConnected: Boolean,
     onGithubClick: () -> Unit,
+    onAddTopic: (String) -> Unit,
+    onRemoveTopic: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var topics by remember { mutableStateOf(listOf("Kotlin", "Cloudflare Workers", "OpenAI API", "Flutter", "Android")) }
+    var newTopic by rememberSaveable { mutableStateOf("") }
     Scaffold(topBar = { TopAppBar(title = { Text("テーマ") }) }) { padding ->
         LazyColumn(modifier = modifier.padding(padding).fillMaxSize().padding(20.dp)) {
             item {
@@ -57,12 +68,32 @@ fun TopicsScreen(
             }
             items(topics) { topic ->
                 AssistChip(onClick = {
-                    topics = topics - topic
-                }, label = { Text("$topic   ×") }, modifier = Modifier.padding(end = 8.dp, bottom = 8.dp))
+                    onRemoveTopic(topic)
+                }, label = { Text(topic) }, trailingIcon = {
+                    Icon(Icons.Default.Close, contentDescription = "$topic を削除", modifier = Modifier.size(18.dp))
+                }, modifier = Modifier.padding(end = 8.dp, bottom = 8.dp))
             }
             item {
                 Spacer(Modifier.height(12.dp))
-                OutlinedButton(onClick = { topics = topics + "新しいテーマ" }, modifier = Modifier.fillMaxWidth()) { Text("＋ テーマを追加") }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = newTopic,
+                        onValueChange = { newTopic = it },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("テーマを追加") },
+                        singleLine = true,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            onAddTopic(newTopic)
+                            newTopic = ""
+                        },
+                        enabled = newTopic.isNotBlank(),
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "追加", modifier = Modifier.size(18.dp))
+                    }
+                }
                 Spacer(Modifier.height(24.dp))
                 Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F3F1)), shape = RoundedCornerShape(20.dp)) {
                     Column(Modifier.padding(18.dp)) {
@@ -100,7 +131,11 @@ fun GithubConnectionScreen(
     Scaffold(topBar = {
         TopAppBar(title = {
             Text("GitHub連携")
-        }, navigationIcon = { Text("‹", modifier = Modifier.clickable(onClick = onBack).padding(18.dp), fontSize = 30.sp) })
+        }, navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+            }
+        })
     }) { padding ->
         LazyColumn(Modifier.padding(padding).fillMaxSize().padding(20.dp)) {
             item {
@@ -178,7 +213,12 @@ fun GithubConnectionScreen(
                                 if (name in
                                     selectedRepositories
                                 ) {
-                                    Text("✓", color = Color.White, fontWeight = FontWeight.Bold)
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "選択済み",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(18.dp),
+                                    )
                                 }
                             }
                             Spacer(Modifier.width(12.dp))
@@ -200,16 +240,19 @@ fun GithubConnectionScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    profile: UserProfile,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(topBar = { TopAppBar(title = { Text("設定") }) }) { padding ->
         Column(modifier.padding(padding).padding(20.dp)) {
             Text("あなたの情報", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
-            InfoBlock("職種", "Androidエンジニア")
+            InfoBlock("職種", profile.role)
             Spacer(Modifier.height(8.dp))
-            InfoBlock("興味", "モバイル · AI · クラウド")
+            InfoBlock("興味", profile.interests.joinToString(" · "))
             Spacer(Modifier.height(8.dp))
-            InfoBlock("地域", "東京")
+            InfoBlock("地域", profile.region)
             Spacer(Modifier.height(20.dp))
             OutlinedButton(onClick = {}, modifier = Modifier.fillMaxWidth()) { Text("プロフィールを編集") }
         }

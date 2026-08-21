@@ -48,7 +48,7 @@ fun StatusPill(
 fun InfoBlock(
     title: String,
     text: String,
-) = Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFF3EDF7)), shape = RoundedCornerShape(16.dp)) {
+) = Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F3F1)), shape = RoundedCornerShape(16.dp)) {
     Column(Modifier.padding(14.dp)) {
         Text(title, color = Color(0xFF655A6D), style = MaterialTheme.typography.labelMedium)
         Spacer(Modifier.height(4.dp))
@@ -93,8 +93,8 @@ fun ImpactBlock(
 fun TimelineRow(item: TimelineItem) =
     Row(Modifier.padding(top = 12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF4A2A7A)))
-            Box(Modifier.width(2.dp).height(44.dp).background(Color(0xFFE2D9EB)))
+            Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF1769AA)))
+            Box(Modifier.width(2.dp).height(44.dp).background(Color(0xFFD9E3EC)))
         }
         Spacer(Modifier.width(12.dp))
         Column {
@@ -113,7 +113,7 @@ fun SourceBlock(source: Source) =
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(Modifier.padding(14.dp)) {
-            Text(source.publisher, color = Color(0xFF4A2A7A), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text(source.publisher, color = Color(0xFF1769AA), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             Text(source.title, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(4.dp))
             Text("根拠: ${source.evidence}", style = MaterialTheme.typography.bodySmall, color = Color(0xFF49454F))

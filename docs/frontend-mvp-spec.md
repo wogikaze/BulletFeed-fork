@@ -58,6 +58,8 @@
 - 依存関係ファイルや使用言語を利用して関連性を高める
 - 連携なしでもアプリ利用は可能
 
+実装済みの初回フローは `プロフィール → 追跡テーマ → GitHub連携` の3ステップとする。テーマは5件以上を必須とし、GitHubは「あとで連携する」を選択できる。完了結果はRepositoryへ保存し、テーマ画面と設定画面でも同じ状態を参照する。
+
 ## 6. 主要画面
 
 ### フィード
@@ -76,11 +78,29 @@
 - 根拠ソースのURL、引用箇所、取得日時
 - フィードバックとフォローの操作
 
+### セキュリティ
+
+- GitHub連携リポジトリの依存関係に一致した脆弱性を、通常のニュースフィードとは分けて表示
+- `未対応 / 対応中 / 解決済み / 対象外` の対応状況を管理
+- 深刻度、対象リポジトリ、パッケージ、現在バージョン、修正版、直接・間接依存を表示
+- GitHub Advisory / OSV / CVEなどのprovenanceと最終確認日時を表示
+- 緊急・重要かつ未対応の項目は、通常フィードにも件数だけ表示してセキュリティ画面へ誘導
+- ソースコード本文は取得せず、依存関係メタデータと公開アドバイザリを照合
+
 ### テーマ・連携管理
 
 - テーマの追加、削除、優先度調整
 - GitHub連携状態、対象リポジトリの選択、解除
 - プロフィール編集
+
+### 通知センター
+
+- フィード右上のベルに未読件数を表示
+- `セキュリティ / 重要な変更 / リリース` を文字と色で区別
+- 通知からイベント詳細または脆弱性詳細へ直接移動
+- 個別既読と一括既読に対応
+- 通知payloadは詳細データを保持せず、対象IDから認証済みAPIを再取得する
+- 非公開リポジトリ名などの機密情報はロック画面通知に表示しない
 
 ## 7. フィードバックの意味
 
@@ -111,6 +131,15 @@ interface BulletFeedRepository {
     suspend fun updateGithubRepositories(repositoryIds: List<String>)
     suspend fun sendFeedback(eventId: String, feedback: FeedbackType)
     suspend fun setFollowing(eventId: String, following: Boolean)
+    suspend fun getVulnerabilityAlerts(status: VulnerabilityStatus?): List<VulnerabilityAlert>
+    suspend fun getVulnerabilityAlert(alertId: String): VulnerabilityAlert
+    suspend fun updateVulnerabilityStatus(alertId: String, status: VulnerabilityStatus)
+    suspend fun getOnboardingSnapshot(): OnboardingSnapshot
+    suspend fun completeOnboarding(profile: UserProfile, topics: List<String>, connectGithub: Boolean): OnboardingSnapshot
+    suspend fun updateTopics(topics: List<String>): List<String>
+    suspend fun getNotifications(): List<AppNotification>
+    suspend fun markNotificationRead(notificationId: String): AppNotification
+    suspend fun markAllNotificationsRead(): List<AppNotification>
 }
 ```
 
@@ -129,6 +158,13 @@ POST   /v1/integrations/github/authorize
 PUT    /v1/integrations/github/repositories
 POST   /v1/events/{eventId}/feedback
 PUT    /v1/events/{eventId}/following
+GET    /v1/me/security/alerts
+GET    /v1/me/security/alerts/{alertId}
+PATCH  /v1/me/security/alerts/{alertId}
+PUT    /v1/me/onboarding
+GET    /v1/me/notifications
+PATCH  /v1/me/notifications/{notificationId}
+POST   /v1/me/notifications/read-all
 ```
 
 ## 9. フロントエンド構成案
@@ -138,9 +174,12 @@ app/
   data/          # API DTO、Repository実装、Fakeデータ
   domain/        # Event、Topic、ProfileなどのモデルとRepository interface
   ui/
+    BulletFeedViewModel.kt
     onboarding/
     feed/
     detail/
+    security/
+    notifications/
     settings/
     designsystem/
   navigation/
@@ -149,7 +188,7 @@ app/
 - UI: Jetpack Compose + Material 3
 - 状態管理: ViewModel + StateFlow
 - 非同期: Kotlin Coroutines
-- DI: Hilt（導入のタイミングはプロジェクト作成時に決定）
+- DI: 現在はViewModel Factory。Remote Repository導入時にHiltを検討
 - 通信: Retrofit / OkHttp を候補とし、初期は Fake Repository で画面を完成させる
 
 ## 10. MVP で扱わないこと

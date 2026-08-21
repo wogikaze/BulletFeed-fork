@@ -1,7 +1,11 @@
 .gradle/
+.gradle-user-home/
 .kotlin/
 .idea/
 local.properties
 build/
 app/build/
 *.iml
+
+# Local-only FastAPI backend. Credentials and collected data must never be committed.
+backend-local/
