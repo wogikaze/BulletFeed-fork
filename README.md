@@ -104,6 +104,7 @@ force pushと`main`ブランチの削除も禁止しています。
 | [API契約 v1](docs/api-contract-v1.md) | フロントエンドとFastAPIバックエンドの通信契約。イベント、検索、プロフィール、テーマ、GitHub連携、フィードバックのリクエスト／レスポンス |
 | [データソース方針](docs/data-sources-mvp.md) | 取得可能なAPI・RSS一覧、MVPで採用する情報源、認証要件、イベント化の流れ、スクレイピングの境界、バックエンド実装順序 |
 | [品質チェック詳細](docs/development-quality.md) | ktlint、Android Lint、pre-commit hook、GitHub Actionsの実行内容 |
+| [セキュリティ監査結果（2026-08-21）](docs/security-audit-2026-08-21.md) | Android、任意バックエンド、OAuth、RSS、CI、依存関係の監査結果と対応優先順位 |
 
 新たなAPIや情報源を追加する際は、まず「データソース方針」に取得条件・利用規約・根拠としての扱いを追記する。
 
