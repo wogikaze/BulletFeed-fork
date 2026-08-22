@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,22 +47,24 @@ class BulletFeedViewModel(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             runCatching {
                 repository.initialize()
-                val events = async { repository.getFeedEvents() }
-                val alerts = async { repository.getVulnerabilityAlerts() }
-                val notifications = async { repository.getNotifications() }
-                val githubConnection = async { repository.getGithubConnection() }
-                val onboarding = async { repository.getOnboardingSnapshot() }
-                val onboardingSnapshot = onboarding.await()
-                BulletFeedUiState(
-                    events = events.await(),
-                    vulnerabilityAlerts = alerts.await(),
-                    notifications = notifications.await(),
-                    githubConnected = githubConnection.await(),
-                    onboardingCompleted = onboardingSnapshot.completed,
-                    profile = onboardingSnapshot.profile,
-                    topics = onboardingSnapshot.topics,
-                    isLoading = false,
-                )
+                coroutineScope {
+                    val events = async { repository.getFeedEvents() }
+                    val alerts = async { repository.getVulnerabilityAlerts() }
+                    val notifications = async { repository.getNotifications() }
+                    val githubConnection = async { repository.getGithubConnection() }
+                    val onboarding = async { repository.getOnboardingSnapshot() }
+                    val onboardingSnapshot = onboarding.await()
+                    BulletFeedUiState(
+                        events = events.await(),
+                        vulnerabilityAlerts = alerts.await(),
+                        notifications = notifications.await(),
+                        githubConnected = githubConnection.await(),
+                        onboardingCompleted = onboardingSnapshot.completed,
+                        profile = onboardingSnapshot.profile,
+                        topics = onboardingSnapshot.topics,
+                        isLoading = false,
+                    )
+                }
             }.onSuccess { loadedState ->
                 _uiState.value = loadedState
             }.onFailure {

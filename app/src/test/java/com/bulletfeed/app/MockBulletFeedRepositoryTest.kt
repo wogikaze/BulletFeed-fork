@@ -66,4 +66,18 @@ class MockBulletFeedRepositoryTest {
             assertEquals(listOf("Kotlin", "GitHub"), snapshot.topics)
             assertTrue(repository.getGithubConnection())
         }
+
+    @Test
+    fun searchResultMetaDoesNotRequireSources() {
+        val event = DemoData.events.first().copy(sources = emptyList(), announcedAt = "今日 12:00")
+
+        assertEquals("今日 12:00", searchResultMeta(event))
+    }
+
+    @Test
+    fun searchResultMetaIncludesPublisherWhenPresent() {
+        val event = DemoData.events.first()
+
+        assertEquals("${event.announcedAt}  ·  ${event.sources.first().publisher}", searchResultMeta(event))
+    }
 }
