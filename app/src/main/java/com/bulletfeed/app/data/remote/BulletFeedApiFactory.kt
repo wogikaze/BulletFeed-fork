@@ -42,5 +42,4 @@ object BulletFeedApiFactory {
             }
             chain.proceed(newRequest)
         }
-
 }

@@ -1,7 +1,5 @@
 package com.bulletfeed.app
 
-import kotlinx.serialization.Serializable
-
 enum class FeedItemStatus { UNREAD, READ }
 
 enum class FeedFeedbackType { IMPORTANT, NOT_RELEVANT }
@@ -152,10 +150,4 @@ data class GithubRepositoryChoice(
     val fullName: String,
     val htmlUrl: String,
     val selected: Boolean,
-)
-
-@Serializable
-data class SessionResponseDto(
-    val accessToken: String,
-    val userId: String,
 )

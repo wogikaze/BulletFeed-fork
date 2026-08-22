@@ -21,6 +21,4 @@ interface BulletFeedRepository :
     ): FeedEvent
 
     suspend fun setGithubConnected(connected: Boolean): Boolean
-
-    suspend fun importFromPublicRepo(fullName: String): List<String>
 }

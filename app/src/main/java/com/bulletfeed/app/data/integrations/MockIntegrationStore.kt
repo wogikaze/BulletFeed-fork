@@ -65,8 +65,8 @@ class MockIntegrationStore(
         if (BulletFeedApiClient.token == null) {
             BulletFeedApiClient.createSession()
         }
-        val result = BulletFeedApiClient.api.importGithubRepositoryKeywords(
-            GithubImportRequestDto(fullName.trim()),
+        val result = BulletFeedApiClient.api.importRepositoryKeywords(
+            GithubRepoImportDto(fullName.trim()),
         )
         return result.addedTopics
     }
