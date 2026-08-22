@@ -10,3 +10,4 @@ ij_kotlin_allow_trailing_comma = true
 ktlint_code_style = intellij_idea
 ktlint_standard_function-naming = disabled
 ktlint_standard_max-line-length = disabled
+ktlint_standard_function-signature = disabled
