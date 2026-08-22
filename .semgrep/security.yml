@@ -1,0 +1,27 @@
+rules:
+  - id: python-insecure-tls-verification
+    languages: [python]
+    severity: ERROR
+    message: TLS certificate verification must not be disabled.
+    patterns:
+      - pattern-either:
+          - pattern: httpx.$METHOD(..., verify=False, ...)
+          - pattern: requests.$METHOD(..., verify=False, ...)
+
+  - id: python-shell-true
+    languages: [python]
+    severity: ERROR
+    message: Avoid shell=True with attacker-influenced command input.
+    pattern: subprocess.$METHOD(..., shell=True, ...)
+
+  - id: android-javascript-interface
+    languages: [kotlin]
+    severity: ERROR
+    message: WebView JavaScript interfaces require a dedicated security review.
+    pattern: $WEB_VIEW.addJavascriptInterface(...)
+
+  - id: android-webview-javascript-enabled
+    languages: [kotlin]
+    severity: WARNING
+    message: Enabling WebView JavaScript requires a dedicated security review.
+    pattern: $WEB_SETTINGS.javaScriptEnabled = true

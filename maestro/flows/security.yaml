@@ -1,0 +1,14 @@
+appId: com.bulletfeed.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "次へ"
+- tapOn: "次へ"
+- tapOn: "BulletFeedを始める"
+- tapOn: "セキュリティを開く"
+- assertVisible: "セキュリティ"
+- assertVisible: "対応が必要"
+- tapOn: "認証バイパスにつながる可能性のある脆弱性"
+- assertVisible: "脆弱性の詳細"
+- tapOn: "対応を開始"
+- assertVisible: "対応中"

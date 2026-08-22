@@ -21,7 +21,7 @@ async def github_releases(
         from fastapi import HTTPException, status
 
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid repository name"
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Invalid repository name"
         )
     releases = await github.list_releases(settings, owner, repository)
     return [

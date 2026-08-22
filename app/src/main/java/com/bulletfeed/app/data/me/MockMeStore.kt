@@ -1,0 +1,78 @@
+package com.bulletfeed.app
+
+class MockMeStore(
+    private val state: MockAppState,
+) : MeRepository {
+    override suspend fun getMe(): MeBootstrap =
+        MeBootstrap(
+            onboardingCompleted = state.onboardingCompleted,
+            profile = state.profile,
+            topicCount = state.topics.size,
+            githubConnected = state.github.connected,
+        )
+
+    override suspend fun getProfile(): UserProfile = state.profile
+
+    override suspend fun saveProfile(profile: UserProfile): UserProfile {
+        state.profile = profile
+        return state.profile
+    }
+
+    override suspend fun getUserTopics(): List<UserTopic> = state.topics.toList()
+
+    override suspend fun addUserTopic(
+        name: String,
+        type: TopicType,
+    ): UserTopic {
+        val topic =
+            UserTopic(
+                id = "topic_${state.topics.size}",
+                name = name.trim(),
+                type = type,
+                priority = TopicPriority.NORMAL,
+                order = state.topics.size,
+            )
+        state.topics += topic
+        return topic
+    }
+
+    override suspend fun removeUserTopic(topicId: String) {
+        state.topics.removeAll { it.id == topicId }
+    }
+
+    override suspend fun patchUserTopic(
+        topicId: String,
+        priority: TopicPriority?,
+        order: Int?,
+    ): UserTopic {
+        val index = state.topics.indexOfFirst { it.id == topicId }
+        val current = state.topics[index]
+        val updated =
+            current.copy(
+                priority = priority ?: current.priority,
+                order = order ?: current.order,
+            )
+        state.topics[index] = updated
+        return updated
+    }
+
+    override suspend fun searchTopics(query: String): List<UserTopic> =
+        state.topicCatalog.filter { it.name.contains(query, ignoreCase = true) }
+
+    override suspend fun completeOnboarding(
+        profile: UserProfile,
+        topics: List<String>,
+        connectGithub: Boolean,
+    ): OnboardingSnapshot {
+        state.profile = profile
+        state.topics =
+            topics
+                .distinct()
+                .mapIndexed { index, name ->
+                    UserTopic("topic_$index", name, TopicType.TECHNOLOGY, TopicPriority.NORMAL, index)
+                }.toMutableList()
+        state.github = state.github.copy(connected = connectGithub)
+        state.onboardingCompleted = true
+        return OnboardingSnapshot(true, state.profile, state.topicNames())
+    }
+}
