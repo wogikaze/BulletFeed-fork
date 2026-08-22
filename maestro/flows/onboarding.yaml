@@ -1,0 +1,12 @@
+appId: com.bulletfeed.app
+---
+- launchApp:
+    clearState: true
+- assertVisible: "あなたについて教えてください"
+- tapOn: "次へ"
+- assertVisible: "追いかけるテーマを選択"
+- tapOn: "次へ"
+- assertVisible: "GitHubから影響を見つける"
+- tapOn: "BulletFeedを始める"
+- assertVisible: "フィード"
+- assertVisible: "Cloudflare Workers の Node.js 互換性に破壊的変更予定"
