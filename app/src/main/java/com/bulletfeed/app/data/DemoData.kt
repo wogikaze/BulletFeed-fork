@@ -1,6 +1,21 @@
 package com.bulletfeed.app
 
 object DemoData {
+    const val MINIMUM_TOPIC_COUNT = 5
+    val defaultTopics =
+        listOf(
+            "Kotlin",
+            "Android",
+            "Jetpack Compose",
+            "Cloudflare Workers",
+            "OpenAI API",
+            "GitHub",
+            "Flutter",
+            "Python",
+            "FastAPI",
+            "PostgreSQL",
+        )
+
     val events =
         listOf(
             FeedEvent(
