@@ -181,11 +181,9 @@ class RemoteMeRepository(
 class RemoteIntegrationRepository(
     private val api: BulletFeedApi,
 ) : IntegrationRepository {
-    override suspend fun getGithubConnectionState(): GithubConnection =
-        api.getGithubConnection().toDomain()
+    override suspend fun getGithubConnectionState(): GithubConnection = api.getGithubConnection().toDomain()
 
-    override suspend fun startGithubAuthorization(): GithubAuthorization =
-        api.authorizeGithub().toDomain()
+    override suspend fun startGithubAuthorization(): GithubAuthorization = api.authorizeGithub().toDomain()
 
     override suspend fun listGithubRepositories(query: String): List<GithubRepositoryChoice> =
         api.listGithubRepositories(query).items.map { it.toDomain() }
@@ -202,11 +200,9 @@ class RemoteIntegrationRepository(
         api.disconnectGithub()
     }
 
-    override suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert> =
-        api.getSecurityAlerts().items.map { it.toDomain() }
+    override suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert> = api.getSecurityAlerts().items.map { it.toDomain() }
 
-    override suspend fun getVulnerabilityAlert(alertId: String): VulnerabilityAlert =
-        api.getSecurityAlert(alertId).toDomain()
+    override suspend fun getVulnerabilityAlert(alertId: String): VulnerabilityAlert = api.getSecurityAlert(alertId).toDomain()
 
     override suspend fun updateVulnerabilityStatus(
         alertId: String,
@@ -214,12 +210,9 @@ class RemoteIntegrationRepository(
     ): VulnerabilityAlert =
         api.patchSecurityAlert(alertId, SecurityAlertPatchDto(status.name.lowercase())).toDomain()
 
-    override suspend fun getNotifications(): List<AppNotification> =
-        api.getNotifications().items.map { it.toDomain() }
+    override suspend fun getNotifications(): List<AppNotification> = api.getNotifications().items.map { it.toDomain() }
 
-    override suspend fun markNotificationRead(notificationId: String): AppNotification =
-        api.patchNotification(notificationId, NotificationReadDto(true)).toDomain()
+    override suspend fun markNotificationRead(notificationId: String): AppNotification = api.patchNotification(notificationId, NotificationReadDto(true)).toDomain()
 
-    override suspend fun markAllNotificationsRead(): List<AppNotification> =
-        api.readAllNotifications().let { getNotifications() }
+    override suspend fun markAllNotificationsRead(): List<AppNotification> = api.readAllNotifications().let { getNotifications() }
 }
