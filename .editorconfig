@@ -12,3 +12,4 @@ ktlint_standard_function-naming = disabled
 ktlint_standard_max-line-length = disabled
 ktlint_standard_function-signature = disabled
 ktlint_standard_indent = disabled
+ktlint_standard_string-template-indent = disabled
