@@ -1,5 +1,6 @@
 package com.bulletfeed.app
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,7 @@ data class BulletFeedUiState(
     val onboardingCompleted: Boolean = true,
     val profile: UserProfile = UserProfile("", emptySet(), ""),
     val topics: List<String> = emptyList(),
+    val pendingGithubAuthUrl: String? = null,
     val isSavingOnboarding: Boolean = false,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
@@ -43,6 +45,7 @@ class BulletFeedViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             runCatching {
+                repository.initialize()
                 val events = async { repository.getFeedEvents() }
                 val alerts = async { repository.getVulnerabilityAlerts() }
                 val notifications = async { repository.getNotifications() }
@@ -76,7 +79,13 @@ class BulletFeedViewModel(
         eventId: String,
         feedback: Feedback,
     ) = launchUpdate {
-        val updated = repository.updateEventFeedback(eventId, feedback)
+        val current = _uiState.value.events.firstOrNull { it.id == eventId }
+        val updated =
+            if (feedback == Feedback.READ && current != null) {
+                repository.markFeedItemRead(current.feedItemId)
+            } else {
+                repository.updateEventFeedback(eventId, feedback)
+            }
         _uiState.update { state ->
             state.copy(events = state.events.replaceById(updated.id, updated) { it.id })
         }
@@ -119,8 +128,23 @@ class BulletFeedViewModel(
 
     fun connectGithub() =
         launchUpdate {
-            val connected = repository.setGithubConnected(true)
-            _uiState.update { it.copy(githubConnected = connected) }
+            val auth = repository.startGithubAuthorization()
+            _uiState.update { it.copy(pendingGithubAuthUrl = auth.authorizationUrl) }
+        }
+
+    fun clearPendingAuthUrl() {
+        _uiState.update { it.copy(pendingGithubAuthUrl = null) }
+    }
+
+    fun importFromPublicRepo(fullName: String) =
+        launchUpdate {
+            val added = repository.importFromPublicRepo(fullName)
+            _uiState.update { state ->
+                state.copy(
+                    topics = (state.topics + added).distinct(),
+                    githubConnected = true,
+                )
+            }
         }
 
     fun completeOnboarding(
@@ -181,15 +205,17 @@ class BulletFeedViewModel(
         }
     }
 
-    companion object {
-        val Factory: ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    require(modelClass.isAssignableFrom(BulletFeedViewModel::class.java))
-                    @Suppress("UNCHECKED_CAST")
-                    return BulletFeedViewModel(MockBulletFeedRepository()) as T
-                }
-            }
+    class Factory(
+        private val context: Context,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass.isAssignableFrom(BulletFeedViewModel::class.java))
+            val (api, sessionManager) = BulletFeedApiFactory.create(context)
+            return BulletFeedViewModel(
+                RemoteBulletFeedRepository(api, sessionManager),
+            ) as T
+        }
     }
 }
 

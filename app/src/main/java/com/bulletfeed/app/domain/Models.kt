@@ -62,6 +62,7 @@ data class FeedEvent(
     val dismissed: Boolean = false,
     val following: Boolean = false,
     val markedImportant: Boolean = false,
+    val feedItemId: String = id,
 )
 
 data class Source(

@@ -1,5 +1,7 @@
 package com.bulletfeed.app
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,14 +48,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory)) {
+fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory(LocalContext.current))) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var tab by remember { mutableStateOf(AppTab.FEED) }
     var filter by remember { mutableStateOf(FeedFilter.ALL) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
     var selectedVulnerabilityId by remember { mutableStateOf<String?>(null) }
     var notificationsOpen by remember { mutableStateOf(false) }
     var githubSetupOpen by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.pendingGithubAuthUrl) {
+        uiState.pendingGithubAuthUrl?.let { url ->
+            runCatching {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }
+            viewModel.clearPendingAuthUrl()
+        }
+    }
 
     MaterialTheme(colorScheme = bulletFeedColorScheme()) {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -96,6 +110,7 @@ fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFee
                             onNotificationRead = viewModel::markNotificationRead,
                             onAllNotificationsRead = viewModel::markAllNotificationsRead,
                             onGithubConnect = viewModel::connectGithub,
+                            onImportFromPublicRepo = viewModel::importFromPublicRepo,
                             onAddTopic = viewModel::addTopic,
                             onRemoveTopic = viewModel::removeTopic,
                         )
@@ -129,6 +144,7 @@ private fun BulletFeedContent(
     onNotificationRead: (String) -> Unit,
     onAllNotificationsRead: () -> Unit,
     onGithubConnect: () -> Unit,
+    onImportFromPublicRepo: (String) -> Unit,
     onAddTopic: (String) -> Unit,
     onRemoveTopic: (String) -> Unit,
 ) {
@@ -167,6 +183,7 @@ private fun BulletFeedContent(
                 connected = uiState.githubConnected,
                 onBack = { onGithubSetupOpenChange(false) },
                 onConnect = onGithubConnect,
+                onImportRepo = onImportFromPublicRepo,
             )
         else ->
             MainNavigation(

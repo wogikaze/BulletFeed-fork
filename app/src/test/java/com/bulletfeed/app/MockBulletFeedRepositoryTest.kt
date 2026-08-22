@@ -38,6 +38,17 @@ class MockBulletFeedRepositoryTest {
         }
 
     @Test
+    fun markFeedItemReadUpdatesStatus() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+
+            val updated = repository.markFeedItemRead("fi_workers-runtime")
+
+            assertTrue(updated.read)
+            assertEquals("fi_workers-runtime", updated.feedItemId)
+        }
+
+    @Test
     fun onboardingPersistsProfileTopicsAndGithubChoice() =
         runTest {
             val repository = MockBulletFeedRepository()

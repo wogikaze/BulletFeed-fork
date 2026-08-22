@@ -16,6 +16,7 @@ def test_oauth_flow_and_session_lifecycle(tmp_path: Path) -> None:
     poll_token = secrets.token_urlsafe(32)
     database.create_oauth_flow(
         flow_id="flow-1",
+        user_id=None,
         state=state,
         poll_token=poll_token,
         encrypted_verifier=cipher.encrypt("verifier"),
@@ -29,6 +30,7 @@ def test_oauth_flow_and_session_lifecycle(tmp_path: Path) -> None:
     app_token = secrets.token_urlsafe(48)
     database.complete_oauth_flow(
         flow_id="flow-1",
+        user_id=None,
         github_user={"id": 123, "login": "octocat", "avatar_url": "https://example.com/avatar"},
         encrypted_github_token=cipher.encrypt("github-token-example"),
         github_token_expires_at=int(time.time()) + 3600,
