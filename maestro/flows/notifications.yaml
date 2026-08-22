@@ -1,0 +1,12 @@
+appId: com.bulletfeed.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "次へ"
+- tapOn: "次へ"
+- tapOn: "BulletFeedを始める"
+- tapOn: "通知を開く"
+- assertVisible: "通知"
+- assertVisible: "確認していない変化が 2 件あります"
+- tapOn: "すべて既読"
+- assertVisible: "すべて確認済みです"
