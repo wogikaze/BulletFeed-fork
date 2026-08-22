@@ -9,8 +9,8 @@ from fastapi.responses import HTMLResponse
 
 from app.config import Settings, get_settings
 from app.database import Database
-from app.dependencies import get_cipher, get_database, require_session
-from app.models import AuthorizationStart, AuthorizationStatus, GitHubProfile, GitHubRepository
+from app.dependencies import get_cipher, get_database
+from app.models import AuthorizationStart, AuthorizationStatus
 from app.security import TokenCipher, create_pkce_pair
 from app.services import github
 
@@ -129,31 +129,4 @@ def github_authorization_status(
     return AuthorizationStatus(**result)
 
 
-@router.get("/me/github", response_model=GitHubProfile)
-def github_profile(session: Annotated[dict, Depends(require_session)]) -> GitHubProfile:
-    return GitHubProfile(
-        id=session["github_user_id"],
-        login=session["login"],
-        avatar_url=session["avatar_url"],
-    )
 
-
-@router.get("/me/github/repositories", response_model=list[GitHubRepository])
-async def github_repositories(
-    settings: Annotated[Settings, Depends(get_settings)],
-    session: Annotated[dict, Depends(require_session)],
-) -> list[GitHubRepository]:
-    repositories = await github.list_repositories(settings, session["github_token"])
-    return [
-        GitHubRepository(
-            id=item["id"],
-            full_name=item["full_name"],
-            private=item["private"],
-            html_url=item["html_url"],
-            description=item.get("description"),
-            language=item.get("language"),
-            updated_at=item["updated_at"],
-        )
-        for item in repositories
-        if all(key in item for key in ("id", "full_name", "private", "html_url", "updated_at"))
-    ]

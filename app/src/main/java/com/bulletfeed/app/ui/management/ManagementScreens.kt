@@ -120,7 +120,9 @@ fun GithubConnectionScreen(
     connected: Boolean,
     onBack: () -> Unit,
     onConnect: () -> Unit,
+    onImportRepo: (String) -> Unit,
 ) {
+    var repoInput by rememberSaveable { mutableStateOf("") }
     var selectedRepositories by remember { mutableStateOf(setOf("bulletfeed-app", "worker-api")) }
     val repositories =
         listOf(
@@ -175,6 +177,33 @@ fun GithubConnectionScreen(
                         color = Color(0xFF655F69),
                         modifier = Modifier.padding(top = 10.dp),
                     )
+                    Spacer(Modifier.height(24.dp))
+                    Text(
+                        "または、public repoを指定して技術を取り込む",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = repoInput,
+                        onValueChange = { repoInput = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("owner/repo") },
+                        singleLine = true,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            if (repoInput.isNotBlank()) {
+                                onImportRepo(repoInput)
+                                repoInput = ""
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = repoInput.isNotBlank(),
+                    ) {
+                        Text("技術・ライブラリを取り込む")
+                    }
                 }
             } else {
                 item {

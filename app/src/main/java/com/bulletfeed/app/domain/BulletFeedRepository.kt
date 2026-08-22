@@ -5,6 +5,8 @@ interface BulletFeedRepository :
     EventRepository,
     MeRepository,
     IntegrationRepository {
+    suspend fun initialize()
+
     suspend fun getFeedEvents(): List<FeedEvent>
 
     suspend fun getGithubConnection(): Boolean
@@ -19,4 +21,6 @@ interface BulletFeedRepository :
     ): FeedEvent
 
     suspend fun setGithubConnected(connected: Boolean): Boolean
+
+    suspend fun importFromPublicRepo(fullName: String): List<String>
 }

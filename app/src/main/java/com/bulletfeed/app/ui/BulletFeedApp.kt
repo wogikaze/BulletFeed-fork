@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory)) {
+fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory(LocalContext.current))) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var tab by remember { mutableStateOf(AppTab.FEED) }
     var filter by remember { mutableStateOf(FeedFilter.ALL) }
@@ -96,6 +97,7 @@ fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFee
                             onNotificationRead = viewModel::markNotificationRead,
                             onAllNotificationsRead = viewModel::markAllNotificationsRead,
                             onGithubConnect = viewModel::connectGithub,
+                            onImportFromPublicRepo = viewModel::importFromPublicRepo,
                             onAddTopic = viewModel::addTopic,
                             onRemoveTopic = viewModel::removeTopic,
                         )
@@ -129,6 +131,7 @@ private fun BulletFeedContent(
     onNotificationRead: (String) -> Unit,
     onAllNotificationsRead: () -> Unit,
     onGithubConnect: () -> Unit,
+    onImportFromPublicRepo: (String) -> Unit,
     onAddTopic: (String) -> Unit,
     onRemoveTopic: (String) -> Unit,
 ) {
@@ -167,6 +170,7 @@ private fun BulletFeedContent(
                 connected = uiState.githubConnected,
                 onBack = { onGithubSetupOpenChange(false) },
                 onConnect = onGithubConnect,
+                onImportRepo = onImportFromPublicRepo,
             )
         else ->
             MainNavigation(

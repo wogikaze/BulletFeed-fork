@@ -80,3 +80,41 @@ async def list_releases(
             status_code=status.HTTP_502_BAD_GATEWAY, detail="GitHub returned invalid releases"
         )
     return data
+
+
+async def get_repository_languages(
+    settings: Settings,
+    owner: str,
+    repository: str,
+    token: str | None = None,
+) -> dict[str, int]:
+    async with httpx.AsyncClient(timeout=settings.request_timeout_seconds, trust_env=False) as client:
+        response = await client.get(
+            f"{API_URL}/repos/{owner}/{repository}/languages",
+            headers=_headers(token),
+        )
+    data = await require_json(response, "GitHub API")
+    if not isinstance(data, dict):
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail="GitHub returned invalid languages"
+        )
+    return {str(k): int(v) for k, v in data.items() if isinstance(v, (int, float))}
+
+
+async def get_repository_topics(
+    settings: Settings,
+    owner: str,
+    repository: str,
+    token: str | None = None,
+) -> list[str]:
+    async with httpx.AsyncClient(timeout=settings.request_timeout_seconds, trust_env=False) as client:
+        response = await client.get(
+            f"{API_URL}/repos/{owner}/{repository}/topics",
+            headers=_headers(token),
+        )
+    data = await require_json(response, "GitHub API")
+    if not isinstance(data, dict) or not isinstance(data.get("names"), list):
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail="GitHub returned invalid topics"
+        )
+    return [str(name) for name in data["names"] if isinstance(name, str)]

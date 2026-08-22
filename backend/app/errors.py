@@ -16,7 +16,7 @@ _STATUS_CODES = {
 
 
 def unprocessable(message: str) -> HTTPException:
-    return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message)
+    return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=message)
 
 
 def not_found(message: str) -> HTTPException:

@@ -9,6 +9,8 @@ from app.routers.auth import start_github_authorization
 from app.schemas.integrations import (
     GithubAuthorizeResponse,
     GithubConnection,
+    GithubImportResult,
+    GithubRepoImportRequest,
     GithubRepositoryPage,
     GithubRepositoryUpdate,
     NotificationItem,
@@ -72,6 +74,16 @@ def update_github_repositories(
     store: Annotated[IntegrationStore, Depends(_store)],
 ) -> GithubConnection:
     return store.update_repositories(user["user_id"], body.repository_ids)
+
+
+@router.post("/me/integrations/github/import", response_model=GithubImportResult)
+async def import_github_repository_keywords(
+    body: GithubRepoImportRequest,
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[IntegrationStore, Depends(_store)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> GithubImportResult:
+    return await store.import_repository_keywords(user["user_id"], body.full_name, settings)
 
 
 @router.delete("/me/integrations/github", status_code=status.HTTP_204_NO_CONTENT)

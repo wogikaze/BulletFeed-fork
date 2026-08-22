@@ -105,30 +105,30 @@ class FeedStore:
                     (user_id,),
                 )
             }
-            fetched = connection.execute(
-                """
+
+            sql = """
                 SELECT f.*, d.type AS delta_type, d.summary AS delta_summary,
                        d.before_text, d.after_text, d.occurred_at
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
                 WHERE f.user_id = ? AND f.dismissed = 0
-                ORDER BY f.updated_at DESC, f.id DESC
-                """,
-                (user_id,),
-            ).fetchall()
-            rows = []
-            for row in fetched:
-                if relation and row["relation_level"] != relation:
-                    continue
-                if item_status and row["status"] != item_status:
-                    continue
-                if cursor_updated_at and cursor_id:
-                    older = row["updated_at"] < cursor_updated_at
-                    same_page = row["updated_at"] == cursor_updated_at and row["id"] < cursor_id
-                    if not (older or same_page):
-                        continue
-                rows.append(row)
+            """
+            params: list[object] = [user_id]
+            if relation is not None:
+                sql += " AND f.relation_level = ?"
+                params.append(relation)
+            if item_status is not None:
+                sql += " AND f.status = ?"
+                params.append(item_status)
+            if cursor_updated_at is not None and cursor_id is not None:
+                sql += " AND (f.updated_at < ? OR (f.updated_at = ? AND f.id < ?))"
+                params.extend([cursor_updated_at, cursor_updated_at, cursor_id])
+            sql += " ORDER BY f.updated_at DESC, f.id DESC LIMIT ?"
+            params.append(limit + 1)
+
+            rows = list(connection.execute(sql, params).fetchall())
             page_rows = rows[:limit]
+
             items: list[PublicFeedItem] = []
             created_at = _now_iso()
             for row in page_rows:
@@ -138,8 +138,9 @@ class FeedStore:
                     (delivery_id, row["id"], user_id, created_at),
                 )
                 items.append(_row_to_item(row, delivery_id, follows.get(row["event_id"], False)))
+
             next_cursor = None
-            if len(rows) > limit:
+            if len(rows) > limit and page_rows:
                 last = page_rows[-1]
                 next_cursor = _encode_cursor(last["updated_at"], last["id"])
             return items, next_cursor
@@ -159,9 +160,12 @@ class FeedStore:
         return {"feed_item_id": feed_item_id, "status": "read"}
 
     def save_feedback(self, user_id: str, feed_item_id: str, feedback_type: str) -> dict:
+        if feedback_type not in {"important", "not_relevant"}:
+            raise unprocessable("feedback type is invalid")
+        now = int(datetime.now().timestamp())
         with self._database.connect() as connection:
             row = connection.execute(
-                "SELECT id FROM feed_items WHERE id = ? AND user_id = ?",
+                "SELECT id, status FROM feed_items WHERE id = ? AND user_id = ?",
                 (feed_item_id, user_id),
             ).fetchone()
             if row is None:
@@ -173,7 +177,7 @@ class FeedStore:
                     feed_item_id,
                     user_id,
                     feedback_type,
-                    int(datetime.now().timestamp()),
+                    now,
                 ),
             )
             if feedback_type == "not_relevant":
@@ -186,14 +190,11 @@ class FeedStore:
                     "UPDATE feed_items SET marked_important = 1 WHERE id = ? AND user_id = ?",
                     (feed_item_id, user_id),
                 )
-        item_status = "read" if feedback_type == "not_relevant" else "unread"
-        with self._database.connect() as connection:
             current = connection.execute(
                 "SELECT status FROM feed_items WHERE id = ?",
                 (feed_item_id,),
             ).fetchone()
-            if current is not None:
-                item_status = current["status"]
+            item_status = current["status"] if current is not None else row["status"]
         return {"feed_item_id": feed_item_id, "type": feedback_type, "status": item_status}
 
     def record_exposures(self, user_id: str, items: list[dict[str, str]]) -> int:

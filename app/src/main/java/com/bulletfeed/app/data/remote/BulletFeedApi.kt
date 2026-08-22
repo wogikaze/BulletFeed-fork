@@ -1,5 +1,6 @@
 package com.bulletfeed.app
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -25,13 +26,13 @@ interface BulletFeedApi {
     @PUT("v1/feed/items/{feedItemId}/read")
     suspend fun markFeedItemRead(
         @Path("feedItemId") feedItemId: String,
-    ): StatusDto
+    ): ReadResponseDto
 
     @POST("v1/feed/items/{feedItemId}/feedback")
     suspend fun sendFeedFeedback(
         @Path("feedItemId") feedItemId: String,
         @Body body: FeedbackDto,
-    ): StatusDto
+    ): FeedFeedbackResponseDto
 
     @POST("v1/feed/exposures")
     suspend fun recordExposures(
@@ -111,6 +112,11 @@ interface BulletFeedApi {
     @DELETE("v1/me/integrations/github")
     suspend fun disconnectGithub()
 
+    @POST("v1/me/integrations/github/import")
+    suspend fun importRepositoryKeywords(
+        @Body body: GithubRepoImportDto,
+    ): GithubImportResultDto
+
     @GET("v1/me/security/alerts")
     suspend fun getSecurityAlerts(
         @Query("status") status: String? = null,
@@ -153,7 +159,10 @@ data class FeedPageDto(
 data class FeedItemDto(
     val id: String,
     val eventId: String,
+    val delta: FeedDeltaDto,
     val title: String,
+    val importance: ImportanceDto,
+    val relation: RelationDto,
     val status: String,
     val following: Boolean,
     val updatedAt: String,
@@ -161,10 +170,53 @@ data class FeedItemDto(
 )
 
 @Serializable
-data class StatusDto(
-    val feedItemId: String? = null,
-    val status: String? = null,
-    val type: String? = null,
+data class FeedDeltaDto(
+    val id: String,
+    val type: String,
+    val summary: String,
+    val before: String,
+    val after: String,
+    val occurredAt: String,
+)
+
+@Serializable
+data class ImportanceDto(
+    val level: String,
+    val reason: String,
+    val confidence: String,
+)
+
+@Serializable
+data class RelationDto(
+    val level: String,
+    val reason: String,
+    val matchedTopics: List<String>,
+    val matchedRepositories: List<MatchedRepositoryDto>,
+)
+
+@Serializable
+data class MatchedRepositoryDto(
+    val id: String,
+    val name: String,
+    val url: String,
+)
+
+@Serializable
+data class FeedFeedbackRequestDto(
+    val type: String,
+)
+
+@Serializable
+data class FeedFeedbackResponseDto(
+    val feedItemId: String,
+    val type: String,
+    val status: String,
+)
+
+@Serializable
+data class ReadResponseDto(
+    val feedItemId: String,
+    val status: String,
 )
 
 @Serializable
@@ -193,18 +245,62 @@ data class EventDetailDto(
     val id: String,
     val title: String,
     val summary: String,
+    val currentState: CurrentStateDto,
+    val latestDelta: FeedDeltaDto,
+    val openedDelta: FeedDeltaDto? = null,
+    val timeline: List<EventTimelineEntryDto>,
+    val impacts: List<EventImpactDto>,
+    val sources: List<EventSourceDto>,
     val following: Boolean,
 )
 
 @Serializable
+data class CurrentStateDto(
+    val phase: String,
+    val summary: String,
+    val since: String,
+    val confidence: String,
+)
+
+@Serializable
+data class EventTimelineEntryDto(
+    val id: String,
+    val type: String,
+    val occurredAt: String,
+    val title: String,
+    val description: String,
+    val deltaId: String? = null,
+    val state: Map<String, String>? = null,
+)
+
+@Serializable
+data class EventImpactDto(
+    val kind: String,
+    val text: String,
+    val confidence: String,
+)
+
+@Serializable
+data class EventSourceDto(
+    val publisher: String,
+    val kind: String,
+    val title: String,
+    val url: String,
+    val publishedAt: String,
+    val retrievedAt: String,
+    val evidence: String,
+)
+
+@Serializable
 data class FollowingDto(
-    val following: Boolean,
     val eventId: String? = null,
+    val following: Boolean,
 )
 
 @Serializable
 data class MeDto(
     val onboardingCompleted: Boolean,
+    val profile: ProfileDto,
     val topicCount: Int,
     val githubConnected: Boolean,
 )
@@ -228,6 +324,7 @@ data class TopicDto(
     val type: String,
     val priority: String,
     val order: Int,
+    val createdAt: String,
 )
 
 @Serializable
@@ -252,6 +349,13 @@ data class OnboardingDto(
 @Serializable
 data class OnboardingResultDto(
     val completed: Boolean,
+    val githubAuthorization: GithubAuthorizationDto? = null,
+)
+
+@Serializable
+data class GithubAuthorizationDto(
+    val required: Boolean,
+    val authorizationUrl: String? = null,
 )
 
 @Serializable
@@ -279,12 +383,28 @@ data class GithubRepositoryDto(
     val id: String,
     val fullName: String,
     val htmlUrl: String,
+    val private: Boolean,
+    val description: String? = null,
+    val language: String? = null,
     val selected: Boolean,
+    val updatedAt: String,
 )
 
 @Serializable
 data class GithubRepositoryUpdateDto(
     val repositoryIds: List<String>,
+)
+
+@Serializable
+data class GithubRepoImportDto(
+    val fullName: String,
+)
+
+@Serializable
+data class GithubImportResultDto(
+    val fullName: String,
+    val keywords: List<String>,
+    val addedTopics: List<String>,
 )
 
 @Serializable
@@ -295,8 +415,34 @@ data class SecurityAlertListDto(
 @Serializable
 data class SecurityAlertDto(
     val id: String,
+    val advisoryId: String,
+    val cve: String? = null,
     val title: String,
+    val summary: String,
+    val severity: String,
     val status: String,
+    val repository: SecurityAlertRepositoryDto,
+    @SerialName("package")
+    val packageInfo: SecurityAlertPackageDto,
+    val source: String,
+    val detectedAt: String,
+    val evidence: String,
+    val recommendation: String,
+    val cvssScore: Double? = null,
+)
+
+@Serializable
+data class SecurityAlertRepositoryDto(
+    val id: String,
+    val fullName: String,
+)
+
+@Serializable
+data class SecurityAlertPackageDto(
+    val name: String,
+    val currentVersion: String,
+    val fixedVersion: String,
+    val dependencyType: String,
 )
 
 @Serializable
@@ -313,7 +459,18 @@ data class NotificationListDto(
 data class NotificationDto(
     val id: String,
     val title: String,
+    val summary: String,
+    val category: String,
+    val priority: String,
+    val occurredAt: String,
     val read: Boolean,
+    val target: NotificationTargetDto,
+)
+
+@Serializable
+data class NotificationTargetDto(
+    val type: String,
+    val id: String,
 )
 
 @Serializable
@@ -324,4 +481,10 @@ data class NotificationReadDto(
 @Serializable
 data class NotificationReadAllDto(
     val updatedCount: Int,
+)
+
+@Serializable
+data class SessionResponseDto(
+    val accessToken: String,
+    val userId: String,
 )

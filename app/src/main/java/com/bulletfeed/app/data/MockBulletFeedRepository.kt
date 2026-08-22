@@ -13,6 +13,8 @@ class MockBulletFeedRepository(
     EventRepository by eventStore,
     MeRepository by meStore,
     IntegrationRepository by integrationStore {
+    override suspend fun initialize() {}
+
     override suspend fun getFeedEvents(): List<FeedEvent> {
         simulateNetworkDelay()
         return feedStore.getFeedEvents()

@@ -35,6 +35,33 @@ class GithubRepositoryUpdate(ApiModel):
     repository_ids: list[str]
 
 
+class GithubRepoImportRequest(ApiModel):
+    full_name: str
+
+
+class GithubImportedTopic(ApiModel):
+    name: str
+    type: str = "technology"
+
+
+class GithubImportResult(ApiModel):
+    full_name: str
+    keywords: list[str]
+    added_topics: list[str]
+
+
+class SecurityAlertRepository(ApiModel):
+    id: str
+    full_name: str
+
+
+class SecurityAlertPackage(ApiModel):
+    name: str
+    current_version: str
+    fixed_version: str
+    dependency_type: str
+
+
 class SecurityAlert(ApiModel):
     id: str
     advisory_id: str
@@ -43,8 +70,8 @@ class SecurityAlert(ApiModel):
     summary: str
     severity: Literal["critical", "high", "medium", "low"]
     status: Literal["open", "in_progress", "resolved", "not_affected"]
-    repository: dict[str, str]
-    package: dict[str, str]
+    repository: SecurityAlertRepository
+    package: SecurityAlertPackage
     source: str
     detected_at: str
     evidence: str
@@ -60,6 +87,11 @@ class SecurityAlertPatch(ApiModel):
     status: Literal["open", "in_progress", "resolved", "not_affected"]
 
 
+class NotificationTarget(ApiModel):
+    type: str
+    id: str
+
+
 class NotificationItem(ApiModel):
     id: str
     title: str
@@ -68,7 +100,7 @@ class NotificationItem(ApiModel):
     priority: Literal["urgent", "high", "normal"]
     occurred_at: str
     read: bool
-    target: dict[str, str]
+    target: NotificationTarget
 
 
 class NotificationList(ApiModel):

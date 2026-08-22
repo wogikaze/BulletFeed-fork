@@ -8,7 +8,7 @@ from app.config import get_settings
 from app.database import Database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 from app.models import HealthResponse
-from app.routers import auth, events, feed, integrations, me, sessions, sources
+from app.routers import auth, events, feed, integrations, me, sessions
 
 
 @asynccontextmanager
@@ -44,7 +44,6 @@ app.include_router(events.router)
 app.include_router(me.router)
 app.include_router(integrations.router)
 app.include_router(auth.router)
-app.include_router(sources.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["system"])

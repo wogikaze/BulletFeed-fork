@@ -65,6 +65,8 @@ interface IntegrationRepository {
 
     suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubConnection
 
+    suspend fun importFromPublicRepo(fullName: String): List<String>
+
     suspend fun disconnectGithub()
 
     suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert>

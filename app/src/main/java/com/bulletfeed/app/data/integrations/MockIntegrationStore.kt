@@ -61,6 +61,16 @@ class MockIntegrationStore(
         return state.notifications.toList()
     }
 
+    override suspend fun importFromPublicRepo(fullName: String): List<String> {
+        if (BulletFeedApiClient.token == null) {
+            BulletFeedApiClient.createSession()
+        }
+        val result = BulletFeedApiClient.api.importGithubRepositoryKeywords(
+            GithubImportRequestDto(fullName.trim()),
+        )
+        return result.addedTopics
+    }
+
     fun setGithubConnected(connected: Boolean): Boolean {
         state.github = state.github.copy(connected = connected, accountLogin = if (connected) "niyu" else null)
         return state.github.connected
