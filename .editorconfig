@@ -14,4 +14,4 @@ ktlint_standard_function-signature = disabled
 ktlint_standard_indent = disabled
 ktlint_standard_string-template-indent = disabled
 ktlint_standard_multiline-expression-wrapping = disabled
-ktlint_standard_chain-continuation = disabled
+ktlint_standard_chain-method-continuation = disabled
