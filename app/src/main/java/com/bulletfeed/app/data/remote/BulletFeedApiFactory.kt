@@ -8,6 +8,7 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 object BulletFeedApiFactory {
     private val json = Json {
@@ -19,6 +20,8 @@ object BulletFeedApiFactory {
         val sessionManager = SessionManager(context)
         val baseUrl = resolveBaseUrl()
         val client = OkHttpClient.Builder()
+            .connectTimeout(8, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
             .addInterceptor(authInterceptor(sessionManager))
             .build()
         val api = Retrofit.Builder()

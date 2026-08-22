@@ -87,6 +87,11 @@ fun SearchScreen(
     }
 }
 
+internal fun searchResultMeta(event: FeedEvent): String =
+    event.sources.firstOrNull()?.publisher
+        ?.let { "${event.announcedAt}  ·  $it" }
+        ?: event.announcedAt
+
 @Composable
 private fun SearchResultCard(
     event: FeedEvent,
@@ -112,9 +117,7 @@ private fun SearchResultCard(
             color = Color(0xFF49454F),
         )
         Text(
-            event.sources.firstOrNull()?.publisher
-                ?.let { "${event.announcedAt}  ·  $it" }
-                ?: event.announcedAt,
+            searchResultMeta(event),
             modifier = Modifier.padding(top = 10.dp),
             color = Color(0xFF655F69),
             style = MaterialTheme.typography.labelMedium,
