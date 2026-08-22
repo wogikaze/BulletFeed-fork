@@ -3,7 +3,9 @@ package com.bulletfeed.app
 import android.content.Context
 import androidx.core.content.edit
 
-class SessionManager(context: Context) {
+class SessionManager(
+    context: Context,
+) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     var accessToken: String?

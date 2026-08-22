@@ -3,7 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     created_at INTEGER NOT NULL,
     onboarding_completed INTEGER NOT NULL DEFAULT 0,
-    github_connected INTEGER NOT NULL DEFAULT 0
+    github_connected INTEGER NOT NULL DEFAULT 0,
+    github_user_id INTEGER,
+    github_login TEXT
 );
 
 CREATE TABLE IF NOT EXISTS user_sessions (

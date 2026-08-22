@@ -34,6 +34,7 @@ class Database:
                     state_hash TEXT NOT NULL UNIQUE,
                     poll_token_hash TEXT NOT NULL,
                     pkce_verifier_encrypted TEXT NOT NULL,
+                    user_id TEXT,
                     status TEXT NOT NULL,
                     detail TEXT,
                     github_login TEXT,
@@ -60,11 +61,21 @@ class Database:
                 );
                 """
             )
+            for column, table in [
+                ("github_user_id INTEGER", "users"),
+                ("github_login TEXT", "users"),
+                ("user_id TEXT", "oauth_flows"),
+            ]:
+                try:
+                    connection.execute(f"ALTER TABLE {table} ADD COLUMN {column}")
+                except sqlite3.OperationalError:
+                    pass
 
     def create_oauth_flow(
         self,
         *,
         flow_id: str,
+        user_id: str | None,
         state: str,
         poll_token: str,
         encrypted_verifier: str,
@@ -76,10 +87,10 @@ class Database:
                 """
                 INSERT INTO oauth_flows (
                     flow_id, state_hash, poll_token_hash, pkce_verifier_encrypted,
-                    status, expires_at, created_at
-                ) VALUES (?, ?, ?, ?, 'pending', ?, ?)
+                    user_id, status, expires_at, created_at
+                ) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
                 """,
-                (flow_id, token_hash(state), token_hash(poll_token), encrypted_verifier, expires_at, now),
+                (flow_id, token_hash(state), token_hash(poll_token), encrypted_verifier, user_id, expires_at, now),
             )
 
     def claim_oauth_flow(self, state: str) -> sqlite3.Row | None:
@@ -111,6 +122,7 @@ class Database:
         self,
         *,
         flow_id: str,
+        user_id: str | None,
         github_user: dict[str, Any],
         encrypted_github_token: str,
         github_token_expires_at: int | None,
@@ -157,6 +169,15 @@ class Database:
                 """,
                 (github_user["login"], encrypted_app_access_token, flow_id),
             )
+            if user_id:
+                connection.execute(
+                    """
+                    UPDATE users
+                    SET github_connected = 1, github_user_id = ?, github_login = ?
+                    WHERE id = ?
+                    """,
+                    (github_user["id"], github_user["login"], user_id),
+                )
 
     def get_oauth_status(self, flow_id: str, poll_token: str, cipher: TokenCipher) -> dict[str, Any] | None:
         with self._connect() as connection:

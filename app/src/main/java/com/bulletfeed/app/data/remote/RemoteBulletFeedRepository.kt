@@ -19,8 +19,7 @@ class RemoteBulletFeedRepository(
     override suspend fun getFeedEvents(): List<FeedEvent> =
         getFeedItems().map { it.toFeedEvent() }
 
-    override suspend fun getGithubConnection(): Boolean =
-        getGithubConnectionState().connected
+    override suspend fun getGithubConnection(): Boolean = getGithubConnectionState().connected
 
     override suspend fun getOnboardingSnapshot(): OnboardingSnapshot {
         val me = getMe()
@@ -64,7 +63,9 @@ class RemoteBulletFeedRepository(
     }
 }
 
-class RemoteFeedRepository(private val api: BulletFeedApi) : FeedRepository {
+class RemoteFeedRepository(
+    private val api: BulletFeedApi,
+) : FeedRepository {
     override suspend fun getFeedItems(): List<FeedItem> =
         api.getFeed().items.map { it.toDomain() }
 
@@ -86,7 +87,8 @@ class RemoteFeedRepository(private val api: BulletFeedApi) : FeedRepository {
             ?: error("Feed item ${response.feedItemId} not found")
         val updated = when (type) {
             FeedFeedbackType.IMPORTANT -> item.copy(markedImportant = true)
-            FeedFeedbackType.NOT_RELEVANT -> item.copy(status = FeedItemStatus.READ, dismissed = true)
+            FeedFeedbackType.NOT_RELEVANT ->
+                item.copy(status = FeedItemStatus.READ, dismissed = true)
         }
         return updated.toFeedEvent()
     }
@@ -100,7 +102,9 @@ class RemoteFeedRepository(private val api: BulletFeedApi) : FeedRepository {
     }
 }
 
-class RemoteEventRepository(private val api: BulletFeedApi) : EventRepository {
+class RemoteEventRepository(
+    private val api: BulletFeedApi,
+) : EventRepository {
     override suspend fun getEventDetail(
         eventId: String,
         fromFeedItemId: String?,
@@ -115,12 +119,12 @@ class RemoteEventRepository(private val api: BulletFeedApi) : EventRepository {
     }
 }
 
-class RemoteMeRepository(private val api: BulletFeedApi) : MeRepository {
-    override suspend fun getMe(): MeBootstrap =
-        api.getMe().toDomain()
+class RemoteMeRepository(
+    private val api: BulletFeedApi,
+) : MeRepository {
+    override suspend fun getMe(): MeBootstrap = api.getMe().toDomain()
 
-    override suspend fun getProfile(): UserProfile =
-        api.getProfile().toDomain()
+    override suspend fun getProfile(): UserProfile = api.getProfile().toDomain()
 
     override suspend fun saveProfile(profile: UserProfile): UserProfile =
         api.updateProfile(profile.toDto()).toDomain()
@@ -131,7 +135,8 @@ class RemoteMeRepository(private val api: BulletFeedApi) : MeRepository {
     override suspend fun addUserTopic(
         name: String,
         type: TopicType,
-    ): UserTopic = api.addTopic(TopicCreateDto(name, type.name.lowercase())).toDomain()
+    ): UserTopic =
+        api.addTopic(TopicCreateDto(name, type.name.lowercase())).toDomain()
 
     override suspend fun removeUserTopic(topicId: String) {
         api.deleteTopic(topicId)
@@ -173,7 +178,9 @@ class RemoteMeRepository(private val api: BulletFeedApi) : MeRepository {
     }
 }
 
-class RemoteIntegrationRepository(private val api: BulletFeedApi) : IntegrationRepository {
+class RemoteIntegrationRepository(
+    private val api: BulletFeedApi,
+) : IntegrationRepository {
     override suspend fun getGithubConnectionState(): GithubConnection =
         api.getGithubConnection().toDomain()
 
