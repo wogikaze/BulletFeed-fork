@@ -261,6 +261,128 @@ Response:
 { "eventId": "evt_cloudflare_workers_20260818", "following": true }
 ```
 
+### 初回設定を完了
+
+`PUT /me/onboarding`
+
+プロフィールと追跡テーマを一度に保存し、初回設定を完了状態にする。GitHub連携を選んだ場合も、このレスポンスだけでは認可済みにせず、認可開始に必要なURLを返す。
+
+```json
+{
+  "profile": {
+    "role": "Androidエンジニア",
+    "interests": ["モバイル", "AI", "クラウド"],
+    "region": "東京"
+  },
+  "topics": ["Kotlin", "Android", "Jetpack Compose", "Cloudflare Workers", "OpenAI API"],
+  "connectGithub": true
+}
+```
+
+```json
+{
+  "completed": true,
+  "githubAuthorization": {
+    "required": true,
+    "authorizationUrl": "https://github.com/login/oauth/authorize?..."
+  }
+}
+```
+
+- `topics` は5〜20件とし、空文字・重複を拒否する
+- `role` と `interests` は必須、`region` は任意
+- GitHub認可がキャンセルされてもオンボーディング完了状態は維持する
+- 認可URLはバックエンドが生成し、OAuth state・PKCE・固定redirect URIを用いる
+
+### リポジトリに影響する脆弱性
+
+`GET /me/security/alerts`
+
+Query parameters:
+
+| 名前 | 型 | 必須 | 説明 |
+| --- | --- | --- | --- |
+| `status` | `open \| in_progress \| resolved \| not_affected` | 任意 | 対応状況で絞り込み |
+| `repositoryId` | string | 任意 | GitHubリポジトリで絞り込み |
+
+```json
+{
+  "items": [
+    {
+      "id": "alert_001",
+      "advisoryId": "GHSA-example",
+      "cve": "CVE-2026-10421",
+      "title": "認証バイパスにつながる可能性のある脆弱性",
+      "severity": "critical",
+      "status": "open",
+      "repository": { "id": "repo_123", "fullName": "niyu/example" },
+      "package": {
+        "name": "example-package",
+        "currentVersion": "1.0.0",
+        "fixedVersion": "1.0.2",
+        "dependencyType": "direct"
+      },
+      "source": "GitHub Advisory Database · OSV",
+      "detectedAt": "2026-08-20T04:10:00Z"
+    }
+  ]
+}
+```
+
+`GET /me/security/alerts/{alertId}` → 根拠文と推奨対応を含む脆弱性詳細
+
+`PATCH /me/security/alerts/{alertId}`
+
+```json
+{ "status": "in_progress" }
+```
+
+バックエンドは、指定されたalertとrepositoryが認証ユーザーに属することを毎回確認する。クライアントから渡されたIDや通知payloadだけで閲覧権限を判断しない。GitHubアクセストークンはバックエンドだけで保持し、ソースコード本文は脆弱性照合のために保存しない。
+
+### 通知一覧
+
+`GET /me/notifications`
+
+Query parameters:
+
+| 名前 | 型 | 必須 | 説明 |
+| --- | --- | --- | --- |
+| `status` | `unread \| all` | 任意 | 未読のみ、またはすべて |
+
+```json
+{
+  "items": [
+    {
+      "id": "notification_001",
+      "title": "緊急の脆弱性が見つかりました",
+      "summary": "連携リポジトリに対応が必要な脆弱性があります。",
+      "category": "security",
+      "priority": "urgent",
+      "occurredAt": "2026-08-20T04:10:00Z",
+      "read": false,
+      "target": {
+        "type": "vulnerability",
+        "id": "alert_001"
+      }
+    }
+  ]
+}
+```
+
+`PATCH /me/notifications/{notificationId}`
+
+```json
+{ "read": true }
+```
+
+`POST /me/notifications/read-all`
+
+```json
+{ "updatedCount": 2 }
+```
+
+通知のtarget IDは画面遷移のヒントとしてのみ扱う。詳細表示時は認証済みAPIから対象を再取得し、バックエンドでユーザーとの所有関係を検証する。Push通知のロック画面本文には、非公開リポジトリ名、パッケージ構成、CVEの適用状況を含めない。
+
 ## 5. エラー形式
 
 すべてのエラーは以下の形式で返す。

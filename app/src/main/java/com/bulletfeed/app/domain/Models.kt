@@ -6,9 +6,9 @@ enum class Importance(
     val label: String,
     val color: Color,
 ) {
-    CRITICAL("緊急", Color(0xFFB3261E)),
-    HIGH("重要", Color(0xFFC65D00)),
-    MEDIUM("注目", Color(0xFF365EAA)),
+    CRITICAL("緊急", Color(0xFFB42318)),
+    HIGH("重要", Color(0xFFD55A00)),
+    MEDIUM("注目", Color(0xFF9A6700)),
     LOW("参考", Color(0xFF5F6368)),
 }
 
@@ -16,8 +16,8 @@ enum class Relation(
     val label: String,
     val color: Color,
 ) {
-    DIRECT("直接影響", Color(0xFF7B3FB5)),
-    ADJACENT("近接影響", Color(0xFF1769AA)),
+    DIRECT("直接影響", Color(0xFFC62828)),
+    ADJACENT("近接影響", Color(0xFFA15C00)),
     REFERENCE("参考情報", Color(0xFF5F6368)),
 }
 
@@ -34,12 +34,12 @@ enum class FeedFilter(
 
 enum class AppTab(
     val label: String,
-    val symbol: String,
 ) {
-    FEED("フィード", "●"),
-    SEARCH("検索", "⌕"),
-    TOPICS("テーマ", "◎"),
-    SETTINGS("設定", "◌"),
+    FEED("フィード"),
+    SECURITY("セキュリティ"),
+    SEARCH("検索"),
+    TOPICS("テーマ"),
+    SETTINGS("設定"),
 }
 
 data class FeedEvent(
