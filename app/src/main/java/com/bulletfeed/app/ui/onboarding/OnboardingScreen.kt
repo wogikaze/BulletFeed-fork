@@ -21,11 +21,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Person
@@ -39,7 +36,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,10 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-
-private const val MINIMUM_TOPIC_COUNT = 5
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -72,14 +65,13 @@ fun OnboardingScreen(
     var role by rememberSaveable { mutableStateOf(initialProfile.role.ifBlank { "Androidエンジニア" }) }
     var interests by remember { mutableStateOf(initialProfile.interests.ifEmpty { setOf("モバイル", "AI", "クラウド") }) }
     var region by rememberSaveable { mutableStateOf(initialProfile.region.ifBlank { "東京" }) }
-    var topics by remember { mutableStateOf(initialTopics.ifEmpty { defaultTopics.take(MINIMUM_TOPIC_COUNT) }) }
-    var customTopic by rememberSaveable { mutableStateOf("") }
+    var topics by remember { mutableStateOf(initialTopics.ifEmpty { DemoData.defaultTopics.take(DemoData.MINIMUM_TOPIC_COUNT) }) }
     var connectGithub by rememberSaveable { mutableStateOf(true) }
 
     val canContinue =
         when (step) {
             0 -> role.isNotBlank() && interests.isNotEmpty()
-            1 -> topics.size >= MINIMUM_TOPIC_COUNT
+            1 -> topics.size >= DemoData.MINIMUM_TOPIC_COUNT
             else -> true
         }
 
@@ -131,15 +123,8 @@ fun OnboardingScreen(
                     1 ->
                         TopicsStep(
                             topics = topics,
-                            customTopic = customTopic,
-                            onCustomTopicChange = { customTopic = it },
                             onToggle = { topic ->
                                 topics = if (topic in topics) topics - topic else topics + topic
-                            },
-                            onAddCustom = {
-                                val topic = customTopic.trim()
-                                if (topic.isNotEmpty() && topic !in topics) topics = topics + topic
-                                customTopic = ""
                             },
                         )
                     else ->
@@ -253,10 +238,7 @@ private fun ProfileStep(
 @Composable
 private fun TopicsStep(
     topics: List<String>,
-    customTopic: String,
-    onCustomTopicChange: (String) -> Unit,
     onToggle: (String) -> Unit,
-    onAddCustom: () -> Unit,
 ) {
     StepTitle(
         icon = { Icon(Icons.Default.Topic, contentDescription = null, tint = Color.White) },
@@ -267,41 +249,26 @@ private fun TopicsStep(
         modifier = Modifier.fillMaxWidth(),
         colors =
             CardDefaults.cardColors(
-                containerColor = if (topics.size >= MINIMUM_TOPIC_COUNT) Color(0xFFE8F3F1) else Color(0xFFFFF1D8),
+                containerColor = if (topics.size >= DemoData.MINIMUM_TOPIC_COUNT) Color(0xFFE8F3F1) else Color(0xFFFFF1D8),
             ),
         shape = RoundedCornerShape(16.dp),
     ) {
         Text(
-            if (topics.size >= MINIMUM_TOPIC_COUNT) "${topics.size}件を追跡します" else "あと${MINIMUM_TOPIC_COUNT - topics.size}件選択してください",
+            if (topics.size >= DemoData.MINIMUM_TOPIC_COUNT) "${topics.size}件を追跡します" else "あと${DemoData.MINIMUM_TOPIC_COUNT - topics.size}件選択してください",
             modifier = Modifier.padding(14.dp),
-            color = if (topics.size >= MINIMUM_TOPIC_COUNT) Color(0xFF006A67) else Color(0xFF8A5A00),
+            color = if (topics.size >= DemoData.MINIMUM_TOPIC_COUNT) Color(0xFF006A67) else Color(0xFF8A5A00),
             fontWeight = FontWeight.Bold,
         )
     }
     SelectionLabel("おすすめ")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        defaultTopics.forEach { topic ->
+        DemoData.defaultTopics.forEach { topic ->
             FilterChip(
                 selected = topic in topics,
                 onClick = { onToggle(topic) },
                 label = { Text(topic) },
                 leadingIcon = if (topic in topics) ({ Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }) else null,
             )
-        }
-    }
-    SelectionLabel("自由入力")
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
-            value = customTopic,
-            onValueChange = onCustomTopicChange,
-            modifier = Modifier.weight(1f),
-            label = { Text("企業・技術・サービス") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onAddCustom() }),
-        )
-        OutlinedButton(onClick = onAddCustom, enabled = customTopic.isNotBlank()) {
-            Icon(Icons.Default.Add, contentDescription = "追加")
         }
     }
 }
@@ -399,16 +366,3 @@ private fun SelectionLabel(text: String) {
 private val roleOptions = listOf("Androidエンジニア", "Webエンジニア", "バックエンド", "デザイナー", "PM")
 private val interestOptions = listOf("モバイル", "AI", "クラウド", "セキュリティ", "OSS", "スタートアップ")
 private val regionOptions = listOf("東京", "日本", "グローバル", "指定なし")
-private val defaultTopics =
-    listOf(
-        "Kotlin",
-        "Android",
-        "Jetpack Compose",
-        "Cloudflare Workers",
-        "OpenAI API",
-        "GitHub",
-        "Flutter",
-        "Python",
-        "FastAPI",
-        "PostgreSQL",
-    )
