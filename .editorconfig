@@ -7,6 +7,6 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 ij_kotlin_allow_trailing_comma = true
-ktlint_code_style = ktlint_official
+ktlint_code_style = intellij_idea
 ktlint_standard_function-naming = disabled
 ktlint_standard_max-line-length = disabled

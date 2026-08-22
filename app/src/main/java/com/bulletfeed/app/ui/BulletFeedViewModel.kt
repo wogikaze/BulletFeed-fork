@@ -210,8 +210,8 @@ class BulletFeedViewModel(
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass.isAssignableFrom(BulletFeedViewModel::class.java))
-                @Suppress("UNCHECKED_CAST")
-                val (api, sessionManager) = BulletFeedApiFactory.create(context)
+            @Suppress("UNCHECKED_CAST")
+            val (api, sessionManager) = BulletFeedApiFactory.create(context)
             return BulletFeedViewModel(
                 RemoteBulletFeedRepository(api, sessionManager),
             ) as T
