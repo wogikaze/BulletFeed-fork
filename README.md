@@ -73,6 +73,45 @@ Kotlinの整形にはktlint、Android固有の静的解析にはAndroid Lintを�
 
 `backend/` に変更があるPull Requestでは、[backend-quality.yml](.github/workflows/backend-quality.yml) がRuffとpytestを実行します。
 
+## セキュリティ診断
+
+リポジトリ直下のスクリプトで、秘密情報の混入、Pythonバックエンドの危険な実装パターンと依存関係、ローカルのSemgrepルール、Android Lintをまとめて確認できます。ソースコードは外部サービスへ送信しないローカル設定です。`pip-audit` のみ、既知脆弱性の照会のためパッケージ情報をPyPIへ問い合わせます。
+
+初回だけ、GitLeaksとバックエンドの開発依存関係を導入します。
+
+```bash
+# macOS
+brew install gitleaks
+
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+cd ..
+```
+
+全診断は次のコマンドで実行します。Android Lintも含むため、JDKとAndroid SDKが必要です。
+
+```bash
+bash scripts/security-check.sh
+```
+
+バックエンドだけを確認する場合は、Android Lintを省略できます。
+
+```bash
+bash scripts/security-check.sh --backend-only
+```
+
+利用する診断は以下のとおりです。
+
+- `gitleaks`: Git履歴とステージ済み変更にあるAPIキー、トークン、秘密情報の検出
+- `bandit`: Pythonバックエンドの危険な実装パターン検出
+- `pip-audit`: インストール済みPython依存関係の既知脆弱性検出
+- `semgrep`: リポジトリ内のTLS検証無効化、`shell=True`、WebView危険設定の検出
+- `ktlintCheck lint`: Kotlinの静的解析とAndroid Lint
+
+`PYTHON_BIN` で使用する仮想環境を指定できます。例えば、別の環境を使う場合は `PYTHON_BIN=/path/to/python bash scripts/security-check.sh --backend-only` と実行します。`SEMGREP_BIN` と `GITLEAKS_BIN` で各実行ファイルも明示的に指定できます。
+
 ### コミット時の自動整形
 
 リポジトリにはpre-commit hookが含まれています。次のコマンドを一度実行すると、コミット時にKotlinを自動整形し、書式チェックとAndroid Lintを実行します。
