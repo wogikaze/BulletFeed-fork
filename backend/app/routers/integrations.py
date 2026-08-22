@@ -27,8 +27,11 @@ from app.stores.integration_store import IntegrationStore
 router = APIRouter(prefix="/v1", tags=["integrations"])
 
 
-def _store(database: Annotated[Database, Depends(get_database)]) -> IntegrationStore:
-    return IntegrationStore(database)
+def _store(
+    database: Annotated[Database, Depends(get_database)],
+    cipher: Annotated[TokenCipher, Depends(get_cipher)],
+) -> IntegrationStore:
+    return IntegrationStore(database, cipher)
 
 
 @router.get("/me/integrations/github", response_model=GithubConnection)
@@ -36,7 +39,7 @@ def get_github_connection(
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[IntegrationStore, Depends(_store)],
 ) -> GithubConnection:
-    return store.github_connection(user["user_id"], user["github_connected"])
+    return store.github_connection(user["user_id"])
 
 
 @router.post("/me/integrations/github/authorize", response_model=GithubAuthorizeResponse)
@@ -46,8 +49,7 @@ def authorize_github(
     cipher: Annotated[TokenCipher, Depends(get_cipher)],
     user: Annotated[dict, Depends(require_user)],
 ) -> GithubAuthorizeResponse:
-    del user
-    started = start_github_authorization(settings, database, cipher)
+    started = start_github_authorization(settings, database, cipher, user_id=user["user_id"])
     return GithubAuthorizeResponse(
         authorization_url=str(started.authorization_url),
         flow_id=started.flow_id,
@@ -57,23 +59,25 @@ def authorize_github(
 
 
 @router.get("/me/integrations/github/repositories", response_model=GithubRepositoryPage)
-def list_github_repositories(
+async def list_github_repositories(
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[IntegrationStore, Depends(_store)],
+    settings: Annotated[Settings, Depends(get_settings)],
     q: str | None = None,
     cursor: str | None = None,
     limit: int = 20,
 ) -> GithubRepositoryPage:
-    return store.list_repositories(user["user_id"], q, cursor, limit)
+    return await store.list_repositories(user["user_id"], q, cursor, limit, settings)
 
 
 @router.put("/me/integrations/github/repositories", response_model=GithubConnection)
-def update_github_repositories(
+async def update_github_repositories(
     body: GithubRepositoryUpdate,
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[IntegrationStore, Depends(_store)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> GithubConnection:
-    return store.update_repositories(user["user_id"], body.repository_ids)
+    return await store.update_repositories(user["user_id"], body.repository_ids, settings)
 
 
 @router.post("/me/integrations/github/import", response_model=GithubImportResult)

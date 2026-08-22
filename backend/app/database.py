@@ -90,7 +90,15 @@ class Database:
                     user_id, status, expires_at, created_at
                 ) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
                 """,
-                (flow_id, token_hash(state), token_hash(poll_token), encrypted_verifier, user_id, expires_at, now),
+                (
+                    flow_id,
+                    token_hash(state),
+                    token_hash(poll_token),
+                    encrypted_verifier,
+                    user_id,
+                    expires_at,
+                    now,
+                ),
             )
 
     def claim_oauth_flow(self, state: str) -> sqlite3.Row | None:

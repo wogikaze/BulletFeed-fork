@@ -19,6 +19,7 @@ data class BulletFeedUiState(
     val onboardingCompleted: Boolean = true,
     val profile: UserProfile = UserProfile("", emptySet(), ""),
     val topics: List<String> = emptyList(),
+    val pendingGithubAuthUrl: String? = null,
     val isSavingOnboarding: Boolean = false,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
@@ -127,9 +128,13 @@ class BulletFeedViewModel(
 
     fun connectGithub() =
         launchUpdate {
-            val connected = repository.setGithubConnected(true)
-            _uiState.update { it.copy(githubConnected = connected) }
+            val auth = repository.startGithubAuthorization()
+            _uiState.update { it.copy(pendingGithubAuthUrl = auth.authorizationUrl) }
         }
+
+    fun clearPendingAuthUrl() {
+        _uiState.update { it.copy(pendingGithubAuthUrl = null) }
+    }
 
     fun importFromPublicRepo(fullName: String) =
         launchUpdate {

@@ -1,5 +1,8 @@
 package com.bulletfeed.app
 
+import android.content.Intent
+import android.net.Uri
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,12 +51,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory(LocalContext.current))) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var tab by remember { mutableStateOf(AppTab.FEED) }
     var filter by remember { mutableStateOf(FeedFilter.ALL) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
     var selectedVulnerabilityId by remember { mutableStateOf<String?>(null) }
     var notificationsOpen by remember { mutableStateOf(false) }
     var githubSetupOpen by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.pendingGithubAuthUrl) {
+        uiState.pendingGithubAuthUrl?.let { url ->
+            runCatching {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }
+            viewModel.clearPendingAuthUrl()
+        }
+    }
 
     MaterialTheme(colorScheme = bulletFeedColorScheme()) {
         Surface(modifier = Modifier.fillMaxSize()) {

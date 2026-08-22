@@ -30,6 +30,7 @@ def start_github_authorization(
     settings: Annotated[Settings, Depends(get_settings)],
     database: Annotated[Database, Depends(get_database)],
     cipher: Annotated[TokenCipher, Depends(get_cipher)],
+    user_id: Annotated[str | None, Header(alias="X-User-Id")] = None,
 ) -> AuthorizationStart:
     _require_github_config(settings)
     flow_id = secrets.token_urlsafe(24)
@@ -39,6 +40,7 @@ def start_github_authorization(
     expires_in = 600
     database.create_oauth_flow(
         flow_id=flow_id,
+        user_id=user_id,
         state=state_value,
         poll_token=poll_token,
         encrypted_verifier=cipher.encrypt(verifier),
@@ -86,6 +88,7 @@ async def github_callback(
         app_access_token = secrets.token_urlsafe(48)
         database.complete_oauth_flow(
             flow_id=flow["flow_id"],
+            user_id=flow["user_id"],
             github_user=github_user,
             encrypted_github_token=cipher.encrypt(github_token),
             github_token_expires_at=token_expires_at,
