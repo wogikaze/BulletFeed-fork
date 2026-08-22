@@ -1,42 +1,65 @@
-# BulletFeed API 契約 v1（ドラフト）
+# BulletFeed API 契約 v1
 
-更新日: 2026-08-18  
-用途: Androidクライアントとバックエンド間の実装契約。MVPではクライアントの `FakeBulletFeedRepository` がこの形のデータを返す。
+更新日: 2026-08-22  
+用途: Android公開API。Observation / Claim ledger / Semantic Delta 判定などの内部処理は公開しない。
 
 ## 1. 基本方針
 
-- Base URL: `https://api.example.com/v1`
+- Base URL: `/v1`
 - 形式: JSON (`Content-Type: application/json`)
 - 日時: ISO 8601 UTC、例 `2026-08-18T10:30:00Z`
-- ID: 文字列UUIDまたは同等の一意な文字列
-- 認証済みエンドポイント: `Authorization: Bearer <access-token>`
-- 配列は空の場合も `[]`、任意値は `null` を返す
+- 認証: `Authorization: Bearer <access-token>`
+- 配列は空の場合も `[]`、任意値は `null`
 
-> 認証基盤・ページネーション形式は未決定。ここではモバイルフロントの実装に必要な最小契約を定義する。
+公開モデルは Event / Delta / FeedItem / Evidence / Topic のみ。
+
+- Event = 現実世界の同一の出来事
+- Delta = Event内で新しく発生した意味上の変化
+- FeedItem = そのユーザーに今回表示する Delta
+- Evidence = 表示内容を裏付ける根拠
+- Topic = ユーザーが追跡する技術・サービス・企業
+
+`FeedItem.id` は安定した `userId × deltaId`。`deliveryId` は当該 `GET /feed` 応答の配信インスタンス。GET で FeedItem を作り直さない。
+
+read/unread は Event ではなく FeedItem に持つ。
 
 ## 2. 列挙値
 
 ```text
 Importance: critical | high | medium | low
 RelationLevel: direct | adjacent | reference
-EventStatus: unread | read | dismissed
-FeedbackType: important | not_relevant | read
+DeltaType: new_fact | detail | state_update | correction | unresolved_contradiction
+FeedItemStatus: unread | read
+FeedbackType: important | not_relevant
+EventPhase: investigating | identified | monitoring | resolved
+TimelineType: announced | state_changed | information_added | corrected | resolved
+SourceKind: statuspage | github_advisory | osv | github_release | official_changelog | documentation
 TopicType: technology | service | company
-SourceType: official_blog | release_note | github_release | rss | documentation
-TimelineEntryType: announced | updated | incident | resolved | related_report
+TopicPriority: high | normal | low
 ```
 
-## 3. 共通モデル
+NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有の investigating / identified は Timeline type に増やさず、`state.before/after` として保持する。
 
-### Event（フィードカード）
+互換: 旧契約の `Event` カード、`FeedbackType.read`、`EventStatus.dismissed` は使わない。既読は `PUT /feed/items/{id}/read`。検索 API は作らない。SearchScreen は取得済みフィードのローカル検索。`/me/devices` は Push 導入まで作らない。
+
+## 3. 公開モデル
+
+### FeedItem
 
 ```json
 {
-  "id": "evt_cloudflare_workers_20260818",
-  "title": "Cloudflare Workers: Node.js互換性の破壊的変更を予告",
-  "summary": "一部のNode.js互換APIは2026年11月から新しいランタイム挙動へ移行します。",
-  "importance": "high",
-  "importanceReason": "利用中のAPIに互換性変更と移行期限があるため",
+  "id": "fi_usr_1_delta_workers_identified",
+  "eventId": "workers-runtime",
+  "delta": {
+    "id": "delta_workers_identified",
+    "type": "state_update",
+    "summary": "旧ランタイム挙動の廃止期限と対象APIが公開されました。",
+    "before": "旧ランタイム挙動が提供される。",
+    "after": "2026年11月から新しい挙動へ移行する。",
+    "occurredAt": "2026-08-18T03:00:00Z"
+  },
+  "title": "Cloudflare Workers の Node.js 互換性に破壊的変更予定",
+  "importance": { "level": "high", "reason": "利用中APIに移行期限があるため", "confidence": "high" },
   "relation": {
     "level": "direct",
     "reason": "GitHubで連携したリポジトリが Cloudflare Workers を利用しています。",
@@ -45,373 +68,123 @@ TimelineEntryType: announced | updated | incident | resolved | related_report
       { "id": "repo_123", "name": "niyu/example-worker", "url": "https://github.com/niyu/example-worker" }
     ]
   },
-  "announcedAt": "2026-08-18T03:00:00Z",
-  "updatedAt": "2026-08-18T04:30:00Z",
-  "sourceCount": 2,
   "status": "unread",
-  "following": false
+  "following": false,
+  "updatedAt": "2026-08-18T04:30:00Z",
+  "deliveryId": "dlv_abc"
 }
 ```
 
 ### EventDetail
 
-`Event` の全フィールドに加え、詳細画面用の情報を返す。
-
 ```json
 {
-  "id": "evt_cloudflare_workers_20260818",
-  "title": "Cloudflare Workers: Node.js互換性の破壊的変更を予告",
-  "summary": "一部のNode.js互換APIは2026年11月から新しいランタイム挙動へ移行します。",
-  "importance": "high",
-  "importanceReason": "利用中のAPIに互換性変更と移行期限があるため",
-  "relation": {
-    "level": "direct",
-    "reason": "GitHubで連携したリポジトリが Cloudflare Workers を利用しています。",
-    "matchedTopics": ["Cloudflare Workers"],
-    "matchedRepositories": []
+  "id": "workers-runtime",
+  "title": "Cloudflare Workers の Node.js 互換性に破壊的変更予定",
+  "summary": "旧ランタイム挙動が段階的に廃止されます。",
+  "currentState": {
+    "phase": "identified",
+    "summary": "移行期限と対象APIが公開されています。",
+    "since": "2026-08-18T03:00:00Z",
+    "confidence": "high"
   },
-  "announcedAt": "2026-08-18T03:00:00Z",
-  "updatedAt": "2026-08-18T04:30:00Z",
-  "sourceCount": 2,
-  "status": "unread",
-  "following": false,
-  "change": {
-    "before": "Node.js互換性フラグによって旧ランタイム挙動が提供される。",
-    "after": "新しいランタイム挙動へ段階的に移行し、旧挙動は廃止予定。",
-    "effectiveAt": "2026-11-01T00:00:00Z"
-  },
-  "impacts": [
-    {
-      "kind": "explicit",
-      "text": "対象APIを利用するアプリケーションは移行確認が必要です。",
-      "confidence": "high"
-    },
-    {
-      "kind": "inferred",
-      "text": "連携リポジトリの依存関係を更新する必要が生じる可能性があります。",
-      "confidence": "medium"
-    }
-  ],
+  "latestDelta": { "id": "delta_workers_identified", "type": "state_update", "summary": "...", "before": "...", "after": "...", "occurredAt": "2026-08-18T03:00:00Z" },
+  "openedDelta": null,
   "timeline": [
     {
-      "id": "timeline_001",
+      "id": "tl_workers_announced",
       "type": "announced",
       "occurredAt": "2026-08-18T03:00:00Z",
       "title": "変更を公式発表",
-      "description": "移行期限と対象APIが公開されました。"
+      "description": "移行期限と対象APIが公開されました。",
+      "deltaId": "delta_workers_identified",
+      "state": { "before": "investigating", "after": "identified" }
     }
   ],
+  "impacts": [{ "kind": "explicit", "text": "対象APIの移行確認が必要です。", "confidence": "high" }],
   "sources": [
     {
-      "id": "src_001",
-      "type": "official_blog",
       "publisher": "Cloudflare",
+      "kind": "official_changelog",
       "title": "Node.js compatibility update",
       "url": "https://example.com/source",
       "publishedAt": "2026-08-18T03:00:00Z",
       "retrievedAt": "2026-08-18T03:05:00Z",
       "evidence": "対象APIの移行期限は2026年11月1日です。"
     }
-  ]
+  ],
+  "following": false
 }
 ```
 
-### UserProfile / Topic / GitHubConnection
-
-```json
-{
-  "profile": {
-    "occupation": "Androidエンジニア",
-    "interests": ["モバイル", "AI", "クラウド"],
-    "region": "東京"
-  },
-  "topic": {
-    "id": "topic_001",
-    "name": "Kotlin",
-    "type": "technology",
-    "createdAt": "2026-08-18T00:00:00Z"
-  },
-  "githubConnection": {
-    "connected": true,
-    "accountLogin": "niyu",
-    "repositories": [
-      { "id": "repo_123", "name": "niyu/example-worker", "fullName": "niyu/example-worker", "selected": true, "url": "https://github.com/niyu/example-worker" }
-    ]
-  }
-}
-```
+`GET /events/{eventId}?fromFeedItem=` があるとき `openedDelta` を返す。crawl 方式などの内部情報は返さない。
 
 ## 4. エンドポイント
 
-### フィードを取得
+暫定認証: `POST /v1/sessions` → `{ accessToken, userId }`。外部 IdP 決定までローカルユーザーを発行する。GitHub は identity ではなく integration。
 
-`GET /feed`
+### Feed
 
-Query parameters:
+`GET /feed?relation=&status=&cursor=&limit=`
 
-| 名前 | 型 | 必須 | 説明 |
-| --- | --- | --- | --- |
-| `relation` | `direct \| adjacent \| reference` | 任意 | 関連性で絞り込み |
-| `status` | `unread \| read` | 任意 | 既読状態で絞り込み |
-| `cursor` | string | 任意 | 次ページ取得用 |
-| `limit` | integer | 任意 | 1〜50、既定20 |
+- limit 1–50、既定 20
+- 並び: `updatedAt desc, id desc`（未読はソートキーにしない。未読優先は `status=unread` かクライアント側ピン留め）
+- 応答: `{ items: FeedItem[], nextCursor }`
 
-```json
-{
-  "items": [/* Event */],
-  "nextCursor": "cursor_next_or_null"
-}
-```
+`PUT /feed/items/{feedItemId}/read` — 当該 Delta を既読にする。詳細 GET では自動既読にしない。
 
-フィードの既定順は、`critical/high` かつ未読のイベントを優先し、その後は `updatedAt` の降順とする。
+`POST /feed/items/{feedItemId}/feedback` `{ type: important | not_relevant }`
 
-### イベント詳細を取得
+- `important`: フィードから消さない
+- `not_relevant`: その FeedItem だけをフィードから外す
 
-`GET /events/{eventId}`
+`POST /feed/exposures` `{ items: [{ deliveryId, displayedAt }] }`
 
-Response: `EventDetail`
+- GET /feed だけでは known にしない
+- 未知 `deliveryId` は無視、バッチ上限 50、`deliveryId` で冪等
 
-`404` はイベントが存在しない、または閲覧権限がない場合に返す。
+### Event
 
-### プロフィールを取得・更新
+`GET /events/{eventId}`  
+`PUT /events/{eventId}/following` `{ following }`  
+存在しない、または閲覧できない ID は 404。
 
-`GET /me/profile` → `UserProfile`
+### User / Topics
 
-`PUT /me/profile`
+`GET /me` → `onboardingCompleted, profile, topicCount, githubConnected`  
+`GET/PUT /me/profile` fields: `occupation, interests[], region`  
+`GET/POST /me/topics` `DELETE /me/topics/{topicId}` `PATCH /me/topics/{topicId}` `{ priority?, order? }`  
+`GET /topics/search?q=` カタログ検索。自由入力の POST は残す。  
+`PUT /me/onboarding` は既存 Android 用。profile 必須 + topics 5件以上。
 
-```json
-{
-  "occupation": "Androidエンジニア",
-  "interests": ["モバイル", "AI", "クラウド"],
-  "region": "東京"
-}
-```
+### GitHub
 
-Response: 更新後の `UserProfile`
+`GET /me/integrations/github` — 接続状態のみ。repo 全件は載せない。  
+`POST /me/integrations/github/authorize` — OAuth 開始。token は返さない。既存 poll flow を再利用。  
+`GET /me/integrations/github/repositories?q=&cursor=&limit=`  
+`PUT /me/integrations/github/repositories` `{ repositoryIds }`  
+`DELETE /me/integrations/github` — 監視選択を消し接続を切る。フィード履歴は残す。
 
-### テーマの一覧・追加・削除
+### Security / Notifications
 
-`GET /me/topics` → `{ "items": [/* Topic */] }`
+既存のまま残す。脆弱性は Event に統合しない。
 
-`POST /me/topics`
-
-```json
-{ "name": "Kotlin", "type": "technology" }
-```
-
-Response: `201 Created` + `Topic`
-
-`DELETE /me/topics/{topicId}` → `204 No Content`
-
-制約: MVPでは1ユーザーにつき5〜20テーマを推奨するが、技術的な上限はバックエンド側で決定する。
-
-### GitHub連携
-
-`GET /me/integrations/github` → `GitHubConnection`
-
-`POST /me/integrations/github/authorize`
-
-```json
-{ "redirectUri": "bulletfeed://oauth/github/callback" }
-```
-
-```json
-{ "authorizationUrl": "https://github.com/login/oauth/authorize?..." }
-```
-
-> モバイルアプリは `authorizationUrl` をカスタムタブで開き、バックエンドはOAuth完了後に指定のdeep linkへ戻す。トークンをクライアントへ返さない。
-
-`PUT /me/integrations/github/repositories`
-
-```json
-{ "repositoryIds": ["repo_123", "repo_456"] }
-```
-
-Response: 更新後の `GitHubConnection`
-
-### 評価を送る
-
-`POST /events/{eventId}/feedback`
-
-```json
-{ "type": "important" }
-```
-
-Response:
-
-```json
-{ "eventId": "evt_cloudflare_workers_20260818", "feedback": "important", "status": "read" }
-```
-
-- `important`: 学習用評価。イベントをフィードから消さない
-- `not_relevant`: フィードから除外する。再表示には設定画面または将来の履歴画面を用いる
-- `read`: 既読状態にする
-
-### フォロー状態を更新
-
-`PUT /events/{eventId}/following`
-
-```json
-{ "following": true }
-```
-
-Response:
-
-```json
-{ "eventId": "evt_cloudflare_workers_20260818", "following": true }
-```
-
-### 初回設定を完了
-
-`PUT /me/onboarding`
-
-プロフィールと追跡テーマを一度に保存し、初回設定を完了状態にする。GitHub連携を選んだ場合も、このレスポンスだけでは認可済みにせず、認可開始に必要なURLを返す。
-
-```json
-{
-  "profile": {
-    "role": "Androidエンジニア",
-    "interests": ["モバイル", "AI", "クラウド"],
-    "region": "東京"
-  },
-  "topics": ["Kotlin", "Android", "Jetpack Compose", "Cloudflare Workers", "OpenAI API"],
-  "connectGithub": true
-}
-```
-
-```json
-{
-  "completed": true,
-  "githubAuthorization": {
-    "required": true,
-    "authorizationUrl": "https://github.com/login/oauth/authorize?..."
-  }
-}
-```
-
-- `topics` は5〜20件とし、空文字・重複を拒否する
-- `role` と `interests` は必須、`region` は任意
-- GitHub認可がキャンセルされてもオンボーディング完了状態は維持する
-- 認可URLはバックエンドが生成し、OAuth state・PKCE・固定redirect URIを用いる
-
-### リポジトリに影響する脆弱性
-
-`GET /me/security/alerts`
-
-Query parameters:
-
-| 名前 | 型 | 必須 | 説明 |
-| --- | --- | --- | --- |
-| `status` | `open \| in_progress \| resolved \| not_affected` | 任意 | 対応状況で絞り込み |
-| `repositoryId` | string | 任意 | GitHubリポジトリで絞り込み |
-
-```json
-{
-  "items": [
-    {
-      "id": "alert_001",
-      "advisoryId": "GHSA-example",
-      "cve": "CVE-2026-10421",
-      "title": "認証バイパスにつながる可能性のある脆弱性",
-      "severity": "critical",
-      "status": "open",
-      "repository": { "id": "repo_123", "fullName": "niyu/example" },
-      "package": {
-        "name": "example-package",
-        "currentVersion": "1.0.0",
-        "fixedVersion": "1.0.2",
-        "dependencyType": "direct"
-      },
-      "source": "GitHub Advisory Database · OSV",
-      "detectedAt": "2026-08-20T04:10:00Z"
-    }
-  ]
-}
-```
-
-`GET /me/security/alerts/{alertId}` → 根拠文と推奨対応を含む脆弱性詳細
-
-`PATCH /me/security/alerts/{alertId}`
-
-```json
-{ "status": "in_progress" }
-```
-
-バックエンドは、指定されたalertとrepositoryが認証ユーザーに属することを毎回確認する。クライアントから渡されたIDや通知payloadだけで閲覧権限を判断しない。GitHubアクセストークンはバックエンドだけで保持し、ソースコード本文は脆弱性照合のために保存しない。
-
-### 通知一覧
-
-`GET /me/notifications`
-
-Query parameters:
-
-| 名前 | 型 | 必須 | 説明 |
-| --- | --- | --- | --- |
-| `status` | `unread \| all` | 任意 | 未読のみ、またはすべて |
-
-```json
-{
-  "items": [
-    {
-      "id": "notification_001",
-      "title": "緊急の脆弱性が見つかりました",
-      "summary": "連携リポジトリに対応が必要な脆弱性があります。",
-      "category": "security",
-      "priority": "urgent",
-      "occurredAt": "2026-08-20T04:10:00Z",
-      "read": false,
-      "target": {
-        "type": "vulnerability",
-        "id": "alert_001"
-      }
-    }
-  ]
-}
-```
-
-`PATCH /me/notifications/{notificationId}`
-
-```json
-{ "read": true }
-```
-
+`GET/PATCH /me/security/alerts`  
+`GET /me/security/alerts/{alertId}`  
+`GET/PATCH /me/notifications`  
 `POST /me/notifications/read-all`
 
-```json
-{ "updatedCount": 2 }
-```
-
-通知のtarget IDは画面遷移のヒントとしてのみ扱う。詳細表示時は認証済みAPIから対象を再取得し、バックエンドでユーザーとの所有関係を検証する。Push通知のロック画面本文には、非公開リポジトリ名、パッケージ構成、CVEの適用状況を含めない。
-
-## 5. エラー形式
-
-すべてのエラーは以下の形式で返す。
+## 5. エラー
 
 ```json
-{
-  "error": {
-    "code": "validation_error",
-    "message": "topic name is required",
-    "field": "name"
-  }
-}
+{ "error": { "code": "validation_error", "message": "topic name is required", "field": "name" } }
 ```
 
-クライアントが最低限扱うHTTPステータス:
-
-| Status | 取り扱い |
+| Status | code |
 | --- | --- |
-| `400 / 422` | 入力内容を修正するよう表示 |
-| `401` | 再ログインへ誘導 |
-| `403` | 権限がないことを表示 |
-| `404` | 削除済みなどとして一覧に戻す |
-| `429` | 少し時間を置いて再試行 |
-| `5xx` | 再試行ボタン付きのエラー状態 |
-
-## 6. フロント実装上の取り決め
-
-- リストのIDはすべてサーバー発行IDを使用し、タイトルをIDとして扱わない。
-- `inferred` な影響は「推定」と明示して表示し、断定表現にしない。
-- `sources.evidence` がないイベントは、根拠のない影響として表示しない。
-- UIの重要度計算・関連性計算はしない。デモ時のみFakeデータに固定値を持たせる。
-- API実装への差し替えは `BulletFeedRepository` の実装を Fake から Remote に変えるだけで完了する構成にする。
+| 400 / 422 | validation_error |
+| 401 | unauthorized |
+| 403 | forbidden |
+| 404 | not_found |
+| 429 | rate_limited |
+| 5xx | internal_error |

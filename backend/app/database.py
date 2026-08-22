@@ -4,6 +4,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from app.db.schema import PUBLIC_API_SCHEMA
+from app.db.seed import seed_catalog
 from app.security import TokenCipher, token_hash
 
 
@@ -11,15 +13,20 @@ class Database:
     def __init__(self, path: Path) -> None:
         self.path = path
 
-    def _connect(self) -> sqlite3.Connection:
+    def connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
         return connection
 
+    def _connect(self) -> sqlite3.Connection:
+        return self.connect()
+
     def initialize(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as connection:
+            connection.executescript(PUBLIC_API_SCHEMA)
+            seed_catalog(connection)
             connection.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS oauth_flows (

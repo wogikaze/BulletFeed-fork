@@ -1,0 +1,83 @@
+from typing import Literal
+
+from app.schemas.common import ApiModel
+
+
+class GithubConnection(ApiModel):
+    connected: bool
+    account_login: str | None = None
+
+
+class GithubAuthorizeResponse(ApiModel):
+    authorization_url: str
+    flow_id: str
+    poll_token: str
+    expires_in_seconds: int
+
+
+class GithubRepository(ApiModel):
+    id: str
+    full_name: str
+    html_url: str
+    private: bool
+    description: str | None = None
+    language: str | None = None
+    selected: bool
+    updated_at: str
+
+
+class GithubRepositoryPage(ApiModel):
+    items: list[GithubRepository]
+    next_cursor: str | None = None
+
+
+class GithubRepositoryUpdate(ApiModel):
+    repository_ids: list[str]
+
+
+class SecurityAlert(ApiModel):
+    id: str
+    advisory_id: str
+    cve: str | None
+    title: str
+    summary: str
+    severity: Literal["critical", "high", "medium", "low"]
+    status: Literal["open", "in_progress", "resolved", "not_affected"]
+    repository: dict[str, str]
+    package: dict[str, str]
+    source: str
+    detected_at: str
+    evidence: str
+    recommendation: str
+    cvss_score: float | None = None
+
+
+class SecurityAlertList(ApiModel):
+    items: list[SecurityAlert]
+
+
+class SecurityAlertPatch(ApiModel):
+    status: Literal["open", "in_progress", "resolved", "not_affected"]
+
+
+class NotificationItem(ApiModel):
+    id: str
+    title: str
+    summary: str
+    category: Literal["security", "breaking_change", "release"]
+    priority: Literal["urgent", "high", "normal"]
+    occurred_at: str
+    read: bool
+    target: dict[str, str]
+
+
+class NotificationList(ApiModel):
+    items: list[NotificationItem]
+
+
+class NotificationReadPatch(ApiModel):
+    read: bool = True
+
+
+class NotificationReadAllResponse(ApiModel):
+    updated_count: int

@@ -2,104 +2,72 @@ package com.bulletfeed.app
 
 import kotlinx.coroutines.delay
 
-class MockBulletFeedRepository : BulletFeedRepository {
-    private var events = DemoData.events
-    private var alerts = SecurityDemoData.alerts
-    private var notifications = NotificationDemoData.notifications
-    private var githubConnected = false
-    private var onboardingCompleted = false
-    private var profile =
-        UserProfile(
-            role = "Androidエンジニア",
-            interests = setOf("モバイル", "AI", "クラウド"),
-            region = "東京",
-        )
-    private var topics = listOf("Kotlin", "Cloudflare Workers", "OpenAI API", "Flutter", "Android")
-
+class MockBulletFeedRepository(
+    private val state: MockAppState = MockAppState(),
+    private val feedStore: MockFeedStore = MockFeedStore(state),
+    private val eventStore: MockEventStore = MockEventStore(state),
+    private val meStore: MockMeStore = MockMeStore(state),
+    private val integrationStore: MockIntegrationStore = MockIntegrationStore(state),
+) : BulletFeedRepository,
+    FeedRepository by feedStore,
+    EventRepository by eventStore,
+    MeRepository by meStore,
+    IntegrationRepository by integrationStore {
     override suspend fun getFeedEvents(): List<FeedEvent> {
         simulateNetworkDelay()
-        return events
+        return feedStore.getFeedEvents()
     }
 
-    override suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert> = alerts
+    override suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert> = integrationStore.getVulnerabilityAlerts()
 
-    override suspend fun getNotifications(): List<AppNotification> = notifications
+    override suspend fun getNotifications(): List<AppNotification> = integrationStore.getNotifications()
 
-    override suspend fun getGithubConnection(): Boolean = githubConnected
+    override suspend fun getGithubConnection(): Boolean = integrationStore.getGithubConnectionState().connected
 
     override suspend fun getOnboardingSnapshot() =
         OnboardingSnapshot(
-            completed = onboardingCompleted,
-            profile = profile,
-            topics = topics,
+            completed = state.onboardingCompleted,
+            profile = state.profile,
+            topics = state.topicNames(),
         )
 
     override suspend fun completeOnboarding(
         profile: UserProfile,
         topics: List<String>,
         connectGithub: Boolean,
-    ): OnboardingSnapshot {
-        this.profile = profile
-        this.topics = topics.distinct()
-        githubConnected = connectGithub
-        onboardingCompleted = true
-        return getOnboardingSnapshot()
-    }
+    ): OnboardingSnapshot = meStore.completeOnboarding(profile, topics, connectGithub)
 
     override suspend fun updateTopics(topics: List<String>): List<String> {
-        this.topics = topics.distinct()
-        return this.topics
+        state.topics =
+            topics
+                .distinct()
+                .mapIndexed { index, name ->
+                    UserTopic("topic_$index", name, TopicType.TECHNOLOGY, TopicPriority.NORMAL, index)
+                }.toMutableList()
+        return state.topicNames()
     }
 
     override suspend fun updateEventFeedback(
         eventId: String,
         feedback: Feedback,
-    ): FeedEvent {
-        events =
-            events.map { event ->
-                if (event.id != eventId) {
-                    event
-                } else {
-                    when (feedback) {
-                        Feedback.IMPORTANT -> event.copy(markedImportant = !event.markedImportant)
-                        Feedback.NOT_RELEVANT -> event.copy(read = true, dismissed = true)
-                        Feedback.READ -> event.copy(read = true)
-                    }
-                }
-            }
-        return events.first { it.id == eventId }
-    }
+    ): FeedEvent = feedStore.updateByEventId(eventId, feedback)
 
     override suspend fun setFollowing(
         eventId: String,
         following: Boolean,
-    ): FeedEvent {
-        events = events.map { event -> if (event.id == eventId) event.copy(following = following) else event }
-        return events.first { it.id == eventId }
-    }
+    ): FeedEvent = eventStore.setFollowing(eventId, following)
 
     override suspend fun updateVulnerabilityStatus(
         alertId: String,
         status: VulnerabilityStatus,
-    ): VulnerabilityAlert {
-        alerts = alerts.map { alert -> if (alert.id == alertId) alert.copy(status = status) else alert }
-        return alerts.first { it.id == alertId }
-    }
+    ): VulnerabilityAlert = integrationStore.updateVulnerabilityStatus(alertId, status)
 
-    override suspend fun markNotificationRead(notificationId: String): AppNotification {
-        notifications = notifications.map { item -> if (item.id == notificationId) item.copy(read = true) else item }
-        return notifications.first { it.id == notificationId }
-    }
+    override suspend fun markNotificationRead(notificationId: String): AppNotification =
+        integrationStore.markNotificationRead(notificationId)
 
-    override suspend fun markAllNotificationsRead(): List<AppNotification> {
-        notifications = notifications.map { it.copy(read = true) }
-        return notifications
-    }
+    override suspend fun markAllNotificationsRead(): List<AppNotification> = integrationStore.markAllNotificationsRead()
 
-    override suspend fun setGithubConnected(connected: Boolean): Boolean {
-        githubConnected = connected
-        return githubConnected
-    }
+    override suspend fun setGithubConnected(connected: Boolean): Boolean = integrationStore.setGithubConnected(connected)
 
     private suspend fun simulateNetworkDelay() {
         delay(250)

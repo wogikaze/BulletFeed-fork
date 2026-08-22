@@ -76,7 +76,13 @@ class BulletFeedViewModel(
         eventId: String,
         feedback: Feedback,
     ) = launchUpdate {
-        val updated = repository.updateEventFeedback(eventId, feedback)
+        val current = _uiState.value.events.firstOrNull { it.id == eventId }
+        val updated =
+            if (feedback == Feedback.READ && current != null) {
+                repository.markFeedItemRead(current.feedItemId)
+            } else {
+                repository.updateEventFeedback(eventId, feedback)
+            }
         _uiState.update { state ->
             state.copy(events = state.events.replaceById(updated.id, updated) { it.id })
         }
