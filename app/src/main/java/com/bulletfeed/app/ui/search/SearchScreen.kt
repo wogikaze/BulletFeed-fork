@@ -112,7 +112,9 @@ private fun SearchResultCard(
             color = Color(0xFF49454F),
         )
         Text(
-            "${event.announcedAt}  ·  ${event.sources.first().publisher}",
+            event.sources.firstOrNull()?.publisher
+                ?.let { "${event.announcedAt}  ·  $it" }
+                ?: event.announcedAt,
             modifier = Modifier.padding(top = 10.dp),
             color = Color(0xFF655F69),
             style = MaterialTheme.typography.labelMedium,
