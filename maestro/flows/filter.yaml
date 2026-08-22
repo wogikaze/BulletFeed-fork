@@ -1,0 +1,11 @@
+appId: com.bulletfeed.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "次へ"
+- tapOn: "次へ"
+- tapOn: "BulletFeedを始める"
+- assertVisible: "フィード"
+- tapOn: "直接影響"
+- assertVisible: "Cloudflare Workers の Node.js 互換性に破壊的変更予定"
+- assertNotVisible: "OpenAI API のバッチ処理料金を改定"
