@@ -1,6 +1,7 @@
 package com.bulletfeed.app
 
 import android.content.Context
+import android.os.Build
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -16,7 +17,7 @@ object BulletFeedApiFactory {
 
     fun create(context: Context): Pair<BulletFeedApi, SessionManager> {
         val sessionManager = SessionManager(context)
-        val baseUrl = BuildConfig.BASE_URL
+        val baseUrl = resolveBaseUrl()
         val client = OkHttpClient.Builder()
             .addInterceptor(authInterceptor(sessionManager))
             .build()
@@ -42,4 +43,31 @@ object BulletFeedApiFactory {
             }
             chain.proceed(newRequest)
         }
+
+    internal fun resolveBaseUrl(): String {
+        val configured = BuildConfig.BASE_URL
+        return if (!isEmulator() && configured.contains("10.0.2.2")) {
+            configured.replace("10.0.2.2", "127.0.0.1")
+        } else {
+            configured
+        }
+    }
+
+    private fun isEmulator(): Boolean {
+        val fingerprint = Build.FINGERPRINT
+        val model = Build.MODEL
+        val product = Build.PRODUCT
+        val hardware = Build.HARDWARE
+        return fingerprint.startsWith("generic") ||
+            fingerprint.startsWith("unknown") ||
+            model.contains("google_sdk") ||
+            model.contains("Emulator") ||
+            model.contains("Android SDK built for") ||
+            hardware.contains("goldfish") ||
+            hardware.contains("ranchu") ||
+            product.contains("sdk_gphone") ||
+            product == "sdk" ||
+            product == "google_sdk" ||
+            (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+    }
 }
