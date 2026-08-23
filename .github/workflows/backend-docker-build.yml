@@ -1,0 +1,72 @@
+name: Backend Docker build
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build-backend-image:
+    name: Build backend Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect backend Docker context and Dockerfile
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          backend_dir="backend"
+          dockerfile=""
+
+          if [[ -f "${backend_dir}/Dockerfile" ]]; then
+            dockerfile="${backend_dir}/Dockerfile"
+          else
+            mapfile -t backend_candidates < <(find "${backend_dir}" -type f \( -name 'Dockerfile' -o -name '*.Dockerfile' -o -name 'Dockerfile.*' \) | sort)
+            if [[ ${#backend_candidates[@]} -gt 0 ]]; then
+              dockerfile="${backend_candidates[0]}"
+            else
+              mapfile -t repo_candidates < <(find . -type f \( -name 'Dockerfile' -o -name '*.Dockerfile' -o -name 'Dockerfile.*' \) ! -path './.git/*' | sort)
+              if [[ ${#repo_candidates[@]} -gt 0 ]]; then
+                dockerfile="${repo_candidates[0]}"
+              else
+                echo "No Dockerfile found in backend/ or repository root."
+                exit 1
+              fi
+            fi
+          fi
+
+          context="$(dirname "${dockerfile}")"
+
+          echo "context=${context}" >> "$GITHUB_OUTPUT"
+          echo "dockerfile=${dockerfile}" >> "$GITHUB_OUTPUT"
+
+          echo "Using build context: ${context}"
+          echo "Using Dockerfile: ${dockerfile}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: bulletfeed-backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=sha-
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ steps.detect.outputs.context }}
+          file: ${{ steps.detect.outputs.dockerfile }}
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
