@@ -23,6 +23,7 @@ jobs:
 
           backend_dir="backend"
           dockerfile=""
+          found_dockerfile="false"
 
           if [[ -f "${backend_dir}/Dockerfile" ]]; then
             dockerfile="${backend_dir}/Dockerfile"
@@ -35,24 +36,33 @@ jobs:
               if [[ ${#repo_candidates[@]} -gt 0 ]]; then
                 dockerfile="${repo_candidates[0]}"
               else
-                echo "No Dockerfile found in backend/ or repository root."
-                exit 1
+                echo "No Dockerfile found in backend/ or repository root. Skipping backend Docker build."
               fi
             fi
           fi
 
-          context="$(dirname "${dockerfile}")"
+          if [[ -n "${dockerfile}" ]]; then
+            found_dockerfile="true"
+            context="$(dirname "${dockerfile}")"
+          else
+            context=""
+          fi
 
           echo "context=${context}" >> "$GITHUB_OUTPUT"
           echo "dockerfile=${dockerfile}" >> "$GITHUB_OUTPUT"
+          echo "found_dockerfile=${found_dockerfile}" >> "$GITHUB_OUTPUT"
 
-          echo "Using build context: ${context}"
-          echo "Using Dockerfile: ${dockerfile}"
+          if [[ "${found_dockerfile}" == "true" ]]; then
+            echo "Using build context: ${context}"
+            echo "Using Dockerfile: ${dockerfile}"
+          fi
 
       - name: Set up Docker Buildx
+        if: steps.detect.outputs.found_dockerfile == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Generate Docker metadata
+        if: steps.detect.outputs.found_dockerfile == 'true'
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -63,6 +73,7 @@ jobs:
             type=sha,prefix=sha-
 
       - name: Build Docker image
+        if: steps.detect.outputs.found_dockerfile == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ${{ steps.detect.outputs.context }}
