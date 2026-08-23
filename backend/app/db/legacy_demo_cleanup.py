@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sqlite3
 
-
 # These identifiers were used only by the original local demo workspace. Older
 # databases can still contain the fixtures even though new sessions are no longer
 # seeded with them. Repository/topic reprojection can otherwise make those stale
