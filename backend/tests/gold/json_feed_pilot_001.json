@@ -1,0 +1,63 @@
+{
+  "bundle_id": "json-feed-pilot-001",
+  "feed_url": "https://engineering.acme.example/feed.json",
+  "cases": [
+    {
+      "event_label": "post-migration",
+      "expected_revision": "NEW_FACT",
+      "retrieved_at": "2026-08-20T15:01:00Z",
+      "feed": {
+        "version": "https://jsonfeed.org/version/1.1",
+        "feed_url": "https://engineering.acme.example/feed.json",
+        "items": [
+          {
+            "id": "post-migration",
+            "url": "https://engineering.acme.example/migration",
+            "title": "Migration guide",
+            "summary": "Initial migration guidance.",
+            "date_published": "2026-08-20T15:00:00Z",
+            "date_modified": "2026-08-20T15:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "event_label": "post-migration",
+      "expected_revision": "DETAIL",
+      "retrieved_at": "2026-08-20T16:01:00Z",
+      "feed": {
+        "version": "https://jsonfeed.org/version/1.1",
+        "feed_url": "https://engineering.acme.example/feed.json",
+        "items": [
+          {
+            "id": "post-migration",
+            "url": "https://engineering.acme.example/migration",
+            "title": "Migration guide",
+            "summary": "Migration guidance now includes rollback steps.",
+            "date_published": "2026-08-20T15:00:00Z",
+            "date_modified": "2026-08-20T16:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "event_label": "post-other-hard-negative",
+      "expected_revision": "NEW_FACT",
+      "retrieved_at": "2026-08-20T17:01:00Z",
+      "feed": {
+        "version": "https://jsonfeed.org/version/1.1",
+        "feed_url": "https://engineering.acme.example/feed.json",
+        "items": [
+          {
+            "id": "post-other",
+            "url": "https://engineering.acme.example/other",
+            "title": "Other announcement",
+            "summary": "A separate publisher event.",
+            "date_published": "2026-08-20T17:00:00Z",
+            "date_modified": "2026-08-20T17:00:00Z"
+          }
+        ]
+      }
+    }
+  ]
+}

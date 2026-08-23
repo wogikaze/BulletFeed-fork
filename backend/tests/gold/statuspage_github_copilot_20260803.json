@@ -1,0 +1,92 @@
+{
+  "bundle_id": "statuspage-github-copilot-20260803",
+  "page_id": "kctbh9vrtdwd",
+  "retrieved_at": "2026-08-22T12:22:00Z",
+  "provenance": {
+    "publisher": "GitHub Status",
+    "source_url": "https://www.githubstatus.com/api/v2/incidents.json",
+    "captured_from_live_api": true
+  },
+  "summary": {
+    "incidents": [
+      {
+        "id": "7s119p1yxttr",
+        "name": "Incident with Copilot",
+        "impact": "minor",
+        "created_at": "2026-08-03T09:53:27.172Z",
+        "shortlink": "https://stspg.io/y3tm8v1gmn85",
+        "incident_updates": [
+          {
+            "id": "t9dgrnh8h5d8",
+            "status": "investigating",
+            "body": "Copilot performance degradation is under investigation.",
+            "display_at": "2026-08-03T09:53:27.252Z",
+            "updated_at": "2026-08-03T09:53:27.252Z"
+          },
+          {
+            "id": "6q9bqtptytqj",
+            "status": "investigating",
+            "body": "Chat and agent model availability is degraded across multiple models.",
+            "display_at": "2026-08-03T09:54:22.985Z",
+            "updated_at": "2026-08-03T09:54:22.985Z"
+          },
+          {
+            "id": "s8ckry51tn7q",
+            "status": "investigating",
+            "body": "Intermittent Copilot errors continue while mitigations are evaluated.",
+            "display_at": "2026-08-03T10:35:19.914Z",
+            "updated_at": "2026-08-03T10:35:19.914Z"
+          },
+          {
+            "id": "k4jj0pm8nj3d",
+            "status": "monitoring",
+            "body": "The Copilot degradation is mitigated and stability is being monitored.",
+            "display_at": "2026-08-03T11:19:04.001Z",
+            "updated_at": "2026-08-03T11:19:04.001Z"
+          },
+          {
+            "id": "mpkkftmykc6h",
+            "status": "resolved",
+            "body": "The Copilot incident is resolved.",
+            "display_at": "2026-08-03T11:25:12.371Z",
+            "updated_at": "2026-08-03T11:25:12.371Z"
+          }
+        ]
+      },
+      {
+        "id": "sj1tzyrx599x",
+        "name": "Incident with Copilot AI Model Providers",
+        "impact": "minor",
+        "created_at": "2026-08-01T18:03:05.539Z",
+        "shortlink": "https://stspg.io/z58g1g529hzz",
+        "incident_updates": [
+          {
+            "id": "whdtrmj4k5y1",
+            "status": "investigating",
+            "body": "Copilot AI Model Providers are experiencing degraded performance.",
+            "display_at": "2026-08-01T18:03:05.616Z",
+            "updated_at": "2026-08-01T18:03:05.616Z"
+          }
+        ]
+      }
+    ]
+  },
+  "gold": {
+    "event_by_update": {
+      "t9dgrnh8h5d8": "github-copilot-incident",
+      "6q9bqtptytqj": "github-copilot-incident",
+      "s8ckry51tn7q": "github-copilot-incident",
+      "k4jj0pm8nj3d": "github-copilot-incident",
+      "mpkkftmykc6h": "github-copilot-incident",
+      "whdtrmj4k5y1": "github-copilot-model-provider-hard-negative"
+    },
+    "revision_by_update": {
+      "t9dgrnh8h5d8": "NEW_FACT",
+      "6q9bqtptytqj": "DETAIL",
+      "s8ckry51tn7q": "DETAIL",
+      "k4jj0pm8nj3d": "STATE_UPDATE",
+      "mpkkftmykc6h": "STATE_UPDATE",
+      "whdtrmj4k5y1": "NEW_FACT"
+    }
+  }
+}

@@ -3,25 +3,41 @@ name: Android quality
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, completion-pr]
 
 permissions:
   contents: read
 
+concurrency:
+  group: android-quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
-    name: Lint and format check
+    name: Lint, format and unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Verify exact checked-out head
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: temurin
           java-version: "17"
           cache: gradle
 
-      - name: Check Kotlin formatting and Android lint
-        run: ./gradlew ktlintCheck lint
+      - name: Check Kotlin formatting, Android lint and unit tests
+        run: ./gradlew ktlintCheck lint testDebugUnitTest
+
+  # Branch protection still requires this exact check name.
+  lint-and-format-check:
+    name: Lint and format check
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report required status
+        run: echo "Lint, format and unit tests passed"

@@ -6,16 +6,20 @@ build-backend = "setuptools.build_meta"
 name = "bulletfeed-backend"
 version = "0.1.0"
 description = "Optional FastAPI prototype for the BulletFeed Android client"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "bleach>=6.2,<7",
     "cryptography>=50,<51",
+    "defusedxml>=0.7.1,<1",
     "fastapi>=0.116,<1",
     "feedparser>=6.0.11,<7",
     "httpx>=0.28,<1",
     "pydantic-settings>=2.10,<3",
     "uvicorn[standard]>=0.35,<1",
 ]
+
+[project.scripts]
+bulletfeed-sync = "app.sync_worker:main"
 
 [project.optional-dependencies]
 dev = [
@@ -29,11 +33,21 @@ dev = [
 
 [tool.ruff]
 line-length = 110
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S"]
 ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+# These two call sites interpolate only table names from closed, source-defined tuples;
+# user input remains parameterized. Keep the exception local rather than disabling S608 globally.
+"app/database.py" = ["S608"]
+"app/stores/feed_store.py" = ["S608"]
+"app/stores/me_store.py" = ["S608"]
+# PUBLIC_API_SCHEMA is an embedded SQL migration string; physical SQL line width is not Python API style.
+"app/db/schema.py" = ["E501"]
+"tests/*" = ["S105", "S106"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

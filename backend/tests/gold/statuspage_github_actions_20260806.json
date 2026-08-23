@@ -1,0 +1,92 @@
+{
+  "bundle_id": "statuspage-github-actions-20260806",
+  "page_id": "kctbh9vrtdwd",
+  "retrieved_at": "2026-08-22T12:20:00Z",
+  "provenance": {
+    "publisher": "GitHub Status",
+    "source_url": "https://www.githubstatus.com/api/v2/incidents.json",
+    "captured_from_live_api": true
+  },
+  "summary": {
+    "incidents": [
+      {
+        "id": "qcvjkzcs7j74",
+        "name": "Incident with Actions",
+        "impact": "critical",
+        "created_at": "2026-08-06T15:22:49.029Z",
+        "shortlink": "https://stspg.io/rcz3fcm83sff",
+        "incident_updates": [
+          {
+            "id": "f3r3jlmz4h4k",
+            "status": "investigating",
+            "body": "Degraded performance for Actions.",
+            "display_at": "2026-08-06T15:22:49.100Z",
+            "updated_at": "2026-08-06T15:22:49.100Z"
+          },
+          {
+            "id": "yd9whz1ptmfn",
+            "status": "investigating",
+            "body": "Workflow runs are failing to start.",
+            "display_at": "2026-08-06T15:45:14.821Z",
+            "updated_at": "2026-08-06T15:45:14.821Z"
+          },
+          {
+            "id": "sk63vxykkbrj",
+            "status": "monitoring",
+            "body": "The degradation has been mitigated.",
+            "display_at": "2026-08-07T00:06:24.906Z",
+            "updated_at": "2026-08-07T00:06:24.906Z"
+          },
+          {
+            "id": "qky4pzj2zplf",
+            "status": "monitoring",
+            "body": "Runner pods became stuck in an idle state.",
+            "display_at": "2026-08-07T02:03:41.768Z",
+            "updated_at": "2026-08-07T02:03:41.768Z"
+          },
+          {
+            "id": "x3dy6fnmf98h",
+            "status": "resolved",
+            "body": "This incident has been resolved.",
+            "display_at": "2026-08-07T02:04:44.460Z",
+            "updated_at": "2026-08-07T02:04:44.460Z"
+          }
+        ]
+      },
+      {
+        "id": "1xqvzyv99skw",
+        "name": "Incident with Pages - Deployment Lag",
+        "impact": "minor",
+        "created_at": "2026-08-06T15:03:55.182Z",
+        "shortlink": "https://stspg.io/b0n00sx9z3ht",
+        "incident_updates": [
+          {
+            "id": "yqpw817ffp7k",
+            "status": "investigating",
+            "body": "Degraded performance for Pages.",
+            "display_at": "2026-08-06T15:03:55.261Z",
+            "updated_at": "2026-08-06T15:03:55.261Z"
+          }
+        ]
+      }
+    ]
+  },
+  "gold": {
+    "event_by_update": {
+      "f3r3jlmz4h4k": "github-actions-incident",
+      "yd9whz1ptmfn": "github-actions-incident",
+      "sk63vxykkbrj": "github-actions-incident",
+      "qky4pzj2zplf": "github-actions-incident",
+      "x3dy6fnmf98h": "github-actions-incident",
+      "yqpw817ffp7k": "github-pages-hard-negative"
+    },
+    "revision_by_update": {
+      "f3r3jlmz4h4k": "NEW_FACT",
+      "yd9whz1ptmfn": "DETAIL",
+      "sk63vxykkbrj": "STATE_UPDATE",
+      "qky4pzj2zplf": "DETAIL",
+      "x3dy6fnmf98h": "STATE_UPDATE",
+      "yqpw817ffp7k": "NEW_FACT"
+    }
+  }
+}

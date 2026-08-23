@@ -1,0 +1,8 @@
+{
+  "split": "pilot",
+  "bundle_ids": [
+    "statuspage-pilot-001",
+    "multisource_pilot_001",
+    "github-advisory-pilot-001"
+  ]
+}

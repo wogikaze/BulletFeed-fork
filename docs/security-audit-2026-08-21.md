@@ -1,5 +1,7 @@
 # セキュリティ監査結果（2026-08-21）
 
+> **Historical snapshot.** この文書はコミット `9bf0135289bbaded1b3f1b99f73b1832d9883042` 当時の監査記録であり、現行Android/backendの説明ではありません。その後Remote Repository、token永続化、deep link、session refresh/recovery、release HTTPS、GitHub credential state等が追加されています。現行release差分は [`security-audit-2026-08-23.md`](security-audit-2026-08-23.md) を参照してください。
+
 ## 概要
 
 コミット `9bf0135289bbaded1b3f1b99f73b1832d9883042` を対象に、Androidフロントエンド、任意FastAPIバックエンド、GitHub OAuth、外部データ取得、CI、依存関係、秘密情報を静的解析とローカルテストで確認した。
@@ -13,7 +15,7 @@
 | Medium | 0 |
 | Low | 9 |
 
-現在のバックエンドは `127.0.0.1` でのローカル検証用で、AndroidアプリもMock Repositoryを使用している。この前提を考慮して全件をLowと評価した。バックエンドをLANまたはインターネットへ公開する場合は、OAuth、SSRF、rate limit関連の再評価が必要になる。
+当時のバックエンドは `127.0.0.1` でのローカル検証用で、AndroidアプリもMock Repositoryを使用していた。この前提を考慮して全件をLowと評価した。**この評価を現行release候補へ適用してはならない。**
 
 ## 実行した確認
 
@@ -46,29 +48,33 @@ pytest tests/test_security.py tests/test_rss_safety.py
 | SEC-08 | Python依存関係をlockfile・hashなしで毎回解決している | `backend/pyproject.toml` | 推移依存を含むlock/constraintsとhash検証を導入する |
 | SEC-09 | Gradle distributionのSHA-256が固定されていない | `gradle/wrapper/gradle-wrapper.properties` | 公式の`distributionSha256Sum`を追加する |
 
-## 問題が見つからなかった範囲
+## 当時問題が見つからなかった範囲
 
-- Androidは`INTERNET` permission、deep link、WebView、通知用`PendingIntent`をまだ持っていない
-- Android backupは無効になっている
-- launcher用`MainActivity`以外のexported componentはない
-- Android側にtokenや秘密情報の永続保存・ログ出力はない
-- GitHub access token、PKCE verifier、OAuth結果用tokenはバックエンドで暗号化またはhash化される
-- OAuth stateはランダム生成され、期限と一回限りのcallback claimがある
-- RSSはHTTPS、443番port、host allowlist、private IP拒否、redirect再検査、Content-Type、本文サイズの基本制限を持つ
-- GitHub Actionsは`contents: read`で、`pull_request_target`やrepository secretを使用していない
+以下は2026-08-21時点の記録で、現行実装には該当しない記述を含む。
 
-## 対応優先順位
+- Androidは`INTERNET` permission、deep link、WebView、通知用`PendingIntent`をまだ持っていなかった
+- Android backupは無効になっていた
+- launcher用`MainActivity`以外のexported componentはなかった
+- Android側にtokenや秘密情報の永続保存・ログ出力はなかった
+- GitHub access token、PKCE verifier、OAuth結果用tokenはバックエンドで暗号化またはhash化されていた
+- OAuth stateはランダム生成され、期限と一回限りのcallback claimがあった
+- RSSはHTTPS、443番port、host allowlist、private IP拒否、redirect再検査、Content-Type、本文サイズの基本制限を持っていた
+- GitHub Actionsは`contents: read`で、`pull_request_target`やrepository secretを使用していなかった
 
-公開バックエンドへ進める前に、次の順番で対応する。
+## 当時の対応優先順位
+
+公開バックエンドへ進める前に、次の順番で対応するとしていた。
 
 1. SEC-01〜SEC-04: OAuth/session lifecycleとAPI abuse対策
 2. SEC-05〜SEC-06: RSS取得境界の強化
 3. SEC-07〜SEC-09: CIと依存関係の再現性・supply chain対策
 
+現行のrelease gateと対応状況は2026-08-23監査差分および`docs/real-backend-acceptance.md`を参照する。
+
 ## 制約
 
-- 実GitHubアカウントを使ったOAuth通信や本番環境への侵入テストは実施していない
-- Pythonにlockfileがないため、実際に配備される依存バージョン固有のCVEは確定していない
-- `gradle-wrapper.jar`は構成と役割を確認したが、binary全体のsource auditは実施していない
+- 実GitHubアカウントを使ったOAuth通信や本番環境への侵入テストは実施していなかった
+- 当時はPython lockfileがなく、配備依存バージョン固有のCVEは確定していなかった
+- `gradle-wrapper.jar`は構成と役割を確認したが、binary全体のsource auditは実施していなかった
 
 この文書には秘密情報を含めない。新しい認証・ネットワーク・永続化機能を追加した場合は、公開前に再監査する。

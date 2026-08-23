@@ -6,6 +6,7 @@ class MockMeStore(
     override suspend fun getMe(): MeBootstrap =
         MeBootstrap(
             onboardingCompleted = state.onboardingCompleted,
+            onboardingState = if (state.onboardingCompleted) OnboardingState.READY else OnboardingState.PROFILE,
             profile = state.profile,
             topicCount = state.topics.size,
             githubConnected = state.github.connected,
@@ -73,6 +74,11 @@ class MockMeStore(
                 }.toMutableList()
         state.github = state.github.copy(connected = connectGithub)
         state.onboardingCompleted = true
-        return OnboardingSnapshot(true, state.profile, state.topicNames())
+        return OnboardingSnapshot(
+            completed = true,
+            state = OnboardingState.READY,
+            profile = state.profile,
+            topics = state.topicNames(),
+        )
     }
 }

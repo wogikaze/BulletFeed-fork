@@ -9,12 +9,17 @@ from fastapi.responses import HTMLResponse
 
 from app.config import Settings, get_settings
 from app.database import Database
-from app.dependencies import get_cipher, get_database
+from app.dependencies import get_cipher, get_database, require_user
 from app.models import AuthorizationStart, AuthorizationStatus
+from app.schemas.integrations import GithubAuthorizeResponse
 from app.security import TokenCipher, create_pkce_pair
 from app.services import github
+from app.services.oauth_flow_policy import create_user_oauth_flow
 
 router = APIRouter(prefix="/v1", tags=["authentication"])
+
+_USER_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60
+_REFRESH_TTL_SECONDS = 365 * 24 * 60 * 60
 
 
 def _require_github_config(settings: Settings) -> None:
@@ -25,12 +30,12 @@ def _require_github_config(settings: Settings) -> None:
         )
 
 
-@router.post("/auth/github/start", response_model=AuthorizationStart)
-def start_github_authorization(
-    settings: Annotated[Settings, Depends(get_settings)],
-    database: Annotated[Database, Depends(get_database)],
-    cipher: Annotated[TokenCipher, Depends(get_cipher)],
-    user_id: Annotated[str | None, Header(alias="X-User-Id")] = None,
+def _start_github_authorization(
+    settings: Settings,
+    database: Database,
+    cipher: TokenCipher,
+    *,
+    user_id: str | None,
 ) -> AuthorizationStart:
     _require_github_config(settings)
     flow_id = secrets.token_urlsafe(24)
@@ -38,13 +43,15 @@ def start_github_authorization(
     poll_token = secrets.token_urlsafe(32)
     verifier, challenge = create_pkce_pair()
     expires_in = 600
-    database.create_oauth_flow(
+    create_user_oauth_flow(
+        database,
         flow_id=flow_id,
         user_id=user_id,
         state=state_value,
         poll_token=poll_token,
         encrypted_verifier=cipher.encrypt(verifier),
         expires_at=int(time.time()) + expires_in,
+        purpose="account_recovery" if user_id is None else "user_link",
     )
     query = urlencode(
         {
@@ -63,6 +70,56 @@ def start_github_authorization(
     )
 
 
+def start_github_authorization_for_user(
+    settings: Settings,
+    database: Database,
+    cipher: TokenCipher,
+    *,
+    user_id: str,
+) -> AuthorizationStart:
+    return _start_github_authorization(
+        settings,
+        database,
+        cipher,
+        user_id=user_id,
+    )
+
+
+@router.post("/auth/github/start", response_model=AuthorizationStart)
+def start_github_authorization(
+    settings: Annotated[Settings, Depends(get_settings)],
+    database: Annotated[Database, Depends(get_database)],
+    cipher: Annotated[TokenCipher, Depends(get_cipher)],
+    user: Annotated[dict, Depends(require_user)],
+) -> AuthorizationStart:
+    return start_github_authorization_for_user(
+        settings,
+        database,
+        cipher,
+        user_id=user["user_id"],
+    )
+
+
+@router.post("/sessions/recover/github", response_model=GithubAuthorizeResponse)
+def start_github_account_recovery(
+    settings: Annotated[Settings, Depends(get_settings)],
+    database: Annotated[Database, Depends(get_database)],
+    cipher: Annotated[TokenCipher, Depends(get_cipher)],
+) -> GithubAuthorizeResponse:
+    started = _start_github_authorization(
+        settings,
+        database,
+        cipher,
+        user_id=None,
+    )
+    return GithubAuthorizeResponse(
+        authorization_url=str(started.authorization_url),
+        flow_id=started.flow_id,
+        poll_token=started.poll_token,
+        expires_in_seconds=started.expires_in_seconds,
+    )
+
+
 @router.get("/auth/github/callback", response_class=HTMLResponse)
 async def github_callback(
     settings: Annotated[Settings, Depends(get_settings)],
@@ -75,7 +132,14 @@ async def github_callback(
     flow = database.claim_oauth_flow(state_value)
     if flow is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="OAuth state is invalid or expired"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OAuth state is invalid or expired",
+        )
+    if flow["user_id"] is None and flow["detail"] != "account_recovery":
+        database.fail_oauth_flow(flow["flow_id"], "Unbound OAuth flow is not an account recovery flow")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OAuth flow is not valid for account recovery",
         )
     try:
         verifier = cipher.decrypt(flow["pkce_verifier_encrypted"])
@@ -84,8 +148,9 @@ async def github_callback(
         github_user = await github.get_user(settings, github_token)
         now = int(time.time())
         token_expires_at = now + int(token_data["expires_in"]) if token_data.get("expires_in") else None
-        session_lifetime = min(int(token_data.get("expires_in", 28_800)), 28_800)
+        source_session_lifetime = min(int(token_data.get("expires_in", 28_800)), 28_800)
         app_access_token = secrets.token_urlsafe(48)
+        refresh_token = secrets.token_urlsafe(64)
         database.complete_oauth_flow(
             flow_id=flow["flow_id"],
             user_id=flow["user_id"],
@@ -94,14 +159,22 @@ async def github_callback(
             github_token_expires_at=token_expires_at,
             app_access_token=app_access_token,
             encrypted_app_access_token=cipher.encrypt(app_access_token),
-            session_expires_at=now + session_lifetime,
+            refresh_token=refresh_token,
+            encrypted_refresh_token=cipher.encrypt(refresh_token),
+            app_session_expires_at=now + source_session_lifetime,
+            user_session_expires_at=now + _USER_SESSION_TTL_SECONDS,
+            refresh_expires_at=now + _REFRESH_TTL_SECONDS,
         )
+    except ValueError as exc:
+        database.fail_oauth_flow(flow["flow_id"], str(exc))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except Exception as exc:
         database.fail_oauth_flow(flow["flow_id"], "GitHub authorization failed")
         if isinstance(exc, HTTPException):
             raise exc
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY, detail="GitHub authorization failed"
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="GitHub authorization failed",
         ) from exc
 
     login = html.escape(str(github_user["login"]))
@@ -109,8 +182,7 @@ async def github_callback(
         "<!doctype html><html lang='ja'><meta charset='utf-8'>"
         "<meta name='viewport' content='width=device-width,initial-scale=1'>"
         "<title>BulletFeed</title><body style='font-family:sans-serif;padding:32px'>"
-        f"<h1>GitHub連携が完了しました</h1><p>{login} として連携しました。</p>"
-        "<p>BulletFeedアプリに戻ってください。この画面にトークンは含まれていません。</p>"
+        f"<h1>GitHub認証が完了しました</h1><p>{login} として確認しました。</p>"
         "</body></html>"
     )
 
@@ -130,6 +202,3 @@ def github_authorization_status(
     if result is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Authorization flow was not found")
     return AuthorizationStatus(**result)
-
-
-

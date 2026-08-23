@@ -162,7 +162,9 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 `GET /me/integrations/github` — 接続状態のみ。repo 全件は載せない。  
 `POST /me/integrations/github/authorize` — OAuth 開始。token は返さない。既存 poll flow を再利用。  
 `GET /me/integrations/github/repositories?q=&cursor=&limit=`  
+並び: `updatedAt desc, id desc`  
 `PUT /me/integrations/github/repositories` `{ repositoryIds }`  
+応答: 接続状態 + `addedTopics` / `alreadyTrackedTopics`。監視repo保存時に技術テーマを同期する。  
 `DELETE /me/integrations/github` — 監視選択を消し接続を切る。フィード履歴は残す。
 
 ### Security / Notifications

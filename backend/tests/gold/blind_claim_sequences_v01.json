@@ -1,0 +1,132 @@
+{
+  "dataset_id": "bulletfeed-gold-blind-v0.1",
+  "split": "blind",
+  "bundles": [
+    {
+      "bundle_id": "release-version-blind-001",
+      "category": "release_version",
+      "source_type": "github_release",
+      "source_key": "acme/widget",
+      "slot": "release_state",
+      "title": "acme/widget v3 release",
+      "cases": [
+        {"id":"rv1","event_label":"widget-v3","expected_revision":"NEW_FACT","value":"prerelease","detail":"Widget v3 beta is available.","valid_at":"2026-08-01T09:00:00Z"},
+        {"id":"rv2","event_label":"widget-v3","expected_revision":"DETAIL","value":"prerelease","detail":"Widget v3 beta is available with upgrade notes.","valid_at":"2026-08-01T10:00:00Z"},
+        {"id":"rv3","event_label":"widget-v3","expected_revision":"STATE_UPDATE","value":"released","detail":"Widget v3 reached general availability.","valid_at":"2026-08-01T11:00:00Z"},
+        {"id":"rv4","event_label":"widget-v3","expected_revision":"DETAIL","value":"released","detail":"Widget v3 reached general availability with migration links.","valid_at":"2026-08-01T12:00:00Z"},
+        {"id":"rv5","event_label":"widget-v3","expected_revision":"NON_NOVEL","value":"released","detail":"Widget v3 reached general availability with migration links.","valid_at":"2026-08-01T13:00:00Z"},
+        {"id":"rv6","event_label":"widget-v3.0.1-hard-negative","expected_revision":"NEW_FACT","value":"released","detail":"Widget v3.0.1 patch release is available.","valid_at":"2026-08-01T14:00:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "security-fixed-version-blind-001",
+      "category": "security_cve",
+      "source_type": "osv",
+      "source_key": "PyPI/requests",
+      "slot": "vulnerability_state",
+      "title": "requests vulnerability",
+      "cases": [
+        {"id":"sf1","event_label":"ghsa-security-a","expected_revision":"NEW_FACT","value":"affected","detail":"requests 2.0.0 is affected by GHSA-security-a.","valid_at":"2026-08-03T09:00:00Z"},
+        {"id":"sf2","event_label":"ghsa-security-a","expected_revision":"DETAIL","value":"affected","detail":"requests 2.0.0 is affected; temporary mitigation is documented.","valid_at":"2026-08-03T10:00:00Z"},
+        {"id":"sf3","event_label":"ghsa-security-a","expected_revision":"STATE_UPDATE","value":"fixed","detail":"GHSA-security-a is fixed in requests 2.1.0.","valid_at":"2026-08-03T11:00:00Z"},
+        {"id":"sf4","event_label":"ghsa-security-a","expected_revision":"DETAIL","value":"fixed","detail":"GHSA-security-a is fixed in requests 2.1.0; upgrade guidance is available.","valid_at":"2026-08-03T12:00:00Z"},
+        {"id":"sf5","event_label":"ghsa-security-a","expected_revision":"NON_NOVEL","value":"fixed","detail":"GHSA-security-a is fixed in requests 2.1.0; upgrade guidance is available.","valid_at":"2026-08-03T13:00:00Z"},
+        {"id":"sf6","event_label":"ghsa-security-b-hard-negative","expected_revision":"NEW_FACT","value":"affected","detail":"A separate requests vulnerability GHSA-security-b is active.","valid_at":"2026-08-03T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "deprecation-policy-blind-001",
+      "category": "policy_deprecation",
+      "source_type": "rss_atom",
+      "source_key": "https://docs.acme.example/feed.xml",
+      "slot": "policy_state",
+      "title": "Legacy API deprecation",
+      "cases": [
+        {"id":"dp1","event_label":"legacy-api-deprecation","expected_revision":"NEW_FACT","value":"announced","detail":"Legacy API deprecation was announced.","valid_at":"2026-08-04T09:00:00Z"},
+        {"id":"dp2","event_label":"legacy-api-deprecation","expected_revision":"DETAIL","value":"announced","detail":"Legacy API deprecation was announced with a January deadline.","valid_at":"2026-08-04T10:00:00Z"},
+        {"id":"dp3","event_label":"legacy-api-deprecation","expected_revision":"STATE_UPDATE","value":"deprecated","detail":"Legacy API is now deprecated.","valid_at":"2026-08-04T11:00:00Z"},
+        {"id":"dp4","event_label":"legacy-api-deprecation","expected_revision":"STATE_UPDATE","value":"removed","detail":"Legacy API has been removed.","valid_at":"2026-08-04T12:00:00Z"},
+        {"id":"dp5","event_label":"legacy-api-deprecation","expected_revision":"NON_NOVEL","value":"removed","detail":"Legacy API has been removed.","valid_at":"2026-08-04T13:00:00Z"},
+        {"id":"dp6","event_label":"legacy-cli-deprecation-hard-negative","expected_revision":"NEW_FACT","value":"announced","detail":"Legacy CLI deprecation was separately announced.","valid_at":"2026-08-04T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "migration-guidance-blind-001",
+      "category": "migration",
+      "source_type": "json_feed",
+      "source_key": "https://engineering.acme.example/feed.json",
+      "slot": "guidance_state",
+      "title": "Widget migration guide",
+      "cases": [
+        {"id":"mg1","event_label":"widget-migration-guide","expected_revision":"NEW_FACT","value":"published","detail":"Initial Widget migration guide is published.","valid_at":"2026-08-05T09:00:00Z"},
+        {"id":"mg2","event_label":"widget-migration-guide","expected_revision":"DETAIL","value":"published","detail":"Widget migration guide now includes database steps.","valid_at":"2026-08-05T10:00:00Z"},
+        {"id":"mg3","event_label":"widget-migration-guide","expected_revision":"DETAIL","value":"published","detail":"Widget migration guide now includes database and rollback steps.","valid_at":"2026-08-05T11:00:00Z"},
+        {"id":"mg4","event_label":"widget-migration-guide","expected_revision":"NON_NOVEL","value":"published","detail":"Widget migration guide now includes database and rollback steps.","valid_at":"2026-08-05T12:00:00Z"},
+        {"id":"mg5","event_label":"other-migration-hard-negative","expected_revision":"NEW_FACT","value":"published","detail":"A separate SDK migration guide is published.","valid_at":"2026-08-05T09:30:00Z"},
+        {"id":"mg6","event_label":"widget-migration-guide","expected_revision":"DETAIL","value":"published","detail":"Widget migration guide adds a production validation checklist.","valid_at":"2026-08-05T13:00:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "explicit-correction-blind-001",
+      "category": "correction_conflict",
+      "source_type": "rss_atom",
+      "source_key": "https://changelog.acme.example/feed.xml",
+      "slot": "compatibility_state",
+      "title": "Runtime compatibility",
+      "cases": [
+        {"id":"ec1","event_label":"runtime-compatibility","expected_revision":"NEW_FACT","value":"supported","detail":"Python 3.10 is supported.","valid_at":"2026-08-06T09:00:00Z"},
+        {"id":"ec2","event_label":"runtime-compatibility","expected_revision":"DETAIL","value":"supported","detail":"Python 3.10 is supported through 2027.","valid_at":"2026-08-06T10:00:00Z"},
+        {"id":"ec3","event_label":"runtime-compatibility","expected_revision":"CORRECTION","value":"unsupported","detail":"Correction: Python 3.10 is not supported.","valid_at":"2026-08-06T11:00:00Z","explicit_correction":true},
+        {"id":"ec4","event_label":"runtime-compatibility","expected_revision":"DETAIL","value":"unsupported","detail":"Python 3.11 is the minimum supported runtime.","valid_at":"2026-08-06T12:00:00Z"},
+        {"id":"ec5","event_label":"runtime-compatibility","expected_revision":"NON_NOVEL","value":"unsupported","detail":"Python 3.11 is the minimum supported runtime.","valid_at":"2026-08-06T13:00:00Z"},
+        {"id":"ec6","event_label":"node-compatibility-hard-negative","expected_revision":"NEW_FACT","value":"supported","detail":"Node 24 compatibility is a separate announcement.","valid_at":"2026-08-06T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "cross-source-conflict-blind-001",
+      "category": "correction_conflict",
+      "slot": "availability_state",
+      "title": "Widget Japan availability",
+      "cases": [
+        {"id":"cc1","source_type":"github_release","source_key":"acme/widget","source_event_id":"release:200","canonical_event_key":"acme/widget:jp-availability","event_label":"widget-jp-availability","expected_revision":"NEW_FACT","value":"available","detail":"GitHub Release says Widget is available in Japan.","valid_at":"2026-08-07T09:00:00Z"},
+        {"id":"cc2","source_type":"rss_atom","source_key":"https://status.acme.example/feed.xml","source_event_id":"jp-availability-conflict","canonical_event_key":"acme/widget:jp-availability","event_label":"widget-jp-availability","expected_revision":"UNRESOLVED_CONTRADICTION","value":"unavailable","detail":"Official status feed says Japan rollout is not complete.","valid_at":"2026-08-07T10:00:00Z","unresolved_source_conflict":true},
+        {"id":"cc3","source_type":"github_release","source_key":"acme/widget","source_event_id":"release:200-confirmed","canonical_event_key":"acme/widget:jp-availability","event_label":"widget-jp-availability","expected_revision":"DETAIL","value":"available","detail":"GitHub Release confirms Japan availability on all mirrors.","valid_at":"2026-08-07T11:00:00Z"},
+        {"id":"cc4","source_type":"github_release","source_key":"acme/widget","source_event_id":"release:200-confirmed-2","canonical_event_key":"acme/widget:jp-availability","event_label":"widget-jp-availability","expected_revision":"DETAIL","value":"available","detail":"Japan availability is confirmed with support documentation.","valid_at":"2026-08-07T12:00:00Z"},
+        {"id":"cc5","source_type":"json_feed","source_key":"https://status.acme.example/feed.json","source_event_id":"jp-availability-repeat","canonical_event_key":"acme/widget:jp-availability","event_label":"widget-jp-availability","expected_revision":"NON_NOVEL","value":"available","detail":"Japan availability is confirmed with support documentation.","valid_at":"2026-08-07T13:00:00Z"},
+        {"id":"cc6","source_type":"github_release","source_key":"acme/widget","source_event_id":"release:eu","canonical_event_key":"acme/widget:eu-availability","event_label":"widget-eu-availability-hard-negative","expected_revision":"NEW_FACT","value":"available","detail":"Europe availability is a separate rollout event.","valid_at":"2026-08-07T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "policy-price-correction-blind-001",
+      "category": "policy_deprecation",
+      "source_type": "json_feed",
+      "source_key": "https://policy.acme.example/feed.json",
+      "slot": "policy_state",
+      "title": "API pricing policy",
+      "cases": [
+        {"id":"pc1","event_label":"api-price-policy","expected_revision":"NEW_FACT","value":"proposed","detail":"A 10 percent API price increase is proposed.","valid_at":"2026-08-09T09:00:00Z"},
+        {"id":"pc2","event_label":"api-price-policy","expected_revision":"DETAIL","value":"proposed","detail":"A 10 percent API price increase is proposed for January.","valid_at":"2026-08-09T10:00:00Z"},
+        {"id":"pc3","event_label":"api-price-policy","expected_revision":"STATE_UPDATE","value":"approved","detail":"The API price increase was approved.","valid_at":"2026-08-09T11:00:00Z"},
+        {"id":"pc4","event_label":"api-price-policy","expected_revision":"CORRECTION","value":"approved","detail":"Correction: the approved increase is 8 percent, not 10 percent.","valid_at":"2026-08-09T12:00:00Z","explicit_correction":true},
+        {"id":"pc5","event_label":"api-price-policy","expected_revision":"NON_NOVEL","value":"approved","detail":"Correction: the approved increase is 8 percent, not 10 percent.","valid_at":"2026-08-09T13:00:00Z"},
+        {"id":"pc6","event_label":"enterprise-price-policy-hard-negative","expected_revision":"NEW_FACT","value":"proposed","detail":"Enterprise pricing changes are a separate policy event.","valid_at":"2026-08-09T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "security-withdrawal-correction-blind-001",
+      "category": "security_cve",
+      "source_type": "github_advisory",
+      "source_key": "GitHub Advisory",
+      "slot": "advisory_state",
+      "title": "Security advisory lifecycle",
+      "cases": [
+        {"id":"sw1","event_label":"ghsa-withdrawal-a","expected_revision":"NEW_FACT","value":"active","detail":"GHSA-withdrawal-a is active.","valid_at":"2026-08-10T09:00:00Z"},
+        {"id":"sw2","event_label":"ghsa-withdrawal-a","expected_revision":"DETAIL","value":"active","detail":"GHSA-withdrawal-a is active with high severity.","valid_at":"2026-08-10T10:00:00Z"},
+        {"id":"sw3","event_label":"ghsa-withdrawal-a","expected_revision":"STATE_UPDATE","value":"withdrawn","detail":"GHSA-withdrawal-a was withdrawn after reassessment.","valid_at":"2026-08-10T11:00:00Z"},
+        {"id":"sw4","event_label":"ghsa-withdrawal-a","expected_revision":"CORRECTION","value":"active","detail":"Correction: the withdrawal was erroneous; the advisory remains active.","valid_at":"2026-08-10T12:00:00Z","explicit_correction":true},
+        {"id":"sw5","event_label":"ghsa-withdrawal-a","expected_revision":"NON_NOVEL","value":"active","detail":"Correction: the withdrawal was erroneous; the advisory remains active.","valid_at":"2026-08-10T13:00:00Z"},
+        {"id":"sw6","event_label":"ghsa-withdrawal-b-hard-negative","expected_revision":"NEW_FACT","value":"active","detail":"GHSA-withdrawal-b is a separate advisory.","valid_at":"2026-08-10T09:30:00Z"}
+      ]
+    }
+  ]
+}

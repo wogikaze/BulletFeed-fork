@@ -1,11 +1,15 @@
 from contextlib import asynccontextmanager
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import Database
+from app.db.release_lifecycle import install_release_lifecycle_guards, worker_is_fresh
+from app.db.topic_catalog import install_topic_catalog
+from app.dependencies import get_database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 from app.models import HealthResponse
 from app.routers import auth, events, feed, integrations, me, sessions
@@ -14,14 +18,17 @@ from app.routers import auth, events, feed, integrations, me, sessions
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     settings = get_settings()
-    Database(settings.database_path).initialize()
+    database = Database(settings.database_path)
+    database.initialize()
+    install_topic_catalog(database)
+    install_release_lifecycle_guards(database)
     yield
 
 
 app = FastAPI(
-    title="BulletFeed Local Backend",
+    title="BulletFeed Backend",
     version="0.1.0",
-    description="Local prototype. GitHub credentials are kept on this server, never in the Android app.",
+    description="BulletFeed API and source synchronization backend.",
     lifespan=lifespan,
 )
 app.add_exception_handler(HTTPException, http_exception_handler)
@@ -49,3 +56,23 @@ app.include_router(auth.router)
 @app.get("/health", response_model=HealthResponse, tags=["system"])
 def health() -> HealthResponse:
     return HealthResponse(github_auth_configured=settings.github_auth_configured)
+
+
+@app.get("/health/ready", tags=["system"])
+def readiness(
+    database: Annotated[Database, Depends(get_database)],
+) -> dict[str, object]:
+    try:
+        with database.connect() as connection:
+            connection.execute("SELECT 1").fetchone()
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database is not ready",
+        ) from exc
+    if not worker_is_fresh(database):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Source sync worker heartbeat is stale or missing",
+        )
+    return {"status": "ready", "database": "ok", "sourceSyncWorker": "ok"}

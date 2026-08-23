@@ -16,13 +16,31 @@ class MockIntegrationStore(
     override suspend fun listGithubRepositories(query: String): List<GithubRepositoryChoice> =
         state.repositories.filter { query.isBlank() || it.fullName.contains(query, ignoreCase = true) }
 
-    override suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubConnection {
+    override suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubTopicSyncResult {
         state.repositories =
             state.repositories
                 .map { it.copy(selected = it.id in repositoryIds) }
                 .toMutableList()
         state.github = GithubConnection(connected = true, accountLogin = "niyu")
-        return state.github
+        val inferred = repositoryIds.flatMap { inferredTopicsFor(it) }.distinct()
+        val existing = state.topics.map { it.name.lowercase() }.toSet()
+        val added = inferred.filter { it.lowercase() !in existing }
+        val alreadyTracked = inferred.filter { it.lowercase() in existing }
+        added.forEach { name ->
+            state.topics += UserTopic(
+                id = "topic_${state.topics.size}",
+                name = name,
+                type = TopicType.TECHNOLOGY,
+                priority = TopicPriority.NORMAL,
+                order = state.topics.size,
+            )
+        }
+        return GithubTopicSyncResult(
+            connection = state.github,
+            addedTopics = added,
+            alreadyTrackedTopics = alreadyTracked,
+            inspectedRepositoryCount = repositoryIds.size,
+        )
     }
 
     override suspend fun disconnectGithub() {
@@ -61,15 +79,22 @@ class MockIntegrationStore(
         return state.notifications.toList()
     }
 
-    override suspend fun importFromPublicRepo(fullName: String): List<String> {
+    override suspend fun importFromPublicRepo(fullName: String): GithubTopicSyncResult {
         if (BulletFeedApiClient.token == null) {
             BulletFeedApiClient.createSession()
         }
-        val result = BulletFeedApiClient.api.importRepositoryKeywords(
+        return BulletFeedApiClient.api.importRepositoryKeywords(
             GithubRepoImportDto(fullName.trim()),
-        )
-        return result.addedTopics
+        ).toSyncResult()
     }
+
+    private fun inferredTopicsFor(repositoryId: String): List<String> =
+        when (repositoryId) {
+            "repo_123" -> listOf("Cloudflare Workers")
+            "repo_web" -> listOf("Kotlin")
+            "repo_app" -> listOf("Kotlin", "Android")
+            else -> emptyList()
+        }
 
     fun setGithubConnected(connected: Boolean): Boolean {
         state.github = state.github.copy(connected = connected, accountLogin = if (connected) "niyu" else null)

@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +7,14 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jlleitschuh.gradle.ktlint")
 }
+
+val releaseBaseUrlProvider =
+    providers.gradleProperty("BULLETFEED_RELEASE_BASE_URL")
+        .orElse(providers.environmentVariable("BULLETFEED_RELEASE_BASE_URL"))
+val configuredReleaseBaseUrl = releaseBaseUrlProvider.orNull ?: "https://invalid.invalid/"
+
+fun quotedBuildConfigString(value: String): String =
+    "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
 
 android {
     namespace = "com.bulletfeed.app"
@@ -16,7 +26,18 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+        manifestPlaceholders["usesCleartextTraffic"] = "false"
+    }
+
+    buildTypes {
+        getByName("debug") {
+            buildConfigField("String", "BASE_URL", quotedBuildConfigString("http://127.0.0.1:8000/"))
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
+        }
+        getByName("release") {
+            buildConfigField("String", "BASE_URL", quotedBuildConfigString(configuredReleaseBaseUrl))
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
+        }
     }
 
     buildFeatures {
@@ -31,6 +52,35 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+}
+
+val validateReleaseBaseUrl by tasks.registering {
+    doLast {
+        val value = releaseBaseUrlProvider.orNull
+            ?: error("BULLETFEED_RELEASE_BASE_URL is required for release builds")
+        val uri = runCatching { URI(value) }.getOrElse {
+            error("BULLETFEED_RELEASE_BASE_URL must be a valid absolute HTTPS URL")
+        }
+        val host = uri.host?.lowercase().orEmpty()
+        require(uri.scheme == "https" && host.isNotBlank()) {
+            "BULLETFEED_RELEASE_BASE_URL must use HTTPS"
+        }
+        require(host !in setOf("localhost", "127.0.0.1", "10.0.2.2") && !host.endsWith(".local")) {
+            "BULLETFEED_RELEASE_BASE_URL must point to a public HTTPS backend"
+        }
+        require(value.endsWith("/")) {
+            "BULLETFEED_RELEASE_BASE_URL must end with / for Retrofit"
+        }
+    }
+}
+
+tasks.configureEach {
+    if (
+        name.contains("Release", ignoreCase = false) &&
+        (name.startsWith("assemble") || name.startsWith("bundle") || name.startsWith("package"))
+    ) {
+        dependsOn(validateReleaseBaseUrl)
     }
 }
 
@@ -49,6 +99,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("sh.calvin.reorderable:reorderable:3.1.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")

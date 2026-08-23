@@ -1,0 +1,55 @@
+from pathlib import Path
+
+from app.database import Database
+from app.services.rss_pipeline import ingest_feed_events
+
+
+def _preview(summary: str, updated: str) -> dict:
+    return {
+        "title": "Acme Engineering",
+        "source_url": "https://engineering.acme.test/feed.xml",
+        "items": [
+            {
+                "title": "Widget migration guide",
+                "link": "https://engineering.acme.test/widget-migration",
+                "published": "2026-08-20T10:00:00Z",
+                "updated": updated,
+                "summary": summary,
+            }
+        ],
+    }
+
+
+def test_rss_entry_revisions_reach_public_event_projection(tmp_path: Path) -> None:
+    database = Database(tmp_path / "test.db")
+    database.initialize()
+
+    first = ingest_feed_events(
+        database,
+        preview=_preview("Initial migration guidance.", "2026-08-20T10:01:00Z"),
+        retrieved_at="2026-08-20T10:02:00Z",
+    )
+    second = ingest_feed_events(
+        database,
+        preview=_preview("Migration guidance now covers rollback.", "2026-08-20T11:00:00Z"),
+        retrieved_at="2026-08-20T11:01:00Z",
+    )
+
+    assert first.event_ids == second.event_ids
+    event_id = first.event_ids[0]
+    with database.connect() as connection:
+        event = connection.execute("SELECT * FROM events WHERE id = ?", (event_id,)).fetchone()
+        deltas = connection.execute(
+            "SELECT * FROM deltas WHERE event_id = ? ORDER BY occurred_at, id",
+            (event_id,),
+        ).fetchall()
+        sources = connection.execute(
+            "SELECT * FROM event_sources WHERE event_id = ? ORDER BY retrieved_at, id",
+            (event_id,),
+        ).fetchall()
+
+    assert event["current_phase"] == "published"
+    assert event["current_summary"] == "Migration guidance now covers rollback."
+    assert [row["type"] for row in deltas] == ["new_fact", "detail"]
+    assert {row["kind"] for row in sources} == {"rss_atom"}
+    assert {row["publisher"] for row in sources} == {"engineering.acme.test"}

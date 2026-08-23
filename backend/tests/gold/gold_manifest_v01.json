@@ -1,0 +1,21 @@
+{
+  "dataset_id": "bulletfeed-gold-v0.1",
+  "target_observations_approx": 90,
+  "entries": [
+    {"bundle_id":"statuspage-pilot-001","file":"statuspage_pilot_001.json","split":"pilot","category":"incident_lifecycle","observations":6},
+    {"bundle_id":"multisource_pilot_001","file":"multisource_pilot_001.json","split":"pilot","category":"mixed","observations":9},
+    {"bundle_id":"github-advisory-pilot-001","file":"github_advisory_pilot_001.json","split":"pilot","category":"security_cve","observations":4},
+    {"bundle_id":"json-feed-pilot-001","file":"json_feed_pilot_001.json","split":"blind","category":"migration","observations":3},
+    {"bundle_id":"unresolved-conflict-pilot-001","file":"unresolved_conflict_pilot_001.json","split":"blind","category":"correction_conflict","observations":5},
+    {"bundle_id":"statuspage-github-actions-20260806","file":"statuspage_github_actions_20260806.json","split":"blind","category":"incident_lifecycle","observations":6},
+    {"bundle_id":"statuspage-github-copilot-20260803","file":"statuspage_github_copilot_20260803.json","split":"blind","category":"incident_lifecycle","observations":6},
+    {"bundle_id":"release-version-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"release_version","observations":6},
+    {"bundle_id":"security-fixed-version-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"security_cve","observations":6},
+    {"bundle_id":"deprecation-policy-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"policy_deprecation","observations":6},
+    {"bundle_id":"migration-guidance-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"migration","observations":6},
+    {"bundle_id":"explicit-correction-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"correction_conflict","observations":6},
+    {"bundle_id":"cross-source-conflict-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"correction_conflict","observations":6},
+    {"bundle_id":"policy-price-correction-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"policy_deprecation","observations":6},
+    {"bundle_id":"security-withdrawal-correction-blind-001","file":"blind_claim_sequences_v01.json","split":"blind","category":"security_cve","observations":6}
+  ]
+}

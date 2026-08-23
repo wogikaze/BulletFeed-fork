@@ -8,6 +8,7 @@ data class UserProfile(
 
 data class OnboardingSnapshot(
     val completed: Boolean,
+    val state: OnboardingState,
     val profile: UserProfile,
     val topics: List<String>,
 )

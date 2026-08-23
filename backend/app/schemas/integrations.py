@@ -2,9 +2,12 @@ from typing import Literal
 
 from app.schemas.common import ApiModel
 
+GithubCredentialState = Literal["connected", "reauthorization_required", "disconnected"]
+
 
 class GithubConnection(ApiModel):
     connected: bool
+    credential_state: GithubCredentialState
     account_login: str | None = None
 
 
@@ -33,6 +36,16 @@ class GithubRepositoryPage(ApiModel):
 
 class GithubRepositoryUpdate(ApiModel):
     repository_ids: list[str]
+
+
+class GithubRepositoryUpdateResult(ApiModel):
+    connected: bool
+    credential_state: GithubCredentialState
+    account_login: str | None = None
+    added_topics: list[str] = []
+    already_tracked_topics: list[str] = []
+    inspected_repository_count: int = 0
+    failed_repository_count: int = 0
 
 
 class GithubRepoImportRequest(ApiModel):

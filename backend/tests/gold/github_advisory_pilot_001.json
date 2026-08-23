@@ -1,0 +1,62 @@
+{
+  "bundle_id": "github-advisory-pilot-001",
+  "ecosystem": "pip",
+  "cases": [
+    {
+      "event_label": "ghsa-alpha",
+      "expected_revision": "NEW_FACT",
+      "retrieved_at": "2026-08-20T09:01:00Z",
+      "payload": {
+        "ghsa_id": "GHSA-alpha-1111-2222",
+        "html_url": "https://github.com/advisories/GHSA-alpha-1111-2222",
+        "summary": "Initial requests advisory.",
+        "severity": "high",
+        "published_at": "2026-08-20T09:00:00Z",
+        "updated_at": "2026-08-20T09:00:00Z",
+        "withdrawn_at": null
+      }
+    },
+    {
+      "event_label": "ghsa-alpha",
+      "expected_revision": "DETAIL",
+      "retrieved_at": "2026-08-20T10:01:00Z",
+      "payload": {
+        "ghsa_id": "GHSA-alpha-1111-2222",
+        "html_url": "https://github.com/advisories/GHSA-alpha-1111-2222",
+        "summary": "Initial requests advisory; mitigation guidance added.",
+        "severity": "high",
+        "published_at": "2026-08-20T09:00:00Z",
+        "updated_at": "2026-08-20T10:00:00Z",
+        "withdrawn_at": null
+      }
+    },
+    {
+      "event_label": "ghsa-alpha",
+      "expected_revision": "STATE_UPDATE",
+      "retrieved_at": "2026-08-20T11:01:00Z",
+      "payload": {
+        "ghsa_id": "GHSA-alpha-1111-2222",
+        "html_url": "https://github.com/advisories/GHSA-alpha-1111-2222",
+        "summary": "Advisory withdrawn after reassessment.",
+        "severity": "high",
+        "published_at": "2026-08-20T09:00:00Z",
+        "updated_at": "2026-08-20T11:00:00Z",
+        "withdrawn_at": "2026-08-20T11:00:00Z"
+      }
+    },
+    {
+      "event_label": "ghsa-beta-hard-negative",
+      "expected_revision": "NEW_FACT",
+      "retrieved_at": "2026-08-20T12:01:00Z",
+      "payload": {
+        "ghsa_id": "GHSA-beta-3333-4444",
+        "html_url": "https://github.com/advisories/GHSA-beta-3333-4444",
+        "summary": "Separate vulnerability in the same ecosystem.",
+        "severity": "medium",
+        "published_at": "2026-08-20T12:00:00Z",
+        "updated_at": "2026-08-20T12:00:00Z",
+        "withdrawn_at": null
+      }
+    }
+  ]
+}

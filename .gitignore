@@ -9,3 +9,4 @@ app/build/
 
 # Local-only FastAPI backend. Credentials and collected data must never be committed.
 backend-local/
+/data/

@@ -6,8 +6,6 @@ enum class FeedFeedbackType { IMPORTANT, NOT_RELEVANT }
 
 enum class DeltaType { NEW_FACT, DETAIL, STATE_UPDATE, CORRECTION, UNRESOLVED_CONTRADICTION }
 
-enum class EventPhase { INVESTIGATING, IDENTIFIED, MONITORING, RESOLVED }
-
 enum class TimelineType { ANNOUNCED, STATE_CHANGED, INFORMATION_ADDED, CORRECTED, RESOLVED }
 
 enum class SourceKind {
@@ -15,13 +13,24 @@ enum class SourceKind {
     GITHUB_ADVISORY,
     OSV,
     GITHUB_RELEASE,
+    GITHUB_SBOM,
+    RSS_ATOM,
+    JSON_FEED,
     OFFICIAL_CHANGELOG,
     DOCUMENTATION,
 }
 
 enum class TopicType { TECHNOLOGY, SERVICE, COMPANY }
 
+const val MAX_TRACKED_TOPICS = 20
+
 enum class TopicPriority { HIGH, NORMAL, LOW }
+
+enum class GithubAuthorizationState { PENDING, CONNECTED, FAILED, EXPIRED }
+
+enum class GithubCredentialState { CONNECTED, REAUTHORIZATION_REQUIRED, DISCONNECTED }
+
+enum class OnboardingState { PROFILE, GITHUB_PENDING, REPOSITORY_PENDING, READY }
 
 data class FeedDelta(
     val id: String,
@@ -51,6 +60,16 @@ data class MatchedRepository(
     val url: String,
 )
 
+data class EventSource(
+    val publisher: String,
+    val kind: SourceKind,
+    val title: String,
+    val url: String,
+    val publishedAt: String,
+    val retrievedAt: String,
+    val evidence: String,
+)
+
 data class FeedItem(
     val id: String,
     val eventId: String,
@@ -62,12 +81,18 @@ data class FeedItem(
     val following: Boolean,
     val updatedAt: String,
     val deliveryId: String,
+    val sources: List<EventSource> = emptyList(),
     val markedImportant: Boolean = false,
     val dismissed: Boolean = false,
 )
 
+data class FeedPage(
+    val items: List<FeedItem>,
+    val nextCursor: String?,
+)
+
 data class CurrentState(
-    val phase: EventPhase,
+    val phase: String,
     val summary: String,
     val since: String,
     val confidence: String,
@@ -88,16 +113,6 @@ data class EventImpact(
     val kind: String,
     val text: String,
     val confidence: String,
-)
-
-data class EventSource(
-    val publisher: String,
-    val kind: SourceKind,
-    val title: String,
-    val url: String,
-    val publishedAt: String,
-    val retrievedAt: String,
-    val evidence: String,
 )
 
 data class EventDetail(
@@ -128,6 +143,7 @@ data class UserTopic(
 
 data class MeBootstrap(
     val onboardingCompleted: Boolean,
+    val onboardingState: OnboardingState,
     val profile: UserProfile,
     val topicCount: Int,
     val githubConnected: Boolean,
@@ -135,7 +151,16 @@ data class MeBootstrap(
 
 data class GithubConnection(
     val connected: Boolean,
+    val credentialState: GithubCredentialState = if (connected) GithubCredentialState.CONNECTED else GithubCredentialState.DISCONNECTED,
     val accountLogin: String? = null,
+)
+
+data class GithubTopicSyncResult(
+    val connection: GithubConnection,
+    val addedTopics: List<String> = emptyList(),
+    val alreadyTrackedTopics: List<String> = emptyList(),
+    val inspectedRepositoryCount: Int = 0,
+    val failedRepositoryCount: Int = 0,
 )
 
 data class GithubAuthorization(
@@ -145,9 +170,24 @@ data class GithubAuthorization(
     val expiresInSeconds: Int,
 )
 
+data class GithubAuthorizationStatus(
+    val state: GithubAuthorizationState,
+    val githubLogin: String? = null,
+    val detail: String? = null,
+)
+
 data class GithubRepositoryChoice(
     val id: String,
     val fullName: String,
     val htmlUrl: String,
     val selected: Boolean,
+    val isPrivate: Boolean = false,
+    val description: String? = null,
+    val language: String? = null,
+    val updatedAt: String = "",
+)
+
+data class GithubRepositoryPage(
+    val items: List<GithubRepositoryChoice>,
+    val nextCursor: String?,
 )

@@ -1,12 +1,9 @@
 package com.bulletfeed.app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,14 +14,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -34,8 +37,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,56 +51,193 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopicsScreen(
-    topics: List<String>,
+    topics: List<UserTopic>,
+    searchResults: List<UserTopic>,
+    searchQuery: String,
+    isSearching: Boolean,
     githubConnected: Boolean,
+    topicSyncMessage: String? = null,
     onGithubClick: () -> Unit,
-    onAddTopic: (String) -> Unit,
+    onSearchTopics: (String) -> Unit,
+    onAddTopic: (String, TopicType) -> Unit,
+    onAddSearchResult: (UserTopic) -> Unit,
     onRemoveTopic: (String) -> Unit,
+    onPriorityChange: (String, TopicPriority) -> Unit,
+    onReorderTopics: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var newTopic by rememberSaveable { mutableStateOf("") }
+    var newTopicType by rememberSaveable { mutableStateOf(TopicType.TECHNOLOGY.name) }
+    var query by rememberSaveable(searchQuery) { mutableStateOf(searchQuery) }
+    val selectedType = TopicType.entries.firstOrNull { it.name == newTopicType } ?: TopicType.TECHNOLOGY
+    val topicLimitReached = topics.size >= MAX_TRACKED_TOPICS
+    var orderedTopics by remember { mutableStateOf(topics) }
+    var dragging by remember { mutableStateOf(false) }
+    val lazyListState = rememberLazyListState()
+    val headerCount = 1
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        val fromIndex = from.index - headerCount
+        val toIndex = to.index - headerCount
+        if (fromIndex in orderedTopics.indices && toIndex in orderedTopics.indices) {
+            orderedTopics = orderedTopics.toMutableList().apply {
+                add(toIndex, removeAt(fromIndex))
+            }
+        }
+    }
+
+    LaunchedEffect(topics) {
+        if (dragging) {
+            val byId = topics.associateBy { it.id }
+            orderedTopics = orderedTopics.map { byId[it.id] ?: it }
+        } else {
+            orderedTopics = topics
+        }
+    }
+
     Scaffold(topBar = { TopAppBar(title = { Text("テーマ") }) }) { padding ->
-        LazyColumn(modifier = modifier.padding(padding).fillMaxSize().padding(20.dp)) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp),
+        ) {
             item {
+                Spacer(Modifier.height(12.dp))
                 Text("追跡中のテーマ", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Text("このテーマに起きた変化を優先して届けます。", color = Color(0xFF655F69))
-                Spacer(Modifier.height(16.dp))
-
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    DemoData.defaultTopics.forEach { topic ->
-                        val isSelected = topic in topics
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = {
-                                if (isSelected) onRemoveTopic(topic) else onAddTopic(topic)
-                            },
-                            label = { Text(topic) },
-                            leadingIcon =
-                                if (isSelected) {
-                                    (
-                                        {
-                                            Icon(Icons.Default.Check, null, Modifier.size(16.dp))
-                                        }
-                                    )
-                                } else {
-                                    null
+                Text("優先度をタップして切り替え · ${topics.size}/$MAX_TRACKED_TOPICS", color = Color(0xFF655F69))
+                if (topicLimitReached) {
+                    Text(
+                        "上限に達しています。別のテーマを追加するには、追跡中のテーマを1件削除してください。",
+                        modifier = Modifier.padding(top = 6.dp),
+                        color = Color(0xFF8F1D18),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Spacer(Modifier.height(14.dp))
+            }
+            if (orderedTopics.isEmpty()) {
+                item {
+                    Text("追跡テーマはまだありません。候補検索か自由入力から追加してください。", color = Color(0xFF655F69))
+                }
+            } else {
+                items(orderedTopics, key = { it.id }) { topic ->
+                    ReorderableItem(reorderableState, key = topic.id) { isDragging ->
+                        TopicManagementCard(
+                            topic = topic,
+                            dragging = isDragging,
+                            dragHandleModifier = Modifier.draggableHandle(
+                                onDragStarted = { dragging = true },
+                                onDragStopped = {
+                                    dragging = false
+                                    onReorderTopics(orderedTopics.map { it.id })
                                 },
-                            modifier = Modifier.padding(bottom = 8.dp),
+                            ),
+                            onPriorityChange = onPriorityChange,
+                            onRemoveTopic = onRemoveTopic,
                         )
                     }
                 }
-
+            }
+            item {
+                Spacer(Modifier.height(18.dp))
+                Text("候補を検索", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = {
+                            query = it
+                            if (it.isBlank()) onSearchTopics("")
+                        },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("技術・サービス・企業") },
+                        singleLine = true,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = { onSearchTopics(query) }, enabled = query.isNotBlank() && !isSearching) {
+                        if (isSearching) {
+                            CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text("検索")
+                        }
+                    }
+                }
+                if (isSearching) {
+                    Text("候補を検索中…", modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            items(searchResults, key = { "search-${it.id}" }) { result ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F3F1)),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(result.name, fontWeight = FontWeight.Bold)
+                            Text(result.type.label(), color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+                        }
+                        Button(
+                            onClick = { onAddSearchResult(result) },
+                            enabled = !topicLimitReached,
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(17.dp))
+                            Text(if (topicLimitReached) "上限" else "追加", modifier = Modifier.padding(start = 4.dp))
+                        }
+                    }
+                }
+            }
+            item {
+                Spacer(Modifier.height(22.dp))
+                Text("自由入力", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TopicType.entries.forEach { type ->
+                        FilterChip(
+                            selected = selectedType == type,
+                            onClick = { newTopicType = type.name },
+                            label = { Text(type.label()) },
+                            modifier = Modifier.padding(end = 6.dp),
+                        )
+                    }
+                }
+                Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = newTopic,
+                        onValueChange = { newTopic = it },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("テーマを追加") },
+                        singleLine = true,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            onAddTopic(newTopic, selectedType)
+                            newTopic = ""
+                        },
+                        enabled = newTopic.isNotBlank() && !topicLimitReached,
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "追加", modifier = Modifier.size(18.dp))
+                    }
+                }
                 Spacer(Modifier.height(24.dp))
                 Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F3F1)), shape = RoundedCornerShape(20.dp)) {
                     Column(Modifier.padding(18.dp)) {
                         Text("GitHub連携", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(
-                            if (githubConnected) "2つのリポジトリを監視中\n使用している技術の変更を直接影響として表示します。" else "使っている技術を読み取り、あなたに関係する変更をより正確に届けます。",
+                            when {
+                                !topicSyncMessage.isNullOrBlank() -> topicSyncMessage
+                                githubConnected -> "監視するrepositoryを保存すると、使っている技術がこの一覧に追加されます。"
+                                else -> "使っている技術を読み取り、あなたに関係する変更をより正確に届けます。"
+                            },
                             modifier = Modifier.padding(top = 6.dp),
                             color = Color(0xFF3D5A56),
                         )
@@ -105,97 +247,141 @@ fun TopicsScreen(
                         }
                     }
                 }
+                Spacer(Modifier.height(24.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun TopicManagementCard(
+    topic: UserTopic,
+    dragging: Boolean,
+    dragHandleModifier: Modifier,
+    onPriorityChange: (String, TopicPriority) -> Unit,
+    onRemoveTopic: (String) -> Unit,
+) = Card(
+    modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+    colors = CardDefaults.cardColors(containerColor = Color.White),
+    elevation = CardDefaults.cardElevation(defaultElevation = if (dragging) 6.dp else 0.dp),
+    shape = RoundedCornerShape(16.dp),
+) {
+    Row(Modifier.padding(horizontal = 8.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = {}, modifier = dragHandleModifier) {
+            Icon(Icons.Default.DragHandle, contentDescription = "並び替え", tint = Color(0xFF655F69))
+        }
+        Column(Modifier.weight(1f)) {
+            Text(topic.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(topic.type.label(), color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+        }
+        AssistChip(
+            onClick = { onPriorityChange(topic.id, topic.priority.next()) },
+            label = { Text(topic.priority.label()) },
+            colors = AssistChipDefaults.assistChipColors(
+                labelColor = topic.priority.chipColor(),
+            ),
+        )
+        TextButton(onClick = { onRemoveTopic(topic.id) }) { Text("削除", color = Color(0xFF8F1D18)) }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GithubConnectionScreen(
-    connected: Boolean,
+    connection: GithubConnection,
+    repositories: List<GithubRepositoryChoice>,
+    nextCursor: String?,
+    query: String,
+    isLoading: Boolean,
+    isLoadingMore: Boolean,
+    isSaving: Boolean,
+    isAuthorizing: Boolean,
+    errorMessage: String?,
+    topicSyncMessage: String? = null,
     onBack: () -> Unit,
     onConnect: () -> Unit,
+    onSearch: (String) -> Unit,
+    onLoadMore: () -> Unit,
+    onToggleRepository: (String) -> Unit,
+    onSaveRepositories: () -> Unit,
     onImportRepo: (String) -> Unit,
+    onDisconnect: () -> Unit,
 ) {
     var repoInput by rememberSaveable { mutableStateOf("") }
-    var selectedRepositories by remember { mutableStateOf(setOf("bulletfeed-app", "worker-api")) }
-    val repositories =
-        listOf(
-            "bulletfeed-app" to "Kotlin · Jetpack Compose",
-            "worker-api" to "TypeScript · Cloudflare Workers",
-            "experiments" to "Python · OpenAI API",
-        )
-    Scaffold(topBar = {
-        TopAppBar(title = {
-            Text("GitHub連携")
-        }, navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
-            }
-        })
-    }) { padding ->
-        LazyColumn(Modifier.padding(padding).fillMaxSize().padding(20.dp)) {
+    var searchQuery by rememberSaveable { mutableStateOf(query) }
+    BackHandler(onBack = onBack)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("GitHub連携") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        LazyColumn(Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp)) {
             item {
-                Box(
-                    Modifier.size(54.dp).clip(RoundedCornerShape(16.dp)).background(Color(0xFF24292F)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("GH", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
                 Text(
-                    if (connected) "GitHubを連携済みです" else "GitHubを連携する",
+                    if (connection.connected) "GitHubを連携済みです" else "GitHubを連携する",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
+                connection.accountLogin?.let {
+                    Text("$it として連携中", color = Color(0xFF006A67), modifier = Modifier.padding(top = 5.dp))
+                }
                 Text(
-                    "選択したリポジトリの使用技術や依存関係を、関連性の判定に利用します。ソースコード本文は表示・保存しません。",
+                    "選択したrepositoryのメタデータと依存関係を関連性判定に利用します。private repositoryは現在のGitHub accessに従います。",
                     modifier = Modifier.padding(top = 8.dp),
                     color = Color(0xFF49454F),
                 )
-                Spacer(Modifier.height(22.dp))
+                if (errorMessage != null) {
+                    Text(errorMessage, modifier = Modifier.padding(top = 12.dp), color = Color(0xFF8F1D18), style = MaterialTheme.typography.bodySmall)
+                }
+                if (!topicSyncMessage.isNullOrBlank()) {
+                    Text(
+                        topicSyncMessage,
+                        modifier = Modifier.padding(top = 12.dp),
+                        color = Color(0xFF006A67),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
             }
-            if (!connected) {
+            if (!connection.connected) {
                 item {
-                    InfoBlock("必要な権限", "公開プロフィールと、あなたが選んだリポジトリのメタデータ・依存関係ファイルの参照")
-                    Spacer(Modifier.height(16.dp))
+                    InfoBlock("必要な権限", "公開プロフィールと、選択したrepositoryに対してGitHubが現在許可しているメタデータ・依存関係情報")
+                    Spacer(Modifier.height(14.dp))
                     Button(
                         onClick = onConnect,
+                        enabled = !isAuthorizing,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24292F)),
                     ) {
-                        Text("GitHubで認可する")
+                        if (isAuthorizing) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        Text(if (isAuthorizing) "認可完了を確認中" else "GitHubで認可する")
                     }
-                    Text(
-                        "デモでは連携状態だけを切り替えます。実運用時はGitHubの認可画面を開きます。",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color(0xFF655F69),
-                        modifier = Modifier.padding(top = 10.dp),
-                    )
                     Spacer(Modifier.height(24.dp))
-                    Text(
-                        "または、public repoを指定して技術を取り込む",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Spacer(Modifier.height(8.dp))
+                    Text("public repositoryからテーマを取り込む", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = repoInput,
                         onValueChange = { repoInput = it },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         label = { Text("owner/repo") },
                         singleLine = true,
                     )
-                    Spacer(Modifier.height(8.dp))
                     Button(
                         onClick = {
-                            if (repoInput.isNotBlank()) {
-                                onImportRepo(repoInput)
-                                repoInput = ""
-                            }
+                            onImportRepo(repoInput)
+                            repoInput = ""
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         enabled = repoInput.isNotBlank(),
                     ) {
                         Text("技術・ライブラリを取り込む")
@@ -203,61 +389,114 @@ fun GithubConnectionScreen(
                 }
             } else {
                 item {
-                    Text("監視するリポジトリ", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Text("niyu として連携中", color = Color(0xFF006A67), modifier = Modifier.padding(vertical = 5.dp))
+                    Text("監視するrepository", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            modifier = Modifier.weight(1f),
+                            label = { Text("repositoryを検索") },
+                            singleLine = true,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Button(onClick = { onSearch(searchQuery) }) { Text("検索") }
+                    }
+                    Spacer(Modifier.height(10.dp))
                 }
-                items(repositories) { (name, stack) ->
-                    Card(
-                        modifier =
-                            Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable {
-                                selectedRepositories =
-                                    if (name in
-                                        selectedRepositories
-                                    ) {
-                                        selectedRepositories - name
-                                    } else {
-                                        selectedRepositories + name
-                                    }
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                    ) {
-                        Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                Modifier.size(22.dp).clip(RoundedCornerShape(6.dp)).background(
-                                    if (name in
-                                        selectedRepositories
-                                    ) {
-                                        Color(0xFF006A67)
-                                    } else {
-                                        Color(0xFFE0DCE3)
-                                    },
-                                ),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                if (name in
-                                    selectedRepositories
-                                ) {
-                                    Icon(
-                                        Icons.Default.Check,
-                                        contentDescription = "選択済み",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(18.dp),
-                                    )
-                                }
+                if (isLoading) {
+                    item {
+                        Row(Modifier.fillMaxWidth().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+                            Text("repositoryを取得中", modifier = Modifier.padding(start = 10.dp))
+                        }
+                    }
+                } else if (repositories.isEmpty()) {
+                    item { Text("該当するrepositoryはありません。", modifier = Modifier.padding(vertical = 24.dp), color = Color(0xFF655F69)) }
+                } else {
+                    items(repositories, key = { it.id }) { repository ->
+                        RepositoryChoiceCard(repository, onToggleRepository)
+                    }
+                }
+                if (nextCursor != null) {
+                    item {
+                        OutlinedButton(
+                            onClick = onLoadMore,
+                            enabled = !isLoadingMore,
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        ) {
+                            if (isLoadingMore) {
+                                CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
+                                Spacer(Modifier.width(8.dp))
                             }
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(name, fontWeight = FontWeight.Bold)
-                                Text(stack, color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
-                            }
+                            Text(if (isLoadingMore) "読み込み中" else "次のページを読み込む")
                         }
                     }
                 }
                 item {
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("選択を保存") }
+                    Button(
+                        onClick = onSaveRepositories,
+                        enabled = !isSaving,
+                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+                    ) {
+                        if (isSaving) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        Text(if (isSaving) "保存中" else "選択を保存")
+                    }
+                    if (!topicSyncMessage.isNullOrBlank()) {
+                        Text(
+                            topicSyncMessage,
+                            modifier = Modifier.padding(top = 10.dp),
+                            color = Color(0xFF006A67),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                    TextButton(onClick = onDisconnect, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                        Text("GitHub連携を解除", color = Color(0xFF8F1D18))
+                    }
+                    Spacer(Modifier.height(24.dp))
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RepositoryChoiceCard(
+    repository: GithubRepositoryChoice,
+    onToggle: (String) -> Unit,
+) = Card(
+    modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable { onToggle(repository.id) },
+    shape = RoundedCornerShape(16.dp),
+    colors = CardDefaults.cardColors(containerColor = Color.White),
+) {
+    Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
+        androidx.compose.foundation.layout.Box(
+            Modifier.size(24.dp).clip(RoundedCornerShape(6.dp)).background(
+                if (repository.selected) Color(0xFF006A67) else Color(0xFFE0DCE3),
+            ),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (repository.selected) {
+                Icon(Icons.Default.Check, contentDescription = "選択済み", tint = Color.White, modifier = Modifier.size(18.dp))
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(repository.fullName, fontWeight = FontWeight.Bold, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            Text(
+                listOfNotNull(
+                    if (repository.isPrivate) "private" else "public",
+                    repository.language,
+                    repository.updatedAt.takeIf { it.isNotBlank() },
+                ).joinToString(" · "),
+                color = Color(0xFF655F69),
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 2,
+            )
+            repository.description?.let {
+                Text(it, modifier = Modifier.padding(top = 3.dp), color = Color(0xFF49454F), style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -267,19 +506,107 @@ fun GithubConnectionScreen(
 @Composable
 fun SettingsScreen(
     profile: UserProfile,
+    isSaving: Boolean,
+    onSaveProfile: (UserProfile) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var editing by rememberSaveable { mutableStateOf(false) }
+    var role by rememberSaveable(profile.role) { mutableStateOf(profile.role) }
+    var interestsText by rememberSaveable(profile.interests) { mutableStateOf(profile.interests.joinToString(", ")) }
+    var region by rememberSaveable(profile.region) { mutableStateOf(profile.region) }
+
     Scaffold(topBar = { TopAppBar(title = { Text("設定") }) }) { padding ->
         Column(modifier.padding(padding).padding(20.dp)) {
             Text("あなたの情報", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
-            InfoBlock("職種", profile.role)
-            Spacer(Modifier.height(8.dp))
-            InfoBlock("興味", profile.interests.joinToString(" · "))
-            Spacer(Modifier.height(8.dp))
-            InfoBlock("地域", profile.region)
-            Spacer(Modifier.height(20.dp))
-            OutlinedButton(onClick = {}, modifier = Modifier.fillMaxWidth()) { Text("プロフィールを編集") }
+            if (!editing) {
+                InfoBlock("職種", profile.role.ifBlank { "未設定" })
+                Spacer(Modifier.height(8.dp))
+                InfoBlock("興味", profile.interests.joinToString(" · ").ifBlank { "未設定" })
+                Spacer(Modifier.height(8.dp))
+                InfoBlock("地域", profile.region.ifBlank { "未設定" })
+                Spacer(Modifier.height(20.dp))
+                OutlinedButton(
+                    onClick = {
+                        role = profile.role
+                        interestsText = profile.interests.joinToString(", ")
+                        region = profile.region
+                        editing = true
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("プロフィールを編集") }
+            } else {
+                OutlinedTextField(
+                    value = role,
+                    onValueChange = { role = it },
+                    label = { Text("職種") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = interestsText,
+                    onValueChange = { interestsText = it },
+                    label = { Text("興味（カンマ区切り）") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                )
+                OutlinedTextField(
+                    value = region,
+                    onValueChange = { region = it },
+                    label = { Text("地域") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    singleLine = true,
+                )
+                Button(
+                    onClick = {
+                        val interests = interestsText
+                            .split(",", "、")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() }
+                            .toSet()
+                        onSaveProfile(UserProfile(role.trim(), interests, region.trim()))
+                        editing = false
+                    },
+                    enabled = role.isNotBlank() && !isSaving,
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                ) {
+                    if (isSaving) {
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(if (isSaving) "保存中" else "保存")
+                }
+                TextButton(onClick = { editing = false }, enabled = !isSaving, modifier = Modifier.fillMaxWidth()) {
+                    Text("キャンセル")
+                }
+            }
         }
     }
 }
+
+private fun TopicType.label(): String =
+    when (this) {
+        TopicType.TECHNOLOGY -> "技術"
+        TopicType.SERVICE -> "サービス"
+        TopicType.COMPANY -> "企業"
+    }
+
+private fun TopicPriority.label(): String =
+    when (this) {
+        TopicPriority.HIGH -> "高"
+        TopicPriority.NORMAL -> "標準"
+        TopicPriority.LOW -> "低"
+    }
+
+private fun TopicPriority.next(): TopicPriority =
+    when (this) {
+        TopicPriority.HIGH -> TopicPriority.NORMAL
+        TopicPriority.NORMAL -> TopicPriority.LOW
+        TopicPriority.LOW -> TopicPriority.HIGH
+    }
+
+private fun TopicPriority.chipColor(): Color =
+    when (this) {
+        TopicPriority.HIGH -> Color(0xFFA6231C)
+        TopicPriority.NORMAL -> Color(0xFF655F69)
+        TopicPriority.LOW -> Color(0xFF9A9590)
+    }

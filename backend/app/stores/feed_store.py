@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import json
 import secrets
 import sqlite3
 from datetime import UTC, datetime
 
 from app.database import Database
-from app.db.seed import seed_user_workspace
 from app.errors import not_found, unprocessable
-from app.schemas.common import Delta, Importance, MatchedRepository, Relation
+from app.schemas.common import Delta, Importance, MatchedRepository, Relation, SourceEvidence
 from app.schemas.feed import PublicFeedItem
 
 _VALID_RELATIONS = {"direct", "adjacent", "reference"}
@@ -20,22 +20,45 @@ def _now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def _encode_cursor(updated_at: str, item_id: str) -> str:
-    raw = f"{updated_at}|{item_id}".encode()
+def _encode_cursor(
+    importance_rank: int,
+    relation_rank: int,
+    personalization_rank: int,
+    updated_at: str,
+    item_id: str,
+) -> str:
+    raw = (
+        f"v3|{importance_rank}|{relation_rank}|{personalization_rank}|{updated_at}|{item_id}"
+    ).encode()
     return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
 
-def _decode_cursor(cursor: str) -> tuple[str, str]:
+def _decode_cursor(cursor: str) -> tuple[int, int, int, str, str]:
     padding = "=" * (-len(cursor) % 4)
     try:
         decoded = base64.urlsafe_b64decode(cursor + padding).decode()
-        updated_at, item_id = decoded.split("|", 1)
-    except (ValueError, UnicodeDecodeError) as exc:
-        raise unprocessable("cursor is invalid") from exc
-    return updated_at, item_id
+        version, importance_rank, relation_rank, personalization_rank, updated_at, item_id = decoded.split(
+            "|", 5
+        )
+        if version != "v3" or not updated_at or not item_id:
+            raise ValueError
+        return (
+            int(importance_rank),
+            int(relation_rank),
+            int(personalization_rank),
+            updated_at,
+            item_id,
+        )
+    except (ValueError, UnicodeDecodeError, binascii.Error) as exc:
+        raise unprocessable("cursor is invalid or from an obsolete ranking version") from exc
 
 
-def _row_to_item(row: sqlite3.Row, delivery_id: str, following: bool) -> PublicFeedItem:
+def _row_to_item(
+    row: sqlite3.Row,
+    delivery_id: str,
+    following: bool,
+    sources: list[SourceEvidence],
+) -> PublicFeedItem:
     return PublicFeedItem(
         id=row["id"],
         event_id=row["event_id"],
@@ -65,15 +88,13 @@ def _row_to_item(row: sqlite3.Row, delivery_id: str, following: bool) -> PublicF
         following=following,
         updated_at=row["updated_at"],
         delivery_id=delivery_id,
+        sources=sources,
     )
 
 
 class FeedStore:
     def __init__(self, database: Database) -> None:
         self._database = database
-
-    def _ensure_workspace(self, connection: sqlite3.Connection, user_id: str) -> None:
-        seed_user_workspace(connection, user_id)
 
     def list_feed(
         self,
@@ -91,13 +112,11 @@ class FeedStore:
         if limit < 1 or limit > 50:
             raise unprocessable("limit must be 1-50")
 
-        cursor_updated_at: str | None = None
-        cursor_id: str | None = None
+        cursor_values: tuple[int, int, int, str, str] | None = None
         if cursor:
-            cursor_updated_at, cursor_id = _decode_cursor(cursor)
+            cursor_values = _decode_cursor(cursor)
 
         with self._database.connect() as connection:
-            self._ensure_workspace(connection, user_id)
             follows = {
                 row["event_id"]: bool(row["following"])
                 for row in connection.execute(
@@ -106,28 +125,116 @@ class FeedStore:
                 )
             }
 
-            sql = """
+            inner_sql = """
                 SELECT f.*, d.type AS delta_type, d.summary AS delta_summary,
-                       d.before_text, d.after_text, d.occurred_at
+                       d.before_text, d.after_text, d.occurred_at,
+                       CASE f.importance_level
+                           WHEN 'critical' THEN 4
+                           WHEN 'high' THEN 3
+                           WHEN 'medium' THEN 2
+                           ELSE 1
+                       END AS importance_rank,
+                       CASE f.relation_level
+                           WHEN 'direct' THEN 3
+                           WHEN 'adjacent' THEN 2
+                           ELSE 1
+                       END AS relation_rank
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
                 WHERE f.user_id = ? AND f.dismissed = 0
+                  AND (
+                      NOT EXISTS (
+                          SELECT 1 FROM event_visibility v
+                          WHERE v.event_id = f.event_id AND v.restricted = 1
+                      )
+                      OR EXISTS (
+                          SELECT 1 FROM event_user_access a
+                          WHERE a.event_id = f.event_id
+                            AND a.user_id = f.user_id
+                            AND a.expires_at > ?
+                      )
+                  )
             """
-            params: list[object] = [user_id]
+            params: list[object] = [user_id, int(datetime.now(UTC).timestamp())]
             if relation is not None:
-                sql += " AND f.relation_level = ?"
+                inner_sql += " AND f.relation_level = ?"
                 params.append(relation)
             if item_status is not None:
-                sql += " AND f.status = ?"
+                inner_sql += " AND f.status = ?"
                 params.append(item_status)
-            if cursor_updated_at is not None and cursor_id is not None:
-                sql += " AND (f.updated_at < ? OR (f.updated_at = ? AND f.id < ?))"
-                params.extend([cursor_updated_at, cursor_updated_at, cursor_id])
-            sql += " ORDER BY f.updated_at DESC, f.id DESC LIMIT ?"
+
+            sql = f"SELECT * FROM ({inner_sql}) ranked"  # nosec B608
+            if cursor_values is not None:
+                importance_rank, relation_rank, personalization_rank, updated_at, item_id = cursor_values
+                sql += """
+                    WHERE importance_rank < ?
+                       OR (importance_rank = ? AND relation_rank < ?)
+                       OR (
+                           importance_rank = ? AND relation_rank = ?
+                           AND personalization_rank < ?
+                       )
+                       OR (
+                           importance_rank = ? AND relation_rank = ?
+                           AND personalization_rank = ? AND updated_at < ?
+                       )
+                       OR (
+                           importance_rank = ? AND relation_rank = ?
+                           AND personalization_rank = ? AND updated_at = ? AND id < ?
+                       )
+                """
+                params.extend(
+                    [
+                        importance_rank,
+                        importance_rank,
+                        relation_rank,
+                        importance_rank,
+                        relation_rank,
+                        personalization_rank,
+                        importance_rank,
+                        relation_rank,
+                        personalization_rank,
+                        updated_at,
+                        importance_rank,
+                        relation_rank,
+                        personalization_rank,
+                        updated_at,
+                        item_id,
+                    ]
+                )
+            sql += """
+                ORDER BY importance_rank DESC, relation_rank DESC,
+                         personalization_rank DESC, updated_at DESC, id DESC
+                LIMIT ?
+            """
             params.append(limit + 1)
 
             rows = list(connection.execute(sql, params).fetchall())
             page_rows = rows[:limit]
+            sources_by_event: dict[str, list[SourceEvidence]] = {}
+            event_ids = list(dict.fromkeys(row["event_id"] for row in page_rows))
+            if event_ids:
+                placeholders = ",".join("?" for _ in event_ids)
+                source_rows = connection.execute(
+                    f"""
+                    SELECT event_id, publisher, kind, title, url, published_at, retrieved_at, evidence
+                    FROM event_sources
+                    WHERE event_id IN ({placeholders})
+                    ORDER BY published_at, id
+                    """,  # nosec B608
+                    event_ids,
+                ).fetchall()
+                for source in source_rows:
+                    sources_by_event.setdefault(source["event_id"], []).append(
+                        SourceEvidence(
+                            publisher=source["publisher"],
+                            kind=source["kind"],
+                            title=source["title"],
+                            url=source["url"],
+                            published_at=source["published_at"],
+                            retrieved_at=source["retrieved_at"],
+                            evidence=source["evidence"],
+                        )
+                    )
 
             items: list[PublicFeedItem] = []
             created_at = _now_iso()
@@ -137,12 +244,25 @@ class FeedStore:
                     "INSERT INTO deliveries (id, feed_item_id, user_id, created_at) VALUES (?, ?, ?, ?)",
                     (delivery_id, row["id"], user_id, created_at),
                 )
-                items.append(_row_to_item(row, delivery_id, follows.get(row["event_id"], False)))
+                items.append(
+                    _row_to_item(
+                        row,
+                        delivery_id,
+                        follows.get(row["event_id"], False),
+                        sources_by_event.get(row["event_id"], []),
+                    )
+                )
 
             next_cursor = None
             if len(rows) > limit and page_rows:
                 last = page_rows[-1]
-                next_cursor = _encode_cursor(last["updated_at"], last["id"])
+                next_cursor = _encode_cursor(
+                    last["importance_rank"],
+                    last["relation_rank"],
+                    last["personalization_rank"],
+                    last["updated_at"],
+                    last["id"],
+                )
             return items, next_cursor
 
     def mark_read(self, user_id: str, feed_item_id: str) -> dict:
@@ -203,18 +323,33 @@ class FeedStore:
         with self._database.connect() as connection:
             for item in items:
                 delivery_id = item["delivery_id"]
-                owned = connection.execute(
-                    "SELECT id FROM deliveries WHERE id = ? AND user_id = ?",
-                    (delivery_id, user_id),
+                delivery = connection.execute(
+                    """
+                    SELECT d.id, f.delta_id, m.claim_id
+                    FROM deliveries d
+                    JOIN feed_items f ON f.id = d.feed_item_id
+                    LEFT JOIN delta_claim_map m ON m.delta_id = f.delta_id
+                    WHERE d.id = ? AND d.user_id = ? AND f.user_id = ?
+                    """,
+                    (delivery_id, user_id, user_id),
                 ).fetchone()
-                if owned is None:
+                if delivery is None:
                     continue
-                connection.execute(
+                inserted = connection.execute(
                     """
                     INSERT OR IGNORE INTO exposures (delivery_id, user_id, displayed_at, created_at)
                     VALUES (?, ?, ?, ?)
                     """,
                     (delivery_id, user_id, item["displayed_at"], now),
-                )
-                accepted += 1
+                ).rowcount
+                if delivery["claim_id"] is not None:
+                    connection.execute(
+                        """
+                        INSERT OR IGNORE INTO user_claim_exposures (
+                            user_id, claim_id, delivery_id, delivered_at
+                        ) VALUES (?, ?, ?, ?)
+                        """,
+                        (user_id, delivery["claim_id"], delivery_id, item["displayed_at"]),
+                    )
+                accepted += inserted
         return accepted

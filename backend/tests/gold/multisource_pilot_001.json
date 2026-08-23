@@ -1,0 +1,164 @@
+{
+  "bundle_id": "multisource_pilot_001",
+  "cases": [
+    {
+      "source": "github_release",
+      "event_label": "release-42",
+      "expected_revision": "NEW_FACT",
+      "owner": "acme",
+      "repository": "widget",
+      "retrieved_at": "2026-08-20T10:02:00Z",
+      "payload": {
+        "id": 42,
+        "tag_name": "v2.0.0",
+        "name": "Widget 2.0",
+        "html_url": "https://github.com/acme/widget/releases/tag/v2.0.0",
+        "created_at": "2026-08-20T10:00:00Z",
+        "published_at": "2026-08-20T10:00:00Z",
+        "updated_at": "2026-08-20T10:01:00Z",
+        "draft": false,
+        "prerelease": false,
+        "body": "Initial migration notes."
+      }
+    },
+    {
+      "source": "github_release",
+      "event_label": "release-42",
+      "expected_revision": "DETAIL",
+      "owner": "acme",
+      "repository": "widget",
+      "retrieved_at": "2026-08-20T11:01:00Z",
+      "payload": {
+        "id": 42,
+        "tag_name": "v2.0.0",
+        "name": "Widget 2.0",
+        "html_url": "https://github.com/acme/widget/releases/tag/v2.0.0",
+        "created_at": "2026-08-20T10:00:00Z",
+        "published_at": "2026-08-20T10:00:00Z",
+        "updated_at": "2026-08-20T11:00:00Z",
+        "draft": false,
+        "prerelease": false,
+        "body": "Initial migration notes plus rollback guidance."
+      }
+    },
+    {
+      "source": "github_release",
+      "event_label": "release-43-hard-negative",
+      "expected_revision": "NEW_FACT",
+      "owner": "acme",
+      "repository": "widget",
+      "retrieved_at": "2026-08-21T08:01:00Z",
+      "payload": {
+        "id": 43,
+        "tag_name": "v2.0.1",
+        "name": "Widget 2.0.1",
+        "html_url": "https://github.com/acme/widget/releases/tag/v2.0.1",
+        "created_at": "2026-08-21T08:00:00Z",
+        "published_at": "2026-08-21T08:00:00Z",
+        "updated_at": "2026-08-21T08:00:00Z",
+        "draft": false,
+        "prerelease": false,
+        "body": "Patch release."
+      }
+    },
+    {
+      "source": "osv",
+      "event_label": "osv-ghsa-one",
+      "expected_revision": "NEW_FACT",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.0.0",
+      "retrieved_at": "2026-08-20T12:01:00Z",
+      "payload": {
+        "id": "GHSA-one",
+        "published": "2026-08-20T12:00:00Z",
+        "modified": "2026-08-20T12:00:00Z",
+        "summary": "Initial advisory.",
+        "details": "Initial advisory."
+      }
+    },
+    {
+      "source": "osv",
+      "event_label": "osv-ghsa-one",
+      "expected_revision": "DETAIL",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.0.0",
+      "retrieved_at": "2026-08-20T13:01:00Z",
+      "payload": {
+        "id": "GHSA-one",
+        "published": "2026-08-20T12:00:00Z",
+        "modified": "2026-08-20T13:00:00Z",
+        "summary": "Advisory now includes mitigation.",
+        "details": "Advisory now includes mitigation."
+      }
+    },
+    {
+      "source": "osv",
+      "event_label": "osv-ghsa-two-hard-negative",
+      "expected_revision": "NEW_FACT",
+      "ecosystem": "PyPI",
+      "package": "requests",
+      "version": "2.0.0",
+      "retrieved_at": "2026-08-20T14:01:00Z",
+      "payload": {
+        "id": "GHSA-two",
+        "published": "2026-08-20T14:00:00Z",
+        "modified": "2026-08-20T14:00:00Z",
+        "summary": "Separate vulnerability.",
+        "details": "Separate vulnerability."
+      }
+    },
+    {
+      "source": "rss_atom",
+      "event_label": "rss-widget-guide",
+      "expected_revision": "NEW_FACT",
+      "retrieved_at": "2026-08-20T15:01:00Z",
+      "feed": {
+        "title": "Acme Engineering",
+        "source_url": "https://engineering.acme.example/feed.xml",
+        "items": [{
+          "title": "Widget migration guide",
+          "link": "https://engineering.acme.example/widget-migration",
+          "published": "2026-08-20T15:00:00Z",
+          "updated": "2026-08-20T15:00:00Z",
+          "summary": "Initial guide."
+        }]
+      }
+    },
+    {
+      "source": "rss_atom",
+      "event_label": "rss-widget-guide",
+      "expected_revision": "DETAIL",
+      "retrieved_at": "2026-08-20T16:01:00Z",
+      "feed": {
+        "title": "Acme Engineering",
+        "source_url": "https://engineering.acme.example/feed.xml",
+        "items": [{
+          "title": "Widget migration guide",
+          "link": "https://engineering.acme.example/widget-migration",
+          "published": "2026-08-20T15:00:00Z",
+          "updated": "2026-08-20T16:00:00Z",
+          "summary": "Guide now covers rollback."
+        }]
+      }
+    },
+    {
+      "source": "rss_atom",
+      "event_label": "rss-other-post-hard-negative",
+      "expected_revision": "NEW_FACT",
+      "retrieved_at": "2026-08-20T17:01:00Z",
+      "feed": {
+        "title": "Acme Engineering",
+        "source_url": "https://engineering.acme.example/feed.xml",
+        "items": [{
+          "title": "Unrelated release post",
+          "link": "https://engineering.acme.example/other-release",
+          "published": "2026-08-20T17:00:00Z",
+          "updated": "2026-08-20T17:00:00Z",
+          "summary": "Different event on the same publisher."
+        }]
+      }
+    }
+  ]
+}

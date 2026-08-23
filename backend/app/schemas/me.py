@@ -1,6 +1,10 @@
+from typing import Literal
+
 from pydantic import Field
 
 from app.schemas.common import ApiModel, TopicPriority, TopicType
+
+OnboardingState = Literal["profile", "github_pending", "repository_pending", "ready"]
 
 
 class Profile(ApiModel):
@@ -17,6 +21,7 @@ class ProfileUpdate(ApiModel):
 
 class MeBootstrap(ApiModel):
     onboarding_completed: bool
+    onboarding_state: OnboardingState
     profile: Profile
     topic_count: int
     github_connected: bool
@@ -51,7 +56,7 @@ class TopicSearchResult(ApiModel):
 
 class OnboardingRequest(ApiModel):
     profile: ProfileUpdate
-    topics: list[str] = Field(min_length=5)
+    topics: list[str] = Field(default_factory=list, max_length=20)
     connect_github: bool = False
 
 
@@ -62,4 +67,5 @@ class GithubAuthorizationHint(ApiModel):
 
 class OnboardingResponse(ApiModel):
     completed: bool
+    state: OnboardingState
     github_authorization: GithubAuthorizationHint

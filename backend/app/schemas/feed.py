@@ -7,6 +7,7 @@ from app.schemas.common import (
     FeedItemStatus,
     Importance,
     Relation,
+    SourceEvidence,
 )
 
 
@@ -21,6 +22,7 @@ class PublicFeedItem(ApiModel):
     following: bool
     updated_at: str
     delivery_id: str
+    sources: list[SourceEvidence] = Field(default_factory=list)
 
 
 class FeedPage(ApiModel):

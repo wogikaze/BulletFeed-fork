@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -14,6 +15,14 @@ import retrofit2.http.Query
 interface BulletFeedApi {
     @POST("v1/sessions")
     suspend fun createSession(): SessionResponseDto
+
+    @POST("v1/sessions/refresh")
+    suspend fun refreshSession(
+        @Body body: SessionRefreshDto,
+    ): SessionResponseDto
+
+    @POST("v1/sessions/recover/github")
+    suspend fun recoverSessionWithGithub(): GithubAuthorizeDto
 
     @GET("v1/feed")
     suspend fun getFeed(
@@ -53,6 +62,9 @@ interface BulletFeedApi {
 
     @GET("v1/me")
     suspend fun getMe(): MeDto
+
+    @DELETE("v1/me")
+    suspend fun deleteAccount()
 
     @GET("v1/me/profile")
     suspend fun getProfile(): ProfileDto
@@ -97,6 +109,12 @@ interface BulletFeedApi {
     @POST("v1/me/integrations/github/authorize")
     suspend fun authorizeGithub(): GithubAuthorizeDto
 
+    @GET("v1/auth/github/status/{flowId}")
+    suspend fun getGithubAuthorizationStatus(
+        @Path("flowId") flowId: String,
+        @Header("X-Auth-Poll-Token") pollToken: String,
+    ): GithubAuthorizationStatusDto
+
     @GET("v1/me/integrations/github/repositories")
     suspend fun listGithubRepositories(
         @Query("q") query: String? = null,
@@ -107,7 +125,7 @@ interface BulletFeedApi {
     @PUT("v1/me/integrations/github/repositories")
     suspend fun updateGithubRepositories(
         @Body body: GithubRepositoryUpdateDto,
-    ): GithubConnectionDto
+    ): GithubRepositoryUpdateResultDto
 
     @DELETE("v1/me/integrations/github")
     suspend fun disconnectGithub()
@@ -120,7 +138,7 @@ interface BulletFeedApi {
     @GET("v1/me/security/alerts")
     suspend fun getSecurityAlerts(
         @Query("status") status: String? = null,
-        @Query("repositoryId") repositoryId: String? = null,
+        @Query("repository_id") repositoryId: String? = null,
     ): SecurityAlertListDto
 
     @GET("v1/me/security/alerts/{alertId}")
@@ -167,6 +185,7 @@ data class FeedItemDto(
     val following: Boolean,
     val updatedAt: String,
     val deliveryId: String,
+    val sources: List<EventSourceDto> = emptyList(),
 )
 
 @Serializable
@@ -199,11 +218,6 @@ data class MatchedRepositoryDto(
     val id: String,
     val name: String,
     val url: String,
-)
-
-@Serializable
-data class FeedFeedbackRequestDto(
-    val type: String,
 )
 
 @Serializable
@@ -300,6 +314,7 @@ data class FollowingDto(
 @Serializable
 data class MeDto(
     val onboardingCompleted: Boolean,
+    val onboardingState: String,
     val profile: ProfileDto,
     val topicCount: Int,
     val githubConnected: Boolean,
@@ -349,6 +364,7 @@ data class OnboardingDto(
 @Serializable
 data class OnboardingResultDto(
     val completed: Boolean,
+    val state: String,
     val githubAuthorization: GithubAuthorizationDto? = null,
 )
 
@@ -361,7 +377,19 @@ data class GithubAuthorizationDto(
 @Serializable
 data class GithubConnectionDto(
     val connected: Boolean,
+    val credentialState: String,
     val accountLogin: String? = null,
+)
+
+@Serializable
+data class GithubRepositoryUpdateResultDto(
+    val connected: Boolean,
+    val credentialState: String,
+    val accountLogin: String? = null,
+    val addedTopics: List<String> = emptyList(),
+    val alreadyTrackedTopics: List<String> = emptyList(),
+    val inspectedRepositoryCount: Int = 0,
+    val failedRepositoryCount: Int = 0,
 )
 
 @Serializable
@@ -370,6 +398,18 @@ data class GithubAuthorizeDto(
     val flowId: String,
     val pollToken: String,
     val expiresInSeconds: Int,
+)
+
+@Serializable
+data class GithubAuthorizationStatusDto(
+    val status: String,
+    @SerialName("github_login")
+    val githubLogin: String? = null,
+    @SerialName("app_access_token")
+    val appAccessToken: String? = null,
+    @SerialName("refresh_token")
+    val refreshToken: String? = null,
+    val detail: String? = null,
 )
 
 @Serializable
@@ -383,7 +423,8 @@ data class GithubRepositoryDto(
     val id: String,
     val fullName: String,
     val htmlUrl: String,
-    val private: Boolean,
+    @SerialName("private")
+    val isPrivate: Boolean,
     val description: String? = null,
     val language: String? = null,
     val selected: Boolean,
@@ -484,7 +525,15 @@ data class NotificationReadAllDto(
 )
 
 @Serializable
+data class SessionRefreshDto(
+    val refreshToken: String,
+)
+
+@Serializable
 data class SessionResponseDto(
     val accessToken: String,
+    val refreshToken: String,
     val userId: String,
+    val accessExpiresInSeconds: Int,
+    val refreshExpiresInSeconds: Int,
 )

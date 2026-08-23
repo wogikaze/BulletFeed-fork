@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from app.config import Settings
 from app.database import Database
 from app.dependencies import get_cipher, get_database, get_settings, require_user
-from app.routers.auth import start_github_authorization
+from app.routers.auth import start_github_authorization_for_user
 from app.schemas.integrations import (
     GithubAuthorizeResponse,
     GithubConnection,
@@ -13,6 +13,7 @@ from app.schemas.integrations import (
     GithubRepoImportRequest,
     GithubRepositoryPage,
     GithubRepositoryUpdate,
+    GithubRepositoryUpdateResult,
     NotificationItem,
     NotificationList,
     NotificationReadAllResponse,
@@ -22,7 +23,10 @@ from app.schemas.integrations import (
     SecurityAlertPatch,
 )
 from app.security import TokenCipher
+from app.services.feed_projection import FeedProjector
+from app.services.repository_topic_inference import sync_selected_repository_topics
 from app.stores.integration_store import IntegrationStore
+from app.stores.me_store import MeStore
 
 router = APIRouter(prefix="/v1", tags=["integrations"])
 
@@ -49,7 +53,12 @@ def authorize_github(
     cipher: Annotated[TokenCipher, Depends(get_cipher)],
     user: Annotated[dict, Depends(require_user)],
 ) -> GithubAuthorizeResponse:
-    started = start_github_authorization(settings, database, cipher, user_id=user["user_id"])
+    started = start_github_authorization_for_user(
+        settings,
+        database,
+        cipher,
+        user_id=user["user_id"],
+    )
     return GithubAuthorizeResponse(
         authorization_url=str(started.authorization_url),
         flow_id=started.flow_id,
@@ -70,14 +79,40 @@ async def list_github_repositories(
     return await store.list_repositories(user["user_id"], q, cursor, limit, settings)
 
 
-@router.put("/me/integrations/github/repositories", response_model=GithubConnection)
+@router.put("/me/integrations/github/repositories", response_model=GithubRepositoryUpdateResult)
 async def update_github_repositories(
     body: GithubRepositoryUpdate,
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[IntegrationStore, Depends(_store)],
     settings: Annotated[Settings, Depends(get_settings)],
-) -> GithubConnection:
-    return await store.update_repositories(user["user_id"], body.repository_ids, settings)
+    database: Annotated[Database, Depends(get_database)],
+    cipher: Annotated[TokenCipher, Depends(get_cipher)],
+) -> GithubRepositoryUpdateResult:
+    connection = await store.update_repositories(user["user_id"], body.repository_ids, settings)
+    synced = await sync_selected_repository_topics(
+        database,
+        cipher,
+        user_id=user["user_id"],
+        settings=settings,
+    )
+    with database.connect() as db_connection:
+        state_row = db_connection.execute(
+            "SELECT onboarding_state FROM users WHERE id = ?",
+            (user["user_id"],),
+        ).fetchone()
+    if state_row is not None and state_row["onboarding_state"] == "repository_pending":
+        MeStore(database).mark_repository_setup_ready(user["user_id"])
+    else:
+        FeedProjector(database).reproject_user(user_id=user["user_id"])
+    return GithubRepositoryUpdateResult(
+        connected=connection.connected,
+        credential_state=connection.credential_state,
+        account_login=connection.account_login,
+        added_topics=synced.added,
+        already_tracked_topics=synced.already_tracked,
+        inspected_repository_count=synced.inspected_repository_count,
+        failed_repository_count=synced.failed_repository_count,
+    )
 
 
 @router.post("/me/integrations/github/import", response_model=GithubImportResult)

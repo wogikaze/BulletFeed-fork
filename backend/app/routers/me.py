@@ -30,7 +30,16 @@ def get_me(
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[MeStore, Depends(_store)],
 ) -> MeBootstrap:
-    return store.bootstrap(user["user_id"], user["github_connected"], user["onboarding_completed"])
+    return store.bootstrap(user["user_id"])
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_account(
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[MeStore, Depends(_store)],
+) -> Response:
+    store.delete_account(user["user_id"])
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/me/profile", response_model=Profile)
