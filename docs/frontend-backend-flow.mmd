@@ -1,0 +1,25 @@
+flowchart TD
+  U[ユーザー] --> UI[Android画面<br/>Feed / テーマ / GitHub / 設定]
+  UI --> VM[ViewModel]
+  VM --> API[API Client<br/>Bearer token]
+
+  API --> AUTH["/v1/sessions / GitHub OAuth"]
+  API --> FEED["/v1/feed"]
+  API --> ME["/v1/me<br/>profile / topics"]
+  API --> GH["/v1/me/integrations/github"]
+
+  AUTH --> STORE[(User / Session)]
+  ME --> STORE
+  GH --> STORE
+  GH --> INFER[repoからテーマ推定]
+  INFER --> STORE
+
+  SRC[外部ソース<br/>Statuspage / GH / OSV / RSS] --> ING[取り込み]
+  ING --> LED[Observation / Claim]
+  LED --> SEM[意味判定 / Delta]
+  SEM --> PROJ[ユーザー向け投影]
+  STORE --> PROJ
+  PROJ --> FEED
+  FEED --> API
+  API --> VM
+  VM --> UI
