@@ -32,3 +32,12 @@ jobs:
 
       - name: Check Kotlin formatting, Android lint and unit tests
         run: ./gradlew ktlintCheck lint testDebugUnitTest
+
+  # Branch protection still requires this exact check name.
+  lint-and-format-check:
+    name: Lint and format check
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report required status
+        run: echo "Lint, format and unit tests passed"
