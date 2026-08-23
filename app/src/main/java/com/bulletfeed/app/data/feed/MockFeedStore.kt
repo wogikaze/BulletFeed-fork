@@ -5,17 +5,15 @@ class MockFeedStore(
 ) : FeedRepository {
     override suspend fun getFeedItems(): List<FeedItem> = state.feedItems.filter { !it.dismissed }
 
-    override suspend fun markFeedItemRead(feedItemId: String): FeedEvent {
+    override suspend fun markFeedItemRead(feedItemId: String) {
         applyFeedback(feedItemId, type = null, markRead = true)
-        return requireEvent(feedItemId)
     }
 
     override suspend fun sendFeedFeedback(
         feedItemId: String,
         type: FeedFeedbackType,
-    ): FeedEvent {
+    ) {
         applyFeedback(feedItemId, type, markRead = false)
-        return requireEvent(feedItemId)
     }
 
     override suspend fun recordExposures(items: List<FeedExposure>) {

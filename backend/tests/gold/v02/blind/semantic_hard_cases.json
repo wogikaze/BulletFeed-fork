@@ -1,0 +1,46 @@
+{
+  "dataset_id": "bulletfeed-gold-v0.2-blind-semantic",
+  "split": "blind",
+  "snapshot_kind": "synthetic_fixed_hard_case",
+  "bundles": [
+    {
+      "bundle_id": "semantic-paraphrase-blind-001",
+      "category": "migration",
+      "hard_negative": true,
+      "cases": [
+        {"id":"sp1","event_label":"api-limit","expected_revision":"NEW_FACT","value":"active","detail":"Limit increased to 1,000 requests per minute.","valid_at":"2026-08-11T09:00:00Z"},
+        {"id":"sp2","event_label":"api-limit","expected_revision":"NON_NOVEL","value":"active","detail":"Limit was raised to one thousand requests/min.","valid_at":"2026-08-11T10:00:00Z"},
+        {"id":"sp3","event_label":"api-limit","expected_revision":"DETAIL","value":"active","detail":"Limit increased to 1,000 requests/min with burst guidance.","valid_at":"2026-08-11T11:00:00Z"},
+        {"id":"sp4","event_label":"api-limit","expected_revision":"STATE_UPDATE","value":"limit 1200 requests/min","detail":"Limit increased to 1,200 requests/min.","valid_at":"2026-08-11T12:00:00Z"},
+        {"id":"sp5","event_label":"api-limit","expected_revision":"NON_NOVEL","value":"limit 1200 requests/min","detail":"Limit increased to 1,200 requests/min.","valid_at":"2026-08-11T13:00:00Z"},
+        {"id":"sp6","event_label":"upload-limit-hard-negative","expected_revision":"NEW_FACT","value":"active","detail":"Upload limit increased to 1,000 MB.","valid_at":"2026-08-11T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "semantic-negation-version-blind-001",
+      "category": "correction_conflict",
+      "hard_negative": true,
+      "cases": [
+        {"id":"nv1","event_label":"runtime-support","expected_revision":"NEW_FACT","value":"supported","detail":"Python 3.10 is supported.","valid_at":"2026-08-12T09:00:00Z"},
+        {"id":"nv2","event_label":"runtime-support","expected_revision":"CORRECTION","value":"not supported","detail":"Correction: Python 3.10 is not supported.","valid_at":"2026-08-12T10:00:00Z","explicit_correction":true},
+        {"id":"nv3","event_label":"runtime-support","expected_revision":"DETAIL","value":"not supported","detail":"Python 3.11 is the minimum supported runtime.","valid_at":"2026-08-12T11:00:00Z"},
+        {"id":"nv4","event_label":"runtime-support","expected_revision":"STATE_UPDATE","value":"minimum v3.12","detail":"Python 3.12 becomes the minimum runtime.","valid_at":"2026-08-12T12:00:00Z"},
+        {"id":"nv5","event_label":"runtime-support","expected_revision":"NON_NOVEL","value":"minimum v3.12","detail":"Python 3.12 becomes the minimum runtime.","valid_at":"2026-08-12T13:00:00Z"},
+        {"id":"nv6","event_label":"node-runtime-hard-negative","expected_revision":"NEW_FACT","value":"minimum v24.0","detail":"Node 24 is a separate runtime requirement.","valid_at":"2026-08-12T09:30:00Z"}
+      ]
+    },
+    {
+      "bundle_id": "coreference-same-entity-hard-negative-001",
+      "category": "release_version",
+      "hard_negative": true,
+      "cases": [
+        {"id":"ce1","event_label":"widget-v4-release","expected_revision":"NEW_FACT","value":"prerelease","detail":"Widget v4 beta is available.","valid_at":"2026-08-13T09:00:00Z"},
+        {"id":"ce2","event_label":"widget-v4-release","expected_revision":"DETAIL","value":"prerelease","detail":"Widget v4 beta includes migration notes.","valid_at":"2026-08-13T10:00:00Z"},
+        {"id":"ce3","event_label":"widget-v4-release","expected_revision":"STATE_UPDATE","value":"released","detail":"Widget v4 reaches general availability.","valid_at":"2026-08-13T11:00:00Z"},
+        {"id":"ce4","event_label":"widget-v4.0.1-patch","expected_revision":"NEW_FACT","value":"released","detail":"Widget v4.0.1 patch release is available.","valid_at":"2026-08-13T12:00:00Z"},
+        {"id":"ce5","event_label":"widget-v3-security","expected_revision":"NEW_FACT","value":"affected","detail":"Widget v3 has a separate security advisory.","valid_at":"2026-08-13T09:30:00Z"},
+        {"id":"ce6","event_label":"widget-v4-release","expected_revision":"NON_NOVEL","value":"released","detail":"Widget v4 reaches general availability.","valid_at":"2026-08-13T13:00:00Z"}
+      ]
+    }
+  ]
+}

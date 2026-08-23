@@ -7,6 +7,10 @@ interface BulletFeedRepository :
     IntegrationRepository {
     suspend fun initialize()
 
+    suspend fun recoverSession(): Boolean = false
+
+    suspend fun resetSession() {}
+
     suspend fun getFeedEvents(): List<FeedEvent>
 
     suspend fun getGithubConnection(): Boolean
@@ -18,7 +22,7 @@ interface BulletFeedRepository :
     suspend fun updateEventFeedback(
         eventId: String,
         feedback: Feedback,
-    ): FeedEvent
+    )
 
     suspend fun setGithubConnected(connected: Boolean): Boolean
 }

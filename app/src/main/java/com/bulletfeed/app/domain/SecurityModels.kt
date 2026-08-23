@@ -26,6 +26,13 @@ enum class DependencyType(
 ) {
     DIRECT("直接依存"),
     TRANSITIVE("間接依存"),
+    UNKNOWN("不明"),
+    ;
+
+    companion object {
+        fun fromApi(value: String): DependencyType =
+            entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: UNKNOWN
+    }
 }
 
 enum class SecurityFilter(
@@ -55,4 +62,5 @@ data class VulnerabilityAlert(
     val evidence: String,
     val recommendation: String,
     val cvssScore: Double?,
+    val dependencyTypeRaw: String = dependencyType.name.lowercase(),
 )

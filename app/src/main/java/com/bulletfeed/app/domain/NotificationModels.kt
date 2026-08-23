@@ -20,6 +20,13 @@ enum class NotificationPriority {
 enum class NotificationTargetType {
     EVENT,
     VULNERABILITY,
+    UNKNOWN,
+    ;
+
+    companion object {
+        fun fromApi(value: String): NotificationTargetType =
+            entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: UNKNOWN
+    }
 }
 
 data class AppNotification(
@@ -32,6 +39,7 @@ data class AppNotification(
     val targetType: NotificationTargetType,
     val targetId: String,
     val read: Boolean = false,
+    val targetTypeRaw: String = targetType.name.lowercase(),
 )
 
 enum class NotificationFilter(

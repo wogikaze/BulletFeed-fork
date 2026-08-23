@@ -51,6 +51,33 @@ def validate_feed_url(url: str, allowed_hosts: set[str]) -> str:
     return url
 
 
+def require_global_response_peer(response: httpx.Response, *, source_name: str = "Feed") -> None:
+    stream = response.extensions.get("network_stream")
+    if stream is None:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"{source_name} connection peer could not be verified",
+        )
+    server_addr = stream.get_extra_info("server_addr")
+    if not isinstance(server_addr, (tuple, list)) or not server_addr:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"{source_name} connection peer could not be verified",
+        )
+    try:
+        peer_ip = ipaddress.ip_address(str(server_addr[0]))
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"{source_name} connection peer could not be verified",
+        ) from exc
+    if not peer_ip.is_global:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"{source_name} connection reached a private address",
+        )
+
+
 async def _download(settings: Settings, url: str) -> tuple[bytes, str]:
     current_url = validate_feed_url(url, settings.rss_hosts)
     async with httpx.AsyncClient(timeout=settings.request_timeout_seconds, trust_env=False) as client:
@@ -59,8 +86,12 @@ async def _download(settings: Settings, url: str) -> tuple[bytes, str]:
                 "GET",
                 current_url,
                 follow_redirects=False,
-                headers={"User-Agent": "BulletFeed-local-prototype/0.1 (+local development)"},
+                headers={
+                    "User-Agent": "BulletFeed-local-prototype/0.1 (+local development)",
+                    "Accept-Encoding": "identity",
+                },
             ) as response:
+                require_global_response_peer(response, source_name="RSS")
                 if response.status_code in {301, 302, 303, 307, 308}:
                     location = response.headers.get("location")
                     if not location:
@@ -80,14 +111,20 @@ async def _download(settings: Settings, url: str) -> tuple[bytes, str]:
                         status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                         detail=f"RSS content type is not allowed: {content_type or 'missing'}",
                     )
+                content_encoding = response.headers.get("content-encoding", "identity").strip().lower()
+                if content_encoding not in {"", "identity"}:
+                    raise HTTPException(
+                        status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                        detail="Compressed RSS responses are not allowed",
+                    )
                 body = bytearray()
-                async for chunk in response.aiter_bytes():
-                    body.extend(chunk)
-                    if len(body) > settings.max_response_bytes:
+                async for chunk in response.aiter_raw():
+                    if len(body) + len(chunk) > settings.max_response_bytes:
                         raise HTTPException(
                             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                             detail="RSS response exceeded the configured limit",
                         )
+                    body.extend(chunk)
                 return bytes(body), current_url
     raise HTTPException(
         status_code=status.HTTP_502_BAD_GATEWAY, detail="RSS source redirected too many times"

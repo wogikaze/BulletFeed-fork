@@ -19,6 +19,7 @@ class AuthorizationStatus(BaseModel):
     status: Literal["pending", "connected", "failed", "expired"]
     github_login: str | None = None
     app_access_token: str | None = None
+    refresh_token: str | None = None
     detail: str | None = None
 
 

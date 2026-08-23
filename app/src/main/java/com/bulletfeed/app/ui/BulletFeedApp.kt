@@ -35,48 +35,106 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory(LocalContext.current))) {
+fun BulletFeedApp(
+    deepLink: String? = null,
+    viewModel: BulletFeedViewModel = viewModel(factory = BulletFeedViewModel.Factory(LocalContext.current)),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var tab by remember { mutableStateOf(AppTab.FEED) }
-    var filter by remember { mutableStateOf(FeedFilter.ALL) }
-    var selectedEventId by remember { mutableStateOf<String?>(null) }
-    var selectedVulnerabilityId by remember { mutableStateOf<String?>(null) }
-    var notificationsOpen by remember { mutableStateOf(false) }
-    var githubSetupOpen by remember { mutableStateOf(false) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsStateWithLifecycle()
+    var tabName by rememberSaveable { mutableStateOf(AppTab.FEED.name) }
+    var selectedEventId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedFeedItemId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedVulnerabilityId by rememberSaveable { mutableStateOf<String?>(null) }
+    var notificationsOpen by rememberSaveable { mutableStateOf(false) }
+    var githubSetupOpen by rememberSaveable { mutableStateOf(false) }
+    val tab = AppTab.entries.firstOrNull { it.name == tabName } ?: AppTab.FEED
 
-    LaunchedEffect(uiState.pendingGithubAuthUrl) {
-        uiState.pendingGithubAuthUrl?.let { url ->
-            runCatching {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.refresh()
+            while (true) {
+                delay(60_000)
+                viewModel.refresh()
             }
+        }
+    }
+
+    LaunchedEffect(uiState.pendingGithubAuthUrl, lifecycleState) {
+        uiState.pendingGithubAuthUrl?.let { url ->
+            if (!lifecycleState.isAtLeast(Lifecycle.State.RESUMED)) return@LaunchedEffect
+            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                .onFailure { viewModel.showError("GitHub認可画面を開けませんでした。") }
             viewModel.clearPendingAuthUrl()
+        }
+    }
+
+    LaunchedEffect(deepLink) {
+        val uri = deepLink?.let(Uri::parse) ?: return@LaunchedEffect
+        val id = uri.pathSegments.firstOrNull() ?: return@LaunchedEffect
+        notificationsOpen = false
+        githubSetupOpen = false
+        when (uri.host) {
+            "event" -> {
+                selectedVulnerabilityId = null
+                selectedEventId = id
+                selectedFeedItemId = null
+            }
+            "security" -> {
+                selectedEventId = null
+                selectedFeedItemId = null
+                selectedVulnerabilityId = id
+            }
+        }
+    }
+
+    LaunchedEffect(selectedEventId, selectedFeedItemId) {
+        selectedEventId?.let { viewModel.loadEventDetail(it, selectedFeedItemId) }
+    }
+    LaunchedEffect(selectedVulnerabilityId) {
+        selectedVulnerabilityId?.let(viewModel::loadVulnerabilityDetail)
+    }
+    LaunchedEffect(
+        githubSetupOpen,
+        uiState.onboardingState,
+        uiState.githubConnection.credentialState,
+    ) {
+        val shouldLoad = githubSetupOpen || uiState.onboardingState == OnboardingState.REPOSITORY_PENDING
+        if (
+            shouldLoad &&
+            uiState.githubConnected &&
+            uiState.githubConnection.credentialState == GithubCredentialState.CONNECTED
+        ) {
+            viewModel.loadGithubRepositories()
         }
     }
 
     MaterialTheme(colorScheme = bulletFeedColorScheme()) {
         Surface(modifier = Modifier.fillMaxSize()) {
             when {
-                uiState.isLoading && uiState.events.isEmpty() -> AppLoadingScreen()
-                uiState.errorMessage != null && uiState.events.isEmpty() ->
-                    AppErrorScreen(
-                        message = uiState.errorMessage.orEmpty(),
-                        onRetry = viewModel::refresh,
-                    )
-                !uiState.onboardingCompleted ->
+                uiState.sessionExpired -> ReauthenticationScreen(
+                    isAuthorizing = uiState.isGithubAuthorizing,
+                    onReauthenticate = viewModel::startNewSession,
+                )
+                uiState.isLoading && uiState.onboardingState == OnboardingState.PROFILE && uiState.profile.role.isEmpty() -> AppLoadingScreen()
+                uiState.onboardingState == OnboardingState.PROFILE ->
                     Box(Modifier.fillMaxSize()) {
                         OnboardingScreen(
                             initialProfile = uiState.profile,
@@ -84,131 +142,228 @@ fun BulletFeedApp(viewModel: BulletFeedViewModel = viewModel(factory = BulletFee
                             isSaving = uiState.isSavingOnboarding,
                             onComplete = viewModel::completeOnboarding,
                         )
-                        uiState.errorMessage?.let { message ->
-                            TransientErrorBanner(message = message, onDismiss = viewModel::clearError)
-                        }
+                        uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
                     }
-                else ->
-                    Box(Modifier.fillMaxSize()) {
-                        BulletFeedContent(
-                            uiState = uiState,
-                            tab = tab,
-                            filter = filter,
-                            selectedEventId = selectedEventId,
-                            selectedVulnerabilityId = selectedVulnerabilityId,
-                            notificationsOpen = notificationsOpen,
-                            githubSetupOpen = githubSetupOpen,
-                            onTabChange = { tab = it },
-                            onFilterChange = { filter = it },
-                            onEventSelect = { selectedEventId = it },
-                            onVulnerabilitySelect = { selectedVulnerabilityId = it },
-                            onNotificationsOpenChange = { notificationsOpen = it },
-                            onGithubSetupOpenChange = { githubSetupOpen = it },
-                            onEventFeedback = viewModel::updateEventFeedback,
-                            onFollow = viewModel::toggleFollowing,
-                            onVulnerabilityStatusChange = viewModel::updateVulnerabilityStatus,
-                            onNotificationRead = viewModel::markNotificationRead,
-                            onAllNotificationsRead = viewModel::markAllNotificationsRead,
-                            onGithubConnect = viewModel::connectGithub,
-                            onImportFromPublicRepo = viewModel::importFromPublicRepo,
-                            onAddTopic = viewModel::addTopic,
-                            onRemoveTopic = viewModel::removeTopic,
-                        )
-                        uiState.errorMessage?.let { message ->
-                            TransientErrorBanner(message = message, onDismiss = viewModel::clearError)
-                        }
-                    }
+                uiState.onboardingState == OnboardingState.GITHUB_PENDING ->
+                    GithubAuthorizationRequiredScreen(
+                        isAuthorizing = uiState.isGithubAuthorizing,
+                        errorMessage = uiState.errorMessage,
+                        onAuthorize = viewModel::connectGithub,
+                    )
+                uiState.onboardingState == OnboardingState.REPOSITORY_PENDING && uiState.githubReauthorizationRequired ->
+                    GithubReauthorizationRequiredScreen(
+                        accountLogin = uiState.githubConnection.accountLogin,
+                        isAuthorizing = uiState.isGithubAuthorizing,
+                        showBack = false,
+                        onBack = {},
+                        onAuthorize = viewModel::connectGithub,
+                    )
+                uiState.onboardingState == OnboardingState.REPOSITORY_PENDING ->
+                    GithubConnectionScreen(
+                        connection = uiState.githubConnection,
+                        repositories = uiState.githubRepositories,
+                        nextCursor = uiState.githubNextCursor,
+                        query = uiState.githubQuery,
+                        isLoading = uiState.isGithubRepositoriesLoading,
+                        isLoadingMore = uiState.isGithubLoadingMore,
+                        isSaving = uiState.isGithubSaving,
+                        isAuthorizing = uiState.isGithubAuthorizing,
+                        errorMessage = uiState.githubRepositoryError,
+                        topicSyncMessage = uiState.githubTopicSyncMessage,
+                        onBack = {},
+                        onConnect = viewModel::connectGithub,
+                        onSearch = { viewModel.loadGithubRepositories(query = it) },
+                        onLoadMore = viewModel::loadMoreGithubRepositories,
+                        onToggleRepository = viewModel::toggleGithubRepository,
+                        onSaveRepositories = viewModel::saveGithubRepositories,
+                        onImportRepo = viewModel::importFromPublicRepo,
+                        onDisconnect = viewModel::disconnectGithub,
+                    )
+                uiState.onboardingState == OnboardingState.READY ->
+                    ReadyApplication(
+                        uiState = uiState,
+                        tab = tab,
+                        selectedEventId = selectedEventId,
+                        selectedFeedItemId = selectedFeedItemId,
+                        selectedVulnerabilityId = selectedVulnerabilityId,
+                        notificationsOpen = notificationsOpen,
+                        githubSetupOpen = githubSetupOpen,
+                        onTabChange = { tabName = it.name },
+                        onSelectEvent = { event ->
+                            selectedVulnerabilityId = null
+                            selectedEventId = event.id
+                            selectedFeedItemId = event.feedItemId
+                        },
+                        onSelectEventTarget = { eventId ->
+                            selectedVulnerabilityId = null
+                            selectedEventId = eventId
+                            selectedFeedItemId = null
+                        },
+                        onClearEvent = {
+                            selectedEventId = null
+                            selectedFeedItemId = null
+                            viewModel.clearEventDetail()
+                        },
+                        onSelectVulnerability = {
+                            selectedEventId = null
+                            selectedFeedItemId = null
+                            selectedVulnerabilityId = it.id
+                        },
+                        onSelectVulnerabilityTarget = { alertId ->
+                            selectedEventId = null
+                            selectedFeedItemId = null
+                            selectedVulnerabilityId = alertId
+                        },
+                        onClearVulnerability = {
+                            selectedVulnerabilityId = null
+                            viewModel.clearVulnerabilityDetail()
+                        },
+                        onNotificationsChange = { notificationsOpen = it },
+                        onGithubSetupChange = { githubSetupOpen = it },
+                        viewModel = viewModel,
+                    )
+                else -> AppLoadingScreen()
             }
         }
     }
 }
 
 @Composable
-private fun BulletFeedContent(
+private fun ReadyApplication(
     uiState: BulletFeedUiState,
     tab: AppTab,
-    filter: FeedFilter,
     selectedEventId: String?,
+    selectedFeedItemId: String?,
     selectedVulnerabilityId: String?,
     notificationsOpen: Boolean,
     githubSetupOpen: Boolean,
     onTabChange: (AppTab) -> Unit,
-    onFilterChange: (FeedFilter) -> Unit,
-    onEventSelect: (String?) -> Unit,
-    onVulnerabilitySelect: (String?) -> Unit,
-    onNotificationsOpenChange: (Boolean) -> Unit,
-    onGithubSetupOpenChange: (Boolean) -> Unit,
-    onEventFeedback: (String, Feedback) -> Unit,
-    onFollow: (String) -> Unit,
-    onVulnerabilityStatusChange: (String, VulnerabilityStatus) -> Unit,
-    onNotificationRead: (String) -> Unit,
-    onAllNotificationsRead: () -> Unit,
-    onGithubConnect: () -> Unit,
-    onImportFromPublicRepo: (String) -> Unit,
-    onAddTopic: (String) -> Unit,
-    onRemoveTopic: (String) -> Unit,
-) {
-    val event = selectedEventId?.let { id -> uiState.events.firstOrNull { it.id == id } }
-    val vulnerability = selectedVulnerabilityId?.let { id -> uiState.vulnerabilityAlerts.firstOrNull { it.id == id } }
-
+    onSelectEvent: (FeedEvent) -> Unit,
+    onSelectEventTarget: (String) -> Unit,
+    onClearEvent: () -> Unit,
+    onSelectVulnerability: (VulnerabilityAlert) -> Unit,
+    onSelectVulnerabilityTarget: (String) -> Unit,
+    onClearVulnerability: () -> Unit,
+    onNotificationsChange: (Boolean) -> Unit,
+    onGithubSetupChange: (Boolean) -> Unit,
+    viewModel: BulletFeedViewModel,
+) = Box(Modifier.fillMaxSize()) {
     when {
-        event != null ->
-            EventDetailScreen(
-                event = event,
-                onBack = { onEventSelect(null) },
-                onFeedback = { feedback -> onEventFeedback(event.id, feedback) },
-                onFollow = { onFollow(event.id) },
-            )
-        vulnerability != null ->
-            VulnerabilityDetailScreen(
-                alert = vulnerability,
-                onBack = { onVulnerabilitySelect(null) },
-                onStatusChange = { status -> onVulnerabilityStatusChange(vulnerability.id, status) },
-            )
-        notificationsOpen ->
-            NotificationsScreen(
-                notifications = uiState.notifications,
-                onBack = { onNotificationsOpenChange(false) },
-                onNotificationClick = { notification ->
-                    onNotificationRead(notification.id)
-                    when (notification.targetType) {
-                        NotificationTargetType.EVENT -> onEventSelect(notification.targetId)
-                        NotificationTargetType.VULNERABILITY -> onVulnerabilitySelect(notification.targetId)
-                    }
-                },
-                onMarkAllRead = onAllNotificationsRead,
-            )
-        githubSetupOpen ->
-            GithubConnectionScreen(
-                connected = uiState.githubConnected,
-                onBack = { onGithubSetupOpenChange(false) },
-                onConnect = onGithubConnect,
-                onImportRepo = onImportFromPublicRepo,
-            )
-        else ->
-            MainNavigation(
-                uiState = uiState,
-                tab = tab,
-                filter = filter,
-                onTabChange = onTabChange,
-                onFilterChange = onFilterChange,
-                onEventSelect = { selected -> onEventSelect(selected.id) },
-                onVulnerabilitySelect = { selected -> onVulnerabilitySelect(selected.id) },
-                onNotificationsOpen = { onNotificationsOpenChange(true) },
-                onGithubSetupOpen = { onGithubSetupOpenChange(true) },
-                onEventFeedback = onEventFeedback,
-                onFollow = onFollow,
-                onAddTopic = onAddTopic,
-                onRemoveTopic = onRemoveTopic,
-            )
+        selectedEventId != null -> {
+            val detail = uiState.eventDetail.takeIf { uiState.eventDetailId == selectedEventId }
+            val feedContext = uiState.events.firstOrNull { it.id == selectedEventId }
+            when {
+                detail != null -> EventDetailScreen(
+                    event = detail,
+                    feedContext = feedContext,
+                    onBack = onClearEvent,
+                    onFeedback = { feedback -> viewModel.updateEventFeedback(selectedEventId, feedback) },
+                    onFollow = { viewModel.toggleFollowing(selectedEventId) },
+                )
+                uiState.isEventDetailLoading -> DetailLoadingScreen("Eventを読み込み中", onClearEvent)
+                else -> DetailErrorScreen(
+                    message = uiState.eventDetailError ?: "Eventを表示できません。",
+                    onBack = onClearEvent,
+                    onRetry = { viewModel.loadEventDetail(selectedEventId, selectedFeedItemId) },
+                )
+            }
+        }
+        selectedVulnerabilityId != null -> {
+            val alert = uiState.vulnerabilityDetail.takeIf { uiState.vulnerabilityDetailId == selectedVulnerabilityId }
+            when {
+                alert != null -> VulnerabilityDetailScreen(
+                    alert = alert,
+                    onBack = onClearVulnerability,
+                    onStatusChange = { viewModel.updateVulnerabilityStatus(selectedVulnerabilityId, it) },
+                )
+                uiState.isVulnerabilityDetailLoading -> DetailLoadingScreen("Alertを読み込み中", onClearVulnerability)
+                else -> DetailErrorScreen(
+                    message = uiState.vulnerabilityDetailError ?: "Alertを表示できません。",
+                    onBack = onClearVulnerability,
+                    onRetry = { viewModel.loadVulnerabilityDetail(selectedVulnerabilityId) },
+                )
+            }
+        }
+        notificationsOpen -> NotificationsScreen(
+            notifications = uiState.notifications,
+            onBack = { onNotificationsChange(false) },
+            onNotificationClick = { notification ->
+                viewModel.markNotificationRead(notification.id)
+                onNotificationsChange(false)
+                when (notification.targetType) {
+                    NotificationTargetType.EVENT -> onSelectEventTarget(notification.targetId)
+                    NotificationTargetType.VULNERABILITY -> onSelectVulnerabilityTarget(notification.targetId)
+                    NotificationTargetType.UNKNOWN -> viewModel.showError(
+                        "未対応の通知target type: ${notification.targetTypeRaw}",
+                    )
+                }
+            },
+            onMarkAllRead = viewModel::markAllNotificationsRead,
+        )
+        githubSetupOpen && uiState.githubReauthorizationRequired -> GithubReauthorizationRequiredScreen(
+            accountLogin = uiState.githubConnection.accountLogin,
+            isAuthorizing = uiState.isGithubAuthorizing,
+            showBack = true,
+            onBack = {
+                onGithubSetupChange(false)
+                viewModel.refresh()
+            },
+            onAuthorize = viewModel::connectGithub,
+        )
+        githubSetupOpen -> GithubConnectionScreen(
+            connection = uiState.githubConnection,
+            repositories = uiState.githubRepositories,
+            nextCursor = uiState.githubNextCursor,
+            query = uiState.githubQuery,
+            isLoading = uiState.isGithubRepositoriesLoading,
+            isLoadingMore = uiState.isGithubLoadingMore,
+            isSaving = uiState.isGithubSaving,
+            isAuthorizing = uiState.isGithubAuthorizing,
+            errorMessage = uiState.githubRepositoryError,
+            topicSyncMessage = uiState.githubTopicSyncMessage,
+            onBack = {
+                onGithubSetupChange(false)
+                viewModel.refresh()
+            },
+            onConnect = viewModel::connectGithub,
+            onSearch = { viewModel.loadGithubRepositories(query = it) },
+            onLoadMore = viewModel::loadMoreGithubRepositories,
+            onToggleRepository = viewModel::toggleGithubRepository,
+            onSaveRepositories = viewModel::saveGithubRepositories,
+            onImportRepo = viewModel::importFromPublicRepo,
+            onDisconnect = viewModel::disconnectGithub,
+        )
+        else -> MainNavigation(
+            uiState = uiState,
+            tab = tab,
+            onTabChange = onTabChange,
+            onFilterChange = viewModel::setFeedFilter,
+            onEventSelect = onSelectEvent,
+            onVulnerabilitySelect = onSelectVulnerability,
+            onNotificationsOpen = { onNotificationsChange(true) },
+            onGithubSetupOpen = { onGithubSetupChange(true) },
+            onEventFeedback = viewModel::updateEventFeedback,
+            onFollow = viewModel::toggleFollowing,
+            onAddTopic = viewModel::addTopic,
+            onRemoveTopic = viewModel::removeTopic,
+            onSearchTopics = viewModel::searchTopics,
+            onAddTopicSearchResult = viewModel::addTopicSearchResult,
+            onPriorityChange = viewModel::updateTopicPriority,
+            onReorderTopics = viewModel::reorderTopics,
+            onSaveProfile = viewModel::saveProfile,
+            onDeleteAccount = viewModel::deleteAccount,
+            onRefresh = viewModel::refresh,
+            onLoadMoreFeed = viewModel::loadMoreFeed,
+            onVisibleFeedItems = viewModel::recordFeedExposures,
+        )
     }
+    uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
 }
 
 @Composable
 private fun MainNavigation(
     uiState: BulletFeedUiState,
     tab: AppTab,
-    filter: FeedFilter,
     onTabChange: (AppTab) -> Unit,
     onFilterChange: (FeedFilter) -> Unit,
     onEventSelect: (FeedEvent) -> Unit,
@@ -217,8 +372,17 @@ private fun MainNavigation(
     onGithubSetupOpen: () -> Unit,
     onEventFeedback: (String, Feedback) -> Unit,
     onFollow: (String) -> Unit,
-    onAddTopic: (String) -> Unit,
+    onAddTopic: (String, TopicType) -> Unit,
     onRemoveTopic: (String) -> Unit,
+    onSearchTopics: (String) -> Unit,
+    onAddTopicSearchResult: (UserTopic) -> Unit,
+    onPriorityChange: (String, TopicPriority) -> Unit,
+    onReorderTopics: (List<String>) -> Unit,
+    onSaveProfile: (UserProfile) -> Unit,
+    onDeleteAccount: () -> Unit,
+    onRefresh: () -> Unit,
+    onLoadMoreFeed: () -> Unit,
+    onVisibleFeedItems: (List<String>) -> Unit,
 ) = Scaffold(
     bottomBar = {
         NavigationBar(containerColor = Color(0xFFF6EFEB)) {
@@ -227,14 +391,13 @@ private fun MainNavigation(
                     selected = tab == item,
                     onClick = { onTabChange(item) },
                     icon = {
-                        val icon =
-                            when (item) {
-                                AppTab.FEED -> Icons.Default.Home
-                                AppTab.SECURITY -> Icons.Default.Security
-                                AppTab.SEARCH -> Icons.Default.Search
-                                AppTab.TOPICS -> Icons.AutoMirrored.Filled.List
-                                AppTab.SETTINGS -> Icons.Default.Settings
-                            }
+                        val icon = when (item) {
+                            AppTab.FEED -> Icons.Default.Home
+                            AppTab.SECURITY -> Icons.Default.Security
+                            AppTab.SEARCH -> Icons.Default.Search
+                            AppTab.TOPICS -> Icons.AutoMirrored.Filled.List
+                            AppTab.SETTINGS -> Icons.Default.Settings
+                        }
                         if (item == AppTab.SECURITY && uiState.securityActionCount > 0) {
                             BadgedBox(badge = { Badge { Text("${uiState.securityActionCount}") } }) {
                                 Icon(icon, contentDescription = item.label)
@@ -250,40 +413,58 @@ private fun MainNavigation(
     },
 ) { innerPadding ->
     when (tab) {
-        AppTab.FEED ->
-            FeedScreen(
-                events = uiState.events,
-                filter = filter,
-                onFilterChange = onFilterChange,
-                onEventClick = { event ->
-                    onEventFeedback(event.id, Feedback.READ)
-                    onEventSelect(event)
-                },
-                onFeedback = onEventFeedback,
-                onFollow = onFollow,
-                securityActionCount = uiState.securityActionCount,
-                onSecurityClick = { onTabChange(AppTab.SECURITY) },
-                unreadNotificationCount = uiState.unreadNotificationCount,
-                onNotificationsClick = onNotificationsOpen,
-                modifier = Modifier.padding(innerPadding),
-            )
-        AppTab.SECURITY ->
-            SecurityDashboardScreen(
-                alerts = uiState.vulnerabilityAlerts,
-                onAlertClick = onVulnerabilitySelect,
-                modifier = Modifier.padding(innerPadding),
-            )
+        AppTab.FEED -> FeedScreen(
+            events = uiState.events,
+            filter = uiState.feedFilter,
+            onFilterChange = onFilterChange,
+            onEventClick = onEventSelect,
+            onFeedback = onEventFeedback,
+            onFollow = onFollow,
+            securityActionCount = uiState.securityActionCount,
+            onSecurityClick = { onTabChange(AppTab.SECURITY) },
+            unreadNotificationCount = uiState.unreadNotificationCount,
+            onNotificationsClick = onNotificationsOpen,
+            nextCursor = uiState.feedNextCursor,
+            isLoadingMore = uiState.isFeedLoadingMore,
+            isFiltering = uiState.isFeedFiltering,
+            loadMoreError = uiState.feedLoadMoreError,
+            onRefresh = onRefresh,
+            onLoadMore = onLoadMoreFeed,
+            onVisibleFeedItems = onVisibleFeedItems,
+            onTopicsClick = { onTabChange(AppTab.TOPICS) },
+            onGithubClick = onGithubSetupOpen,
+            modifier = Modifier.padding(innerPadding),
+        )
+        AppTab.SECURITY -> SecurityDashboardScreen(
+            alerts = uiState.vulnerabilityAlerts,
+            onAlertClick = onVulnerabilitySelect,
+            modifier = Modifier.padding(innerPadding),
+        )
         AppTab.SEARCH -> SearchScreen(uiState.events, onEventSelect, Modifier.padding(innerPadding))
-        AppTab.TOPICS ->
-            TopicsScreen(
-                topics = uiState.topics,
-                githubConnected = uiState.githubConnected,
-                onGithubClick = onGithubSetupOpen,
-                onAddTopic = onAddTopic,
-                onRemoveTopic = onRemoveTopic,
-                modifier = Modifier.padding(innerPadding),
-            )
-        AppTab.SETTINGS -> SettingsScreen(profile = uiState.profile, modifier = Modifier.padding(innerPadding))
+        AppTab.TOPICS -> TopicsScreen(
+            topics = uiState.topicItems,
+            searchResults = uiState.topicSearchResults,
+            searchQuery = uiState.topicSearchQuery,
+            isSearching = uiState.isTopicSearchLoading,
+            githubConnected = uiState.githubConnected,
+            topicSyncMessage = uiState.githubTopicSyncMessage,
+            onGithubClick = onGithubSetupOpen,
+            onSearchTopics = onSearchTopics,
+            onAddTopic = onAddTopic,
+            onAddSearchResult = onAddTopicSearchResult,
+            onRemoveTopic = onRemoveTopic,
+            onPriorityChange = onPriorityChange,
+            onReorderTopics = onReorderTopics,
+            modifier = Modifier.padding(innerPadding),
+        )
+        AppTab.SETTINGS -> SettingsScreen(
+            profile = uiState.profile,
+            isSaving = uiState.isSavingProfile,
+            isDeletingAccount = uiState.isDeletingAccount,
+            onSaveProfile = onSaveProfile,
+            onDeleteAccount = onDeleteAccount,
+            modifier = Modifier.padding(innerPadding),
+        )
     }
 }
 
@@ -295,31 +476,145 @@ private fun AppLoadingScreen() =
         verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator(color = Color(0xFFA6231C))
-        Text("あなたに関係する変化を整理中…", modifier = Modifier.padding(top = 16.dp), color = Color(0xFF655F69))
+        Text("データを読み込み中…", modifier = Modifier.padding(top = 16.dp), color = Color(0xFF655F69))
     }
 
 @Composable
-private fun AppErrorScreen(
+private fun ReauthenticationScreen(
+    isAuthorizing: Boolean,
+    onReauthenticate: () -> Unit,
+) = Column(
+    modifier = Modifier.fillMaxSize().padding(32.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+) {
+    Text("同じアカウントへ再認証", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+    Text(
+        "期限切れの保護データは画面から破棄しました。refresh tokenを回転し、利用できない場合はGitHub identityで既存のBulletFeed userを復旧します。新しい匿名userは作成しません。",
+        modifier = Modifier.padding(top = 10.dp),
+        color = Color(0xFF655F69),
+    )
+    Button(
+        onClick = onReauthenticate,
+        enabled = !isAuthorizing,
+        modifier = Modifier.padding(top = 18.dp),
+    ) {
+        if (isAuthorizing) CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp))
+        Text(if (isAuthorizing) "GitHub認証を確認中" else "アカウントを復旧")
+    }
+}
+
+@Composable
+private fun GithubAuthorizationRequiredScreen(
+    isAuthorizing: Boolean,
+    errorMessage: String?,
+    onAuthorize: () -> Unit,
+) = Column(
+    modifier = Modifier.fillMaxSize().padding(32.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+) {
+    Text("GitHub連携を完了", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Text(
+        "GitHubを使うonboardingは、OAuth成功とrepository選択が完了するまでreadyになりません。",
+        modifier = Modifier.padding(top = 10.dp),
+        color = Color(0xFF655F69),
+    )
+    errorMessage?.let { Text(it, modifier = Modifier.padding(top = 12.dp), color = Color(0xFF8F1D18)) }
+    Button(
+        onClick = onAuthorize,
+        enabled = !isAuthorizing,
+        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+    ) {
+        Text(if (isAuthorizing) "認可完了を確認中" else "GitHubで認可する")
+    }
+}
+
+@Composable
+private fun GithubReauthorizationRequiredScreen(
+    accountLogin: String?,
+    isAuthorizing: Boolean,
+    showBack: Boolean,
+    onBack: () -> Unit,
+    onAuthorize: () -> Unit,
+) = Column(
+    modifier = Modifier.fillMaxSize().padding(32.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+) {
+    Text("GitHubの再認証が必要です", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Text(
+        accountLogin?.let {
+            "$it のGitHub credentialが失効したか、repository accessが失われました。BulletFeed userは維持したまま再認証します。"
+        } ?: "GitHub credentialが失効したか、repository accessが失われました。BulletFeed userは維持したまま再認証します。",
+        modifier = Modifier.padding(top = 10.dp),
+        color = Color(0xFF655F69),
+    )
+    Button(
+        onClick = onAuthorize,
+        enabled = !isAuthorizing,
+        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+    ) {
+        Text(if (isAuthorizing) "認可完了を確認中" else "GitHubを再認証")
+    }
+    if (showBack) {
+        Button(onClick = onBack, enabled = !isAuthorizing, modifier = Modifier.padding(top = 8.dp)) {
+            Text("戻る")
+        }
+    }
+}
+
+@Composable
+private fun AppErrorScreen(message: String, onRetry: () -> Unit) =
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text("読み込みに失敗しました", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
+        Button(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) { Text("再試行") }
+    }
+
+@Composable
+private fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        CircularProgressIndicator()
+        Text(title, modifier = Modifier.padding(top = 12.dp))
+        Button(onClick = onBack, modifier = Modifier.padding(top = 18.dp)) { Text("戻る") }
+    }
+
+@Composable
+private fun DetailErrorScreen(
     message: String,
+    onBack: () -> Unit,
     onRetry: () -> Unit,
 ) = Column(
     modifier = Modifier.fillMaxSize().padding(32.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
-    Text("読み込みに失敗しました", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+    Text("詳細を表示できません", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
     Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
     Button(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) { Text("再試行") }
+    Button(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) { Text("戻る") }
 }
 
 @Composable
-private fun TransientErrorBanner(
-    message: String,
-    onDismiss: () -> Unit,
-) = Card(
-    modifier = Modifier.statusBarsPadding().padding(12.dp).fillMaxWidth(),
-    colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
-) {
+private fun TransientErrorBanner(message: String, onDismiss: () -> Unit) =
+    Card(
+        modifier = Modifier.statusBarsPadding().padding(12.dp).fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
+    ) {
+        RowWithDismiss(message, onDismiss)
+    }
+
+@Composable
+private fun RowWithDismiss(message: String, onDismiss: () -> Unit) {
     androidx.compose.foundation.layout.Row(
         modifier = Modifier.padding(start = 14.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -331,30 +626,25 @@ private fun TransientErrorBanner(
     }
 }
 
-private fun bulletFeedColorScheme() =
-    lightColorScheme(
-        primary = Color(0xFFA6231C),
-        onPrimary = Color.White,
-        primaryContainer = Color(0xFFFCE8E6),
-        onPrimaryContainer = Color(0xFF6F100C),
-        secondary = Color(0xFF006A67),
-        onSecondary = Color.White,
-        secondaryContainer = Color(0xFFD7F1EE),
-        onSecondaryContainer = Color(0xFF003D3B),
-        tertiary = Color(0xFF8A5A00),
-        onTertiary = Color.White,
-        tertiaryContainer = Color(0xFFFFE3B3),
-        onTertiaryContainer = Color(0xFF3D2800),
-        surface = Color(0xFFFFFBF8),
-        onSurface = Color(0xFF211A18),
-        surfaceVariant = Color(0xFFF6EFEB),
-        onSurfaceVariant = Color(0xFF554542),
-        background = Color(0xFFFFFBF8),
-        onBackground = Color(0xFF211A18),
-        outline = Color(0xFF88736E),
-        outlineVariant = Color(0xFFDCC2BC),
-    )
-
-@Preview(showBackground = true, widthDp = 390, heightDp = 844)
-@Composable
-private fun BulletFeedPreview() = BulletFeedApp()
+private fun bulletFeedColorScheme() = lightColorScheme(
+    primary = Color(0xFFA6231C),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFFCE8E6),
+    onPrimaryContainer = Color(0xFF6F100C),
+    secondary = Color(0xFF006A67),
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFD7F1EE),
+    onSecondaryContainer = Color(0xFF003D3B),
+    tertiary = Color(0xFF8A5A00),
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFFFE3B3),
+    onTertiaryContainer = Color(0xFF3D2800),
+    surface = Color(0xFFFFFBF8),
+    onSurface = Color(0xFF211A18),
+    surfaceVariant = Color(0xFFF6EFEB),
+    onSurfaceVariant = Color(0xFF554542),
+    background = Color(0xFFFFFBF8),
+    onBackground = Color(0xFF211A18),
+    outline = Color(0xFF88736E),
+    outlineVariant = Color(0xFFDCC2BC),
+)

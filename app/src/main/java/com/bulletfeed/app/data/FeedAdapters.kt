@@ -37,12 +37,27 @@ fun FeedEvent.toFeedItem(): FeedItem {
         following = following,
         updatedAt = announcedAt,
         deliveryId = "dlv_$id",
+        sources = sources.map {
+            EventSource(
+                publisher = it.publisher,
+                kind = SourceKind.DOCUMENTATION,
+                title = it.title,
+                url = "",
+                publishedAt = announcedAt,
+                retrievedAt = announcedAt,
+                evidence = it.evidence,
+            )
+        },
         markedImportant = markedImportant,
         dismissed = dismissed,
     )
 }
 
 fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
+    val sourceMetadata = sources.map { Source(it.publisher, it.title, it.evidence) }
+    val sourceTimestamp = sources.firstOrNull()?.publisher?.takeIf { it.isNotBlank() }?.let { publisher ->
+        "$publisher · $updatedAt"
+    } ?: updatedAt
     val source = base ?: FeedEvent(
         id = eventId,
         title = title,
@@ -51,13 +66,13 @@ fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
         importanceReason = importance.reason,
         relation = relation.level,
         relationReason = relation.reason,
-        announcedAt = updatedAt,
-        sourceCount = 0,
+        announcedAt = sourceTimestamp,
+        sourceCount = sources.size,
         before = delta.before,
         after = delta.after,
         explicitImpact = delta.summary,
         inferredImpact = null,
-        sources = emptyList(),
+        sources = sourceMetadata,
         timeline = emptyList(),
     )
     return source.copy(
@@ -66,6 +81,9 @@ fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
         following = following,
         markedImportant = markedImportant,
         feedItemId = id,
+        announcedAt = sourceTimestamp,
+        sourceCount = sources.size,
+        sources = sourceMetadata,
         before = delta.before,
         after = delta.after,
     )
@@ -96,6 +114,7 @@ fun EventDetail.toFeedEvent(base: FeedEvent? = null): FeedEvent {
         before = (openedDelta ?: latestDelta).before,
         after = (openedDelta ?: latestDelta).after,
         sources = sources.map { Source(it.publisher, it.title, it.evidence) },
+        sourceCount = sources.size,
         timeline = timeline.map { TimelineItem(it.occurredAt, it.title, it.description) },
         explicitImpact = explicit,
         inferredImpact = inferred,

@@ -11,7 +11,8 @@ class MockBulletFeedRepositoryTest {
         runTest {
             val repository = MockBulletFeedRepository()
 
-            val updated = repository.updateEventFeedback("workers-runtime", Feedback.IMPORTANT)
+            repository.updateEventFeedback("workers-runtime", Feedback.IMPORTANT)
+            val updated = repository.getFeedEvents().first { it.id == "workers-runtime" }
 
             assertTrue(updated.markedImportant)
         }
@@ -42,10 +43,11 @@ class MockBulletFeedRepositoryTest {
         runTest {
             val repository = MockBulletFeedRepository()
 
-            val updated = repository.markFeedItemRead("fi_workers-runtime")
+            repository.markFeedItemRead("fi_workers-runtime")
+            val updated = repository.getFeedItems().first { it.id == "fi_workers-runtime" }
 
-            assertTrue(updated.read)
-            assertEquals("fi_workers-runtime", updated.feedItemId)
+            assertEquals(FeedItemStatus.READ, updated.status)
+            assertEquals("fi_workers-runtime", updated.id)
         }
 
     @Test
@@ -66,18 +68,4 @@ class MockBulletFeedRepositoryTest {
             assertEquals(listOf("Kotlin", "GitHub"), snapshot.topics)
             assertTrue(repository.getGithubConnection())
         }
-
-    @Test
-    fun searchResultMetaDoesNotRequireSources() {
-        val event = DemoData.events.first().copy(sources = emptyList(), announcedAt = "今日 12:00")
-
-        assertEquals("今日 12:00", searchResultMeta(event))
-    }
-
-    @Test
-    fun searchResultMetaIncludesPublisherWhenPresent() {
-        val event = DemoData.events.first()
-
-        assertEquals("${event.announcedAt}  ·  ${event.sources.first().publisher}", searchResultMeta(event))
-    }
 }

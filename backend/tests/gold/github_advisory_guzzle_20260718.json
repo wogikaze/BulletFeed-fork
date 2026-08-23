@@ -1,0 +1,102 @@
+{
+  "bundle_id": "github-advisory-guzzle-20260718",
+  "ecosystem": "composer",
+  "provenance": {
+    "publisher": "GitHub Advisory Database",
+    "source_family": "https://github.com/advisories/",
+    "captured_from_public_advisories": true,
+    "date_precision": "day"
+  },
+  "cases": [
+    {
+      "event_label": "guzzle-referer-fragment",
+      "role": "canonical",
+      "payload": {
+        "ghsa_id": "GHSA-h95v-h523-3mw8",
+        "html_url": "https://github.com/advisories/GHSA-h95v-h523-3mw8",
+        "summary": "Guzzle: URI fragments disclosed in redirect Referer headers",
+        "description": "Affected Guzzle versions can disclose URI fragments in generated Referer headers. Fixed in 7.15.1.",
+        "severity": "moderate",
+        "published_at": "2026-07-18T00:00:00Z",
+        "updated_at": "2026-07-20T00:00:00Z",
+        "withdrawn_at": null,
+        "references": []
+      }
+    },
+    {
+      "event_label": "guzzle-referer-fragment",
+      "role": "duplicate",
+      "payload": {
+        "ghsa_id": "GHSA-mqq9-gxg5-m58g",
+        "html_url": "https://github.com/advisories/GHSA-mqq9-gxg5-m58g",
+        "summary": "Duplicate Advisory: Guzzle: URI fragments disclosed in redirect Referer headers",
+        "description": "This advisory was withdrawn because it is a duplicate of GHSA-h95v-h523-3mw8.",
+        "severity": "high",
+        "published_at": "2026-08-01T00:00:00Z",
+        "updated_at": "2026-08-04T00:00:00Z",
+        "withdrawn_at": "2026-08-04T00:00:00Z",
+        "references": [{"url": "https://github.com/advisories/GHSA-h95v-h523-3mw8"}]
+      }
+    },
+    {
+      "event_label": "guzzle-cookie-dos",
+      "role": "canonical",
+      "payload": {
+        "ghsa_id": "GHSA-f283-ghqc-fg79",
+        "html_url": "https://github.com/advisories/GHSA-f283-ghqc-fg79",
+        "summary": "Guzzle: Unbounded response cookies risk denial of service",
+        "description": "The built-in CookieJar accepts unbounded response cookies. Fixed in 7.15.1.",
+        "severity": "moderate",
+        "published_at": "2026-07-18T00:00:00Z",
+        "updated_at": "2026-07-20T00:00:00Z",
+        "withdrawn_at": null,
+        "references": []
+      }
+    },
+    {
+      "event_label": "guzzle-cookie-dos",
+      "role": "duplicate",
+      "payload": {
+        "ghsa_id": "GHSA-3fvr-2jw6-crq4",
+        "html_url": "https://github.com/advisories/GHSA-3fvr-2jw6-crq4",
+        "summary": "Duplicate Advisory: Guzzle: Unbounded response cookies risk denial of service",
+        "description": "This advisory was withdrawn because it is a duplicate of GHSA-f283-ghqc-fg79.",
+        "severity": "moderate",
+        "published_at": "2026-08-01T00:00:00Z",
+        "updated_at": "2026-08-04T00:00:00Z",
+        "withdrawn_at": "2026-08-04T00:00:00Z",
+        "references": [{"url": "https://github.com/advisories/GHSA-f283-ghqc-fg79"}]
+      }
+    },
+    {
+      "event_label": "guzzle-host-only-cookie",
+      "role": "canonical",
+      "payload": {
+        "ghsa_id": "GHSA-wm3w-8rrp-j577",
+        "html_url": "https://github.com/advisories/GHSA-wm3w-8rrp-j577",
+        "summary": "Guzzle: Host-only cookie scope is not preserved",
+        "description": "Guzzle can widen host-only cookie scope. Fixed in 7.15.1.",
+        "severity": "moderate",
+        "published_at": "2026-07-18T00:00:00Z",
+        "updated_at": "2026-07-20T00:00:00Z",
+        "withdrawn_at": null,
+        "references": []
+      }
+    },
+    {
+      "event_label": "guzzle-host-only-cookie",
+      "role": "duplicate",
+      "payload": {
+        "ghsa_id": "GHSA-mjrx-74jh-7xgw",
+        "html_url": "https://github.com/advisories/GHSA-mjrx-74jh-7xgw",
+        "summary": "Duplicate Advisory: Guzzle: Host-only cookie scope is not preserved",
+        "description": "This advisory was withdrawn because it is a duplicate of GHSA-wm3w-8rrp-j577.",
+        "severity": "high",
+        "published_at": "2026-08-01T00:00:00Z",
+        "updated_at": "2026-08-04T00:00:00Z",
+        "withdrawn_at": "2026-08-04T00:00:00Z",
+        "references": [{"url": "https://github.com/advisories/GHSA-wm3w-8rrp-j577"}]
+      }
+    }
+  ]
+}

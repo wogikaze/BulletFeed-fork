@@ -5,6 +5,7 @@ def test_me_bootstrap_and_profile(client: TestClient, auth_headers: dict[str, st
     me = client.get("/v1/me", headers=auth_headers)
     assert me.status_code == 200
     assert me.json()["onboardingCompleted"] is False
+    assert me.json()["onboardingState"] == "profile"
     assert me.json()["topicCount"] == 0
 
     updated = client.put(
@@ -18,7 +19,11 @@ def test_me_bootstrap_and_profile(client: TestClient, auth_headers: dict[str, st
     assert fetched.json()["interests"] == ["モバイル", "AI"]
 
 
-def test_topics_crud_search_and_onboarding(client: TestClient, auth_headers: dict[str, str]) -> None:
+def test_topics_crud_search_and_onboarding(client: TestClient) -> None:
+    session = client.post("/v1/sessions")
+    assert session.status_code == 200
+    auth_headers = {"Authorization": f"Bearer {session.json()['accessToken']}"}
+
     created = client.post(
         "/v1/me/topics",
         headers=auth_headers,
@@ -53,8 +58,12 @@ def test_topics_crud_search_and_onboarding(client: TestClient, auth_headers: dic
         },
     )
     assert onboarding.status_code == 200
-    assert onboarding.json()["completed"] is True
+    assert onboarding.json()["completed"] is False
+    assert onboarding.json()["state"] == "github_pending"
+    assert onboarding.json()["githubAuthorization"]["required"] is True
+
     me = client.get("/v1/me", headers=auth_headers)
-    assert me.json()["onboardingCompleted"] is True
+    assert me.json()["onboardingCompleted"] is False
+    assert me.json()["onboardingState"] == "github_pending"
     assert me.json()["topicCount"] == 5
-    assert me.json()["githubConnected"] is True
+    assert me.json()["githubConnected"] is False

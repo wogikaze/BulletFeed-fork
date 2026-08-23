@@ -5,8 +5,10 @@ import sqlite3
 from fastapi import HTTPException, status
 
 from app.database import Database
+from app.db.projection_schema import ensure_projection_schema
 from app.schemas.common import CurrentState, Delta, Impact, SourceEvidence, TimelineEntry
 from app.schemas.events import EventDetail
+from app.services.event_access import user_can_access_event
 
 
 def _delta_from_row(row: sqlite3.Row) -> Delta:
@@ -20,17 +22,38 @@ def _delta_from_row(row: sqlite3.Row) -> Delta:
     )
 
 
+def _timeline_state(row: sqlite3.Row) -> dict[str, str] | None:
+    state = {
+        key: value
+        for key, value in (
+            ("before", row["state_before"]),
+            ("after", row["state_after"]),
+        )
+        if value is not None
+    }
+    return state or None
+
+
 class EventStore:
     def __init__(self, database: Database) -> None:
         self._database = database
+        ensure_projection_schema(database)
 
     def get_event(self, user_id: str, event_id: str, from_feed_item: str | None) -> EventDetail:
         with self._database.connect() as connection:
             event = connection.execute("SELECT * FROM events WHERE id = ?", (event_id,)).fetchone()
-            if event is None:
+            if event is None or not user_can_access_event(
+                connection,
+                user_id=user_id,
+                event_id=event_id,
+            ):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event was not found")
             deltas = connection.execute(
-                "SELECT * FROM deltas WHERE event_id = ? ORDER BY occurred_at DESC, id DESC",
+                """
+                SELECT * FROM deltas
+                WHERE event_id = ? AND active = 1
+                ORDER BY occurred_at DESC, id DESC
+                """,
                 (event_id,),
             ).fetchall()
             if not deltas:
@@ -85,11 +108,7 @@ class EventStore:
                     title=row["title"],
                     description=row["description"],
                     delta_id=row["delta_id"],
-                    state=(
-                        {"before": row["state_before"], "after": row["state_after"]}
-                        if row["state_before"] or row["state_after"]
-                        else None
-                    ),
+                    state=_timeline_state(row),
                 )
                 for row in timeline_rows
             ],
@@ -115,7 +134,11 @@ class EventStore:
     def set_following(self, user_id: str, event_id: str, following: bool) -> dict:
         with self._database.connect() as connection:
             event = connection.execute("SELECT id FROM events WHERE id = ?", (event_id,)).fetchone()
-            if event is None:
+            if event is None or not user_can_access_event(
+                connection,
+                user_id=user_id,
+                event_id=event_id,
+            ):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event was not found")
             connection.execute(
                 """

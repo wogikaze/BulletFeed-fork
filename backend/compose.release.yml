@@ -1,0 +1,59 @@
+services:
+  api:
+    build:
+      context: .
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+    restart: unless-stopped
+    env_file: .env.release
+    environment:
+      BULLETFEED_DATABASE_PATH: /data/bulletfeed.db
+    volumes:
+      - bulletfeed-data:/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3).read()",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 20s
+
+  worker:
+    build:
+      context: .
+    command: ["python", "-m", "app.release_worker"]
+    restart: unless-stopped
+    env_file: .env.release
+    environment:
+      BULLETFEED_DATABASE_PATH: /data/bulletfeed.db
+    volumes:
+      - bulletfeed-data:/data
+    healthcheck:
+      test: ["CMD", "python", "scripts/check_worker_health.py"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 20s
+
+  backup:
+    build:
+      context: .
+    command: ["python", "scripts/backup_database.py"]
+    profiles: ["maintenance"]
+    env_file: .env.release
+    environment:
+      BULLETFEED_DATABASE_PATH: /data/bulletfeed.db
+      BULLETFEED_BACKUP_DIR: /backups
+    volumes:
+      - bulletfeed-data:/data
+      - bulletfeed-backups:/backups
+
+volumes:
+  bulletfeed-data:
+  bulletfeed-backups:

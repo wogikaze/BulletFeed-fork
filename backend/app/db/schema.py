@@ -3,7 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     created_at INTEGER NOT NULL,
     onboarding_completed INTEGER NOT NULL DEFAULT 0,
+    onboarding_state TEXT NOT NULL DEFAULT 'profile',
     github_connected INTEGER NOT NULL DEFAULT 0,
+    github_credential_state TEXT NOT NULL DEFAULT 'disconnected',
     github_user_id INTEGER,
     github_login TEXT
 );
@@ -15,6 +17,19 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     created_at INTEGER NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS user_refresh_tokens (
+    token_hash TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    expires_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    rotated_at INTEGER,
+    revoked_at INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_refresh_tokens_user
+ON user_refresh_tokens(user_id, expires_at);
 
 CREATE TABLE IF NOT EXISTS profiles (
     user_id TEXT PRIMARY KEY,
@@ -73,6 +88,18 @@ CREATE TABLE IF NOT EXISTS event_impacts (
     FOREIGN KEY(event_id) REFERENCES events(id)
 );
 
+CREATE TABLE IF NOT EXISTS source_policies (
+    source_kind TEXT PRIMARY KEY,
+    authority TEXT NOT NULL,
+    terms_url TEXT,
+    content_license TEXT,
+    retain_raw INTEGER NOT NULL DEFAULT 0,
+    redistribution TEXT NOT NULL,
+    retention_days INTEGER,
+    private_scope TEXT NOT NULL,
+    policy_version TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS event_sources (
     id TEXT PRIMARY KEY,
     event_id TEXT NOT NULL,
@@ -112,6 +139,7 @@ CREATE TABLE IF NOT EXISTS feed_items (
     relation_reason TEXT NOT NULL,
     matched_topics_json TEXT NOT NULL,
     matched_repos_json TEXT NOT NULL,
+    personalization_rank INTEGER NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'unread',
     dismissed INTEGER NOT NULL DEFAULT 0,
     marked_important INTEGER NOT NULL DEFAULT 0,
@@ -164,6 +192,7 @@ CREATE TABLE IF NOT EXISTS github_repo_watches (
     full_name TEXT NOT NULL,
     html_url TEXT NOT NULL DEFAULT '',
     selected INTEGER NOT NULL DEFAULT 1,
+    private INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY(user_id, repository_id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
@@ -204,4 +233,18 @@ CREATE TABLE IF NOT EXISTS notifications (
     read INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+INSERT OR IGNORE INTO source_policies (
+    source_kind, authority, terms_url, content_license, retain_raw,
+    redistribution, retention_days, private_scope, policy_version
+) VALUES
+    ('statuspage', 'first_party_status', NULL, 'provider_terms', 0, 'link_excerpt', 365, 'public', '2026-08-23'),
+    ('github_advisory', 'security_advisory', NULL, 'provider_terms', 0, 'link_excerpt', 3650, 'public', '2026-08-23'),
+    ('osv', 'security_database', NULL, 'source_specific', 0, 'link_excerpt', 3650, 'public', '2026-08-23'),
+    ('github_release', 'first_party_repository', NULL, 'repository_specific', 0, 'link_excerpt', 365, 'repository', '2026-08-23'),
+    ('github_sbom', 'user_repository', NULL, 'private_or_repository_specific', 0, 'none', 30, 'user_repository', '2026-08-23'),
+    ('rss_atom', 'publisher_feed', NULL, 'publisher_specific', 0, 'link_excerpt', 90, 'public', '2026-08-23'),
+    ('json_feed', 'publisher_feed', NULL, 'publisher_specific', 0, 'link_excerpt', 90, 'public', '2026-08-23'),
+    ('official_changelog', 'first_party_changelog', NULL, 'publisher_specific', 0, 'link_excerpt', 365, 'public', '2026-08-23'),
+    ('documentation', 'first_party_documentation', NULL, 'publisher_specific', 0, 'link_excerpt', 365, 'public', '2026-08-23');
 """

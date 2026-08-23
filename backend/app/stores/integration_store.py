@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import base64
+import binascii
+import time
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 from app.config import Settings
 from app.database import Database
-from app.db.seed import seed_user_workspace
 from app.errors import not_found, unprocessable
 from app.schemas.integrations import (
     GithubConnection,
@@ -21,21 +22,39 @@ from app.schemas.integrations import (
 )
 from app.security import TokenCipher
 from app.services import github
+from app.services.event_access import revoke_repository_access
 from app.stores.me_store import MeStore
 
 _ALERT_STATUSES = {"open", "in_progress", "resolved", "not_affected"}
 
 
-def _encode_cursor(value: str) -> str:
-    return base64.urlsafe_b64encode(value.encode()).decode().rstrip("=")
+def _encode_cursor(updated_at: str, repository_id: str) -> str:
+    raw = f"{updated_at}|{repository_id}".encode()
+    return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
 
-def _decode_cursor(cursor: str) -> str:
+def _decode_cursor(cursor: str) -> tuple[str, str]:
     padding = "=" * (-len(cursor) % 4)
     try:
-        return base64.urlsafe_b64decode(cursor + padding).decode()
-    except (ValueError, UnicodeDecodeError) as exc:
+        value = base64.urlsafe_b64decode(cursor + padding).decode()
+        updated_at, repository_id = value.split("|", 1)
+    except (ValueError, UnicodeDecodeError, binascii.Error) as exc:
         raise unprocessable("cursor is invalid") from exc
+    if not updated_at or not repository_id:
+        raise unprocessable("cursor is invalid")
+    return updated_at, repository_id
+
+
+def _repository_sort_key(item: GithubRepository) -> tuple[str, str]:
+    return (item.updated_at, item.id)
+
+
+def _activity_timestamp(repo: dict) -> str | None:
+    for key in ("pushed_at", "updated_at"):
+        value = repo.get(key)
+        if isinstance(value, str) and value:
+            return value
+    return None
 
 
 class IntegrationStore:
@@ -44,35 +63,65 @@ class IntegrationStore:
         self._cipher = cipher
         self._me_store = MeStore(database)
 
-    def _get_github_token(self, user_id: str) -> str | None:
+    def _mark_reauthorization_required(self, user_id: str) -> None:
+        with self._database.connect() as connection:
+            connection.execute(
+                """
+                UPDATE users
+                SET github_credential_state = 'reauthorization_required'
+                WHERE id = ? AND github_user_id IS NOT NULL
+                """,
+                (user_id,),
+            )
+
+    def _get_github_token(self, user_id: str, *, required: bool = False) -> str | None:
+        now = int(time.time())
         with self._database.connect() as connection:
             row = connection.execute(
                 """
-                SELECT c.github_token_encrypted
+                SELECT u.github_user_id, u.github_credential_state,
+                       c.github_token_encrypted, c.token_expires_at
                 FROM users u
-                JOIN github_connections c ON u.github_user_id = c.github_user_id
+                LEFT JOIN github_connections c ON u.github_user_id = c.github_user_id
                 WHERE u.id = ?
                 """,
                 (user_id,),
             ).fetchone()
-        if row is None:
+        if row is None or row["github_user_id"] is None:
+            if required:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="GitHub is not connected",
+                )
             return None
-        return self._cipher.decrypt(row["github_token_encrypted"])
+        encrypted = row["github_token_encrypted"]
+        expires_at = row["token_expires_at"]
+        if encrypted is None or (expires_at is not None and expires_at <= now):
+            self._mark_reauthorization_required(user_id)
+            if required:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="GitHub reauthorization is required",
+                )
+            return None
+        return self._cipher.decrypt(encrypted)
 
     def github_connection(self, user_id: str) -> GithubConnection:
         with self._database.connect() as connection:
-            watches = connection.execute(
-                "SELECT COUNT(*) AS count FROM github_repo_watches WHERE user_id = ? AND selected = 1",
-                (user_id,),
-            ).fetchone()["count"]
             row = connection.execute(
-                "SELECT github_connected, github_login FROM users WHERE id = ?",
+                """
+                SELECT github_user_id, github_login, github_credential_state
+                FROM users WHERE id = ?
+                """,
                 (user_id,),
             ).fetchone()
         if row is None:
-            return GithubConnection(connected=watches > 0)
+            return GithubConnection(connected=False, credential_state="disconnected")
+        connected = row["github_user_id"] is not None
+        state = row["github_credential_state"] if connected else "disconnected"
         return GithubConnection(
-            connected=bool(row["github_connected"]) or watches > 0,
+            connected=connected,
+            credential_state=state,
             account_login=row["github_login"],
         )
 
@@ -84,13 +133,16 @@ class IntegrationStore:
         limit: int,
         settings: Settings,
     ) -> GithubRepositoryPage:
-        del cursor
         if limit < 1 or limit > 50:
             raise unprocessable("limit must be 1-50")
-        github_token = self._get_github_token(user_id)
-        if github_token is None:
-            raise unprocessable("GitHub is not connected")
-        remote = await github.list_repositories(settings, github_token)
+        cursor_value = _decode_cursor(cursor) if cursor else None
+        github_token = self._get_github_token(user_id, required=True)
+        try:
+            remote = await github.list_repositories(settings, github_token)
+        except HTTPException as exc:
+            if exc.status_code == status.HTTP_403_FORBIDDEN:
+                self._mark_reauthorization_required(user_id)
+            raise
 
         with self._database.connect() as connection:
             selected = {
@@ -108,14 +160,14 @@ class IntegrationStore:
                 continue
             full_name = repo.get("full_name")
             html_url = repo.get("html_url")
-            updated_at = repo.get("updated_at")
+            updated_at = _activity_timestamp(repo)
             if (
                 not isinstance(full_name, str)
                 or not isinstance(html_url, str)
-                or not isinstance(updated_at, str)
+                or updated_at is None
             ):
                 continue
-            if query and query.lower() not in full_name.lower():
+            if query and query.casefold() not in full_name.casefold():
                 continue
             language = repo.get("language")
             items.append(
@@ -130,9 +182,13 @@ class IntegrationStore:
                     updated_at=updated_at,
                 )
             )
-        items.sort(key=lambda item: item.full_name)
+        items.sort(key=_repository_sort_key, reverse=True)
+        if cursor_value is not None:
+            items = [item for item in items if _repository_sort_key(item) < cursor_value]
         page = items[:limit]
-        next_cursor = _encode_cursor(page[-1].full_name) if len(items) > limit else None
+        next_cursor = (
+            _encode_cursor(page[-1].updated_at, page[-1].id) if len(items) > limit and page else None
+        )
         return GithubRepositoryPage(items=page, next_cursor=next_cursor)
 
     async def update_repositories(
@@ -141,10 +197,13 @@ class IntegrationStore:
         repository_ids: list[str],
         settings: Settings,
     ) -> GithubConnection:
-        github_token = self._get_github_token(user_id)
-        if github_token is None:
-            raise unprocessable("GitHub is not connected")
-        remote = await github.list_repositories(settings, github_token)
+        github_token = self._get_github_token(user_id, required=True)
+        try:
+            remote = await github.list_repositories(settings, github_token)
+        except HTTPException as exc:
+            if exc.status_code == status.HTTP_403_FORBIDDEN:
+                self._mark_reauthorization_required(user_id)
+            raise
 
         known: dict[str, dict[str, object]] = {}
         for repo in remote:
@@ -157,19 +216,42 @@ class IntegrationStore:
             raise unprocessable("unknown repository id")
 
         with self._database.connect() as connection:
+            old_repositories = {
+                row["full_name"]
+                for row in connection.execute(
+                    "SELECT full_name FROM github_repo_watches WHERE user_id = ? AND selected = 1",
+                    (user_id,),
+                ).fetchall()
+            }
             connection.execute("DELETE FROM github_repo_watches WHERE user_id = ?", (user_id,))
+            new_repositories: set[str] = set()
             for repo_id in repository_ids:
                 repo = known[repo_id]
                 full_name = str(repo["full_name"])
                 html_url = str(repo["html_url"])
+                new_repositories.add(full_name)
                 connection.execute(
                     """
-                    INSERT INTO github_repo_watches (user_id, repository_id, full_name, html_url, selected)
-                    VALUES (?, ?, ?, ?, 1)
+                    INSERT INTO github_repo_watches (
+                        user_id, repository_id, full_name, html_url, selected, private
+                    ) VALUES (?, ?, ?, ?, 1, ?)
                     """,
-                    (user_id, repo_id, full_name, html_url),
+                    (user_id, repo_id, full_name, html_url, int(bool(repo.get("private")))),
                 )
-            connection.execute("UPDATE users SET github_connected = 1 WHERE id = ?", (user_id,))
+            connection.execute(
+                """
+                UPDATE users
+                SET github_connected = 1, github_credential_state = 'connected'
+                WHERE id = ?
+                """,
+                (user_id,),
+            )
+        for repository_key in old_repositories - new_repositories:
+            revoke_repository_access(
+                self._database,
+                user_id=user_id,
+                repository_key=repository_key,
+            )
         return self.github_connection(user_id)
 
     async def import_repository_keywords(
@@ -214,14 +296,48 @@ class IntegrationStore:
 
     def disconnect_github(self, user_id: str) -> None:
         with self._database.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            user = connection.execute(
+                "SELECT github_user_id FROM users WHERE id = ?",
+                (user_id,),
+            ).fetchone()
+            github_user_id = user["github_user_id"] if user is not None else None
+            repositories = [
+                row["full_name"]
+                for row in connection.execute(
+                    "SELECT full_name FROM github_repo_watches WHERE user_id = ? AND selected = 1",
+                    (user_id,),
+                ).fetchall()
+            ]
             connection.execute("DELETE FROM github_repo_watches WHERE user_id = ?", (user_id,))
             connection.execute(
                 """
                 UPDATE users
-                SET github_connected = 0, github_user_id = NULL, github_login = NULL
+                SET github_connected = 0,
+                    github_credential_state = 'disconnected',
+                    github_user_id = NULL,
+                    github_login = NULL
                 WHERE id = ?
                 """,
                 (user_id,),
+            )
+            if github_user_id is not None:
+                remaining = connection.execute(
+                    "SELECT 1 FROM users WHERE github_user_id = ? LIMIT 1",
+                    (github_user_id,),
+                ).fetchone()
+                if remaining is None:
+                    connection.execute("DELETE FROM app_sessions WHERE github_user_id = ?", (github_user_id,))
+                    connection.execute(
+                        "DELETE FROM github_connections WHERE github_user_id = ?",
+                        (github_user_id,),
+                    )
+            connection.commit()
+        for repository_key in repositories:
+            revoke_repository_access(
+                self._database,
+                user_id=user_id,
+                repository_key=repository_key,
             )
 
     def list_alerts(
@@ -230,7 +346,6 @@ class IntegrationStore:
         if alert_status is not None and alert_status not in _ALERT_STATUSES:
             raise unprocessable("status is invalid")
         with self._database.connect() as connection:
-            seed_user_workspace(connection, user_id)
             fetched = connection.execute(
                 """
                 SELECT * FROM security_alerts
@@ -249,7 +364,6 @@ class IntegrationStore:
 
     def get_alert(self, user_id: str, alert_id: str) -> SecurityAlert:
         with self._database.connect() as connection:
-            seed_user_workspace(connection, user_id)
             row = connection.execute(
                 "SELECT * FROM security_alerts WHERE id = ? AND user_id = ?",
                 (alert_id, user_id),
@@ -270,7 +384,6 @@ class IntegrationStore:
 
     def list_notifications(self, user_id: str, only_unread: bool) -> list[NotificationItem]:
         with self._database.connect() as connection:
-            seed_user_workspace(connection, user_id)
             sql = "SELECT * FROM notifications WHERE user_id = ?"
             params: list[object] = [user_id]
             if only_unread:

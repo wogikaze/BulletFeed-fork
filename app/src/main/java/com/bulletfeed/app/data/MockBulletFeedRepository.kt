@@ -15,6 +15,8 @@ class MockBulletFeedRepository(
     IntegrationRepository by integrationStore {
     override suspend fun initialize() {}
 
+    override suspend fun recoverSession(): Boolean = true
+
     override suspend fun getFeedEvents(): List<FeedEvent> {
         simulateNetworkDelay()
         return feedStore.getFeedEvents()
@@ -29,6 +31,7 @@ class MockBulletFeedRepository(
     override suspend fun getOnboardingSnapshot() =
         OnboardingSnapshot(
             completed = state.onboardingCompleted,
+            state = if (state.onboardingCompleted) OnboardingState.READY else OnboardingState.PROFILE,
             profile = state.profile,
             topics = state.topicNames(),
         )
@@ -52,7 +55,9 @@ class MockBulletFeedRepository(
     override suspend fun updateEventFeedback(
         eventId: String,
         feedback: Feedback,
-    ): FeedEvent = feedStore.updateByEventId(eventId, feedback)
+    ) {
+        feedStore.updateByEventId(eventId, feedback)
+    }
 
     override suspend fun setFollowing(
         eventId: String,

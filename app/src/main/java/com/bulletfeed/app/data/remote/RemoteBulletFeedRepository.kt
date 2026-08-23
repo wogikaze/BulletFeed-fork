@@ -1,23 +1,56 @@
 package com.bulletfeed.app
 
+import retrofit2.HttpException
+
+class SessionRecoveryRequiredException : IllegalStateException("Existing BulletFeed user requires authentication recovery")
+
 class RemoteBulletFeedRepository(
     private val api: BulletFeedApi,
     private val sessionManager: SessionManager,
 ) : BulletFeedRepository,
     FeedRepository by RemoteFeedRepository(api),
     EventRepository by RemoteEventRepository(api),
-    MeRepository by RemoteMeRepository(api),
-    IntegrationRepository by RemoteIntegrationRepository(api) {
+    MeRepository by RemoteMeRepository(api, sessionManager),
+    IntegrationRepository by RemoteIntegrationRepository(api, sessionManager) {
     override suspend fun initialize() {
-        if (sessionManager.accessToken == null) {
-            val session = api.createSession()
-            sessionManager.accessToken = session.accessToken
-            sessionManager.userId = session.userId
+        if (sessionManager.accessToken != null) return
+        if (sessionManager.refreshToken != null && recoverSession()) return
+        if (sessionManager.userId == null) {
+            createAndStoreSession()
+            return
+        }
+        throw SessionRecoveryRequiredException()
+    }
+
+    override suspend fun recoverSession(): Boolean {
+        val refreshToken = sessionManager.refreshToken ?: return false
+        return try {
+            storeSession(api.refreshSession(SessionRefreshDto(refreshToken)))
+            true
+        } catch (error: HttpException) {
+            if (error.code() != 401) throw error
+            sessionManager.clearAuthenticationTokens()
+            false
         }
     }
 
+    override suspend fun resetSession() {
+        sessionManager.clearSession()
+        createAndStoreSession()
+    }
+
+    private suspend fun createAndStoreSession() {
+        storeSession(api.createSession())
+    }
+
+    private fun storeSession(session: SessionResponseDto) {
+        sessionManager.accessToken = session.accessToken
+        sessionManager.refreshToken = session.refreshToken
+        sessionManager.userId = session.userId
+    }
+
     override suspend fun getFeedEvents(): List<FeedEvent> =
-        getFeedItems().map { it.toFeedEvent() }
+        getFeedPage().items.map { it.toFeedEvent() }
 
     override suspend fun getGithubConnection(): Boolean = getGithubConnectionState().connected
 
@@ -27,6 +60,7 @@ class RemoteBulletFeedRepository(
         val topics = getUserTopics().map { it.name }
         return OnboardingSnapshot(
             completed = me.onboardingCompleted,
+            state = me.onboardingState,
             profile = profile,
             topics = topics,
         )
@@ -44,21 +78,30 @@ class RemoteBulletFeedRepository(
     override suspend fun updateEventFeedback(
         eventId: String,
         feedback: Feedback,
-    ): FeedEvent {
-        val feedItems = getFeedItems()
-        val target = feedItems.firstOrNull { it.eventId == eventId }
-            ?: error("Feed item not found for event $eventId")
-        return when (feedback) {
+    ) {
+        val target = findFeedItemForEvent(eventId)
+        when (feedback) {
             Feedback.READ -> markFeedItemRead(target.id)
             Feedback.IMPORTANT -> sendFeedFeedback(target.id, FeedFeedbackType.IMPORTANT)
             Feedback.NOT_RELEVANT -> sendFeedFeedback(target.id, FeedFeedbackType.NOT_RELEVANT)
         }
     }
 
+    private suspend fun findFeedItemForEvent(eventId: String): FeedItem {
+        var cursor: String? = null
+        val seen = mutableSetOf<String>()
+        do {
+            val page = getFeedPage(cursor = cursor, limit = 50)
+            page.items.firstOrNull { it.eventId == eventId }?.let { return it }
+            val next = page.nextCursor
+            if (next != null && !seen.add(next)) break
+            cursor = next
+        } while (cursor != null)
+        error("Feed item not found for event $eventId")
+    }
+
     override suspend fun setGithubConnected(connected: Boolean): Boolean {
-        if (!connected) {
-            disconnectGithub()
-        }
+        if (!connected) disconnectGithub()
         return getGithubConnectionState().connected
     }
 }
@@ -66,37 +109,42 @@ class RemoteBulletFeedRepository(
 class RemoteFeedRepository(
     private val api: BulletFeedApi,
 ) : FeedRepository {
-    override suspend fun getFeedItems(): List<FeedItem> =
-        api.getFeed().items.map { it.toDomain() }
+    override suspend fun getFeedItems(): List<FeedItem> = getFeedPage().items
 
-    override suspend fun markFeedItemRead(feedItemId: String): FeedEvent {
-        val response = api.markFeedItemRead(feedItemId)
-        val feedItems = getFeedItems()
-        val item = feedItems.firstOrNull { it.id == response.feedItemId }
-            ?: error("Feed item ${response.feedItemId} not found")
-        return item.copy(status = FeedItemStatus.READ).toFeedEvent()
+    override suspend fun getFeedPage(
+        cursor: String?,
+        limit: Int,
+    ): FeedPage = api.getFeed(cursor = cursor, limit = limit).toDomain()
+
+    override suspend fun getFilteredFeedPage(
+        relation: Relation?,
+        status: FeedItemStatus?,
+        cursor: String?,
+        limit: Int,
+    ): FeedPage =
+        api.getFeed(
+            relation = relation?.name?.lowercase(),
+            status = status?.name?.lowercase(),
+            cursor = cursor,
+            limit = limit,
+        ).toDomain()
+
+    override suspend fun markFeedItemRead(feedItemId: String) {
+        api.markFeedItemRead(feedItemId)
     }
 
     override suspend fun sendFeedFeedback(
         feedItemId: String,
         type: FeedFeedbackType,
-    ): FeedEvent {
-        val response = api.sendFeedFeedback(feedItemId, FeedbackDto(type.name.lowercase()))
-        val feedItems = getFeedItems()
-        val item = feedItems.firstOrNull { it.id == response.feedItemId }
-            ?: error("Feed item ${response.feedItemId} not found")
-        val updated = when (type) {
-            FeedFeedbackType.IMPORTANT -> item.copy(markedImportant = true)
-            FeedFeedbackType.NOT_RELEVANT ->
-                item.copy(status = FeedItemStatus.READ, dismissed = true)
-        }
-        return updated.toFeedEvent()
+    ) {
+        api.sendFeedFeedback(feedItemId, FeedbackDto(type.name.lowercase()))
     }
 
     override suspend fun recordExposures(items: List<FeedExposure>) {
+        if (items.isEmpty()) return
         api.recordExposures(
             ExposuresDto(
-                items.map { ExposureDto(it.deliveryId, it.displayedAt) },
+                items.take(50).map { ExposureDto(it.deliveryId, it.displayedAt) },
             ),
         )
     }
@@ -114,15 +162,31 @@ class RemoteEventRepository(
         eventId: String,
         following: Boolean,
     ): FeedEvent {
+        val base = api.getFeed(limit = 50).items.firstOrNull { it.eventId == eventId }?.toDomain()?.toFeedEvent()
+            ?: error("Feed context is required for the legacy setFollowing result")
         api.setFollowing(eventId, FollowingDto(following = following))
-        return api.getEvent(eventId).toDomain().toFeedEvent()
+        return api.getEvent(eventId).toDomain().toFeedEvent(base)
+    }
+
+    override suspend fun updateFollowingDetail(
+        eventId: String,
+        following: Boolean,
+    ): EventDetail {
+        api.setFollowing(eventId, FollowingDto(following = following))
+        return api.getEvent(eventId).toDomain()
     }
 }
 
 class RemoteMeRepository(
     private val api: BulletFeedApi,
+    private val sessionManager: SessionManager,
 ) : MeRepository {
     override suspend fun getMe(): MeBootstrap = api.getMe().toDomain()
+
+    override suspend fun deleteAccount() {
+        api.deleteAccount()
+        sessionManager.clearSession()
+    }
 
     override suspend fun getProfile(): UserProfile = api.getProfile().toDomain()
 
@@ -135,8 +199,7 @@ class RemoteMeRepository(
     override suspend fun addUserTopic(
         name: String,
         type: TopicType,
-    ): UserTopic =
-        api.addTopic(TopicCreateDto(name, type.name.lowercase())).toDomain()
+    ): UserTopic = api.addTopic(TopicCreateDto(name, type.name.lowercase())).toDomain()
 
     override suspend fun removeUserTopic(topicId: String) {
         api.deleteTopic(topicId)
@@ -170,39 +233,113 @@ class RemoteMeRepository(
                 connectGithub = connectGithub,
             ),
         )
+        val persistedProfile = api.getProfile().toDomain()
+        val persistedTopics = api.getTopics().items.map { it.toDomain().name }
         return OnboardingSnapshot(
             completed = result.completed,
-            profile = profile,
-            topics = topics,
+            state = OnboardingState.valueOf(result.state.uppercase()),
+            profile = persistedProfile,
+            topics = persistedTopics,
         )
     }
 }
 
 class RemoteIntegrationRepository(
     private val api: BulletFeedApi,
+    private val sessionManager: SessionManager,
 ) : IntegrationRepository {
     override suspend fun getGithubConnectionState(): GithubConnection = api.getGithubConnection().toDomain()
 
-    override suspend fun startGithubAuthorization(): GithubAuthorization = api.authorizeGithub().toDomain()
+    override suspend fun startGithubAuthorization(): GithubAuthorization =
+        persistAuthorization(api.authorizeGithub().toDomain())
+
+    override suspend fun startGithubAccountRecovery(): GithubAuthorization =
+        persistAuthorization(api.recoverSessionWithGithub().toDomain())
+
+    private fun persistAuthorization(authorization: GithubAuthorization): GithubAuthorization {
+        sessionManager.pendingGithubAuthorization =
+            PendingGithubAuthorization(
+                flowId = authorization.flowId,
+                pollToken = authorization.pollToken,
+                authorizationUrl = authorization.authorizationUrl,
+                expiresAtMillis = System.currentTimeMillis() + authorization.expiresInSeconds * 1000L,
+            )
+        return authorization
+    }
+
+    override suspend fun pollGithubAuthorization(): GithubAuthorizationStatus? {
+        val pending = sessionManager.pendingGithubAuthorization ?: return null
+        if (pending.expiresAtMillis <= System.currentTimeMillis()) {
+            sessionManager.pendingGithubAuthorization = null
+            return GithubAuthorizationStatus(GithubAuthorizationState.EXPIRED)
+        }
+        val dto = try {
+            api.getGithubAuthorizationStatus(pending.flowId, pending.pollToken)
+        } catch (error: HttpException) {
+            if (error.code() == 401 || error.code() == 404) {
+                sessionManager.pendingGithubAuthorization = null
+                return GithubAuthorizationStatus(
+                    state = GithubAuthorizationState.FAILED,
+                    detail = "GitHub authorization flow is no longer valid",
+                )
+            }
+            throw error
+        }
+        val status = dto.toDomain()
+        when (status.state) {
+            GithubAuthorizationState.CONNECTED -> {
+                val accessToken = dto.appAccessToken
+                val refreshToken = dto.refreshToken
+                if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()) {
+                    sessionManager.pendingGithubAuthorization = null
+                    return GithubAuthorizationStatus(
+                        state = GithubAuthorizationState.FAILED,
+                        githubLogin = dto.githubLogin,
+                        detail = "GitHub authorization completed without a refreshable app session",
+                    )
+                }
+                sessionManager.accessToken = accessToken
+                sessionManager.refreshToken = refreshToken
+                sessionManager.pendingGithubAuthorization = null
+            }
+            GithubAuthorizationState.FAILED,
+            GithubAuthorizationState.EXPIRED,
+            -> sessionManager.pendingGithubAuthorization = null
+            GithubAuthorizationState.PENDING -> Unit
+        }
+        return status
+    }
 
     override suspend fun listGithubRepositories(query: String): List<GithubRepositoryChoice> =
-        api.listGithubRepositories(query).items.map { it.toDomain() }
+        getGithubRepositoryPage(query = query).items
 
-    override suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubConnection =
-        api.updateGithubRepositories(GithubRepositoryUpdateDto(repositoryIds)).toDomain()
+    override suspend fun getGithubRepositoryPage(
+        query: String,
+        cursor: String?,
+        limit: Int,
+    ): GithubRepositoryPage =
+        api.listGithubRepositories(
+            query = query.takeIf { it.isNotBlank() },
+            cursor = cursor,
+            limit = limit,
+        ).toDomain()
 
-    override suspend fun importFromPublicRepo(fullName: String): List<String> {
-        val result = api.importRepositoryKeywords(GithubRepoImportDto(fullName))
-        return result.addedTopics
-    }
+    override suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubTopicSyncResult =
+        api.updateGithubRepositories(GithubRepositoryUpdateDto(repositoryIds.distinct())).toDomain()
+
+    override suspend fun importFromPublicRepo(fullName: String): GithubTopicSyncResult =
+        api.importRepositoryKeywords(GithubRepoImportDto(fullName)).toSyncResult()
 
     override suspend fun disconnectGithub() {
         api.disconnectGithub()
+        sessionManager.pendingGithubAuthorization = null
     }
 
-    override suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert> = api.getSecurityAlerts().items.map { it.toDomain() }
+    override suspend fun getVulnerabilityAlerts(): List<VulnerabilityAlert> =
+        api.getSecurityAlerts().items.map { it.toDomain() }
 
-    override suspend fun getVulnerabilityAlert(alertId: String): VulnerabilityAlert = api.getSecurityAlert(alertId).toDomain()
+    override suspend fun getVulnerabilityAlert(alertId: String): VulnerabilityAlert =
+        api.getSecurityAlert(alertId).toDomain()
 
     override suspend fun updateVulnerabilityStatus(
         alertId: String,
@@ -210,9 +347,14 @@ class RemoteIntegrationRepository(
     ): VulnerabilityAlert =
         api.patchSecurityAlert(alertId, SecurityAlertPatchDto(status.name.lowercase())).toDomain()
 
-    override suspend fun getNotifications(): List<AppNotification> = api.getNotifications().items.map { it.toDomain() }
+    override suspend fun getNotifications(): List<AppNotification> =
+        api.getNotifications().items.map { it.toDomain() }
 
-    override suspend fun markNotificationRead(notificationId: String): AppNotification = api.patchNotification(notificationId, NotificationReadDto(true)).toDomain()
+    override suspend fun markNotificationRead(notificationId: String): AppNotification =
+        api.patchNotification(notificationId, NotificationReadDto(true)).toDomain()
 
-    override suspend fun markAllNotificationsRead(): List<AppNotification> = api.readAllNotifications().let { getNotifications() }
+    override suspend fun markAllNotificationsRead(): List<AppNotification> {
+        api.readAllNotifications()
+        return getNotifications()
+    }
 }

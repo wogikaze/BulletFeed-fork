@@ -9,13 +9,15 @@ Confidence = Literal["high", "medium", "low"]
 DeltaType = Literal["new_fact", "detail", "state_update", "correction", "unresolved_contradiction"]
 FeedItemStatus = Literal["unread", "read"]
 FeedbackType = Literal["important", "not_relevant"]
-EventPhase = Literal["investigating", "identified", "monitoring", "resolved"]
 TimelineType = Literal["announced", "state_changed", "information_added", "corrected", "resolved"]
 SourceKind = Literal[
     "statuspage",
     "github_advisory",
     "osv",
     "github_release",
+    "github_sbom",
+    "rss_atom",
+    "json_feed",
     "official_changelog",
     "documentation",
 ]
@@ -67,7 +69,7 @@ class Delta(ApiModel):
 
 
 class CurrentState(ApiModel):
-    phase: EventPhase
+    phase: str
     summary: str
     since: str
     confidence: Confidence
@@ -101,7 +103,14 @@ class SourceEvidence(ApiModel):
 
 class SessionResponse(ApiModel):
     access_token: str
+    refresh_token: str
     user_id: str
+    access_expires_in_seconds: int
+    refresh_expires_in_seconds: int
+
+
+class SessionRefreshRequest(ApiModel):
+    refresh_token: str
 
 
 def error_payload(code: str, message: str, field: str | None = None) -> dict[str, Any]:

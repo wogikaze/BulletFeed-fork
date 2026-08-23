@@ -19,7 +19,7 @@ class MockEventStore(
             summary = event.summary,
             currentState =
                 CurrentState(
-                    phase = EventPhase.IDENTIFIED,
+                    phase = "identified",
                     summary = event.summary,
                     since = event.announcedAt,
                     confidence = "high",

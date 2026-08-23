@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.database import Database
 from app.dependencies import get_database, require_user
+from app.schemas.common import SourceEvidence
 from app.schemas.feed import (
     ExposuresRequest,
     ExposuresResponse,
@@ -17,13 +18,41 @@ from app.stores.feed_store import FeedStore
 router = APIRouter(prefix="/v1", tags=["feed"])
 
 
-def _store(database: Annotated[Database, Depends(get_database)]) -> FeedStore:
+def _store(
+    database: Annotated[Database, Depends(get_database)],
+) -> FeedStore:
     return FeedStore(database)
+
+
+def _event_sources(database: Database, event_id: str) -> list[SourceEvidence]:
+    with database.connect() as connection:
+        rows = connection.execute(
+            """
+            SELECT publisher, kind, title, url, published_at, retrieved_at, evidence
+            FROM event_sources
+            WHERE event_id = ?
+            ORDER BY published_at DESC, retrieved_at DESC, id DESC
+            """,
+            (event_id,),
+        ).fetchall()
+    return [
+        SourceEvidence(
+            publisher=row["publisher"],
+            kind=row["kind"],
+            title=row["title"],
+            url=row["url"],
+            published_at=row["published_at"],
+            retrieved_at=row["retrieved_at"],
+            evidence=row["evidence"],
+        )
+        for row in rows
+    ]
 
 
 @router.get("/feed", response_model=FeedPage)
 def get_feed(
     user: Annotated[dict, Depends(require_user)],
+    database: Annotated[Database, Depends(get_database)],
     store: Annotated[FeedStore, Depends(_store)],
     relation: Literal["direct", "adjacent", "reference"] | None = None,
     item_status: Annotated[
@@ -40,6 +69,8 @@ def get_feed(
         cursor=cursor,
         limit=limit,
     )
+    for item in items:
+        item.sources = _event_sources(database, item.event_id)
     return FeedPage(items=items, next_cursor=next_cursor)
 
 

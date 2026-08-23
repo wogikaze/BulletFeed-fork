@@ -3,12 +3,24 @@ package com.bulletfeed.app
 interface FeedRepository {
     suspend fun getFeedItems(): List<FeedItem>
 
-    suspend fun markFeedItemRead(feedItemId: String): FeedEvent
+    suspend fun getFeedPage(
+        cursor: String? = null,
+        limit: Int = 20,
+    ): FeedPage = FeedPage(items = getFeedItems(), nextCursor = null)
+
+    suspend fun getFilteredFeedPage(
+        relation: Relation? = null,
+        status: FeedItemStatus? = null,
+        cursor: String? = null,
+        limit: Int = 20,
+    ): FeedPage = getFeedPage(cursor = cursor, limit = limit)
+
+    suspend fun markFeedItemRead(feedItemId: String)
 
     suspend fun sendFeedFeedback(
         feedItemId: String,
         type: FeedFeedbackType,
-    ): FeedEvent
+    )
 
     suspend fun recordExposures(items: List<FeedExposure>)
 }
@@ -23,10 +35,20 @@ interface EventRepository {
         eventId: String,
         following: Boolean,
     ): FeedEvent
+
+    suspend fun updateFollowingDetail(
+        eventId: String,
+        following: Boolean,
+    ): EventDetail {
+        setFollowing(eventId, following)
+        return getEventDetail(eventId)
+    }
 }
 
 interface MeRepository {
     suspend fun getMe(): MeBootstrap
+
+    suspend fun deleteAccount() {}
 
     suspend fun getProfile(): UserProfile
 
@@ -61,11 +83,21 @@ interface IntegrationRepository {
 
     suspend fun startGithubAuthorization(): GithubAuthorization
 
+    suspend fun startGithubAccountRecovery(): GithubAuthorization = startGithubAuthorization()
+
+    suspend fun pollGithubAuthorization(): GithubAuthorizationStatus? = null
+
     suspend fun listGithubRepositories(query: String = ""): List<GithubRepositoryChoice>
 
-    suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubConnection
+    suspend fun getGithubRepositoryPage(
+        query: String = "",
+        cursor: String? = null,
+        limit: Int = 20,
+    ): GithubRepositoryPage = GithubRepositoryPage(items = listGithubRepositories(query), nextCursor = null)
 
-    suspend fun importFromPublicRepo(fullName: String): List<String>
+    suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubTopicSyncResult
+
+    suspend fun importFromPublicRepo(fullName: String): GithubTopicSyncResult
 
     suspend fun disconnectGithub()
 
