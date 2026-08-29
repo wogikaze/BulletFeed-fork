@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -32,7 +33,8 @@ _IDENTITY_CONCEPT_TYPES = frozenset(
         "vulnerability_advisory",
     }
 )
-_IDENTITY_GUARD_NAMES = frozenset({"version", "stable_id"})
+_IDENTITY_GUARD_NAMES = frozenset({"version", "stable_id", "region"})
+_REGION_RE = re.compile(r"\b(?:us|eu|ap|af|sa|me|cn)-[a-z0-9]+-\d+\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -439,12 +441,29 @@ def compare_event_mentions(
             version=version,
         )
 
+    incoming_text = " ".join(part for part in (value.title, value.subject) if part)
+    existing_text = " ".join(
+        part
+        for part in (candidate.title, candidate.latest_value, candidate.latest_detail)
+        if part
+    )
+    equivalence = compare_semantic_equivalence(
+        incoming_text,
+        incoming_text,
+        existing_text,
+        existing_text,
+        entity_aliases=DEFAULT_ENTITY_ALIASES,
+    )
+    claim_guards = equivalence.hard_guards
+    blocked_by_guards = bool(claim_guards)
+
     incoming_title = canonicalize_text(value.title, entity_aliases=DEFAULT_ENTITY_ALIASES)
     existing_title = canonicalize_text(candidate.title, entity_aliases=DEFAULT_ENTITY_ALIASES)
     if (
         incoming_title.text == existing_title.text
         and len(set(incoming_title.tokens)) >= 2
         and days <= policy.different_event_min_days
+        and not incoming.region_ids.symmetric_difference(existing.region_ids)
     ):
         return _decision(
             "same_event",
@@ -453,20 +472,15 @@ def compare_event_mentions(
             candidate_event_id=candidate.event_id,
             score=0.95,
             version=version,
+            hard_guards=claim_guards,
         )
 
-    equivalence = compare_semantic_equivalence(
-        value.subject or value.title,
-        value.title,
-        candidate.latest_value or candidate.title,
-        candidate.latest_detail or candidate.title,
-        entity_aliases=DEFAULT_ENTITY_ALIASES,
+    disjoint_products = (
+        incoming.split_concepts
+        and existing.split_concepts
+        and not incoming.split_concepts & existing.split_concepts
     )
-    claim_guards = equivalence.hard_guards
-    blocked_by_guards = bool(claim_guards)
-
-    split_concepts = incoming.split_concepts | existing.split_concepts
-    if incoming.split_concepts and existing.split_concepts and not incoming.split_concepts & existing.split_concepts:
+    if disjoint_products:
         return _decision(
             "different_event",
             "event concepts name distinct products or runtimes",
@@ -477,19 +491,13 @@ def compare_event_mentions(
             hard_guards=claim_guards,
         )
 
-    identity_anchor = bool(
-        incoming.identity_concepts & existing.identity_concepts
-        or incoming.advisory_ids
-        or existing.advisory_ids
-        or overlap >= 0.45
-        or (value.source_key and value.source_key == candidate.source_key)
-    )
+    exclusive_conflict = _near_copy_conflict(incoming.tokens, existing.tokens, overlap)
     if (
         not blocked_by_guards
+        and not exclusive_conflict
         and equivalence.label == "equivalent"
         and equivalence.confidence in {"high", "medium"}
         and days <= policy.same_event_max_days
-        and identity_anchor
     ):
         return _decision(
             "same_event",
@@ -506,6 +514,7 @@ def compare_event_mentions(
         and days <= policy.same_event_max_days
         and overlap >= 0.25
         and not blocked_by_guards
+        and not exclusive_conflict
         and equivalence.label != "not_equivalent"
     ):
         shared = sorted(incoming.identity_concepts & existing.identity_concepts)
@@ -521,9 +530,11 @@ def compare_event_mentions(
     if (
         overlap >= policy.same_event_overlap
         and days <= policy.same_event_max_days
-        and not blocked_by_guards
-        and equivalence.label != "not_equivalent"
-        and not split_concepts
+        and "version" not in claim_guards
+        and "stable_id" not in claim_guards
+        and "date" not in claim_guards
+        and not exclusive_conflict
+        and not (incoming.region_ids and existing.region_ids and incoming.region_ids != existing.region_ids)
     ):
         return _decision(
             "same_event",
@@ -532,6 +543,7 @@ def compare_event_mentions(
             candidate_event_id=candidate.event_id,
             score=score,
             version=version,
+            hard_guards=claim_guards,
         )
     if overlap <= policy.different_event_overlap or days > policy.different_event_min_days:
         reason = "subject overlap or event time window is insufficient"
@@ -574,6 +586,7 @@ class _MentionFeatures:
     tokens: tuple[str, ...]
     versions: tuple[str, ...]
     advisory_ids: frozenset[str]
+    region_ids: frozenset[str]
     identity_concepts: frozenset[str]
     split_concepts: frozenset[str]
 
@@ -599,6 +612,7 @@ def _mention_features(
         tokens=canonical.tokens,
         versions=canonical.versions,
         advisory_ids=_advisory_ids(extraction, combined),
+        region_ids=frozenset(match.casefold() for match in _REGION_RE.findall(combined)),
         identity_concepts=_concepts_of(extraction, _IDENTITY_CONCEPT_TYPES),
         split_concepts=_concepts_of(extraction, _SPLIT_CONCEPT_TYPES),
     )
@@ -634,9 +648,19 @@ def _identity_hard_guards(incoming: _MentionFeatures, existing: _MentionFeatures
     guards: list[str] = []
     if incoming.versions != existing.versions and incoming.versions and existing.versions:
         guards.append("version")
-    if incoming.advisory_ids and existing.advisory_ids and incoming.advisory_ids.isdisjoint(existing.advisory_ids):
-        guards.append("stable_id")
+    if incoming.advisory_ids and existing.advisory_ids:
+        if incoming.advisory_ids.isdisjoint(existing.advisory_ids):
+            guards.append("stable_id")
+    if incoming.region_ids and existing.region_ids and incoming.region_ids != existing.region_ids:
+        guards.append("region")
     return tuple(dict.fromkeys(item for item in guards if item in _IDENTITY_GUARD_NAMES))
+
+
+def _near_copy_conflict(left: tuple[str, ...], right: tuple[str, ...], overlap: float) -> bool:
+    """Same-words-different-fact: high overlap with a swapped slot must not merge."""
+    left_only = set(left) - set(right)
+    right_only = set(right) - set(left)
+    return bool(left_only and right_only and overlap >= 0.55 and len(left_only) <= 3 and len(right_only) <= 3)
 
 
 def _token_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> float:

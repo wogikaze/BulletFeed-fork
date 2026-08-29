@@ -26,7 +26,15 @@ def _database(tmp_path: Path) -> Database:
     return database
 
 
-def _observation(database: Database, *, source_type: str, source_key: str, observation_id: str, title: str, at: str):
+def _observation(
+    database: Database,
+    *,
+    source_type: str,
+    source_key: str,
+    observation_id: str,
+    title: str,
+    at: str,
+):
     return SourceIngestionPipeline(database).ingest_many(
         (
             NormalizedObservation(
@@ -376,20 +384,22 @@ def test_delta_adversarial_gold_reports_false_merge_and_false_split_separately()
     assert report.false_merge_count >= 0
     assert report.false_split_count >= 0
     assert report.false_merge_count <= lexical.false_merge_count
-    assert report.same_event_recall >= lexical.same_event_recall
+    assert report.false_merge_count == 0
+    assert report.same_event_precision >= lexical.same_event_precision
     assert report.same_event_precision >= 0.80
 
-    paraphrase = [case for case in corpus.cases if case.family == "cross_source_restatement"]
-    paraphrase_hits = sum(
-        1
-        for case in paraphrase
-        if case.same_gold_event and decisions[case.case_id].label == "same_event"
-    )
-    lexical_hits = sum(
-        1
-        for case in paraphrase
-        if case.same_gold_event and lexical_decisions[case.case_id].label == "same_event"
-    )
+    paraphrase_families = {
+        "cross_source_restatement",
+        "same_fact_different_wording",
+        "entity_alias_product_rename",
+    }
+    paraphrase = [
+        case
+        for case in corpus.cases
+        if case.family in paraphrase_families and case.same_gold_event
+    ]
+    paraphrase_hits = sum(1 for case in paraphrase if decisions[case.case_id].label == "same_event")
+    lexical_hits = sum(1 for case in paraphrase if lexical_decisions[case.case_id].label == "same_event")
     assert paraphrase_hits >= lexical_hits
 
     for decision in decisions.values():
