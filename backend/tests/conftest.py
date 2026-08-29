@@ -10,7 +10,7 @@ from app.database import Database
 from app.db.seed import DEMO_REPOSITORIES
 from app.dependencies import get_database
 from app.main import app
-from app.security import TokenCipher, token_hash
+from app.security import TokenCipher
 
 
 @pytest.fixture
@@ -68,14 +68,6 @@ def auth_headers(client: TestClient, database: Database) -> dict[str, str]:
             ) VALUES (?, ?, ?, ?)
             """,
             (123, "testuser", cipher.encrypt(_github_token()), now),
-        )
-        connection.execute(
-            """
-            INSERT INTO app_sessions (
-                token_hash, github_user_id, expires_at, created_at
-            ) VALUES (?, ?, ?, ?)
-            """,
-            (token_hash(access_token), 123, now + 3600, now),
         )
         connection.execute(
             "UPDATE users SET github_connected = 1, github_user_id = ?, github_login = ? WHERE id = ?",

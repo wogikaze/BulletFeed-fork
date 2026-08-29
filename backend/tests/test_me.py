@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.database import Database
+from app.security import token_hash
 from app.services.feed_projection import FeedProjector
 from app.services.rss_pipeline import ingest_feed_events
 
@@ -148,3 +149,44 @@ def test_adding_topic_reprojects_matching_source_not_unrelated_event(
     assert kotlin_count >= 1
     assert unrelated_count == 0
     assert relation["relation_level"] == "adjacent"
+
+
+def test_delete_account_removes_user_scoped_sessions(
+    client: TestClient,
+    database: Database,
+    auth_headers: dict[str, str],
+) -> None:
+    access_token = auth_headers["Authorization"].removeprefix("Bearer ").strip()
+    with database.connect() as connection:
+        deleted_user = connection.execute(
+            "SELECT user_id FROM user_sessions WHERE token_hash = ?",
+            (token_hash(access_token),),
+        ).fetchone()
+    assert deleted_user is not None
+    deleted_user_id = deleted_user["user_id"]
+
+    other = client.post("/v1/sessions")
+    assert other.status_code == 200
+    other_token = other.json()["accessToken"]
+    other_user_id = other.json()["userId"]
+
+    deleted = client.delete("/v1/me", headers=auth_headers)
+    assert deleted.status_code == 204
+    assert client.get("/v1/me", headers=auth_headers).status_code == 401
+
+    with database.connect() as connection:
+        assert connection.execute(
+            "SELECT 1 FROM user_sessions WHERE user_id = ?",
+            (deleted_user_id,),
+        ).fetchone() is None
+        assert connection.execute(
+            "SELECT 1 FROM user_refresh_tokens WHERE user_id = ?",
+            (deleted_user_id,),
+        ).fetchone() is None
+        leftover_other = connection.execute(
+            "SELECT user_id FROM user_sessions WHERE token_hash = ?",
+            (token_hash(other_token),),
+        ).fetchone()
+    assert leftover_other is not None
+    assert leftover_other["user_id"] == other_user_id
+    assert client.get("/v1/me", headers={"Authorization": f"Bearer {other_token}"}).status_code == 200

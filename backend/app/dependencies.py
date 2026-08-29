@@ -19,20 +19,6 @@ def get_cipher(settings: Annotated[Settings, Depends(get_settings)]) -> TokenCip
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
 
 
-def require_session(
-    database: Annotated[Database, Depends(get_database)],
-    cipher: Annotated[TokenCipher, Depends(get_cipher)],
-    authorization: Annotated[str | None, Header()] = None,
-) -> dict:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Bearer token is required")
-    app_access_token = authorization.removeprefix("Bearer ").strip()
-    session = database.get_session(app_access_token, cipher)
-    if session is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session is invalid or expired")
-    return session
-
-
 def require_user(
     database: Annotated[Database, Depends(get_database)],
     authorization: Annotated[str | None, Header()] = None,

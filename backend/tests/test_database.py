@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 
 from app.database import Database
 from app.db.seed import seed_catalog, seed_user_workspace
-from app.security import TokenCipher
+from app.security import TokenCipher, token_hash
 
 
 def test_initialize_seeds_only_non_demo_catalog_data(tmp_path: Path) -> None:
@@ -102,6 +102,24 @@ def test_initialize_removes_legacy_demo_surfaces_but_preserves_real_data(tmp_pat
         ).fetchone()[0] == "alert-real"
 
 
+def _user_session_row(database: Database, access_token: str):
+    with database.connect() as connection:
+        return connection.execute(
+            "SELECT user_id FROM user_sessions WHERE token_hash = ?",
+            (token_hash(access_token),),
+        ).fetchone()
+
+
+def _github_token(database: Database, github_user_id: int, cipher: TokenCipher) -> str:
+    with database.connect() as connection:
+        row = connection.execute(
+            "SELECT github_token_encrypted FROM github_connections WHERE github_user_id = ?",
+            (github_user_id,),
+        ).fetchone()
+    assert row is not None
+    return cipher.decrypt(row["github_token_encrypted"])
+
+
 def _create_user(database: Database, user_id: str) -> None:
     with database.connect() as connection:
         connection.execute("INSERT INTO users (id, created_at) VALUES (?, ?)", (user_id, int(time.time())))
@@ -148,7 +166,6 @@ def test_oauth_flow_and_session_lifecycle(tmp_path: Path) -> None:
         encrypted_app_access_token=cipher.encrypt(app_token),
         refresh_token=refresh_token,
         encrypted_refresh_token=cipher.encrypt(refresh_token),
-        app_session_expires_at=now + 3600,
         user_session_expires_at=now + 3600,
         refresh_expires_at=now + 86400,
     )
@@ -160,10 +177,14 @@ def test_oauth_flow_and_session_lifecycle(tmp_path: Path) -> None:
     assert result["app_access_token"] == app_token
     assert result["refresh_token"] == refresh_token
 
-    session = database.get_session(app_token, cipher)
+    session = _user_session_row(database, app_token)
     assert session is not None
-    assert session["github_user_id"] == 123
-    assert session["github_token"].endswith("example")
+    assert session["user_id"] == "user-1"
+    assert _github_token(database, 123, cipher).endswith("example")
+    with database.connect() as connection:
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
+        ).fetchone() is None
 
 
 def test_reauthorization_revokes_older_legacy_session(tmp_path: Path) -> None:
@@ -185,11 +206,10 @@ def test_reauthorization_revokes_older_legacy_session(tmp_path: Path) -> None:
         encrypted_app_access_token=cipher.encrypt(first_token),
         refresh_token=first_refresh,
         encrypted_refresh_token=cipher.encrypt(first_refresh),
-        app_session_expires_at=expires_at,
         user_session_expires_at=expires_at,
         refresh_expires_at=expires_at + 86400,
     )
-    assert database.get_session(first_token, cipher) is not None
+    assert _user_session_row(database, first_token) is not None
 
     second_token = secrets.token_urlsafe(48)
     second_refresh = secrets.token_urlsafe(64)
@@ -203,12 +223,12 @@ def test_reauthorization_revokes_older_legacy_session(tmp_path: Path) -> None:
         encrypted_app_access_token=cipher.encrypt(second_token),
         refresh_token=second_refresh,
         encrypted_refresh_token=cipher.encrypt(second_refresh),
-        app_session_expires_at=expires_at,
         user_session_expires_at=expires_at,
         refresh_expires_at=expires_at + 86400,
     )
 
-    assert database.get_session(first_token, cipher) is None
-    current = database.get_session(second_token, cipher)
+    assert _user_session_row(database, first_token) is None
+    current = _user_session_row(database, second_token)
     assert current is not None
-    assert current["github_token"] == "github-token-new"
+    assert current["user_id"] == "user-1"
+    assert _github_token(database, 123, cipher) == "github-token-new"

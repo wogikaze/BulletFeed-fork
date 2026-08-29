@@ -327,7 +327,6 @@ class IntegrationStore:
                     (github_user_id,),
                 ).fetchone()
                 if remaining is None:
-                    connection.execute("DELETE FROM app_sessions WHERE github_user_id = ?", (github_user_id,))
                     connection.execute(
                         "DELETE FROM github_connections WHERE github_user_id = ?",
                         (github_user_id,),
