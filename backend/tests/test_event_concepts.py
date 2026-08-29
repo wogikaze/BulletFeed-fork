@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 import json
 from pathlib import Path
 
@@ -13,7 +12,11 @@ from app.services.event_concepts import (
     rebuild_event_concepts,
     to_snapshot,
 )
-from app.services.relation import consume_concept_features, evaluate_relation
+from app.services.relation import (
+    RELATION_FEATURE_VERSION,
+    consume_concept_features,
+    evaluate_relation,
+)
 
 _GOLD = Path(__file__).parent / "gold" / "event_concepts" / "v01"
 
@@ -240,13 +243,7 @@ def test_relation_consumes_concepts_without_reparsing_prose() -> None:
     assert restored_terms == terms
 
 
-def test_evaluate_relation_behavior_is_unchanged(database) -> None:
-    source = inspect.getsource(evaluate_relation)
-    assert "extract_event_concepts" not in source
-    assert "consume_concept_features" not in source
-    assert "event_title" in source
-    assert "event_summary" in source
-
+def test_evaluate_relation_uses_event_concepts_for_adjacent_match(database) -> None:
     with database.connect() as connection:
         connection.execute("INSERT INTO users (id, created_at) VALUES ('user_rel', 0)")
         connection.execute(
@@ -275,7 +272,12 @@ def test_evaluate_relation_behavior_is_unchanged(database) -> None:
 
     assert adjacent.level == "adjacent"
     assert adjacent.matched_topics == ("Kotlin",)
-    assert adjacent.reason == "Matches one or more topics you follow."
+    assert "Kotlin" in adjacent.reason
+    assert "explicit" in adjacent.reason
+    assert RELATION_FEATURE_VERSION in adjacent.reason
+    assert adjacent.feature_version == RELATION_FEATURE_VERSION
+    assert adjacent.score > 0
     assert reference.level == "reference"
     assert reference.matched_topics == ()
     assert reference.reason == ""
+    assert reference.feature_version == RELATION_FEATURE_VERSION
