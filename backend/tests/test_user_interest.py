@@ -456,3 +456,32 @@ def test_user_interest_rebuild_does_not_change_event_claim_ledger(tmp_path: Path
     assert after["observation_count"] == 1
     assert after["claim_count"] >= 1
     assert after["event_count"] >= 1
+
+
+def test_japanese_interests_remain_active_concepts() -> None:
+    state = _state(
+        "user_ja",
+        topics=(("コンパイラ最適化", "high"), ("セキュリティ", "normal")),
+        interests=("Rust コンパイラ",),
+    )
+    active = {concept.concept_id: concept for concept in state.active_concepts()}
+    assert "compiler-optimization" in active
+    assert "security" in active
+    assert "rust" in active
+    assert any(source.raw_text == "Rust コンパイラ" for source in active["rust"].sources)
+    assert any(source.raw_text == "セキュリティ" for source in active["security"].sources)
+    assert any(source.raw_text == "コンパイラ最適化" for source in active["compiler-optimization"].sources)
+
+
+def test_japanese_interest_matches_japanese_and_english_events() -> None:
+    state = _state(
+        "user_ja_match",
+        topics=(("コンパイラ最適化", "high"),),
+        interests=("セキュリティ", "Rust コンパイラ"),
+    )
+    assert semantic_match(state, "コンパイラ最適化の新しいパスを追加した").matched
+    assert semantic_match(state, "Notes on compiler optimization for loops.").matched
+    assert semantic_match(state, "セキュリティアドバイザリを公開した").matched
+    assert semantic_match(state, "Critical security advisory for the package").matched
+    assert semantic_match(state, "rust-lang/rust tagged 1.82.0 with cargo updates.").matched
+    assert semantic_match(state, "Rust コンパイラのコード生成を修正").matched

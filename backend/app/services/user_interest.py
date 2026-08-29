@@ -27,7 +27,7 @@ from app.services.inferred_priors import (
     selected_repository_names,
 )
 
-INTEREST_STATE_VERSION = "user-interest-v1"
+INTEREST_STATE_VERSION = "user-interest-v2"
 
 SignalKind = Literal[
     "explicit_topic",
@@ -176,7 +176,14 @@ _CONCEPTS: tuple[_ConceptSpec, ...] = (
     _spec(
         "compiler-optimization",
         "compiler optimization",
-        ("compiler optimization", "compiler opt", "loop optimization", "induction variable"),
+        (
+            "compiler optimization",
+            "compiler opt",
+            "loop optimization",
+            "induction variable",
+            "コンパイラ最適化",
+            "コンパイラ",
+        ),
         ("llvm", "llvm-scalar-evolution"),
     ),
     _spec(
@@ -278,7 +285,16 @@ _CONCEPTS: tuple[_ConceptSpec, ...] = (
     _spec(
         "security",
         "security",
-        ("security", "cve", "ghsa", "osv", "advisory", "vulnerability"),
+        (
+            "security",
+            "cve",
+            "ghsa",
+            "osv",
+            "advisory",
+            "vulnerability",
+            "セキュリティ",
+            "脆弱性",
+        ),
         ("cve",),
     ),
     _spec("cve", "CVE", ("cve",), ("security",)),
@@ -306,12 +322,29 @@ _REPO_INFERRED: dict[str, tuple[str, ...]] = {
 
 
 def _fold(value: str) -> str:
+    """Keep Unicode letters. ASCII folding is an auxiliary match signal only."""
+    return " ".join(unicodedata.normalize("NFKC", value).casefold().split())
+
+
+def _ascii_aux(value: str) -> str:
     stripped = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
     return " ".join(stripped.casefold().split())
 
 
 def _normalize_key(value: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "", _fold(value))
+    ascii_key = re.sub(r"[^a-z0-9]+", "", _ascii_aux(value))
+    if ascii_key:
+        return ascii_key
+    return re.sub(r"\s+", "", _fold(value))
+
+
+def _match_phrase(haystack: str, needle: str) -> bool:
+    if not needle:
+        return False
+    if re.search(r"[^\x00-\x7f]", needle):
+        return needle in haystack
+    pattern = _ALNUM_BOUNDARY.format(phrase=re.escape(needle))
+    return re.search(pattern, haystack) is not None
 
 
 def _build_alias_index() -> dict[str, str]:
@@ -329,15 +362,19 @@ _ALIAS_TO_CONCEPT = _build_alias_index()
 
 def _phrase_in(folded: str, phrase: str) -> bool:
     cleaned = _fold(phrase)
-    if not cleaned:
-        return False
-    pattern = _ALNUM_BOUNDARY.format(phrase=re.escape(cleaned))
-    return re.search(pattern, folded) is not None
+    if cleaned and _match_phrase(folded, cleaned):
+        return True
+    aux_phrase = _ascii_aux(phrase)
+    aux_haystack = _ascii_aux(folded)
+    return bool(aux_phrase) and _match_phrase(aux_haystack, aux_phrase)
 
 
 def _slug(value: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", _fold(value)).strip("-")
-    return slug or "concept"
+    ascii_slug = re.sub(r"[^a-z0-9]+", "-", _ascii_aux(value)).strip("-")
+    if ascii_slug:
+        return ascii_slug
+    unicode_slug = re.sub(r"\s+", "-", _fold(value)).strip("-")
+    return unicode_slug or "concept"
 
 
 def resolve_concept_id(raw_text: str) -> str:
@@ -425,18 +462,21 @@ def signals_from_sources(sources: InterestSources) -> tuple[InterestSignal, ...]
         cleaned = name.strip()
         if not cleaned:
             continue
-        concept_id = resolve_concept_id(cleaned)
-        signals.append(
-            InterestSignal(
-                kind="explicit_topic",
-                origin="explicit",
-                raw_text=cleaned,
-                concept_id=concept_id,
-                weight=_TOPIC_WEIGHT.get(priority, 0.7),
-                polarity="positive",
-                provenance=f"topic:{cleaned}:{priority}",
-            )
+        concept_ids = tuple(
+            dict.fromkeys((resolve_concept_id(cleaned), *detect_concepts_in_text(cleaned)))
         )
+        for concept_id in concept_ids:
+            signals.append(
+                InterestSignal(
+                    kind="explicit_topic",
+                    origin="explicit",
+                    raw_text=cleaned,
+                    concept_id=concept_id,
+                    weight=_TOPIC_WEIGHT.get(priority, 0.7),
+                    polarity="positive",
+                    provenance=f"topic:{cleaned}:{priority}:{concept_id}",
+                )
+            )
     repos_with_priors = {item.repository for item in sources.inferred_priors}
     for full_name, language in sources.repositories:
         repo = full_name.strip()
@@ -515,17 +555,21 @@ def signals_from_sources(sources: InterestSources) -> tuple[InterestSignal, ...]
         cleaned = interest.strip()
         if not cleaned:
             continue
-        signals.append(
-            InterestSignal(
-                kind="profile_interest",
-                origin="explicit",
-                raw_text=cleaned,
-                concept_id=resolve_concept_id(cleaned),
-                weight=_PROFILE_INTEREST_WEIGHT,
-                polarity="positive",
-                provenance=f"profile:{cleaned}",
-            )
+        concept_ids = tuple(
+            dict.fromkeys((resolve_concept_id(cleaned), *detect_concepts_in_text(cleaned)))
         )
+        for concept_id in concept_ids:
+            signals.append(
+                InterestSignal(
+                    kind="profile_interest",
+                    origin="explicit",
+                    raw_text=cleaned,
+                    concept_id=concept_id,
+                    weight=_PROFILE_INTEREST_WEIGHT,
+                    polarity="positive",
+                    provenance=f"profile:{cleaned}:{concept_id}",
+                )
+            )
     for text, feedback in sources.feedback:
         cleaned = text.strip()
         if not cleaned or feedback not in {"important", "not_relevant"}:
