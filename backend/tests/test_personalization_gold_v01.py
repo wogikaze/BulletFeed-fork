@@ -16,6 +16,7 @@ from app.evaluation.personalization_gold import (
     scan_python_sources,
     validate_judgment_against_schema,
 )
+from app.services.user_interest import semantic_match, state_from_personalization_user
 
 _V01 = Path(__file__).parent / "gold" / "personalization" / "v01"
 _APP = Path(__file__).resolve().parents[1] / "app"
@@ -207,6 +208,49 @@ def test_blind_leakage_guard_for_production_app() -> None:
         runpy.run_path(str(_LEAKAGE_SCRIPT), run_name="__main__")
     except SystemExit as exc:
         assert exc.code in (0, None)
+
+
+def _semantic_rankings(corpus) -> dict[str, list[str]]:
+    items = corpus.item_by_id()
+    rankings: dict[str, list[str]] = {}
+    for user in corpus.users:
+        state = state_from_personalization_user(
+            user.user_id,
+            occupation=user.profile.occupation,
+            interests=user.profile.interests,
+            topics=tuple((topic.name, topic.priority) for topic in user.topics),
+            repositories=tuple((repo.full_name, repo.language) for repo in user.repositories),
+            prior_feedback=tuple((row.summary, row.feedback) for row in user.prior_feedback),
+        )
+        scored: list[tuple[float, str]] = []
+        for judgment in corpus.judgments_for_user(user.user_id):
+            item = items[judgment.item_id]
+            blob = f"{item.title} {item.summary} {' '.join(item.tokens)}"
+            scored.append((semantic_match(state, blob).score, item.item_id))
+        scored.sort(key=lambda pair: (-pair[0], pair[1]))
+        rankings[user.user_id] = [item_id for _, item_id in scored]
+    return rankings
+
+
+def test_neighbor_aware_interest_matcher_reports_precision_recall_gain() -> None:
+    corpus = _corpus().for_split("pilot")
+    exact = evaluate_personalization(corpus, _lexical_rankings(corpus), k=5, split="pilot")
+    semantic = evaluate_personalization(corpus, _semantic_rankings(corpus), k=5, split="pilot")
+
+    assert semantic.include_ambiguous.precision_at_k > exact.include_ambiguous.precision_at_k
+    assert semantic.include_ambiguous.recall_at_k > exact.include_ambiguous.recall_at_k
+    assert semantic.include_ambiguous.precision_at_k > 0
+    assert semantic.include_ambiguous.recall_at_k > 0
+
+    react_user = next(
+        user.user_id
+        for user in corpus.users
+        if "react" in user.products and user.kind == "history_rich"
+    )
+    hard_ids = {row.item_id for row in corpus.judgments if row.user_id == react_user and row.hard_negative}
+    assert hard_ids
+    assert hard_ids & set(_lexical_rankings(corpus)[react_user][:3])
+    assert not hard_ids & set(_semantic_rankings(corpus)[react_user][:3])
 
 
 def test_schema_rejects_out_of_range_relevance() -> None:
