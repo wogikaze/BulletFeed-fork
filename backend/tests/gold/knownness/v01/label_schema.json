@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bulletfeed.dev/schemas/knownness-gold-label-v01.json",
+  "title": "BulletFeed knownness Gold label v0.1",
+  "label_protocol_version": "label-protocol-v1",
+  "dataset_version": "knownness-v0.1",
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "bundle_id",
+        "split",
+        "family",
+        "evidence_type",
+        "source_family",
+        "user_id",
+        "evidence",
+        "candidate",
+        "knownness",
+        "should_surface",
+        "is_novel_fact",
+        "is_correction",
+        "rationale",
+        "provenance",
+        "label_protocol_version",
+        "dataset_version"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "split": {
+          "type": "string",
+          "enum": [
+            "pilot",
+            "blind"
+          ]
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "never_seen",
+            "delivered_not_displayed",
+            "briefly_displayed",
+            "meaningfully_displayed",
+            "explicitly_read",
+            "already_knew",
+            "learned_now",
+            "cross_source_restatement",
+            "added_detail",
+            "correction",
+            "baseline_before_follow"
+          ]
+        },
+        "evidence_type": {
+          "type": "string",
+          "enum": [
+            "none",
+            "delivered",
+            "displayed",
+            "read",
+            "already_knew",
+            "learned_now",
+            "baseline"
+          ]
+        },
+        "source_family": {
+          "type": "string",
+          "enum": [
+            "github_release",
+            "github_advisory",
+            "osv",
+            "statuspage",
+            "rss_atom",
+            "json_feed"
+          ]
+        },
+        "user_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array"
+        },
+        "display_attempt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "candidate": {
+          "type": "object"
+        },
+        "knownness": {
+          "type": "string",
+          "enum": [
+            "already_knew",
+            "new"
+          ]
+        },
+        "should_surface": {
+          "type": "boolean"
+        },
+        "is_novel_fact": {
+          "type": "boolean"
+        },
+        "is_correction": {
+          "type": "boolean"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label_protocol_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ambiguous": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+[
+  {
+    "adjudication_id": "kngp-adj-knownness-001",
+    "item_id": "kngp-i-008",
+    "family": "knownness",
+    "source_annotation_ids": [
+      "kngp-ann-disagree-a",
+      "kngp-ann-disagree-b"
+    ],
+    "source_dataset_version": "knownness-v0.1",
+    "produced_dataset_version": "knownness-v0.1.1",
+    "resolved_value": "already_knew",
+    "resolved_ambiguous": "none",
+    "adjudicator_id": "adjudicator-1",
+    "rationale": "Meaningful dwell and visible ratio meet viewport-exposure-v1. Protocol 8.5 treats that as already_knew; same-fact reshown stays hidden.",
+    "protocol_version": "label-protocol-v1",
+    "adjudicated_at": "2026-08-29T15:00:00Z",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "split": "pilot"
+  }
+]

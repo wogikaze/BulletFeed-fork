@@ -1,0 +1,63 @@
+[
+  {
+    "pair_id": "kngp-pair-agree-001",
+    "item_id": "kngp-i-002",
+    "annotation_a_id": "kngp-ann-agree-a",
+    "annotation_b_id": "kngp-ann-agree-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": [
+      "knownness",
+      "should_surface"
+    ],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot"
+  },
+  {
+    "pair_id": "kngp-pair-disagree-001",
+    "item_id": "kngp-i-008",
+    "annotation_a_id": "kngp-ann-disagree-a",
+    "annotation_b_id": "kngp-ann-disagree-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": [
+      "knownness",
+      "should_surface"
+    ],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot"
+  },
+  {
+    "pair_id": "kngp-pair-ambiguous-001",
+    "item_id": "kngp-i-023",
+    "annotation_a_id": "kngp-ann-amb-a",
+    "annotation_b_id": "kngp-ann-amb-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": [
+      "knownness",
+      "should_surface"
+    ],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot"
+  },
+  {
+    "pair_id": "kngp-pair-correction-001",
+    "item_id": "kngp-i-020",
+    "annotation_a_id": "kngp-ann-corr-a",
+    "annotation_b_id": "kngp-ann-corr-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": [
+      "knownness",
+      "should_surface",
+      "novelty_revision"
+    ],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot"
+  }
+]

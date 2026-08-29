@@ -1,0 +1,945 @@
+[
+  {
+    "annotation_id": "kngp-ann-001",
+    "item_id": "kngp-i-001",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "No knowledge evidence. The fact is new to the user and must surface.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "No knowledge evidence. The fact is new to the user and must surface."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "No knowledge evidence. The fact is new to the user and must surface."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for never_seen."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-002",
+    "item_id": "kngp-i-002",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "No knowledge evidence. The fact is new to the user and must surface.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "No knowledge evidence. The fact is new to the user and must surface."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "No knowledge evidence. The fact is new to the user and must surface."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for never_seen."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-003",
+    "item_id": "kngp-i-003",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Delivery without a viewport exposure is not knowledge. Keep the item unknown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "Delivery without a viewport exposure is not knowledge. Keep the item unknown."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Delivery without a viewport exposure is not knowledge. Keep the item unknown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for delivered_not_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-004",
+    "item_id": "kngp-i-004",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Delivery without a viewport exposure is not knowledge. Keep the item unknown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "Delivery without a viewport exposure is not knowledge. Keep the item unknown."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Delivery without a viewport exposure is not knowledge. Keep the item unknown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for delivered_not_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-005",
+    "item_id": "kngp-i-005",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "A flash through the viewport fails viewport-exposure-v1, so the user still does not know it.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "A flash through the viewport fails viewport-exposure-v1, so the user still does not know it."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "A flash through the viewport fails viewport-exposure-v1, so the user still does not know it."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for briefly_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-006",
+    "item_id": "kngp-i-006",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "A flash through the viewport fails viewport-exposure-v1, so the user still does not know it.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "A flash through the viewport fails viewport-exposure-v1, so the user still does not know it."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "A flash through the viewport fails viewport-exposure-v1, so the user still does not know it."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for briefly_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-007",
+    "item_id": "kngp-i-007",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for meaningfully_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-008",
+    "item_id": "kngp-i-008",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for meaningfully_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-009",
+    "item_id": "kngp-i-009",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "The user opened the Event detail. The same fact must not be reshown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "The user opened the Event detail. The same fact must not be reshown."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "The user opened the Event detail. The same fact must not be reshown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for explicitly_read."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-010",
+    "item_id": "kngp-i-010",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "The user opened the Event detail. The same fact must not be reshown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "The user opened the Event detail. The same fact must not be reshown."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "The user opened the Event detail. The same fact must not be reshown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for explicitly_read."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-011",
+    "item_id": "kngp-i-011",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Explicit already_knew feedback is high-confidence knowledge. Same-fact reshown is a miss.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Explicit already_knew feedback is high-confidence knowledge. Same-fact reshown is a miss."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Explicit already_knew feedback is high-confidence knowledge. Same-fact reshown is a miss."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for already_knew."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-012",
+    "item_id": "kngp-i-012",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Explicit already_knew feedback is high-confidence knowledge. Same-fact reshown is a miss.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Explicit already_knew feedback is high-confidence knowledge. Same-fact reshown is a miss."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Explicit already_knew feedback is high-confidence knowledge. Same-fact reshown is a miss."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for already_knew."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-013",
+    "item_id": "kngp-i-013",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "The user marked learned_now in BulletFeed. Subsequent same-fact cards are known.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "The user marked learned_now in BulletFeed. Subsequent same-fact cards are known."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "The user marked learned_now in BulletFeed. Subsequent same-fact cards are known."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for learned_now."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-014",
+    "item_id": "kngp-i-014",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "The user marked learned_now in BulletFeed. Subsequent same-fact cards are known.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "The user marked learned_now in BulletFeed. Subsequent same-fact cards are known."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "The user marked learned_now in BulletFeed. Subsequent same-fact cards are known."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for learned_now."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-015",
+    "item_id": "kngp-i-015",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Another source restates the same fact. Shared knowledge identity must not treat it as new.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Another source restates the same fact. Shared knowledge identity must not treat it as new."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Another source restates the same fact. Shared knowledge identity must not treat it as new."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for cross_source_restatement."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-016",
+    "item_id": "kngp-i-016",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Another source restates the same fact. Shared knowledge identity must not treat it as new.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Another source restates the same fact. Shared knowledge identity must not treat it as new."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Another source restates the same fact. Shared knowledge identity must not treat it as new."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for cross_source_restatement."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-017",
+    "item_id": "kngp-i-017",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Added factual detail is a new knowledge target even when the parent fact was read.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "Added factual detail is a new knowledge target even when the parent fact was read."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Added factual detail is a new knowledge target even when the parent fact was read."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "DETAIL",
+        "ambiguous": "none",
+        "rationale": "Revision class for added_detail."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-018",
+    "item_id": "kngp-i-018",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Added factual detail is a new knowledge target even when the parent fact was read.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "Added factual detail is a new knowledge target even when the parent fact was read."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Added factual detail is a new knowledge target even when the parent fact was read."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "DETAIL",
+        "ambiguous": "none",
+        "rationale": "Revision class for added_detail."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-019",
+    "item_id": "kngp-i-019",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "A correction updates a known wrong fact and must surface across the knownness boundary.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "A correction updates a known wrong fact and must surface across the knownness boundary."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "A correction updates a known wrong fact and must surface across the knownness boundary."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "CORRECTION",
+        "ambiguous": "none",
+        "rationale": "Revision class for correction."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-020",
+    "item_id": "kngp-i-020",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "A correction updates a known wrong fact and must surface across the knownness boundary.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "A correction updates a known wrong fact and must surface across the knownness boundary."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "A correction updates a known wrong fact and must surface across the knownness boundary."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "CORRECTION",
+        "ambiguous": "none",
+        "rationale": "Revision class for correction."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-021",
+    "item_id": "kngp-i-021",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Follow-time baseline marks history already true. It must not flood the feed as unknown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Follow-time baseline marks history already true. It must not flood the feed as unknown."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Follow-time baseline marks history already true. It must not flood the feed as unknown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for baseline_before_follow."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-022",
+    "item_id": "kngp-i-022",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Follow-time baseline marks history already true. It must not flood the feed as unknown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Follow-time baseline marks history already true. It must not flood the feed as unknown."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Follow-time baseline marks history already true. It must not flood the feed as unknown."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for baseline_before_follow."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-023",
+    "item_id": "kngp-i-023",
+    "annotator_id": "annotator-canonical",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Viewport metrics and prior-read context were withheld from the annotator. Do not force a knownness label.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": null,
+        "ambiguous": "insufficient_context",
+        "rationale": "Viewport metrics and prior-read context were withheld from the annotator. Do not force a knownness label."
+      },
+      {
+        "family": "should_surface",
+        "value": null,
+        "ambiguous": "insufficient_context",
+        "rationale": "Viewport metrics and prior-read context were withheld from the annotator. Do not force a knownness label."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-agree-a",
+    "item_id": "kngp-i-002",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "No knowledge evidence. The fact is new to the user and must surface.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "No prior evidence; the advisory is unseen."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Unseen high-severity item must appear."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for never_seen."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-agree-b",
+    "item_id": "kngp-i-002",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "No knowledge evidence. The fact is new to the user and must surface.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "User has never seen this Actions incident."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Must occupy the feed this session."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NEW_FACT",
+        "ambiguous": "none",
+        "rationale": "Revision class for never_seen."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-disagree-a",
+    "item_id": "kngp-i-008",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "Meaningful dwell counts as already_knew."
+      },
+      {
+        "family": "should_surface",
+        "value": false,
+        "ambiguous": "none",
+        "rationale": "Same-fact reshown should stay hidden."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for meaningfully_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-disagree-b",
+    "item_id": "kngp-i-008",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Meaningful display is knowledge evidence. Reshowing the same fact is known-but-reshown.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "Display without an explicit read still feels unknown."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Would show it again in case the user skimmed."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Revision class for meaningfully_displayed."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-amb-a",
+    "item_id": "kngp-i-023",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Viewport metrics and prior-read context were withheld from the annotator. Do not force a knownness label.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": null,
+        "ambiguous": "insufficient_context",
+        "rationale": "Dwell and visible ratio were not shown."
+      },
+      {
+        "family": "should_surface",
+        "value": null,
+        "ambiguous": "insufficient_context",
+        "rationale": "Cannot decide surface without the viewport packet."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-amb-b",
+    "item_id": "kngp-i-023",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "Viewport metrics and prior-read context were withheld from the annotator. Do not force a knownness label.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "ambiguous",
+        "rationale": "Tentative new; the flash might have been meaningful."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Tentative surface until metrics arrive."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-corr-a",
+    "item_id": "kngp-i-020",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "A correction updates a known wrong fact and must surface across the knownness boundary.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "already_knew",
+        "ambiguous": "none",
+        "rationale": "User knew the prior (wrong) fact."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Corrections must surface even when the parent fact is known."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "CORRECTION",
+        "ambiguous": "none",
+        "rationale": "Revision class for correction."
+      }
+    ]
+  },
+  {
+    "annotation_id": "kngp-ann-corr-b",
+    "item_id": "kngp-i-020",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "knownness-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=knownness-gold-v01; protocol=label-protocol-v1; generated=2026-08-29; kind=synthetic_fixed; issue=55",
+    "labeled_at": "2026-08-29T14:00:00Z",
+    "notes": "A correction updates a known wrong fact and must surface across the knownness boundary.",
+    "judgments": [
+      {
+        "family": "knownness",
+        "value": "new",
+        "ambiguous": "none",
+        "rationale": "The corrected fact itself is new information."
+      },
+      {
+        "family": "should_surface",
+        "value": true,
+        "ambiguous": "none",
+        "rationale": "Must surface; impact widened."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "CORRECTION",
+        "ambiguous": "none",
+        "rationale": "Revision class for correction."
+      }
+    ]
+  }
+]
