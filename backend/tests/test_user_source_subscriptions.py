@@ -483,3 +483,36 @@ def test_main_app_exposes_me_sources_but_not_preview_router(client: TestClient) 
     assert "/v1/me/sources" in schema["paths"]
     assert "/v1/sources" not in schema["paths"]
     assert client.get("/v1/sources/statuspage/demo").status_code == 404
+
+
+def test_account_deletion_removes_subscription_users_not_observations(
+    client: TestClient,
+    database: Database,
+    auth_headers: dict[str, str],
+    monkeypatch,
+) -> None:
+    _enable_feed_hosts(monkeypatch)
+    url = "https://news.example.com/feed.xml"
+    with _public_dns():
+        created = client.post("/v1/me/sources", headers=auth_headers, json={"kind": "rss_atom", "url": url})
+    assert created.status_code == 201
+    canonical = created.json()["canonicalUrl"]
+    _insert_observation(database, source_type="rss_atom", source_key=canonical)
+
+    deleted = client.delete("/v1/me", headers=auth_headers)
+    assert deleted.status_code == 204
+    assert _count_subscription_users(database, source_type="rss_atom", source_key=canonical) == 0
+    with database.connect() as connection:
+        selected = connection.execute(
+            """
+            SELECT selected FROM source_sync_subscriptions
+            WHERE source_type = 'rss_atom' AND source_key = ?
+            """,
+            (canonical,),
+        ).fetchone()["selected"]
+        observations = connection.execute(
+            "SELECT COUNT(*) AS count FROM observations WHERE source_key = ?",
+            (canonical,),
+        ).fetchone()["count"]
+    assert selected == 0
+    assert observations == 1

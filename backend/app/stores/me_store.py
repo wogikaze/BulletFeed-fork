@@ -323,6 +323,7 @@ class MeStore:
             for table in (
                 "user_knowledge_evidence",
                 "user_knowledge_signals",
+                "source_sync_subscription_users",
                 "user_claim_exposures",
                 "exposures",
                 "user_ranking_features",
@@ -344,6 +345,18 @@ class MeStore:
                     f"DELETE FROM {table} WHERE user_id = ?",  # nosec B608
                     (user_id,),
                 )
+            connection.execute(
+                """
+                UPDATE source_sync_subscriptions
+                SET selected = 0
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM source_sync_subscription_users AS users
+                    WHERE users.source_type = source_sync_subscriptions.source_type
+                      AND users.source_key = source_sync_subscriptions.source_key
+                )
+                """
+            )
             connection.execute("DELETE FROM users WHERE id = ?", (user_id,))
             if github_user_id is not None:
                 remaining = connection.execute(
