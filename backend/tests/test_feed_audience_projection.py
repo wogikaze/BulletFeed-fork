@@ -170,7 +170,12 @@ def test_list_feed_writes_delivered_not_watermark_knownness(database):
     accepted = store.record_exposures(
         "user_a",
         [
-            {"delivery_id": item.delivery_id, "displayed_at": "2026-08-22T00:12:00Z"}
+            {
+                "delivery_id": item.delivery_id,
+                "displayed_at": "2026-08-22T00:12:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            }
             for item in delivered
         ],
     )

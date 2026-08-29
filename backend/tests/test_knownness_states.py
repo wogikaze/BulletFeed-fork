@@ -136,9 +136,24 @@ def test_displayed_advances_watermark_and_is_idempotent_across_deliveries(databa
     accepted = store.record_exposures(
         "user_a",
         [
-            {"delivery_id": first[0].delivery_id, "displayed_at": "2026-08-22T00:02:00Z"},
-            {"delivery_id": second[0].delivery_id, "displayed_at": "2026-08-22T00:03:00Z"},
-            {"delivery_id": first[0].delivery_id, "displayed_at": "2026-08-22T00:04:00Z"},
+            {
+                "delivery_id": first[0].delivery_id,
+                "displayed_at": "2026-08-22T00:02:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            },
+            {
+                "delivery_id": second[0].delivery_id,
+                "displayed_at": "2026-08-22T00:03:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            },
+            {
+                "delivery_id": first[0].delivery_id,
+                "displayed_at": "2026-08-22T00:04:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            },
         ],
     )
     assert accepted == 2
@@ -202,7 +217,15 @@ def test_delayed_historical_claim_stays_suppressed_after_displayed(database) -> 
     assert delivered
     accepted = store.record_exposures(
         "user_a",
-        [{"delivery_id": item.delivery_id, "displayed_at": "2026-08-22T00:22:00Z"} for item in delivered],
+        [
+            {
+                "delivery_id": item.delivery_id,
+                "displayed_at": "2026-08-22T00:22:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            }
+            for item in delivered
+        ],
     )
     assert accepted == len(delivered)
     assert _watermark_ids(database, "user_a")
@@ -291,7 +314,15 @@ def test_correction_crosses_watermark_after_displayed_and_read(database) -> None
     )
     store.record_exposures(
         "user_a",
-        [{"delivery_id": item.delivery_id, "displayed_at": "2026-08-22T00:02:00Z"} for item in delivered],
+        [
+            {
+                "delivery_id": item.delivery_id,
+                "displayed_at": "2026-08-22T00:02:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            }
+            for item in delivered
+        ],
     )
     store.mark_read("user_a", delivered[0].id)
     assert set(_states(database, "user_a").values()) == {"read"}

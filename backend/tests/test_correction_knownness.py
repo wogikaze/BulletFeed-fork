@@ -40,7 +40,12 @@ def _expose_all(store: FeedStore, user_id: str, *, displayed_at: str) -> None:
     accepted = store.record_exposures(
         user_id,
         [
-            {"delivery_id": item.delivery_id, "displayed_at": displayed_at}
+            {
+                "delivery_id": item.delivery_id,
+                "displayed_at": displayed_at,
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            }
             for item in delivered
         ],
     )

@@ -125,7 +125,16 @@ def test_mark_read_and_feedback_and_exposures(
     exposures = client.post(
         "/v1/feed/exposures",
         headers=auth_headers,
-        json={"items": [{"deliveryId": target["deliveryId"], "displayedAt": "2026-08-18T05:00:00Z"}]},
+        json={
+            "items": [
+                {
+                    "deliveryId": target["deliveryId"],
+                    "displayedAt": "2026-08-18T05:00:00Z",
+                    "dwellMs": 1200,
+                    "visibleRatio": 0.8,
+                }
+            ]
+        },
     )
     assert exposures.status_code == 200
     assert exposures.json()["accepted"] == 1
