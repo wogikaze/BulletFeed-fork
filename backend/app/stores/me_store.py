@@ -200,6 +200,8 @@ class MeStore:
                 )
                 for item in result.items
             ],
+            policy_version=result.policy_version,
+            cohort=result.cohort,
         )
 
     def search_topics(self, query: str) -> list[Topic]:
@@ -335,7 +337,6 @@ class MeStore:
                 "security_alerts",
                 "deliveries",
                 "feed_items",
-                "github_inferred_signals",
                 "github_repo_watches",
                 "topics",
                 "profiles",

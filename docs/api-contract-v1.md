@@ -34,7 +34,7 @@ FeedbackType: important | not_relevant | follow | already_knew | learned_now | l
 EventPhase: investigating | identified | monitoring | resolved
 TimelineType: announced | state_changed | information_added | corrected | resolved
 SourceKind: statuspage | github_advisory | osv | github_release | github_sbom | rss_atom | json_feed | official_changelog | documentation
-  (`official_changelog` / `documentation` は `source_policies` と公開スキーマ上の kind。専用 ingest adapter は持たない)
+  (`official_changelog` / `documentation` は allowlist 公式HTMLの Observation/Claim ingest に使う。`generic_web` は discovery_only のまま Claim にしない)
 TopicType: technology | service | company
 TopicPriority: high | normal | low
 ```
@@ -157,18 +157,12 @@ Behavior:
 - 同一シグナルの再送は派生状態として冪等（latest-state）。行は追加される
 - 各行は取得できる範囲で `eventId` / `deltaId` / `claimId` を保持する
 
-`POST /feed/exposures` `{ items: [{ deliveryId, displayedAt, dwellMs?, visibleRatio?, detailOpened? }] }`
+`POST /feed/exposures` `{ items: [{ deliveryId, displayedAt }] }`
 
 - Claim knownness は `delivered` / `displayed` / `read`
 - `GET /feed` は delivery と `delivered` を書く。watermark（再投影抑制）は `displayed` または `read` だけが進める
 - 未表示の item は bounded retry（既定 3 回）後に GET から外れるが、`delivered` だけでは permanently known にしない
 - 未知 `deliveryId` は無視、バッチ上限 50、`deliveryId` で冪等。複数端末の同一 `claim` は先勝ち
-- 意味のある表示方針は `viewport-exposure-v1`（[ADR-0012](adr/0012-viewport-exposure-v1.md)）。`KIND_DISPLAYED` は政策を満たした露出だけ
-- 新クライアントは `dwellMs`（ミリ秒）と `visibleRatio`（0.0–1.0）を送る。最短滞在 1000ms かつ可視割合 0.50 を満たさない item は `displayed` にしない
-- `dwellMs` と `visibleRatio` を両方省略した既存クライアントは **displayed として扱う（互換）**
-- `detailOpened=true` は Event detail を開いた明示操作。dwell / ratio が低くても displayed
-- 高速スクロールの一瞬交差や 1px 程度の露出は知識証跡にしない。生スクロール座標は送らない
-- 受理した露出は `dwell_ms` / `visible_ratio` / `policy_version` / `detail_opened` を残し、なぜ数えたかを監査できる
 
 ### Event
 
@@ -189,12 +183,16 @@ Behavior:
 
 - limit 1–20、既定 10。`includeFollowed` 既定 true（追跡済みは `alreadyFollowed` で明示）
 - 並び: score desc, name
-- 応答: `{ version, items: TopicRecommendation[] }`
+- 応答: `{ version, policyVersion, cohort, items: TopicRecommendation[] }`
 - `version`: `topic-recommendations-v1`
+- `policyVersion`: `cold-start-v1`（Rec-11 版付きフォールバック）
+- `cohort`: `empty_profile` | `profile_only` | `topic_selected` | `github_connected` | `history_rich`
 - 各 item: `id, name, type, score, reason, provenance, alreadyFollowed, confidence, sourceSignals`
 - `provenance`: `explicit`（宣言済み興味）または `inferred`（隣接・リポジトリ推定・catalog fallback）
-- コールドスタート（興味シグナルなし）は catalog fallback。`provenance=inferred`、reason に catalog と記す。explicit にはしない。方針本体は #47
-- ledger / topics を書き換えない。Hard-negative（React ユーザーへの reactor 等）は返さない
+- 空プロファイルは catalog fallback。`provenance=inferred`、reason に catalog と記す。explicit にはしない
+- GitHub 由来 prior はフィードバック履歴を必要としない。catalog 人気は明示的興味を上回らない
+- 最初の 1 件のフィードバックは bounded overlay。嗜好状態を置き換えない
+- トピックを自動 follow しない。ledger / topics を書き換えない。Hard-negative（React ユーザーへの reactor 等）は返さない
 
 ### GitHub
 

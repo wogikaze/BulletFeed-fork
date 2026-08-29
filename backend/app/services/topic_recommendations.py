@@ -1,8 +1,9 @@
 """Ranked topic recommendations from interest, event concepts, and the catalog.
 
 This is distinct from topic search. It never writes topics, feedback, or the
-Event/Claim ledger. Cold-start users receive a catalog fallback labeled
-inferred/catalog; the full cold-start policy lives in #47.
+Event/Claim ledger. Cold-start ranking uses the versioned Rec-11 policy:
+empty-profile catalog fallback is inferred/catalog, never explicit; GitHub
+priors do not need feedback; first feedback is a bounded overlay.
 """
 
 from __future__ import annotations
@@ -13,6 +14,15 @@ from dataclasses import dataclass
 from typing import Literal
 
 from app.db.topic_catalog import TOPIC_CATALOG, canonical_topic
+from app.services.cold_start_policy import (
+    COLD_START_POLICY_VERSION,
+    UserCohort,
+    bound_first_feedback_items,
+    catalog_fallback_items,
+    classify_cohort,
+    is_first_feedback,
+    state_without_feedback,
+)
 from app.services.event_concepts import EventConcept, extract_event_concepts
 from app.services.user_interest import (
     INTEREST_STATE_VERSION,
@@ -34,25 +44,10 @@ Confidence = Literal["high", "medium", "low"]
 _NEIGHBOR_SCALE = 0.6
 _INFERRED_SCALE = 0.75
 _EVENT_SCALE = 0.45
-_CATALOG_FALLBACK_SCORE = 0.18
 _ABSTAIN_SCORE = 0.12
 _MAX_NEIGHBORS_PER_CONCEPT = 3
 _DEFAULT_LIMIT = 10
 _MAX_EVENT_ROWS = 40
-
-# Stable catalog slice for users with no interest signals. Not a #47 policy.
-_COLD_START_CATALOG_FALLBACK: tuple[str, ...] = (
-    "Kotlin",
-    "Android",
-    "React",
-    "TypeScript",
-    "Python",
-    "Go",
-    "Rust",
-    "Kubernetes",
-    "GitHub",
-    "AWS",
-)
 
 # Wrong-sense identities that must not be suggested for a given interest concept.
 _CROSS_SENSE_BLOCKLIST: dict[str, frozenset[str]] = {
@@ -94,6 +89,8 @@ class TopicRecommendationResult:
     interest_fingerprint: str
     items: tuple[TopicRecommendation, ...]
     abstentions: tuple[TopicRecommendationAbstention, ...]
+    policy_version: str = COLD_START_POLICY_VERSION
+    cohort: UserCohort = "empty_profile"
 
 
 @dataclass
@@ -208,6 +205,57 @@ def recommend_topics(
     event_concepts: Sequence[EventConcept] = (),
     limit: int = _DEFAULT_LIMIT,
     include_followed: bool = True,
+) -> TopicRecommendationResult:
+    cohort = classify_cohort(state)
+    if is_first_feedback(state):
+        base = _recommend_topics_core(
+            state_without_feedback(state),
+            followed_names=followed_names,
+            event_concepts=event_concepts,
+            limit=limit,
+            include_followed=include_followed,
+            cohort=classify_cohort(state_without_feedback(state)),
+        )
+        incoming = _recommend_topics_core(
+            state,
+            followed_names=followed_names,
+            event_concepts=event_concepts,
+            limit=max(limit, _DEFAULT_LIMIT),
+            include_followed=include_followed,
+            cohort=cohort,
+        )
+        blended = bound_first_feedback_items(base.items, incoming.items)
+        items = _take_recommendations(blended, limit=limit, include_followed=include_followed)
+        abstentions = incoming.abstentions
+        return TopicRecommendationResult(
+            version=TOPIC_RECOMMENDATION_VERSION,
+            user_id=state.user_id,
+            tenant_id=state.tenant_id,
+            interest_version=state.version or INTEREST_STATE_VERSION,
+            interest_fingerprint=state.signal_fingerprint,
+            items=tuple(items),
+            abstentions=abstentions,
+            policy_version=COLD_START_POLICY_VERSION,
+            cohort=cohort,
+        )
+    return _recommend_topics_core(
+        state,
+        followed_names=followed_names,
+        event_concepts=event_concepts,
+        limit=limit,
+        include_followed=include_followed,
+        cohort=cohort,
+    )
+
+
+def _recommend_topics_core(
+    state: UserInterestState,
+    *,
+    followed_names: Sequence[str],
+    event_concepts: Sequence[EventConcept],
+    limit: int,
+    include_followed: bool,
+    cohort: UserCohort,
 ) -> TopicRecommendationResult:
     followed = tuple(name.strip() for name in followed_names if name.strip())
     followed_keys = {topic_identity(name) for name in followed}
@@ -354,49 +402,37 @@ def recommend_topics(
         )
 
     if not bucket:
-        for index, fallback_name in enumerate(_COLD_START_CATALOG_FALLBACK):
-            entry = catalog_entry_for(fallback_name)
-            if entry is None:
-                continue
-            topic_id, name, topic_type = entry
-            score = round(_CATALOG_FALLBACK_SCORE - (index * 0.002), 4)
+        for fallback in catalog_fallback_items(cohort):
             _put(
                 bucket,
                 _Candidate(
-                    topic_id=topic_id,
-                    name=name,
-                    topic_type=topic_type,
-                    score=score,
-                    reason=(
-                        "Catalog fallback; no explicit interest signals yet "
-                        "(cold-start policy is #47)"
-                    ),
+                    topic_id=fallback.topic_id,
+                    name=fallback.name,
+                    topic_type=fallback.topic_type,
+                    score=fallback.score,
+                    reason=fallback.reason,
                     provenance="inferred",
-                    already_followed=topic_identity(name) in followed_keys,
-                    source_signals=["catalog:fallback"],
+                    already_followed=topic_identity(fallback.name) in followed_keys,
+                    source_signals=list(fallback.source_signals),
                 ),
             )
 
     ranked = sorted(bucket.values(), key=lambda item: (-item.score, item.name.casefold()))
-    items: list[TopicRecommendation] = []
-    for candidate in ranked:
-        if candidate.already_followed and not include_followed:
-            continue
-        items.append(
-            TopicRecommendation(
-                topic_id=candidate.topic_id,
-                name=candidate.name,
-                topic_type=candidate.topic_type,
-                score=candidate.score,
-                reason=candidate.reason,
-                provenance=candidate.provenance,
-                already_followed=candidate.already_followed,
-                confidence=_confidence(candidate.score),
-                source_signals=tuple(candidate.source_signals),
-            )
+    built = [
+        TopicRecommendation(
+            topic_id=candidate.topic_id,
+            name=candidate.name,
+            topic_type=candidate.topic_type,
+            score=candidate.score,
+            reason=candidate.reason,
+            provenance=candidate.provenance,
+            already_followed=candidate.already_followed,
+            confidence=_confidence(candidate.score),
+            source_signals=tuple(candidate.source_signals),
         )
-        if len(items) >= limit:
-            break
+        for candidate in ranked
+    ]
+    items = _take_recommendations(built, limit=limit, include_followed=include_followed)
 
     return TopicRecommendationResult(
         version=TOPIC_RECOMMENDATION_VERSION,
@@ -406,7 +442,25 @@ def recommend_topics(
         interest_fingerprint=state.signal_fingerprint,
         items=tuple(items),
         abstentions=tuple(abstentions),
+        policy_version=COLD_START_POLICY_VERSION,
+        cohort=cohort,
     )
+
+
+def _take_recommendations(
+    items: Sequence[TopicRecommendation],
+    *,
+    limit: int,
+    include_followed: bool,
+) -> list[TopicRecommendation]:
+    taken: list[TopicRecommendation] = []
+    for item in items:
+        if item.already_followed and not include_followed:
+            continue
+        taken.append(item)
+        if len(taken) >= limit:
+            break
+    return taken
 
 
 def load_user_event_concepts(

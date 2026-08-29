@@ -13,6 +13,7 @@ from app.evaluation.personalization_gold import load_personalization_gold
 from app.services.event_concepts import EventConcept
 from app.services.ledger_projection import LedgerProjector
 from app.services.statuspage_pipeline import StatuspagePipeline
+from app.services.cold_start_policy import COLD_START_POLICY_VERSION
 from app.services.topic_recommendations import (
     TOPIC_RECOMMENDATION_VERSION,
     recommend_topics,
@@ -193,11 +194,14 @@ def test_cold_start_uses_catalog_fallback_labeled_inferred() -> None:
     result = recommend_topics(state, followed_names=())
 
     assert result.items
+    assert result.policy_version == COLD_START_POLICY_VERSION
+    assert result.cohort == "empty_profile"
     assert all(item.provenance == "inferred" for item in result.items)
     assert all(item.already_followed is False for item in result.items)
     assert any("catalog" in item.reason.casefold() for item in result.items)
     assert any("catalog:fallback" in item.source_signals for item in result.items)
     assert all(item.provenance != "explicit" for item in result.items)
+    assert all("explicit" not in item.reason.casefold() for item in result.items)
 
 
 def test_already_followed_marked_or_excluded_deterministically() -> None:
@@ -244,6 +248,14 @@ def test_does_not_auto_add_topics(client: TestClient, auth_headers: dict[str, st
     assert recommended.status_code == 200
     body = recommended.json()
     assert body["version"] == TOPIC_RECOMMENDATION_VERSION
+    assert body["policyVersion"] == COLD_START_POLICY_VERSION
+    assert body["cohort"] in {
+        "empty_profile",
+        "profile_only",
+        "topic_selected",
+        "github_connected",
+        "history_rich",
+    }
     assert body["items"]
     first = body["items"][0]
     required = {
