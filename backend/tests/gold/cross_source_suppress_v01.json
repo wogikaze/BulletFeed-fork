@@ -1,0 +1,371 @@
+{
+  "dataset_id": "bulletfeed-cross-source-suppress-v0.1",
+  "version": "cross-source-suppress-v1",
+  "notes": "Projection-time collapse fixtures. Hide only after false-suppression-v1. Do not rewrite existing Gold labels.",
+  "cases": [
+    {
+      "id": "duplicate-press-release",
+      "family": "duplicate_press_release",
+      "rationale": "Two outlets restating the same latency investigation share one card. The fact is unknown, so collapse cannot hide it.",
+      "candidates": [
+        {
+          "id": "press-original",
+          "source_id": "statuspage:acme",
+          "publisher": "Acme Status",
+          "kind": "statuspage",
+          "title": "Elevated latency",
+          "url": "https://status.acme.test/incidents/1",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "Investigating elevated latency.",
+          "value": "investigating",
+          "detail": "Investigating elevated latency.",
+          "slot": "status",
+          "revision_class": "NEW_FACT",
+          "dependence_key": "press:acme-latency",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "high"
+        },
+        {
+          "id": "press-reprint",
+          "source_id": "rss:news",
+          "publisher": "News Wire",
+          "kind": "rss_atom",
+          "title": "Acme investigating latency",
+          "url": "https://news.example/acme-latency",
+          "published_at": "2026-08-22T00:05:00Z",
+          "retrieved_at": "2026-08-22T00:06:00Z",
+          "evidence": "We are investigating elevated latency.",
+          "value": "investigating",
+          "detail": "We are investigating elevated latency.",
+          "slot": "status",
+          "revision_class": "NON_NOVEL",
+          "dependence_key": "press:acme-latency",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "high"
+        }
+      ],
+      "expect": {
+        "displayed_ids": ["press-original"],
+        "additional_source_ids": ["press-reprint"],
+        "hidden_ids": [],
+        "independent_evidence_count": 1,
+        "should_surface": true
+      }
+    },
+    {
+      "id": "syndicated-advisory",
+      "family": "syndication",
+      "rationale": "OSV republishing a GHSA is dependent evidence. One card, independent evidence count stays 1.",
+      "candidates": [
+        {
+          "id": "ghsa-canonical",
+          "source_id": "github_advisory:GHSA-abcd-1234-5678",
+          "publisher": "GitHub Advisory",
+          "kind": "github_advisory",
+          "title": "GHSA-abcd-1234-5678",
+          "url": "https://github.com/advisories/GHSA-abcd-1234-5678",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "example 1.0.0 is affected by GHSA-abcd-1234-5678",
+          "value": "affected",
+          "detail": "example 1.0.0 is affected by GHSA-abcd-1234-5678",
+          "slot": "dependency_vulnerability",
+          "revision_class": "NEW_FACT",
+          "dependence_key": "advisory:GHSA-ABCD-1234-5678",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "high"
+        },
+        {
+          "id": "osv-syndicate",
+          "source_id": "osv:OSV-2026-1",
+          "publisher": "OSV",
+          "kind": "osv",
+          "title": "OSV-2026-1",
+          "url": "https://osv.dev/vulnerability/OSV-2026-1",
+          "published_at": "2026-08-22T00:02:00Z",
+          "retrieved_at": "2026-08-22T00:03:00Z",
+          "evidence": "example 1.0.0 is affected by GHSA-abcd-1234-5678",
+          "value": "affected",
+          "detail": "example 1.0.0 is affected by GHSA-abcd-1234-5678",
+          "slot": "dependency_vulnerability",
+          "revision_class": "NON_NOVEL",
+          "dependence_key": "advisory:GHSA-ABCD-1234-5678",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "high"
+        }
+      ],
+      "expect": {
+        "displayed_ids": ["ghsa-canonical"],
+        "additional_source_ids": ["osv-syndicate"],
+        "hidden_ids": [],
+        "independent_evidence_count": 1,
+        "should_surface": true
+      }
+    },
+    {
+      "id": "independent-confirmation",
+      "family": "independent_confirmation",
+      "rationale": "A second independent source strengthens evidence without a duplicate card.",
+      "candidates": [
+        {
+          "id": "vendor-status",
+          "source_id": "statuspage:widget",
+          "publisher": "Widget Status",
+          "kind": "statuspage",
+          "title": "API latency",
+          "url": "https://status.widget.test/incidents/lat",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "Investigating elevated latency.",
+          "value": "investigating",
+          "detail": "Investigating elevated latency.",
+          "slot": "status",
+          "revision_class": "NEW_FACT",
+          "dependence_key": "incident:widget-latency",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "medium"
+        },
+        {
+          "id": "json-confirm",
+          "source_id": "json_feed:status-mirror",
+          "publisher": "Status Mirror",
+          "kind": "json_feed",
+          "title": "Widget latency",
+          "url": "https://mirror.example/widget-latency",
+          "published_at": "2026-08-22T00:04:00Z",
+          "retrieved_at": "2026-08-22T00:05:00Z",
+          "evidence": "We are investigating elevated latency.",
+          "value": "investigating",
+          "detail": "We are investigating elevated latency.",
+          "slot": "status",
+          "revision_class": "NON_NOVEL",
+          "dependence_key": "incident:mirror-widget-latency",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "medium"
+        }
+      ],
+      "expect": {
+        "displayed_ids": ["vendor-status"],
+        "additional_source_ids": ["json-confirm"],
+        "hidden_ids": [],
+        "independent_evidence_count": 2,
+        "should_surface": true
+      }
+    },
+    {
+      "id": "later-source-adds-detail",
+      "family": "added_detail",
+      "rationale": "New factual detail from a later source is a different knowledge target and must surface.",
+      "candidates": [
+        {
+          "id": "release-brief",
+          "source_id": "github_release:widget",
+          "publisher": "GitHub Releases",
+          "kind": "github_release",
+          "title": "Widget v3",
+          "url": "https://github.com/acme/widget/releases/tag/v3.0.0",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "Widget v3 is available",
+          "value": "released",
+          "detail": "Widget v3 is available",
+          "slot": "release_state",
+          "revision_class": "NEW_FACT",
+          "dependence_key": "release:widget-v3",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "medium"
+        },
+        {
+          "id": "release-detail",
+          "source_id": "official_changelog:widget",
+          "publisher": "Widget Changelog",
+          "kind": "official_changelog",
+          "title": "Widget v3 Japan",
+          "url": "https://widget.example/changelog/v3",
+          "published_at": "2026-08-22T00:10:00Z",
+          "retrieved_at": "2026-08-22T00:11:00Z",
+          "evidence": "Widget v3 is available and supports Japan",
+          "value": "released",
+          "detail": "Widget v3 is available and supports Japan",
+          "slot": "release_state",
+          "revision_class": "DETAIL",
+          "dependence_key": "changelog:widget-v3-japan",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "medium"
+        }
+      ],
+      "expect": {
+        "displayed_ids": ["release-brief", "release-detail"],
+        "additional_source_ids": [],
+        "hidden_ids": [],
+        "independent_evidence_count": 2,
+        "should_surface": true
+      }
+    },
+    {
+      "id": "later-source-contradicts",
+      "family": "contradiction",
+      "rationale": "A later conflicting source must surface even when the prior fact is known.",
+      "candidates": [
+        {
+          "id": "status-identified",
+          "source_id": "statuspage:acme",
+          "publisher": "Acme Status",
+          "kind": "statuspage",
+          "title": "Resolved",
+          "url": "https://status.acme.test/incidents/2",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "The API is available",
+          "value": "available",
+          "detail": "The API is available",
+          "slot": "availability",
+          "revision_class": "NEW_FACT",
+          "dependence_key": "incident:acme-available",
+          "knowledge_state": "known",
+          "knowledge_confidence": "high",
+          "importance_level": "high"
+        },
+        {
+          "id": "status-conflict",
+          "source_id": "rss:watch",
+          "publisher": "Status Watch",
+          "kind": "rss_atom",
+          "title": "API still down",
+          "url": "https://watch.example/acme-down",
+          "published_at": "2026-08-22T00:12:00Z",
+          "retrieved_at": "2026-08-22T00:13:00Z",
+          "evidence": "The API is not available",
+          "value": "unavailable",
+          "detail": "The API is not available",
+          "slot": "availability",
+          "revision_class": "UNRESOLVED_CONTRADICTION",
+          "dependence_key": "incident:watch-acme-down",
+          "knowledge_state": "known",
+          "knowledge_confidence": "high",
+          "importance_level": "high"
+        }
+      ],
+      "expect": {
+        "displayed_ids": ["status-conflict"],
+        "additional_source_ids": [],
+        "hidden_ids": [],
+        "independent_evidence_count": 1,
+        "should_surface": true
+      }
+    },
+    {
+      "id": "uncertain-identity-not-hidden",
+      "family": "uncertain_identity",
+      "rationale": "Ambiguous semantic overlap must not collapse or hide.",
+      "candidates": [
+        {
+          "id": "latency-issue",
+          "source_id": "statuspage:acme",
+          "publisher": "Acme Status",
+          "kind": "statuspage",
+          "title": "Database latency",
+          "url": "https://status.acme.test/incidents/3",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "database latency issue",
+          "value": "issue",
+          "detail": "database latency issue",
+          "slot": "status",
+          "revision_class": "NEW_FACT",
+          "dependence_key": "incident:latency",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "medium"
+        },
+        {
+          "id": "capacity-issue",
+          "source_id": "json_feed:ops",
+          "publisher": "Ops Feed",
+          "kind": "json_feed",
+          "title": "Database capacity",
+          "url": "https://ops.example/capacity",
+          "published_at": "2026-08-22T00:08:00Z",
+          "retrieved_at": "2026-08-22T00:09:00Z",
+          "evidence": "database capacity issue",
+          "value": "issue",
+          "detail": "database capacity issue",
+          "slot": "status",
+          "revision_class": "NON_NOVEL",
+          "dependence_key": "incident:capacity",
+          "knowledge_state": "unknown",
+          "knowledge_confidence": "none",
+          "importance_level": "medium"
+        }
+      ],
+      "expect": {
+        "displayed_ids": ["latency-issue", "capacity-issue"],
+        "additional_source_ids": [],
+        "hidden_ids": [],
+        "independent_evidence_count": 1,
+        "should_surface": true
+      }
+    },
+    {
+      "id": "known-restatement-may-hide",
+      "family": "known_restatement",
+      "rationale": "Only after the conservative guard allows hide may a confident known restatement disappear.",
+      "candidates": [
+        {
+          "id": "known-original",
+          "source_id": "statuspage:acme",
+          "publisher": "Acme Status",
+          "kind": "statuspage",
+          "title": "Elevated latency",
+          "url": "https://status.acme.test/incidents/4",
+          "published_at": "2026-08-22T00:00:00Z",
+          "retrieved_at": "2026-08-22T00:01:00Z",
+          "evidence": "Investigating elevated latency.",
+          "value": "investigating",
+          "detail": "Investigating elevated latency.",
+          "slot": "status",
+          "revision_class": "NON_NOVEL",
+          "dependence_key": "incident:known-latency",
+          "knowledge_state": "known",
+          "knowledge_confidence": "high",
+          "importance_level": "medium"
+        },
+        {
+          "id": "known-reprint",
+          "source_id": "rss:news",
+          "publisher": "News Wire",
+          "kind": "rss_atom",
+          "title": "Still investigating",
+          "url": "https://news.example/still",
+          "published_at": "2026-08-22T00:20:00Z",
+          "retrieved_at": "2026-08-22T00:21:00Z",
+          "evidence": "We are investigating elevated latency.",
+          "value": "investigating",
+          "detail": "We are investigating elevated latency.",
+          "slot": "status",
+          "revision_class": "NON_NOVEL",
+          "dependence_key": "incident:known-latency-reprint",
+          "knowledge_state": "known",
+          "knowledge_confidence": "high",
+          "importance_level": "medium"
+        }
+      ],
+      "expect": {
+        "displayed_ids": [],
+        "additional_source_ids": [],
+        "hidden_ids": ["known-reprint"],
+        "independent_evidence_count": 2,
+        "should_surface": false
+      }
+    }
+  ]
+}

@@ -153,6 +153,7 @@ def _row_to_item(
         updated_at=row["updated_at"],
         delivery_id=delivery_id,
         sources=sources,
+        additional_sources=[],
     )
 
 

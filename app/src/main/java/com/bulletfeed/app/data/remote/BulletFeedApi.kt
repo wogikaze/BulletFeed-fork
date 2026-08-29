@@ -186,6 +186,7 @@ data class FeedItemDto(
     val updatedAt: String,
     val deliveryId: String,
     val sources: List<EventSourceDto> = emptyList(),
+    val additionalSources: List<EventSourceDto> = emptyList(),
 )
 
 @Serializable
