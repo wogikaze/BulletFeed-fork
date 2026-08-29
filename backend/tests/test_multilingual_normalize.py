@@ -78,8 +78,14 @@ def test_negation_and_comparators_are_not_normalized_away() -> None:
     assert unsupported.negated is True
     assert nai.negated is True
     assert present.negated is False
-    assert compare_claims("Python 3.10は対応しています", "", "Python 3.10は未対応です", "").label != "equivalent"
-    assert compare_claims("Python 3.10は対応しています", "", "Python 3.10は非対応です", "").label != "equivalent"
+    assert (
+        compare_claims("Python 3.10は対応しています", "", "Python 3.10は未対応です", "").label
+        != "equivalent"
+    )
+    assert (
+        compare_claims("Python 3.10は対応しています", "", "Python 3.10は非対応です", "").label
+        != "equivalent"
+    )
     assert compare_claims("回避策はない", "", "回避策はある", "").label != "equivalent"
     assert ">=" in ge.tokens
     assert "<=" in le.tokens
