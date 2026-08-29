@@ -49,6 +49,9 @@ jobs:
       - name: Rec-12 ranking benchmark regression gate
         run: python backend/scripts/run_ranking_benchmark.py --split pilot --check
 
+      - name: Source-09 coverage benchmark floors
+        run: python backend/scripts/run_source_coverage_benchmark.py --split pilot --check
+
       - name: Run Ruff
         run: ruff check backend
 

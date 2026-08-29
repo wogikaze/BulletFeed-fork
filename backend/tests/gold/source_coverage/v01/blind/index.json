@@ -1,0 +1,69 @@
+{
+  "split": "blind",
+  "case_ids": [
+    "scov-b-001",
+    "scov-b-002",
+    "scov-b-003",
+    "scov-b-004",
+    "scov-b-005",
+    "scov-b-006",
+    "scov-b-007",
+    "scov-b-008",
+    "scov-b-009",
+    "scov-b-010",
+    "scov-b-011",
+    "scov-b-012",
+    "scov-b-013",
+    "scov-b-014",
+    "scov-b-015",
+    "scov-b-016"
+  ],
+  "urls": [
+    "https://github.com/rust-lang/rust/releases",
+    "https://github.com/advisories?query=rust",
+    "https://osv.dev/list?q=stdlib",
+    "https://status.npmjs.org/api/v2/summary.json",
+    "https://kubernetes.io/feed.xml",
+    "https://aws.amazon.com/about-aws/whats-new/recent/feed/",
+    "https://go.dev/doc/",
+    "https://nodejs.org/en/about/previous-releases",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html",
+    "https://kubernetes.io/releases/",
+    "https://www.cloudflare.com/plans/",
+    "https://linear.app/docs",
+    "https://news.ycombinator.com/newest",
+    "https://changelog.example.invalid/sdk",
+    "https://api.slack.com/changelog",
+    "https://status.npmjs.org"
+  ],
+  "topics": [
+    "AWS",
+    "Cloudflare",
+    "Go",
+    "Kubernetes",
+    "Linear",
+    "Node.js",
+    "Northwind SDK",
+    "Rust",
+    "Slack API",
+    "npm"
+  ],
+  "information_types": [
+    "api_docs",
+    "deprecation",
+    "incident",
+    "policy",
+    "pricing",
+    "release",
+    "roadmap_changelog",
+    "security"
+  ],
+  "source_families": [
+    "dynamic_web",
+    "github",
+    "json_feed",
+    "rss_atom",
+    "static_web",
+    "statuspage"
+  ]
+}

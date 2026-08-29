@@ -1,0 +1,389 @@
+{
+  "acquisition_success_rate": 0.9230769230769231,
+  "authoritative_source_precision": 1.0,
+  "benchmark_version": "source-coverage-benchmark-v0.1",
+  "by_information_type": [
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 2,
+      "discovery_recall": 1.0,
+      "key": "api_docs",
+      "static_coverage_gap_rate": 0.5,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "deprecation",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 2,
+      "discovery_recall": 1.0,
+      "key": "incident",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 0.5
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 2,
+      "discovery_recall": 1.0,
+      "key": "policy",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "pricing",
+      "static_coverage_gap_rate": 1.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 3,
+      "discovery_recall": 1.0,
+      "key": "release",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 0.6666666666666666,
+      "authoritative_precision": 1.0,
+      "case_count": 3,
+      "discovery_recall": 1.0,
+      "key": "roadmap_changelog",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 2,
+      "discovery_recall": 1.0,
+      "key": "security",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    }
+  ],
+  "by_source_family": [
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 2,
+      "discovery_recall": 1.0,
+      "key": "dynamic_web",
+      "static_coverage_gap_rate": 1.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 4,
+      "discovery_recall": 1.0,
+      "key": "github",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "json_feed",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "rss_atom",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 0.8333333333333334,
+      "authoritative_precision": 1.0,
+      "case_count": 7,
+      "discovery_recall": 1.0,
+      "key": "static_web",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 0.8
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "statuspage",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    }
+  ],
+  "by_topic": [
+    {
+      "acquisition_success_rate": 0.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Acme SDK",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Discord API",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 3,
+      "discovery_recall": 1.0,
+      "key": "GitHub",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 0.6666666666666666
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "JSON Feed",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Kubernetes",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Node.js",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Python",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 5,
+      "discovery_recall": 1.0,
+      "key": "React",
+      "static_coverage_gap_rate": 0.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Stripe",
+      "static_coverage_gap_rate": 1.0,
+      "update_detection_recall": 1.0
+    },
+    {
+      "acquisition_success_rate": 1.0,
+      "authoritative_precision": 1.0,
+      "case_count": 1,
+      "discovery_recall": 1.0,
+      "key": "Vercel",
+      "static_coverage_gap_rate": 1.0,
+      "update_detection_recall": 1.0
+    }
+  ],
+  "case_count": 16,
+  "cases": [
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-001",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-002",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": false,
+      "case_id": "scov-p-003",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-004",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-005",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-006",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-007",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-008",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-009",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-010",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": false,
+      "authoritative_predicted": false,
+      "case_id": "scov-p-011",
+      "discovered": true,
+      "outcome": "static_coverage_gap",
+      "reason": "static HTTP cannot recover JS-rendered content; #64 not implemented",
+      "update_detected": false
+    },
+    {
+      "acquired": false,
+      "authoritative_predicted": false,
+      "case_id": "scov-p-012",
+      "discovered": true,
+      "outcome": "static_coverage_gap",
+      "reason": "static HTTP cannot recover JS-rendered content; #64 not implemented",
+      "update_detected": false
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": false,
+      "case_id": "scov-p-013",
+      "discovered": true,
+      "outcome": "covered",
+      "reason": "catalogued family with static acquisition",
+      "update_detected": true
+    },
+    {
+      "acquired": false,
+      "authoritative_predicted": true,
+      "case_id": "scov-p-014",
+      "discovered": true,
+      "outcome": "discovered_fetch_failed",
+      "reason": "source was discovered but static acquisition failed",
+      "update_detected": false
+    },
+    {
+      "acquired": false,
+      "authoritative_predicted": false,
+      "case_id": "scov-p-015",
+      "discovered": false,
+      "outcome": "not_discovered",
+      "reason": "source family is outside the current catalog/registry",
+      "update_detected": false
+    },
+    {
+      "acquired": true,
+      "authoritative_predicted": false,
+      "case_id": "scov-p-016",
+      "discovered": true,
+      "outcome": "fetched_change_missed",
+      "reason": "static snapshot was fetched but the meaningful change was not detected",
+      "update_detected": false
+    }
+  ],
+  "dataset_version": "source-coverage-v0.1",
+  "discovery_recall": 1.0,
+  "duplicate_source_rate": 0.1875,
+  "js_rendering_implemented": false,
+  "median_acquisition_delay_seconds": 270.0,
+  "outcome_counts": {
+    "covered": 11,
+    "discovered_fetch_failed": 1,
+    "fetched_change_missed": 1,
+    "not_discovered": 1,
+    "static_coverage_gap": 2
+  },
+  "split": "pilot",
+  "static_coverage_gap_rate": 0.125,
+  "update_detection_recall": 0.9166666666666666
+}
