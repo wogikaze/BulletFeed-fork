@@ -1,9 +1,9 @@
 from app.db.knowledge_evidence_schema import KNOWLEDGE_EVIDENCE_TABLE
+from app.services.feed_projection import FeedProjector
 from app.services.feedback_signals import (
     assert_feedback_does_not_mutate_ledger,
     ledger_world_state,
 )
-from app.services.feed_projection import FeedProjector
 from app.services.knowledge_evidence import (
     ACCOUNT_DELETION_TABLE,
     KIND_ALREADY_KNEW,
