@@ -169,9 +169,7 @@ def detect_language(text: str) -> LanguageTag:
         return "unknown"
     if cjk == 0:
         return "en"
-    if latin == 0:
-        return "ja"
-    if latin <= 3 and cjk >= 4:
+    if latin == 0 or cjk >= latin:
         return "ja"
     if cjk <= 2 and latin >= 12:
         return "en"
