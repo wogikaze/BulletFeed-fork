@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS source_sync_jobs (
     failure_count INTEGER NOT NULL DEFAULT 0,
     last_attempt_at INTEGER,
     last_success_at INTEGER,
+    last_new_observation_at INTEGER,
     last_error TEXT,
     PRIMARY KEY(source_type, source_key)
 );

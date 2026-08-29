@@ -171,7 +171,7 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
                 "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
             )
         ]
-        assert revisions == ["1", "2", "3"]
+        assert revisions == ["1", "2", "3", "4"]
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'"
         ).fetchone()
@@ -187,6 +187,7 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
             row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")
         }
         assert "source_key" in job_columns
+        assert "last_new_observation_at" in job_columns
         assert "repository_full_name" not in job_columns
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscriptions'"
@@ -237,7 +238,7 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3"}
+        assert revisions == {"1", "2", "3", "4"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "source_key" in columns
         assert "repository_full_name" not in columns
@@ -266,7 +267,62 @@ def test_revision_3_adds_subscription_user_mapping(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3"}
+        assert revisions == {"1", "2", "3", "4"}
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
+        ).fetchone()
+
+
+def test_revision_4_adds_last_new_observation_at(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-source-health.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '4'")
+        connection.execute(
+            """
+            CREATE TABLE source_sync_jobs_pre_health (
+                source_type TEXT NOT NULL,
+                source_key TEXT NOT NULL,
+                next_run_at INTEGER NOT NULL,
+                lease_until INTEGER NOT NULL DEFAULT 0,
+                lease_token TEXT,
+                failure_count INTEGER NOT NULL DEFAULT 0,
+                last_attempt_at INTEGER,
+                last_success_at INTEGER,
+                last_error TEXT,
+                PRIMARY KEY(source_type, source_key)
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO source_sync_jobs_pre_health (
+                source_type, source_key, next_run_at, last_success_at, failure_count
+            ) VALUES ('github_release', 'acme/widget', 100, 50, 0)
+            """
+        )
+        connection.execute("DROP TABLE source_sync_jobs")
+        connection.execute("ALTER TABLE source_sync_jobs_pre_health RENAME TO source_sync_jobs")
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == {"1", "2", "3", "4"}
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
+        assert "last_new_observation_at" in columns
+        row = connection.execute(
+            """
+            SELECT last_success_at, last_new_observation_at, failure_count
+            FROM source_sync_jobs
+            WHERE source_type = 'github_release' AND source_key = 'acme/widget'
+            """
+        ).fetchone()
+        assert row["last_success_at"] == 50
+        assert row["last_new_observation_at"] is None
+        assert row["failure_count"] == 0
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
