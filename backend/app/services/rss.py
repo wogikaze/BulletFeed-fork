@@ -1,5 +1,4 @@
 import html
-import ipaddress
 import socket
 from urllib.parse import urljoin, urlparse
 
@@ -9,6 +8,12 @@ import httpx
 from fastapi import HTTPException, status
 
 from app.config import Settings
+from app.services.url_safety import (
+    host_is_allowed,
+    reject_private_resolved_addresses,
+    require_global_response_peer,
+    validate_url_shape,
+)
 
 ALLOWED_FEED_CONTENT_TYPES = {
     "application/atom+xml",
@@ -19,22 +24,13 @@ ALLOWED_FEED_CONTENT_TYPES = {
 
 
 def _host_is_allowed(hostname: str, allowed_hosts: set[str]) -> bool:
-    host = hostname.lower().rstrip(".")
-    return any(host == allowed or host.endswith(f".{allowed}") for allowed in allowed_hosts)
+    return host_is_allowed(hostname, allowed_hosts)
 
 
 def validate_feed_url(url: str, allowed_hosts: set[str]) -> str:
-    parsed = urlparse(url)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="RSS URL must be HTTPS and must not contain credentials",
-        )
-    if parsed.port not in {None, 443}:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="RSS URL port is not allowed"
-        )
-    if not _host_is_allowed(parsed.hostname, allowed_hosts):
+    parsed = validate_url_shape(url, source_name="RSS")
+    assert parsed.hostname is not None
+    if not host_is_allowed(parsed.hostname, allowed_hosts):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="RSS host is not in the allowlist")
     try:
         addresses = socket.getaddrinfo(parsed.hostname, 443, type=socket.SOCK_STREAM)
@@ -42,40 +38,8 @@ def validate_feed_url(url: str, allowed_hosts: set[str]) -> str:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="RSS host cannot be resolved"
         ) from exc
-    for address in addresses:
-        ip = ipaddress.ip_address(address[4][0])
-        if not ip.is_global:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="RSS host resolves to a private address"
-            )
+    reject_private_resolved_addresses(addresses, source_name="RSS")
     return url
-
-
-def require_global_response_peer(response: httpx.Response, *, source_name: str = "Feed") -> None:
-    stream = response.extensions.get("network_stream")
-    if stream is None:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"{source_name} connection peer could not be verified",
-        )
-    server_addr = stream.get_extra_info("server_addr")
-    if not isinstance(server_addr, (tuple, list)) or not server_addr:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"{source_name} connection peer could not be verified",
-        )
-    try:
-        peer_ip = ipaddress.ip_address(str(server_addr[0]))
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"{source_name} connection peer could not be verified",
-        ) from exc
-    if not peer_ip.is_global:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"{source_name} connection reached a private address",
-        )
 
 
 async def _download(settings: Settings, url: str) -> tuple[bytes, str]:

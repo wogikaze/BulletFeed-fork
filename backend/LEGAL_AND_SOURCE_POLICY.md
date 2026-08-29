@@ -10,6 +10,7 @@
 | OSV | 公開API | 脆弱性ID、対象package/version、更新日時 | 不要な全文コピー |
 | 公式RSS / Atom | 配信者が公開するfeed | タイトル、URL、日時、最大500文字の配信要約 | 記事本文、画像、添付物 |
 | Statuspage | 公開Status API | incident ID、状態、更新時刻、根拠URL | 管理APIの秘密情報 |
+| 公式公開HTML | 運営allowlist上のHTTPS静的取得（不変スナップショット） | 生バイト、応答ヘッダ、取得日時、content hash、robots判定。Claim証拠化はしない | ログイン必須ページ、JS実行結果、任意URL、再配布、Observation化（#63まで） |
 
 ## 必須ルール
 
@@ -24,9 +25,9 @@
 
 ## セキュリティ境界
 
-- 任意URLをバックエンドから取得しない。RSSは運営側allowlistへ事前登録する。
+- 任意URLをバックエンドから取得しない。RSSと汎用Webは運営側allowlistへ事前登録する。未知ホスト・private IP・非HTTPSは拒否する（テスト用HTTPは本番経路では無効）。
 - DNS解決後のprivate / loopback / link-local IPを拒否する。
-- HTTPSのみ、レスポンスサイズ・時間・Content-Type・リダイレクト回数を制限する。
+- HTTPSのみ、レスポンスサイズ・時間・Content-Type・リダイレクト回数を制限する。汎用Webスナップショットは一度書いたら変更しない。
 - HTMLはactive contentとして表示せず、プレーンテキスト化する。Android内WebViewでJavaScriptを実行しない。
 - GitHub Appは最小権限と選択リポジトリのみ。token・secretはサーバー側で暗号化する。
 - Webhook導入時は署名、配信IDの重複、timestamp、body sizeを検証する。

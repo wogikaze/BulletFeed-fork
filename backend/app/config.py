@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     database_path: Path = Path("data/bulletfeed.db")
     allowed_origins: str = ""
     rss_allowed_hosts: str = ""
+    web_allowed_hosts: str = ""
     request_timeout_seconds: float = 10.0
     max_response_bytes: int = 1_048_576
 
@@ -31,6 +32,12 @@ class Settings(BaseSettings):
     def rss_hosts(self) -> set[str]:
         return {
             item.strip().lower().rstrip(".") for item in self.rss_allowed_hosts.split(",") if item.strip()
+        }
+
+    @property
+    def web_hosts(self) -> set[str]:
+        return {
+            item.strip().lower().rstrip(".") for item in self.web_allowed_hosts.split(",") if item.strip()
         }
 
     @property

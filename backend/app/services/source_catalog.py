@@ -13,6 +13,7 @@ class SourceKind(StrEnum):
     JSON_FEED = "json_feed"
     STATUSPAGE = "statuspage"
     HACKER_NEWS_DISCOVERY = "hacker_news_discovery"
+    GENERIC_WEB = "generic_web"
 
 
 class DiscoveryMethod(StrEnum):
@@ -46,6 +47,13 @@ MVP_SOURCE_POLICIES: dict[SourceKind, SourcePolicy] = {
         SourceKind.HACKER_NEWS_DISCOVERY,
         2,
         DiscoveryMethod.EXTERNAL_INDEX,
+        False,
+        discovery_only=True,
+    ),
+    SourceKind.GENERIC_WEB: SourcePolicy(
+        SourceKind.GENERIC_WEB,
+        3,
+        DiscoveryMethod.HTML,
         False,
         discovery_only=True,
     ),
