@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 import secrets
+import sqlite3
 import time
 from contextlib import suppress
 from dataclasses import asdict, dataclass
@@ -20,12 +21,33 @@ from app.services.github_release_pipeline import crawl_github_release_events
 SOURCE_TYPES = ("github_release", "dependency_security")
 
 
+def _insert_source_sync_job(
+    connection: sqlite3.Connection,
+    source_type: str,
+    source_key: str,
+    next_run_at: int,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO source_sync_jobs (
+            source_type, source_key, next_run_at
+        ) VALUES (?, ?, ?)
+        ON CONFLICT(source_type, source_key) DO NOTHING
+        """,
+        (source_type, source_key, next_run_at),
+    )
+
+
 @dataclass(frozen=True)
 class SyncJob:
     source_type: str
-    repository_full_name: str
+    source_key: str
     failure_count: int
     lease_token: str
+
+    @property
+    def repository_full_name(self) -> str:
+        return self.source_key
 
 
 @dataclass(frozen=True)
@@ -92,23 +114,40 @@ class WatchSyncWorker:
             ]
             for repository_full_name in repositories:
                 for source_type in SOURCE_TYPES:
-                    connection.execute(
-                        """
-                        INSERT INTO source_sync_jobs (
-                            source_type, repository_full_name, next_run_at
-                        ) VALUES (?, ?, ?)
-                        ON CONFLICT(source_type, repository_full_name) DO NOTHING
-                        """,
-                        (source_type, repository_full_name, current),
+                    _insert_source_sync_job(
+                        connection, source_type, repository_full_name, current
                     )
+            for row in connection.execute(
+                """
+                SELECT source_type, source_key
+                FROM source_sync_subscriptions
+                WHERE selected = 1
+                ORDER BY source_type, source_key
+                """
+            ).fetchall():
+                _insert_source_sync_job(
+                    connection, row["source_type"], row["source_key"], current
+                )
             connection.execute(
                 """
                 DELETE FROM source_sync_jobs
                 WHERE lease_until <= ?
-                  AND repository_full_name NOT IN (
-                      SELECT DISTINCT full_name
-                      FROM github_repo_watches
-                      WHERE selected = 1
+                  AND NOT (
+                    (
+                        source_type IN ('github_release', 'dependency_security')
+                        AND source_key IN (
+                            SELECT DISTINCT full_name
+                            FROM github_repo_watches
+                            WHERE selected = 1
+                        )
+                    )
+                    OR EXISTS (
+                        SELECT 1
+                        FROM source_sync_subscriptions AS subscriptions
+                        WHERE subscriptions.selected = 1
+                          AND subscriptions.source_type = source_sync_jobs.source_type
+                          AND subscriptions.source_key = source_sync_jobs.source_key
+                    )
                   )
                 """,
                 (current,),
@@ -124,10 +163,10 @@ class WatchSyncWorker:
             connection.execute("BEGIN IMMEDIATE")
             rows = connection.execute(
                 """
-                SELECT source_type, repository_full_name, failure_count
+                SELECT source_type, source_key, failure_count
                 FROM source_sync_jobs
                 WHERE next_run_at <= ? AND lease_until <= ?
-                ORDER BY next_run_at, repository_full_name, source_type
+                ORDER BY next_run_at, source_key, source_type
                 LIMIT ?
                 """,
                 (current, current, claim_limit),
@@ -139,7 +178,7 @@ class WatchSyncWorker:
                     """
                     UPDATE source_sync_jobs
                     SET lease_until = ?, lease_token = ?, last_attempt_at = ?
-                    WHERE source_type = ? AND repository_full_name = ?
+                    WHERE source_type = ? AND source_key = ?
                       AND lease_until <= ?
                     """,
                     (
@@ -147,7 +186,7 @@ class WatchSyncWorker:
                         lease_token,
                         current,
                         row["source_type"],
-                        row["repository_full_name"],
+                        row["source_key"],
                         current,
                     ),
                 ).rowcount
@@ -155,7 +194,7 @@ class WatchSyncWorker:
                     claimed.append(
                         SyncJob(
                             source_type=row["source_type"],
-                            repository_full_name=row["repository_full_name"],
+                            source_key=row["source_key"],
                             failure_count=row["failure_count"],
                             lease_token=lease_token,
                         )
@@ -209,30 +248,32 @@ class WatchSyncWorker:
                 """
                 UPDATE source_sync_jobs
                 SET lease_until = ?
-                WHERE source_type = ? AND repository_full_name = ? AND lease_token = ?
+                WHERE source_type = ? AND source_key = ? AND lease_token = ?
                 """,
                 (
                     now + self._lease_seconds,
                     job.source_type,
-                    job.repository_full_name,
+                    job.source_key,
                     job.lease_token,
                 ),
             ).rowcount
         return changed == 1
 
     async def _run_job(self, job: SyncJob, *, now: int) -> None:
-        owner, separator, repository = job.repository_full_name.partition("/")
+        if job.source_type not in SOURCE_TYPES:
+            return
+        owner, separator, repository = job.source_key.partition("/")
         if not separator or not owner or not repository or "/" in repository:
             raise ValueError("repository watch must use owner/repository format")
         await self._refresh_repository_authorizations(
-            repository_full_name=job.repository_full_name,
+            repository_full_name=job.source_key,
             owner=owner,
             repository=repository,
             now=now,
         )
-        if not self._repository_has_selected_watch(job.repository_full_name):
+        if not self._repository_has_selected_watch(job.source_key):
             return
-        token = self._repository_token(job.repository_full_name, now=now)
+        token = self._repository_token(job.source_key, now=now)
         retrieved_at = datetime.fromtimestamp(now, tz=UTC).isoformat().replace("+00:00", "Z")
         if job.source_type == "github_release":
             await crawl_github_release_events(
@@ -362,13 +403,13 @@ class WatchSyncWorker:
                 UPDATE source_sync_jobs
                 SET next_run_at = ?, lease_until = 0, lease_token = NULL, failure_count = 0,
                     last_success_at = ?, last_error = NULL
-                WHERE source_type = ? AND repository_full_name = ? AND lease_token = ?
+                WHERE source_type = ? AND source_key = ? AND lease_token = ?
                 """,
                 (
                     now + self._poll_interval_seconds,
                     now,
                     job.source_type,
-                    job.repository_full_name,
+                    job.source_key,
                     job.lease_token,
                 ),
             )
@@ -387,14 +428,14 @@ class WatchSyncWorker:
                 UPDATE source_sync_jobs
                 SET next_run_at = ?, lease_until = 0, lease_token = NULL,
                     failure_count = ?, last_error = ?
-                WHERE source_type = ? AND repository_full_name = ? AND lease_token = ?
+                WHERE source_type = ? AND source_key = ? AND lease_token = ?
                 """,
                 (
                     now + retry_seconds,
                     failure_count,
                     detail,
                     job.source_type,
-                    job.repository_full_name,
+                    job.source_key,
                     job.lease_token,
                 ),
             )

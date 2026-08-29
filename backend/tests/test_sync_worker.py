@@ -65,7 +65,7 @@ async def test_worker_syncs_each_source_once_per_repository_and_respects_poll_wi
             "SELECT * FROM source_sync_jobs ORDER BY source_type"
         ).fetchall()
     assert len(rows) == 2
-    assert {row["repository_full_name"] for row in rows} == {"acme/widget"}
+    assert {row["source_key"] for row in rows} == {"acme/widget"}
     assert {row["next_run_at"] for row in rows} == {1_600}
     assert {row["failure_count"] for row in rows} == {0}
 
@@ -146,13 +146,13 @@ async def test_source_failures_retry_independently_with_exponential_backoff(
         release = connection.execute(
             """
             SELECT * FROM source_sync_jobs
-            WHERE source_type = 'github_release' AND repository_full_name = 'acme/widget'
+            WHERE source_type = 'github_release' AND source_key = 'acme/widget'
             """
         ).fetchone()
         security = connection.execute(
             """
             SELECT * FROM source_sync_jobs
-            WHERE source_type = 'dependency_security' AND repository_full_name = 'acme/widget'
+            WHERE source_type = 'dependency_security' AND source_key = 'acme/widget'
             """
         ).fetchone()
     assert release["next_run_at"] == 2_300
@@ -187,7 +187,7 @@ def test_job_claims_are_leased_across_workers_and_stale_finishes_are_ignored(tmp
         release = connection.execute(
             """
             SELECT * FROM source_sync_jobs
-            WHERE source_type = 'github_release' AND repository_full_name = 'acme/widget'
+            WHERE source_type = 'github_release' AND source_key = 'acme/widget'
             """
         ).fetchone()
     assert release["next_run_at"] == 3_000
@@ -198,7 +198,7 @@ def test_job_claims_are_leased_across_workers_and_stale_finishes_are_ignored(tmp
         release = connection.execute(
             """
             SELECT * FROM source_sync_jobs
-            WHERE source_type = 'github_release' AND repository_full_name = 'acme/widget'
+            WHERE source_type = 'github_release' AND source_key = 'acme/widget'
             """
         ).fetchone()
     assert release["next_run_at"] == 3_422
@@ -284,3 +284,122 @@ def test_refresh_removes_jobs_after_last_watch_is_removed(tmp_path) -> None:
     with database.connect() as connection:
         count = connection.execute("SELECT COUNT(*) AS count FROM source_sync_jobs").fetchone()["count"]
         assert count == 0
+
+
+def _subscribe_source(database: Database, source_type: str, source_key: str, *, selected: int = 1) -> None:
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO source_sync_subscriptions (source_type, source_key, selected)
+            VALUES (?, ?, ?)
+            ON CONFLICT(source_type, source_key) DO UPDATE SET selected = excluded.selected
+            """,
+            (source_type, source_key, selected),
+        )
+
+
+def test_non_repo_source_key_can_be_inserted_claimed_succeeded_and_retried(tmp_path) -> None:
+    database = Database(tmp_path / "statuspage-sync.db")
+    database.initialize()
+    settings = Settings(database_path=database.path)
+    worker = WatchSyncWorker(
+        settings,
+        database,
+        poll_interval_seconds=300,
+        retry_base_seconds=30,
+        retry_max_seconds=300,
+        lease_seconds=120,
+        batch_size=10,
+    )
+    _subscribe_source(database, "statuspage", "pg_acme")
+
+    worker.refresh_jobs(now=5_000)
+    claimed = worker.claim_due(now=5_000)
+    assert [(job.source_type, job.source_key) for job in claimed] == [("statuspage", "pg_acme")]
+
+    worker._finish_failure(claimed[0], RuntimeError("temporary fetch failure"), now=5_000)
+    with database.connect() as connection:
+        row = connection.execute(
+            """
+            SELECT next_run_at, failure_count, last_error
+            FROM source_sync_jobs
+            WHERE source_type = 'statuspage' AND source_key = 'pg_acme'
+            """
+        ).fetchone()
+    assert row["failure_count"] == 1
+    assert row["next_run_at"] == 5_030
+    assert row["last_error"] is not None
+
+    retried = worker.claim_due(now=5_030)
+    assert len(retried) == 1
+    worker._finish_success(retried[0], now=5_030)
+    with database.connect() as connection:
+        row = connection.execute(
+            """
+            SELECT next_run_at, failure_count, last_success_at, last_error, lease_token
+            FROM source_sync_jobs
+            WHERE source_type = 'statuspage' AND source_key = 'pg_acme'
+            """
+        ).fetchone()
+    assert row["failure_count"] == 0
+    assert row["next_run_at"] == 5_330
+    assert row["last_success_at"] == 5_030
+    assert row["last_error"] is None
+    assert row["lease_token"] is None
+
+
+def test_refresh_removes_unsubscribed_non_repo_job_after_lease_expires(tmp_path) -> None:
+    database = Database(tmp_path / "rss-sync.db")
+    database.initialize()
+    settings = Settings(database_path=database.path)
+    worker = WatchSyncWorker(settings, database, lease_seconds=120)
+    _subscribe_source(database, "rss", "https://status.acme.example/feed.xml")
+
+    worker.refresh_jobs(now=6_000)
+    leased = worker.claim_due(now=6_000)
+    assert len(leased) == 1
+    _subscribe_source(database, "rss", "https://status.acme.example/feed.xml", selected=0)
+
+    worker.refresh_jobs(now=6_001)
+    with database.connect() as connection:
+        count = connection.execute(
+            """
+            SELECT COUNT(*) AS count FROM source_sync_jobs
+            WHERE source_type = 'rss' AND source_key = 'https://status.acme.example/feed.xml'
+            """
+        ).fetchone()["count"]
+    assert count == 1
+
+    worker.refresh_jobs(now=6_121)
+    with database.connect() as connection:
+        count = connection.execute(
+            """
+            SELECT COUNT(*) AS count FROM source_sync_jobs
+            WHERE source_type = 'rss' AND source_key = 'https://status.acme.example/feed.xml'
+            """
+        ).fetchone()["count"]
+    assert count == 0
+
+
+@pytest.mark.asyncio
+async def test_non_repo_jobs_do_not_use_github_repository_access(tmp_path, monkeypatch) -> None:
+    database = Database(tmp_path / "public-feed-sync.db")
+    database.initialize()
+    settings = Settings(database_path=database.path)
+    _subscribe_source(database, "rss", "https://status.acme.example/feed.xml")
+
+    async def should_not_authorize(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("non-repo source keys must not use GitHub repository access")
+
+    async def should_not_crawl(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("non-repo source keys must not run GitHub crawls")
+
+    monkeypatch.setattr(sync_worker.github, "repository_accessible", should_not_authorize)
+    monkeypatch.setattr(sync_worker, "crawl_github_release_events", should_not_crawl)
+    monkeypatch.setattr(sync_worker, "crawl_sbom_security_events", should_not_crawl)
+
+    summary = await WatchSyncWorker(settings, database, batch_size=10).run_once(now=7_000)
+
+    assert (summary.attempted, summary.succeeded, summary.failed) == (1, 1, 0)
