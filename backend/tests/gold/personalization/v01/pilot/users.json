@@ -1,0 +1,447 @@
+[
+  {
+    "user_id": "pgold-p-u-01",
+    "split": "pilot",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "student",
+      "interests": [],
+      "region": "us"
+    },
+    "topics": [],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-02",
+    "split": "pilot",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "bootcamp graduate",
+      "interests": [
+        "ui"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "React",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "react"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-03",
+    "split": "pilot",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "junior sre",
+      "interests": [
+        "ops"
+      ],
+      "region": "eu"
+    },
+    "topics": [
+      {
+        "name": "Kubernetes",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "kubernetes"
+    ],
+    "adjacent_products": [
+      "docker",
+      "go"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-04",
+    "split": "pilot",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "data intern",
+      "interests": [
+        "notebooks"
+      ],
+      "region": "jp"
+    },
+    "topics": [
+      {
+        "name": "Python",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "python"
+    ],
+    "adjacent_products": [
+      "django",
+      "fastapi"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-05",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "frontend engineer",
+      "interests": [
+        "ui",
+        "web"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "React",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "TypeScript",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Next.js",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "facebook/react",
+        "language": "JavaScript"
+      },
+      {
+        "full_name": "vercel/next.js",
+        "language": "TypeScript"
+      }
+    ],
+    "prior_feedback": [
+      {
+        "summary": "React 18 upgrade notes",
+        "feedback": "important"
+      },
+      {
+        "summary": "unrelated rust blog",
+        "feedback": "not_relevant"
+      }
+    ],
+    "products": [
+      "react",
+      "typescript",
+      "nextjs"
+    ],
+    "adjacent_products": [
+      "vercel"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-06",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "platform engineer",
+      "interests": [
+        "containers"
+      ],
+      "region": "de"
+    },
+    "topics": [
+      {
+        "name": "Kubernetes",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Go",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Docker",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "kubernetes/kubernetes",
+        "language": "Go"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "kubernetes",
+      "go",
+      "docker"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-07",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "backend engineer",
+      "interests": [
+        "apis"
+      ],
+      "region": "gb"
+    },
+    "topics": [
+      {
+        "name": "Python",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Django",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "FastAPI",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "django/django",
+        "language": "Python"
+      },
+      {
+        "full_name": "encode/fastapi",
+        "language": "Python"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "python",
+      "django",
+      "fastapi"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-08",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "systems engineer",
+      "interests": [
+        "memory-safety"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "Rust",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "WebAssembly",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "rust-lang/rust",
+        "language": "Rust"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "rust",
+      "wasm"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-09",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "jvm engineer",
+      "interests": [
+        "enterprise"
+      ],
+      "region": "in"
+    },
+    "topics": [
+      {
+        "name": "Java",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Spring",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "spring-projects/spring-boot",
+        "language": "Java"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "java",
+      "spring"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-10",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "security engineer",
+      "interests": [
+        "cve",
+        "osv"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "security",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "CVE",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "github/advisory-database",
+        "language": ""
+      }
+    ],
+    "prior_feedback": [
+      {
+        "summary": "previous GHSA on a selected repo",
+        "feedback": "important"
+      }
+    ],
+    "products": [
+      "security"
+    ],
+    "adjacent_products": [],
+    "watches_security": true
+  },
+  {
+    "user_id": "pgold-p-u-11",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "rails engineer",
+      "interests": [
+        "mvc"
+      ],
+      "region": "br"
+    },
+    "topics": [
+      {
+        "name": "Rails",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Ruby",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "rails/rails",
+        "language": "Ruby"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "rails",
+      "ruby"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-p-u-12",
+    "split": "pilot",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "sre",
+      "interests": [
+        "incidents"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "GitHub Actions",
+        "type": "service",
+        "priority": "high"
+      },
+      {
+        "name": "statuspage",
+        "type": "service",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "actions/runner",
+        "language": "Go"
+      }
+    ],
+    "prior_feedback": [
+      {
+        "summary": "yesterday's Actions incident",
+        "feedback": "important"
+      }
+    ],
+    "products": [
+      "github-actions"
+    ],
+    "adjacent_products": [
+      "github"
+    ],
+    "watches_security": false
+  }
+]

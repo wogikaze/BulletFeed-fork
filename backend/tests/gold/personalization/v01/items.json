@@ -1,0 +1,696 @@
+[
+  {
+    "item_id": "pgold-p-i-01",
+    "split": "pilot",
+    "title": "React 19.1.0 released",
+    "summary": "facebook/react tagged v19.1.0 with compiler and Actions fixes.",
+    "source_family": "github_release",
+    "publisher": "facebook/react",
+    "url": "https://github.com/facebook/react/releases/tag/v19.1.0",
+    "product": "react",
+    "kind": "release",
+    "redundancy_group": "react-19-1",
+    "tokens": [
+      "react",
+      "19.1",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-02",
+    "split": "pilot",
+    "title": "React 19.1 blog: what changed",
+    "summary": "The React blog recaps the 19.1 compiler rollout and upgrade notes.",
+    "source_family": "rss_atom",
+    "publisher": "react.dev",
+    "url": "https://react.dev/blog/2026/03/01/react-19-1",
+    "product": "react",
+    "kind": "news",
+    "redundancy_group": "react-19-1",
+    "tokens": [
+      "react",
+      "19.1",
+      "blog"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-03",
+    "split": "pilot",
+    "title": "GHSA-react-xss-2026",
+    "summary": "A high-severity XSS advisory affects React server components.",
+    "source_family": "github_advisory",
+    "publisher": "GitHub Advisory Database",
+    "url": "https://github.com/advisories/GHSA-react-xss-2026",
+    "product": "react",
+    "kind": "advisory",
+    "redundancy_group": "react-xss-2026",
+    "tokens": [
+      "react",
+      "xss",
+      "ghsa"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-04",
+    "split": "pilot",
+    "title": "OSV-2026-react-xss",
+    "summary": "OSV mirrors the React server-component XSS as a high severity record.",
+    "source_family": "osv",
+    "publisher": "OSV",
+    "url": "https://osv.dev/vulnerability/OSV-2026-react-xss",
+    "product": "react",
+    "kind": "advisory",
+    "redundancy_group": "react-xss-2026",
+    "tokens": [
+      "react",
+      "xss",
+      "osv"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-05",
+    "split": "pilot",
+    "title": "Kubernetes v1.32.0 released",
+    "summary": "kubernetes/kubernetes published v1.32.0 with scheduler and DRA updates.",
+    "source_family": "github_release",
+    "publisher": "kubernetes/kubernetes",
+    "url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.32.0",
+    "product": "kubernetes",
+    "kind": "release",
+    "redundancy_group": "k8s-1-32",
+    "tokens": [
+      "kubernetes",
+      "1.32",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "go",
+      "docker"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-06",
+    "split": "pilot",
+    "title": "GHSA-k8s-privilege-2026",
+    "summary": "Privilege escalation in the Kubernetes kubelet credential provider.",
+    "source_family": "github_advisory",
+    "publisher": "GitHub Advisory Database",
+    "url": "https://github.com/advisories/GHSA-k8s-privilege-2026",
+    "product": "kubernetes",
+    "kind": "advisory",
+    "redundancy_group": "k8s-privilege-2026",
+    "tokens": [
+      "kubernetes",
+      "privilege",
+      "ghsa"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-07",
+    "split": "pilot",
+    "title": "Django 5.2 released",
+    "summary": "django/django tagged 5.2 with async ORM improvements.",
+    "source_family": "github_release",
+    "publisher": "django/django",
+    "url": "https://github.com/django/django/releases/tag/5.2",
+    "product": "django",
+    "kind": "release",
+    "redundancy_group": "django-5-2",
+    "tokens": [
+      "django",
+      "5.2",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "python",
+      "fastapi"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-08",
+    "split": "pilot",
+    "title": "FastAPI 0.115.12 released",
+    "summary": "encode/fastapi tagged 0.115.12 with OpenAPI callback fixes.",
+    "source_family": "github_release",
+    "publisher": "encode/fastapi",
+    "url": "https://github.com/encode/fastapi/releases/tag/0.115.12",
+    "product": "fastapi",
+    "kind": "release",
+    "redundancy_group": "fastapi-0-115-12",
+    "tokens": [
+      "fastapi",
+      "0.115",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "python",
+      "django"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-09",
+    "split": "pilot",
+    "title": "Rust 1.82.0 released",
+    "summary": "rust-lang/rust tagged 1.82.0 with new lint and cargo updates.",
+    "source_family": "github_release",
+    "publisher": "rust-lang/rust",
+    "url": "https://github.com/rust-lang/rust/releases/tag/1.82.0",
+    "product": "rust",
+    "kind": "release",
+    "redundancy_group": "rust-1-82",
+    "tokens": [
+      "rust",
+      "1.82",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-10",
+    "split": "pilot",
+    "title": "GitHub Actions: webhook delivery outage",
+    "summary": "GitHub Status reports degraded Actions webhook delivery worldwide.",
+    "source_family": "statuspage",
+    "publisher": "www.githubstatus.com",
+    "url": "https://www.githubstatus.com/incidents/actions-webhooks-2026",
+    "product": "github-actions",
+    "kind": "outage",
+    "redundancy_group": "gh-actions-webhooks-2026",
+    "tokens": [
+      "github",
+      "actions",
+      "outage"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-11",
+    "split": "pilot",
+    "title": "IAEA nuclear reactor inspection briefing",
+    "summary": "An IAEA feed notes a scheduled reactor containment inspection in Europe.",
+    "source_family": "rss_atom",
+    "publisher": "iaea.org",
+    "url": "https://www.iaea.org/news/reactor-inspection-2026",
+    "product": "nuclear-reactor",
+    "kind": "news",
+    "redundancy_group": "iaea-reactor-inspection",
+    "tokens": [
+      "nuclear",
+      "reactor",
+      "inspection"
+    ],
+    "lexical_traps_for": [
+      "react"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-12",
+    "split": "pilot",
+    "title": "Project Reactor 3.7.0 released",
+    "summary": "reactor/reactor-core tagged 3.7.0 for the Java reactive library.",
+    "source_family": "github_release",
+    "publisher": "reactor/reactor-core",
+    "url": "https://github.com/reactor/reactor-core/releases/tag/v3.7.0",
+    "product": "project-reactor",
+    "kind": "release",
+    "redundancy_group": "project-reactor-3-7",
+    "tokens": [
+      "reactor",
+      "3.7",
+      "release"
+    ],
+    "lexical_traps_for": [
+      "react"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-13",
+    "split": "pilot",
+    "title": "How to react during an incident",
+    "summary": "An operations newsletter about staying calm and how to react under load.",
+    "source_family": "rss_atom",
+    "publisher": "incident-weekly",
+    "url": "https://incident.example/feed/how-to-react",
+    "product": "incident-advice",
+    "kind": "news",
+    "redundancy_group": "how-to-react-incident",
+    "tokens": [
+      "react",
+      "incident",
+      "advice"
+    ],
+    "lexical_traps_for": [
+      "react"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-14",
+    "split": "pilot",
+    "title": "Treating iron rust on outdoor steel",
+    "summary": "A hardware JSON feed explains rust conversion coatings for iron fences.",
+    "source_family": "json_feed",
+    "publisher": "shop-hardware",
+    "url": "https://hardware.example/feeds/rust-coating.json",
+    "product": "corrosion",
+    "kind": "news",
+    "redundancy_group": "iron-rust-coating",
+    "tokens": [
+      "rust",
+      "iron",
+      "coating"
+    ],
+    "lexical_traps_for": [
+      "rust"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-15",
+    "split": "pilot",
+    "title": "Pokémon GO map outage",
+    "summary": "Niantic Status: Pokémon GO live map tiles are failing in several regions.",
+    "source_family": "statuspage",
+    "publisher": "status.nianticlabs.com",
+    "url": "https://status.nianticlabs.com/incidents/pokemon-go-map",
+    "product": "pokemon-go",
+    "kind": "outage",
+    "redundancy_group": "pokemon-go-map",
+    "tokens": [
+      "pokemon",
+      "go",
+      "outage"
+    ],
+    "lexical_traps_for": [
+      "go"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-p-i-16",
+    "split": "pilot",
+    "title": "Python Weekly issue 712",
+    "summary": "This week's Python newsletter covers typing, packaging, and CPython news.",
+    "source_family": "json_feed",
+    "publisher": "pythonweekly.com",
+    "url": "https://www.pythonweekly.com/archive/712.json",
+    "product": "python",
+    "kind": "news",
+    "redundancy_group": "python-weekly-712",
+    "tokens": [
+      "python",
+      "weekly",
+      "typing"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "django",
+      "fastapi"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-01",
+    "split": "blind",
+    "title": "Next.js 15.3.0 released",
+    "summary": "vercel/next.js tagged 15.3.0 with Turbopack stability work.",
+    "source_family": "github_release",
+    "publisher": "vercel/next.js",
+    "url": "https://github.com/vercel/next.js/releases/tag/v15.3.0",
+    "product": "nextjs",
+    "kind": "release",
+    "redundancy_group": "next-15-3",
+    "tokens": [
+      "next.js",
+      "15.3",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "react",
+      "vercel"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-02",
+    "split": "blind",
+    "title": "Next.js 15.3 upgrade notes",
+    "summary": "The Next.js JSON feed republishes the 15.3 upgrade checklist.",
+    "source_family": "json_feed",
+    "publisher": "nextjs.org",
+    "url": "https://nextjs.org/feed/15-3.json",
+    "product": "nextjs",
+    "kind": "news",
+    "redundancy_group": "next-15-3",
+    "tokens": [
+      "next.js",
+      "15.3",
+      "upgrade"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "react"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-03",
+    "split": "blind",
+    "title": "OSV-2026-k8s-cve",
+    "summary": "OSV lists a Kubernetes API server authorization bypass.",
+    "source_family": "osv",
+    "publisher": "OSV",
+    "url": "https://osv.dev/vulnerability/OSV-2026-k8s-cve",
+    "product": "kubernetes",
+    "kind": "advisory",
+    "redundancy_group": "k8s-authz-2026",
+    "tokens": [
+      "kubernetes",
+      "cve",
+      "osv"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-04",
+    "split": "blind",
+    "title": "GHSA-django-sqli-2026",
+    "summary": "SQL injection in Django's JSONField lookup on selected versions.",
+    "source_family": "github_advisory",
+    "publisher": "GitHub Advisory Database",
+    "url": "https://github.com/advisories/GHSA-django-sqli-2026",
+    "product": "django",
+    "kind": "advisory",
+    "redundancy_group": "django-sqli-2026",
+    "tokens": [
+      "django",
+      "sql",
+      "ghsa"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "python"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-05",
+    "split": "blind",
+    "title": "Spring Boot 3.4.3 released",
+    "summary": "spring-projects/spring-boot tagged 3.4.3 with actuator fixes.",
+    "source_family": "github_release",
+    "publisher": "spring-projects/spring-boot",
+    "url": "https://github.com/spring-projects/spring-boot/releases/tag/v3.4.3",
+    "product": "spring",
+    "kind": "release",
+    "redundancy_group": "spring-boot-3-4-3",
+    "tokens": [
+      "spring",
+      "boot",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "java"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-06",
+    "split": "blind",
+    "title": "Rails 8.0.2 released",
+    "summary": "rails/rails tagged 8.0.2 with security and Active Job fixes.",
+    "source_family": "github_release",
+    "publisher": "rails/rails",
+    "url": "https://github.com/rails/rails/releases/tag/v8.0.2",
+    "product": "rails",
+    "kind": "release",
+    "redundancy_group": "rails-8-0-2",
+    "tokens": [
+      "rails",
+      "8.0",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "ruby"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-07",
+    "split": "blind",
+    "title": "Swift 6.1 released",
+    "summary": "apple/swift tagged 6.1 with typed throws refinements.",
+    "source_family": "github_release",
+    "publisher": "apple/swift",
+    "url": "https://github.com/apple/swift/releases/tag/swift-6.1",
+    "product": "swift",
+    "kind": "release",
+    "redundancy_group": "swift-6-1",
+    "tokens": [
+      "swift",
+      "6.1",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-08",
+    "split": "blind",
+    "title": "Vercel Edge network degraded",
+    "summary": "Vercel Status: edge function invocations are failing in iad1.",
+    "source_family": "statuspage",
+    "publisher": "www.vercel-status.com",
+    "url": "https://www.vercel-status.com/incidents/edge-iad1",
+    "product": "vercel",
+    "kind": "outage",
+    "redundancy_group": "vercel-edge-iad1",
+    "tokens": [
+      "vercel",
+      "edge",
+      "outage"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "nextjs",
+      "react"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-09",
+    "split": "blind",
+    "title": "ReactOS 0.4.15 released",
+    "summary": "ReactOS, the Windows-compatible OS, tagged 0.4.15 with USB fixes.",
+    "source_family": "github_release",
+    "publisher": "reactos/reactos",
+    "url": "https://github.com/reactos/reactos/releases/tag/0.4.15",
+    "product": "reactos",
+    "kind": "release",
+    "redundancy_group": "reactos-0-4-15",
+    "tokens": [
+      "reactos",
+      "0.4.15",
+      "release"
+    ],
+    "lexical_traps_for": [
+      "react"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-10",
+    "split": "blind",
+    "title": "Java island earthquake status",
+    "summary": "A geology RSS feed reports aftershocks on the island of Java.",
+    "source_family": "rss_atom",
+    "publisher": "earthquake-watch",
+    "url": "https://earthquake.example/java-aftershocks",
+    "product": "java-island",
+    "kind": "news",
+    "redundancy_group": "java-island-quake",
+    "tokens": [
+      "java",
+      "island",
+      "earthquake"
+    ],
+    "lexical_traps_for": [
+      "java"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-11",
+    "split": "blind",
+    "title": "SWIFT interbank outage advisory",
+    "summary": "A payments advisory describes a SWIFT network settlement delay.",
+    "source_family": "github_advisory",
+    "publisher": "payments-advisories",
+    "url": "https://advisories.example/swift-settlement",
+    "product": "swift-network",
+    "kind": "advisory",
+    "redundancy_group": "swift-settlement",
+    "tokens": [
+      "swift",
+      "interbank",
+      "settlement"
+    ],
+    "lexical_traps_for": [
+      "swift"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-12",
+    "split": "blind",
+    "title": "Railway rails replacement program",
+    "summary": "A transit JSON feed covers steel railway rails being replaced downtown.",
+    "source_family": "json_feed",
+    "publisher": "city-transit",
+    "url": "https://transit.example/feeds/railway-rails.json",
+    "product": "railway",
+    "kind": "news",
+    "redundancy_group": "railway-rails-replacement",
+    "tokens": [
+      "railway",
+      "rails",
+      "replacement"
+    ],
+    "lexical_traps_for": [
+      "rails"
+    ],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-13",
+    "split": "blind",
+    "title": "Go 1.24.1 released",
+    "summary": "golang/go tagged 1.24.1 with runtime and crypto fixes.",
+    "source_family": "github_release",
+    "publisher": "golang/go",
+    "url": "https://github.com/golang/go/releases/tag/go1.24.1",
+    "product": "go",
+    "kind": "release",
+    "redundancy_group": "go-1-24-1",
+    "tokens": [
+      "go",
+      "1.24",
+      "release"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "docker",
+      "kubernetes"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-14",
+    "split": "blind",
+    "title": "AWS US-EAST-1 API errors",
+    "summary": "AWS Health: elevated 5xx from EC2 and S3 APIs in us-east-1.",
+    "source_family": "statuspage",
+    "publisher": "health.aws.amazon.com",
+    "url": "https://health.aws.amazon.com/incidents/use1-api-2026",
+    "product": "aws",
+    "kind": "outage",
+    "redundancy_group": "aws-use1-2026",
+    "tokens": [
+      "aws",
+      "us-east-1",
+      "outage"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-15",
+    "split": "blind",
+    "title": "OSV-2026-spring-actuator",
+    "summary": "OSV records an unauthenticated Spring Boot actuator exposure.",
+    "source_family": "osv",
+    "publisher": "OSV",
+    "url": "https://osv.dev/vulnerability/OSV-2026-spring-actuator",
+    "product": "spring",
+    "kind": "advisory",
+    "redundancy_group": "spring-actuator-2026",
+    "tokens": [
+      "spring",
+      "actuator",
+      "osv"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "java"
+    ],
+    "ambiguous_for": []
+  },
+  {
+    "item_id": "pgold-h-i-16",
+    "split": "blind",
+    "title": "Kubernetes changelog digest",
+    "summary": "A weekly RSS digest of kubernetes/kubernetes merged changelog entries.",
+    "source_family": "rss_atom",
+    "publisher": "k8s-changelog",
+    "url": "https://k8s.example/rss/changelog",
+    "product": "kubernetes",
+    "kind": "news",
+    "redundancy_group": "k8s-changelog-weekly",
+    "tokens": [
+      "kubernetes",
+      "changelog",
+      "digest"
+    ],
+    "lexical_traps_for": [],
+    "adjacent_products": [
+      "go",
+      "docker"
+    ],
+    "ambiguous_for": [
+      "go"
+    ]
+  }
+]

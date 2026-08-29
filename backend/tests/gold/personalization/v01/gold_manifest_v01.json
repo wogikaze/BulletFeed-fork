@@ -1,0 +1,36 @@
+{
+  "dataset_id": "bulletfeed-personalization-gold-v0.1",
+  "dataset_version": "personalization-v0.1",
+  "label_protocol_version": "personalization-label-v1",
+  "minimum_users": 20,
+  "minimum_judgments": 300,
+  "minimum_source_families": 4,
+  "source_families": [
+    "github_advisory",
+    "github_release",
+    "json_feed",
+    "osv",
+    "rss_atom",
+    "statuspage"
+  ],
+  "files": {
+    "users": "users.json",
+    "items": "items.json",
+    "judgments": "judgments.json",
+    "label_schema": "label_schema.json",
+    "pilot_index": "pilot/index.json",
+    "holdout_index": "blind/index.json"
+  },
+  "splits": {
+    "pilot": {
+      "users": 12,
+      "items": 16,
+      "judgments": 192
+    },
+    "blind": {
+      "users": 12,
+      "items": 16,
+      "judgments": 192
+    }
+  }
+}
