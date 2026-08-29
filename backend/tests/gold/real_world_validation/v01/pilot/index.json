@@ -1,0 +1,7 @@
+{
+  "split": "pilot",
+  "source_ids": ["src_contract_p01"],
+  "event_ids": ["evt_contract_p01"],
+  "profile_ids": ["prf_contract_p01"],
+  "judgment_ids": ["jdg_contract_p01"]
+}

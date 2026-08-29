@@ -1,0 +1,50 @@
+[
+  {
+    "profile_id": "prf_contract_p01",
+    "split": "pilot",
+    "constructed_profile": true,
+    "cohort": "cold_start",
+    "persona_template": "python_backend_developer",
+    "language_focus": "en",
+    "interest_breadth": "narrow",
+    "ecosystem": "popular",
+    "explicit_interests": ["Python", "FastAPI"],
+    "followed_products": ["BulletFeed"],
+    "selected_repositories": ["bulletfeed-contract/pilot-example"],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [],
+    "prior_feedback": []
+  },
+  {
+    "profile_id": "prf_contract_d01",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "android_app_developer",
+    "language_focus": "ja",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": ["Android", "Kotlin"],
+    "followed_products": ["Example Status"],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": ["evt_contract_d01"],
+    "prior_feedback": ["already_knew:incident"]
+  },
+  {
+    "profile_id": "prf_contract_h01",
+    "split": "blind",
+    "constructed_profile": true,
+    "cohort": "cold_start",
+    "persona_template": "security_conscious_oss_maintainer",
+    "language_focus": "mixed",
+    "interest_breadth": "narrow",
+    "ecosystem": "niche",
+    "explicit_interests": ["OSV", "advisories"],
+    "followed_products": ["OSV"],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [],
+    "prior_feedback": []
+  }
+]

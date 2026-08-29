@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "judgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "judgment_id",
+        "profile_id",
+        "event_id",
+        "split",
+        "stratum",
+        "relevance",
+        "importance_to_user",
+        "known_before",
+        "should_surface",
+        "rationale",
+        "provenance",
+        "label_protocol_version",
+        "dataset_version"
+      ],
+      "properties": {
+        "judgment_id": { "type": "string", "minLength": 1 },
+        "profile_id": { "type": "string", "minLength": 1 },
+        "event_id": { "type": "string", "minLength": 1 },
+        "split": { "enum": ["pilot", "dev", "blind"] },
+        "stratum": {
+          "enum": [
+            "clear_positive",
+            "semantic_adjacent",
+            "hard_negative",
+            "lexical_trap",
+            "unrelated",
+            "already_known",
+            "new_detail",
+            "cross_source_duplicate",
+            "correction_conflict"
+          ]
+        },
+        "relevance": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "importance_to_user": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "known_before": { "type": "boolean" },
+        "should_surface": { "type": "boolean" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "provenance": { "type": "string", "minLength": 1 },
+        "label_protocol_version": { "const": "label-protocol-v1" },
+        "dataset_version": { "const": "real-world-validation-v0.1" },
+        "ambiguous": { "type": "boolean" }
+      }
+    }
+  }
+}
