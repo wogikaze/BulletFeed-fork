@@ -525,3 +525,84 @@ def test_event_identity_repair_rebuilds_maps_without_deleting_observations(datab
         assert connection.execute(
             "SELECT 1 FROM state_claims WHERE id = ?", (second.claim_id,)
         ).fetchone()
+
+
+def test_ingest_maps_cross_source_equivalent_claims_without_rebuild_call(database) -> None:
+    left = _ingest_claim(
+        database,
+        source_type="statuspage",
+        source_key="abcd1234",
+        observation_id="obs_prod_map_left",
+        source_event_id="inc_prod_map_left",
+        title="API latency",
+        slot="status",
+        value="investigating",
+        detail="Investigating elevated latency.",
+        at="2026-08-22T00:00:00Z",
+    )
+    right = _ingest_claim(
+        database,
+        source_type="rss_atom",
+        source_key="https://status.example/feed.xml",
+        observation_id="obs_prod_map_right",
+        source_event_id="inc_prod_map_right",
+        title="API latency feed",
+        slot="status",
+        value="investigating",
+        detail="We are investigating elevated latency.",
+        at="2026-08-22T00:01:00Z",
+    )
+    replay = _ingest_claim(
+        database,
+        source_type="statuspage",
+        source_key="abcd1234",
+        observation_id="obs_prod_map_left",
+        source_event_id="inc_prod_map_left",
+        title="API latency",
+        slot="status",
+        value="investigating",
+        detail="Investigating elevated latency.",
+        at="2026-08-22T00:00:00Z",
+    )
+    assert left.claim_id == replay.claim_id
+    with database.connect() as connection:
+        mapped_left = resolve_claim_knowledge_id(connection, left.claim_id)
+        mapped_right = resolve_claim_knowledge_id(connection, right.claim_id)
+        claims = connection.execute(
+            "SELECT id, value_text FROM state_claims WHERE id IN (?, ?)",
+            (left.claim_id, right.claim_id),
+        ).fetchall()
+    assert mapped_left is not None and mapped_right is not None
+    assert mapped_left.knowledge_id == mapped_right.knowledge_id
+    assert mapped_left.decision == mapped_right.decision == "equivalent"
+    assert {row["value_text"] for row in claims} == {"investigating"}
+
+
+def test_knowledge_mapping_failure_does_not_drop_claim(database, monkeypatch) -> None:
+    def _boom(connection, **kwargs):
+        raise RuntimeError("forced mapping failure")
+
+    monkeypatch.setattr(
+        "app.stores.claim_ledger_store.rebuild_knowledge_identities",
+        _boom,
+    )
+    claim = _ingest_claim(
+        database,
+        source_type="statuspage",
+        source_key="abcd1234",
+        observation_id="obs_map_fail",
+        source_event_id="inc_map_fail",
+        title="API latency",
+        slot="status",
+        value="investigating",
+        detail="Investigating elevated latency.",
+        at="2026-08-22T00:00:00Z",
+    )
+    with database.connect() as connection:
+        row = connection.execute(
+            "SELECT value_text FROM state_claims WHERE id = ?",
+            (claim.claim_id,),
+        ).fetchone()
+        mapped = resolve_claim_knowledge_id(connection, claim.claim_id)
+    assert row["value_text"] == "investigating"
+    assert mapped is None
