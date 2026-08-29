@@ -21,4 +21,11 @@ CREATE TABLE IF NOT EXISTS source_sync_subscriptions (
     selected INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY(source_type, source_key)
 );
+
+CREATE TABLE IF NOT EXISTS source_sync_subscription_users (
+    source_type TEXT NOT NULL,
+    source_key TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    PRIMARY KEY(source_type, source_key, user_id)
+);
 """

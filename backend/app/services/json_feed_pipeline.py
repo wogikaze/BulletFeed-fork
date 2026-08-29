@@ -9,6 +9,7 @@ from app.services.feed_lifecycle import resolve_feed_lifecycle
 from app.services.json_feed import fetch_json_feed, normalize_json_feed
 from app.services.ledger_projection import LedgerProjector
 from app.services.source_ingestion import SourceIngestionPipeline
+from app.services.source_subscriptions import project_events_for_subscription_audience
 from app.services.timestamps import canonical_timestamp
 from app.stores.claim_ledger_store import ClaimLedgerStore
 
@@ -63,8 +64,15 @@ def ingest_json_feed_events(
         projector.project_event(claim.event_id)
         event_ids.append(claim.event_id)
         claim_ids.append(claim.claim_id)
+    unique_event_ids = tuple(dict.fromkeys(event_ids))
+    project_events_for_subscription_audience(
+        database,
+        source_type="json_feed",
+        source_keys=(feed_url,),
+        event_ids=unique_event_ids,
+    )
     return JsonFeedIngestResult(
-        event_ids=tuple(dict.fromkeys(event_ids)),
+        event_ids=unique_event_ids,
         claim_ids=tuple(claim_ids),
     )
 
@@ -77,9 +85,17 @@ async def crawl_json_feed_events(
     retrieved_at: str,
 ) -> JsonFeedIngestResult:
     feed, final_url = await fetch_json_feed(settings, url)
-    return ingest_json_feed_events(
+    result = ingest_json_feed_events(
         database,
         feed=feed,
         feed_url=final_url,
         retrieved_at=retrieved_at,
     )
+    if url != final_url:
+        project_events_for_subscription_audience(
+            database,
+            source_type="json_feed",
+            source_keys=(url,),
+            event_ids=result.event_ids,
+        )
+    return result

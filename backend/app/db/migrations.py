@@ -10,7 +10,7 @@ from app.db.schema import PUBLIC_API_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2")
+KNOWN_REVISIONS = ("1", "2", "3")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -184,7 +184,21 @@ def _apply_revision_2(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_3(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS source_sync_subscription_users (
+            source_type TEXT NOT NULL,
+            source_key TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            PRIMARY KEY(source_type, source_key, user_id)
+        )
+        """
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
+    "3": _apply_revision_3,
 }
