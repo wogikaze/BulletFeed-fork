@@ -180,6 +180,21 @@ Behavior:
 `GET /me/topic-recommendations?limit=&includeFollowed=` 認証済みのトピック推薦。検索ではない。トピックを自動追加しない。  
 `PUT /me/onboarding` は既存 Android 用。profile 必須 + topics 5件以上。
 
+### Knowledge bootstrap
+
+既存知識の明示シード。BulletFeed 配信・表示・既読とは別 provenance。第三者履歴は暗黙 import しない。
+
+`GET /me/knowledge/bootstrap` — 当該ユーザーの bootstrap 要約と証跡。空でも 200。
+
+`POST /me/knowledge/bootstrap/claims` `{ claimIds[], sessionId? }` — ユーザーが既知と確認した claim。存在しない claim は 422。
+
+`PUT /me/knowledge/bootstrap/checkpoint` `{ subjectKind: event|topic|global, subjectId, asOf?, catchUp? }`  
+`asOf` 時点で既に真の claim だけを既知にする。後続の中間状態は既知にしない。`catchUp=true` は時刻だけ残す。
+
+`DELETE /me/knowledge/bootstrap` — bootstrap 証跡だけ消す。delivery / feedback / follow baseline と Event/Claim/Delta は残す。
+
+低信頼の inferred bootstrap は hide しない。他人の bootstrap は見えない。
+
 `GET /me/topic-recommendations`
 
 - limit 1–20、既定 10。`includeFollowed` 既定 true（追跡済みは `alreadyFollowed` で明示）

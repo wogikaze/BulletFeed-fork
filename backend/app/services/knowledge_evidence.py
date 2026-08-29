@@ -20,6 +20,10 @@ KIND_READ: Final = "read"
 KIND_ALREADY_KNEW: Final = "already_knew"
 KIND_LEARNED_NOW: Final = "learned_now"
 KIND_BASELINE: Final = "baseline"
+KIND_BOOTSTRAP_EXPLICIT: Final = "bootstrap_explicit"
+KIND_BOOTSTRAP_CHECKPOINT: Final = "bootstrap_checkpoint"
+KIND_BOOTSTRAP_CLAIM: Final = "bootstrap_claim"
+KIND_BOOTSTRAP_INFERRED: Final = "bootstrap_inferred"
 
 EVIDENCE_KINDS: Final[frozenset[str]] = frozenset(
     {
@@ -29,6 +33,18 @@ EVIDENCE_KINDS: Final[frozenset[str]] = frozenset(
         KIND_ALREADY_KNEW,
         KIND_LEARNED_NOW,
         KIND_BASELINE,
+        KIND_BOOTSTRAP_EXPLICIT,
+        KIND_BOOTSTRAP_CHECKPOINT,
+        KIND_BOOTSTRAP_CLAIM,
+        KIND_BOOTSTRAP_INFERRED,
+    }
+)
+BOOTSTRAP_KINDS: Final[frozenset[str]] = frozenset(
+    {
+        KIND_BOOTSTRAP_EXPLICIT,
+        KIND_BOOTSTRAP_CHECKPOINT,
+        KIND_BOOTSTRAP_CLAIM,
+        KIND_BOOTSTRAP_INFERRED,
     }
 )
 
@@ -37,6 +53,9 @@ PROVENANCE_DISPLAY: Final = "display"
 PROVENANCE_READ: Final = "read"
 PROVENANCE_EXPLICIT_FEEDBACK: Final = "explicit_feedback"
 PROVENANCE_BASELINE: Final = "baseline"
+PROVENANCE_BOOTSTRAP: Final = "bootstrap"
+PROVENANCE_BOOTSTRAP_CHECKPOINT: Final = "bootstrap_checkpoint"
+PROVENANCE_BOOTSTRAP_INFERRED: Final = "bootstrap_inferred"
 
 PROVENANCE_BY_KIND: Final[dict[str, str]] = {
     KIND_DELIVERED: PROVENANCE_DELIVERY,
@@ -45,6 +64,10 @@ PROVENANCE_BY_KIND: Final[dict[str, str]] = {
     KIND_ALREADY_KNEW: PROVENANCE_EXPLICIT_FEEDBACK,
     KIND_LEARNED_NOW: PROVENANCE_EXPLICIT_FEEDBACK,
     KIND_BASELINE: PROVENANCE_BASELINE,
+    KIND_BOOTSTRAP_EXPLICIT: PROVENANCE_BOOTSTRAP,
+    KIND_BOOTSTRAP_CHECKPOINT: PROVENANCE_BOOTSTRAP_CHECKPOINT,
+    KIND_BOOTSTRAP_CLAIM: PROVENANCE_BOOTSTRAP,
+    KIND_BOOTSTRAP_INFERRED: PROVENANCE_BOOTSTRAP_INFERRED,
 }
 
 CONFIDENCE_NONE: Final = "none"
@@ -59,6 +82,10 @@ CONFIDENCE_BY_KIND: Final[dict[str, str]] = {
     KIND_ALREADY_KNEW: CONFIDENCE_HIGH,
     KIND_LEARNED_NOW: CONFIDENCE_HIGH,
     KIND_BASELINE: CONFIDENCE_HIGH,
+    KIND_BOOTSTRAP_EXPLICIT: CONFIDENCE_HIGH,
+    KIND_BOOTSTRAP_CHECKPOINT: CONFIDENCE_HIGH,
+    KIND_BOOTSTRAP_CLAIM: CONFIDENCE_HIGH,
+    KIND_BOOTSTRAP_INFERRED: CONFIDENCE_LOW,
 }
 
 STATE_KNOWN: Final = "known"
@@ -71,7 +98,13 @@ ConfidenceLevel = Literal["none", "low", "medium", "high"]
 
 HIGH_VALUE_IMPORTANCE: Final[frozenset[str]] = frozenset({"high", "critical"})
 EXPLICIT_KINDS: Final[frozenset[str]] = frozenset(
-    {KIND_ALREADY_KNEW, KIND_LEARNED_NOW, KIND_BASELINE}
+    {
+        KIND_ALREADY_KNEW,
+        KIND_LEARNED_NOW,
+        KIND_BASELINE,
+        KIND_BOOTSTRAP_EXPLICIT,
+        KIND_BOOTSTRAP_CLAIM,
+    }
 )
 IMPLICIT_VIEW_KINDS: Final[frozenset[str]] = frozenset({KIND_DISPLAYED, KIND_READ})
 
@@ -197,6 +230,14 @@ def derive_knowledge_state(evidence: Sequence[KnowledgeEvidence]) -> DerivedKnow
         if row.kind == KIND_DELIVERED:
             if state == STATE_UNKNOWN and confidence == CONFIDENCE_NONE:
                 confidence = CONFIDENCE_LOW
+            continue
+        if row.kind == KIND_BOOTSTRAP_CHECKPOINT:
+            continue
+        if row.kind == KIND_BOOTSTRAP_INFERRED:
+            if state != STATE_KNOWN:
+                state = STATE_PROBABLY_KNOWN
+                if confidence != CONFIDENCE_HIGH:
+                    confidence = CONFIDENCE_LOW
             continue
         if row.kind in IMPLICIT_VIEW_KINDS:
             if state != STATE_KNOWN:
