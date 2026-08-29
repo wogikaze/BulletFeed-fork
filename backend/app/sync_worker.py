@@ -19,6 +19,7 @@ from app.services.event_access import revoke_repository_access
 from app.services.github_release_pipeline import crawl_github_release_events
 from app.services.json_feed_pipeline import crawl_json_feed_events
 from app.services.rss_pipeline import crawl_feed_events
+from app.services.statuspage_crawler import crawl_statuspage_events
 
 SOURCE_TYPES = ("github_release", "dependency_security")
 FEED_SOURCE_TYPES = ("rss_atom", "json_feed")
@@ -263,6 +264,9 @@ class WatchSyncWorker:
         return changed == 1
 
     async def _run_job(self, job: SyncJob, *, now: int) -> None:
+        if job.source_type == "statuspage":
+            await self._run_statuspage_job(job, now=now)
+            return
         if job.source_type in FEED_SOURCE_TYPES:
             await self._run_feed_job(job, now=now)
             return
@@ -302,6 +306,17 @@ class WatchSyncWorker:
             )
             return
         raise ValueError(f"unsupported source sync type: {job.source_type}")
+
+    async def _run_statuspage_job(self, job: SyncJob, *, now: int) -> None:
+        if not self._subscription_selected(job.source_type, job.source_key):
+            return
+        retrieved_at = datetime.fromtimestamp(now, tz=UTC).isoformat().replace("+00:00", "Z")
+        await crawl_statuspage_events(
+            self._settings,
+            self._database,
+            page_id=job.source_key,
+            retrieved_at=retrieved_at,
+        )
 
     async def _run_feed_job(self, job: SyncJob, *, now: int) -> None:
         if not self._subscription_selected(job.source_type, job.source_key):
