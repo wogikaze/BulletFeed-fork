@@ -1,5 +1,6 @@
 from app.services.knowledge_evidence import KIND_ALREADY_KNEW, append_knowledge_evidence
 from app.services.knowledge_identity import (
+    KNOWLEDGE_IDENTITY_VERSION,
     fingerprint_claim,
     map_claim_to_knowledge,
     persist_knowledge_identity,
@@ -168,3 +169,85 @@ def test_feed_hides_only_confident_known_same_target(database) -> None:
     assert "fi_fix" in ids
     assert "fi_known" not in ids
     assert [item.id for item in second] == ids
+
+
+def test_feed_knownness_replays_by_knowledge_id_across_claims(database) -> None:
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_sup', 0)")
+        _seed_feed_item(
+            connection,
+            item_id="fi_restated",
+            event_id="event_restated",
+            delta_id="delta_restated",
+            claim_id="claim_restated",
+            title="Restated adjacent",
+        )
+        _seed_feed_item(
+            connection,
+            item_id="fi_detail",
+            event_id="event_detail",
+            delta_id="delta_detail",
+            claim_id="claim_detail",
+            title="Different fact adjacent",
+        )
+        shared = fingerprint_claim(
+            value="investigating",
+            detail="Investigating elevated latency.",
+            slot="status",
+        )
+        other = fingerprint_claim(
+            value="resolved",
+            detail="Latency is resolved after the database patch.",
+            slot="status",
+        )
+        persist_knowledge_identity(connection, shared, created_at=1)
+        persist_knowledge_identity(connection, other, created_at=1)
+        map_claim_to_knowledge(
+            connection,
+            claim_id="claim_restated",
+            knowledge_id=shared.identity_id,
+            reason="cross-source restatement",
+            confidence="high",
+            decision="equivalent",
+            created_at=1,
+        )
+        map_claim_to_knowledge(
+            connection,
+            claim_id="claim_detail",
+            knowledge_id=other.identity_id,
+            reason="different fact",
+            confidence="high",
+            decision="singleton",
+            created_at=1,
+        )
+        append_knowledge_evidence(
+            connection,
+            user_id="user_sup",
+            kind=KIND_ALREADY_KNEW,
+            source_id="fb_prior",
+            claim_id="claim_prior_same_knowledge",
+            event_id="event_prior",
+            created_at=2,
+        )
+        connection.execute(
+            """
+            INSERT INTO claim_knowledge_map (
+                claim_id, knowledge_id, reason, confidence, version, decision, created_at
+            ) VALUES (
+                'claim_prior_same_knowledge', ?, 'prior source', 'high',
+                ?, 'equivalent', 1
+            )
+            """,
+            (shared.identity_id, KNOWLEDGE_IDENTITY_VERSION),
+        )
+
+    items, _ = FeedStore(database).list_feed(
+        "user_sup",
+        relation=None,
+        item_status=None,
+        cursor=None,
+        limit=10,
+    )
+    ids = [item.id for item in items]
+    assert "fi_restated" not in ids
+    assert "fi_detail" in ids
