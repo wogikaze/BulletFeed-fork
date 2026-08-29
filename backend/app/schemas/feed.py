@@ -23,6 +23,7 @@ class PublicFeedItem(ApiModel):
     updated_at: str
     delivery_id: str
     sources: list[SourceEvidence] = Field(default_factory=list)
+    additional_sources: list[SourceEvidence] = Field(default_factory=list)
 
 
 class FeedPage(ApiModel):

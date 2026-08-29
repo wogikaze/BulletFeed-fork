@@ -54,8 +54,9 @@ fun FeedEvent.toFeedItem(): FeedItem {
 }
 
 fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
-    val sourceMetadata = sources.map { Source(it.publisher, it.title, it.evidence) }
-    val sourceTimestamp = sources.firstOrNull()?.publisher?.takeIf { it.isNotBlank() }?.let { publisher ->
+    val provenance = sources + additionalSources
+    val sourceMetadata = provenance.map { Source(it.publisher, it.title, it.evidence) }
+    val sourceTimestamp = provenance.firstOrNull()?.publisher?.takeIf { it.isNotBlank() }?.let { publisher ->
         "$publisher · $updatedAt"
     } ?: updatedAt
     val source = base ?: FeedEvent(
@@ -67,7 +68,7 @@ fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
         relation = relation.level,
         relationReason = relation.reason,
         announcedAt = sourceTimestamp,
-        sourceCount = sources.size,
+        sourceCount = provenance.size,
         before = delta.before,
         after = delta.after,
         explicitImpact = delta.summary,
@@ -82,7 +83,7 @@ fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
         markedImportant = markedImportant,
         feedItemId = id,
         announcedAt = sourceTimestamp,
-        sourceCount = sources.size,
+        sourceCount = provenance.size,
         sources = sourceMetadata,
         before = delta.before,
         after = delta.after,

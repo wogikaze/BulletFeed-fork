@@ -90,6 +90,7 @@ data class FeedItem(
     val updatedAt: String,
     val deliveryId: String,
     val sources: List<EventSource> = emptyList(),
+    val additionalSources: List<EventSource> = emptyList(),
     val markedImportant: Boolean = false,
     val dismissed: Boolean = false,
 )

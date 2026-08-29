@@ -72,9 +72,13 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
   "status": "unread",
   "following": false,
   "updatedAt": "2026-08-18T04:30:00Z",
-  "deliveryId": "dlv_abc"
+  "deliveryId": "dlv_abc",
+  "sources": [],
+  "additionalSources": []
 }
 ```
+
+同一事実を後続ソースが言い直した場合、重複カードは出さず `additionalSources` に provenance を残す（[ADR-0014](adr/0014-cross-source-suppress-v1.md)）。新しい詳細・訂正・衝突は別カードとして残る。
 
 ### EventDetail
 

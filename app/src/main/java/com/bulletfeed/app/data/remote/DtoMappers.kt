@@ -13,6 +13,7 @@ fun FeedItemDto.toDomain(): FeedItem =
         updatedAt = updatedAt,
         deliveryId = deliveryId,
         sources = sources.map { it.toDomain() },
+        additionalSources = additionalSources.map { it.toDomain() },
     )
 
 fun FeedPageDto.toDomain(): FeedPage = FeedPage(items = items.map { it.toDomain() }, nextCursor = nextCursor)
