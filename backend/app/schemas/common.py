@@ -8,7 +8,15 @@ RelationLevel = Literal["direct", "adjacent", "reference"]
 Confidence = Literal["high", "medium", "low"]
 DeltaType = Literal["new_fact", "detail", "state_update", "correction", "unresolved_contradiction"]
 FeedItemStatus = Literal["unread", "read"]
-FeedbackType = Literal["important", "not_relevant"]
+FeedbackType = Literal[
+    "important",
+    "not_relevant",
+    "follow",
+    "already_knew",
+    "learned_now",
+    "less_like_this",
+    "undo",
+]
 TimelineType = Literal["announced", "state_changed", "information_added", "corrected", "resolved"]
 SourceKind = Literal[
     "statuspage",

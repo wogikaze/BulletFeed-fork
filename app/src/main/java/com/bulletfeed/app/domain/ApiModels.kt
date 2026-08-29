@@ -2,7 +2,15 @@ package com.bulletfeed.app
 
 enum class FeedItemStatus { UNREAD, READ }
 
-enum class FeedFeedbackType { IMPORTANT, NOT_RELEVANT }
+enum class FeedFeedbackType {
+    IMPORTANT,
+    NOT_RELEVANT,
+    FOLLOW,
+    ALREADY_KNEW,
+    LEARNED_NOW,
+    LESS_LIKE_THIS,
+    UNDO,
+}
 
 enum class DeltaType { NEW_FACT, DETAIL, STATE_UPDATE, CORRECTION, UNRESOLVED_CONTRADICTION }
 

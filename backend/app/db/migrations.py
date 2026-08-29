@@ -11,7 +11,7 @@ from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -281,6 +281,56 @@ def _apply_revision_8(connection: sqlite3.Connection) -> None:
     connection.executescript(SOURCE_REGISTRY_SCHEMA)
 
 
+def _apply_revision_9(connection: sqlite3.Connection) -> None:
+    """Typed feedback linkage, knowledge signals, and expanded ranking tallies.
+
+    Revision 8 is reserved for the source registry (#58).
+    """
+    for definition in (
+        "event_id TEXT",
+        "delta_id TEXT",
+        "claim_id TEXT",
+        "family TEXT",
+        "superseded INTEGER NOT NULL DEFAULT 0",
+    ):
+        _add_column_if_missing(connection, "feedback", definition)
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_feedback_latest
+        ON feedback(user_id, feed_item_id, family, superseded, created_at, id)
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS user_knowledge_signals (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            feed_item_id TEXT,
+            event_id TEXT,
+            delta_id TEXT,
+            claim_id TEXT,
+            signal TEXT NOT NULL,
+            created_at INTEGER NOT NULL,
+            superseded INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_user_knowledge_signals_latest
+        ON user_knowledge_signals(user_id, event_id, delta_id, claim_id, superseded)
+        """
+    )
+    for definition in (
+        "follow_count INTEGER NOT NULL DEFAULT 0",
+        "already_knew_count INTEGER NOT NULL DEFAULT 0",
+        "learned_now_count INTEGER NOT NULL DEFAULT 0",
+        "less_like_this_count INTEGER NOT NULL DEFAULT 0",
+    ):
+        _add_column_if_missing(connection, "user_ranking_features", definition)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -290,4 +340,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "6": _apply_revision_6,
     "7": _apply_revision_7,
     "8": _apply_revision_8,
+    "9": _apply_revision_9,
 }

@@ -21,7 +21,28 @@ enum class Relation(
     REFERENCE("参考情報", Color(0xFF5F6368)),
 }
 
-enum class Feedback { IMPORTANT, NOT_RELEVANT, READ }
+enum class Feedback {
+    IMPORTANT,
+    NOT_RELEVANT,
+    READ,
+    FOLLOW,
+    ALREADY_KNEW,
+    LEARNED_NOW,
+    LESS_LIKE_THIS,
+    UNDO,
+}
+
+fun Feedback.toFeedFeedbackType(): FeedFeedbackType? =
+    when (this) {
+        Feedback.READ -> null
+        Feedback.IMPORTANT -> FeedFeedbackType.IMPORTANT
+        Feedback.NOT_RELEVANT -> FeedFeedbackType.NOT_RELEVANT
+        Feedback.FOLLOW -> FeedFeedbackType.FOLLOW
+        Feedback.ALREADY_KNEW -> FeedFeedbackType.ALREADY_KNEW
+        Feedback.LEARNED_NOW -> FeedFeedbackType.LEARNED_NOW
+        Feedback.LESS_LIKE_THIS -> FeedFeedbackType.LESS_LIKE_THIS
+        Feedback.UNDO -> FeedFeedbackType.UNDO
+    }
 
 enum class FeedFilter(
     val label: String,

@@ -33,11 +33,7 @@ class MockFeedStore(
         val item = state.feedItems.first { it.eventId == eventId }
         applyFeedback(
             item.id,
-            when (feedback) {
-                Feedback.READ -> null
-                Feedback.IMPORTANT -> FeedFeedbackType.IMPORTANT
-                Feedback.NOT_RELEVANT -> FeedFeedbackType.NOT_RELEVANT
-            },
+            feedback.toFeedFeedbackType(),
             markRead = feedback == Feedback.READ,
         )
         return requireEvent(item.id)
@@ -60,7 +56,14 @@ class MockFeedStore(
                             FeedFeedbackType.IMPORTANT -> item.copy(markedImportant = !item.markedImportant)
                             FeedFeedbackType.NOT_RELEVANT ->
                                 item.copy(dismissed = true, status = FeedItemStatus.READ)
-                            null -> item
+                            FeedFeedbackType.FOLLOW -> item.copy(following = true)
+                            FeedFeedbackType.UNDO ->
+                                item.copy(markedImportant = false, dismissed = false, following = false)
+                            FeedFeedbackType.ALREADY_KNEW,
+                            FeedFeedbackType.LEARNED_NOW,
+                            FeedFeedbackType.LESS_LIKE_THIS,
+                            null,
+                            -> item
                         }
                     }
                 }.toMutableList()

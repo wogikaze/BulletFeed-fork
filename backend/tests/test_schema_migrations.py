@@ -219,6 +219,22 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_endpoint_lineage'"
         ).fetchone()
+        feedback_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(feedback)")
+        }
+        assert {"event_id", "delta_id", "claim_id", "family", "superseded"} <= feedback_columns
+        ranking_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(user_ranking_features)")
+        }
+        assert {
+            "follow_count",
+            "already_knew_count",
+            "learned_now_count",
+            "less_like_this_count",
+        } <= ranking_columns
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_knowledge_signals'"
+        ).fetchone()
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -505,3 +521,118 @@ def test_revision_8_adds_source_registry_tables(tmp_path: Path) -> None:
         assert {"endpoint_id", "publisher_id", "family", "canonical_url", "previous_endpoint_id"} <= (
             endpoint_columns
         )
+
+
+def test_revision_9_adds_typed_feedback_tables_and_preserves_rows(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-typed-feedback.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '9'")
+        connection.execute("DROP TABLE IF EXISTS user_knowledge_signals")
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_a', 0)")
+        connection.execute(
+            """
+            INSERT INTO events (
+                id, title, summary, current_phase, current_summary,
+                current_since, current_confidence, updated_at
+            ) VALUES (
+                'event_fb', 'Legacy', 'Legacy', 'identified', 'Legacy',
+                '2026-08-22T00:00:00Z', 'high', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO deltas (
+                id, event_id, type, summary, before_text, after_text, occurred_at, active
+            ) VALUES (
+                'delta_fb', 'event_fb', 'state_update', 'Legacy',
+                '', 'Legacy', '2026-08-22T00:00:00Z', 1
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO feed_items (
+                id, user_id, event_id, delta_id, title,
+                importance_level, importance_reason, importance_confidence,
+                relation_level, relation_reason, matched_topics_json, matched_repos_json,
+                status, dismissed, marked_important, updated_at
+            ) VALUES (
+                'fi_fb', 'user_a', 'event_fb', 'delta_fb', 'Legacy',
+                'high', 'test', 0.9, 'direct', 'test', '[]', '[]',
+                'unread', 0, 0, '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE feedback_legacy (
+                id TEXT PRIMARY KEY,
+                feed_item_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                type TEXT NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO feedback_legacy (id, feed_item_id, user_id, type, created_at)
+            VALUES ('fb_legacy', 'fi_fb', 'user_a', 'important', 10)
+            """
+        )
+        connection.execute("DROP TABLE feedback")
+        connection.execute("ALTER TABLE feedback_legacy RENAME TO feedback")
+        connection.execute(
+            """
+            CREATE TABLE user_ranking_features_legacy (
+                user_id TEXT NOT NULL,
+                feature_kind TEXT NOT NULL,
+                feature_value TEXT NOT NULL,
+                important_count INTEGER NOT NULL,
+                not_relevant_count INTEGER NOT NULL,
+                PRIMARY KEY (user_id, feature_kind, feature_value)
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO user_ranking_features_legacy (
+                user_id, feature_kind, feature_value, important_count, not_relevant_count
+            ) VALUES ('user_a', 'source_type', 'rss_atom', 2, 1)
+            """
+        )
+        connection.execute("DROP TABLE user_ranking_features")
+        connection.execute(
+            "ALTER TABLE user_ranking_features_legacy RENAME TO user_ranking_features"
+        )
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == set(KNOWN_REVISIONS)
+        feedback_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(feedback)")
+        }
+        assert {"event_id", "delta_id", "claim_id", "family", "superseded"} <= feedback_columns
+        row = connection.execute(
+            "SELECT type, superseded FROM feedback WHERE id = 'fb_legacy'"
+        ).fetchone()
+        assert row["type"] == "important"
+        assert row["superseded"] == 0
+        ranking = connection.execute(
+            """
+            SELECT important_count, not_relevant_count, follow_count,
+                   already_knew_count, learned_now_count, less_like_this_count
+            FROM user_ranking_features
+            WHERE user_id = 'user_a'
+            """
+        ).fetchone()
+        assert tuple(ranking) == (2, 1, 0, 0, 0, 0)
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_knowledge_signals'"
+        ).fetchone()

@@ -80,10 +80,9 @@ class RemoteBulletFeedRepository(
         feedback: Feedback,
     ) {
         val target = findFeedItemForEvent(eventId)
-        when (feedback) {
-            Feedback.READ -> markFeedItemRead(target.id)
-            Feedback.IMPORTANT -> sendFeedFeedback(target.id, FeedFeedbackType.IMPORTANT)
-            Feedback.NOT_RELEVANT -> sendFeedFeedback(target.id, FeedFeedbackType.NOT_RELEVANT)
+        when (val type = feedback.toFeedFeedbackType()) {
+            null -> markFeedItemRead(target.id)
+            else -> sendFeedFeedback(target.id, type)
         }
     }
 
