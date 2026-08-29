@@ -7,15 +7,18 @@ import org.junit.Test
 
 class ViewportExposureTest {
     @Test
-    fun policyMatchesBackendViewportExposureV1() {
-        assertEquals("viewport-exposure-v1", ViewportExposurePolicy.VERSION)
+    fun policyMatchesBackendViewportExposureV2() {
+        assertEquals("viewport-exposure-v2", ViewportExposurePolicy.VERSION)
         assertEquals(1000L, ViewportExposurePolicy.MIN_DWELL_MS)
         assertEquals(0.50f, ViewportExposurePolicy.MIN_VISIBLE_RATIO)
     }
 
     @Test
-    fun missingMetricsCountAsDisplayedForCompat() {
-        assertTrue(ViewportExposurePolicy.isMeaningful(null, null))
+    fun missingOrPartialMetricsAreNotMeaningful() {
+        assertFalse(ViewportExposurePolicy.isMeaningful(null, null))
+        assertFalse(ViewportExposurePolicy.isMeaningful(2_000L, null))
+        assertFalse(ViewportExposurePolicy.isMeaningful(null, 1f))
+        assertTrue(ViewportExposurePolicy.isMeaningful(null, null, detailOpened = true))
     }
 
     @Test
