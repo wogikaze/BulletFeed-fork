@@ -39,7 +39,11 @@ from app.services.ranking_feedback import (
     apply_feedback_ranking,
     reset_feedback_ranking,
 )
-from app.services.user_interest import detect_concepts_in_text, semantic_match, state_from_personalization_user
+from app.services.user_interest import (
+    detect_concepts_in_text,
+    semantic_match,
+    state_from_personalization_user,
+)
 
 _V01 = Path(__file__).parent / "gold" / "personalization" / "v01"
 
@@ -323,8 +327,8 @@ def test_replay_is_deterministic_and_inspectable() -> None:
 
 def test_sparse_history_is_a_regression_guard() -> None:
     examples = [
-        _example(feed_item_id="a", feedback_type="important", created_at=1),
-        _example(feed_item_id="b", feedback_type="not_relevant", created_at=2),
+        _example(user_id="sparse", feed_item_id="a", feedback_type="important", created_at=1),
+        _example(user_id="sparse", feed_item_id="b", feedback_type="not_relevant", created_at=2),
     ]
     state = train_preference(_batch("sparse", examples))
     assert state.is_sparse()
