@@ -131,8 +131,11 @@ def _snapshot(
     retrieved_at: str = "2026-08-29T00:00:00Z",
     headers: tuple[tuple[str, str], ...] = (("content-type", "text/html"),),
     canonical_url: str = "https://docs.example.com/changelog",
+    etag: str | None = '"v1"',
+    last_modified: str | None = "Wed, 20 Aug 2026 10:00:00 GMT",
 ) -> WebSnapshot:
     digest = content_hash_for(body)
+    header_map = {key: value for key, value in headers}
     return WebSnapshot(
         snapshot_id=snapshot_id_for(
             canonical_url=canonical_url,
@@ -145,8 +148,8 @@ def _snapshot(
         status_code=200,
         headers=headers,
         body=body,
-        etag='"v1"',
-        last_modified="Wed, 20 Aug 2026 10:00:00 GMT",
+        etag=header_map.get("etag", etag),
+        last_modified=header_map.get("last-modified", last_modified),
         robots=RobotsDecision(
             source_url=PAGE_URL,
             robots_url="https://docs.example.com/robots.txt",
