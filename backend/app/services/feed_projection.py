@@ -5,6 +5,7 @@ import json
 from collections.abc import Sequence
 
 from app.database import Database
+from app.db.knownness import WATERMARK_STATE_SQL
 from app.db.projection_schema import ensure_projection_schema
 from app.observability import record
 from app.services.ranking import evaluate_importance
@@ -52,13 +53,14 @@ class FeedProjector:
             )
 
             deltas = connection.execute(
-                """
+                f"""
                 SELECT d.*
                 FROM deltas d
                 JOIN delta_claim_map m ON m.delta_id = d.id
                 JOIN state_claims candidate ON candidate.id = m.claim_id
                 LEFT JOIN user_claim_exposures k
                     ON k.claim_id = m.claim_id AND k.user_id = ?
+                   AND k.state IN {WATERMARK_STATE_SQL}
                 WHERE d.event_id = ?
                   AND d.active = 1
                   AND k.claim_id IS NULL
@@ -69,10 +71,11 @@ class FeedProjector:
                           FROM user_claim_exposures known
                           JOIN state_claims known_claim ON known_claim.id = known.claim_id
                           WHERE known.user_id = ? AND known_claim.event_id = d.event_id
+                            AND known.state IN {WATERMARK_STATE_SQL}
                       ), '')
                   )
                 ORDER BY d.occurred_at, d.id
-                """,
+                """,  # nosec B608
                 (user_id, event_id, user_id),
             ).fetchall()
             for delta in deltas:

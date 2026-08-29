@@ -10,7 +10,7 @@ from app.db.schema import PUBLIC_API_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -232,6 +232,50 @@ def _apply_revision_6(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_7(connection: sqlite3.Connection) -> None:
+    tables = {
+        row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    }
+    if "user_claim_exposures" not in tables:
+        return
+    _add_column_if_missing(
+        connection, "user_claim_exposures", "state TEXT NOT NULL DEFAULT 'displayed'"
+    )
+    _add_column_if_missing(connection, "user_claim_exposures", "displayed_at TEXT")
+    _add_column_if_missing(connection, "user_claim_exposures", "read_at TEXT")
+    _add_column_if_missing(
+        connection, "user_claim_exposures", "delivery_count INTEGER NOT NULL DEFAULT 1"
+    )
+    connection.execute(
+        """
+        UPDATE user_claim_exposures
+        SET displayed_at = COALESCE(displayed_at, delivered_at)
+        WHERE displayed_at IS NULL
+        """
+    )
+    connection.execute(
+        """
+        UPDATE user_claim_exposures
+        SET state = 'read', read_at = COALESCE(read_at, delivered_at)
+        WHERE state = 'displayed'
+          AND EXISTS (
+              SELECT 1
+              FROM deliveries d
+              JOIN feed_items f ON f.id = d.feed_item_id
+              WHERE d.id = user_claim_exposures.delivery_id
+                AND f.user_id = user_claim_exposures.user_id
+                AND f.status = 'read'
+          )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_user_claim_exposures_state
+        ON user_claim_exposures(user_id, state, claim_id)
+        """
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -239,4 +283,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "4": _apply_revision_4,
     "5": _apply_revision_5,
     "6": _apply_revision_6,
+    "7": _apply_revision_7,
 }

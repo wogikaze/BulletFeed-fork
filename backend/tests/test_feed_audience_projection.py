@@ -133,7 +133,7 @@ def test_user_outside_audience_receives_no_feed_item(database):
     assert outsider == 0
 
 
-def test_list_feed_does_not_write_user_claim_exposures(database):
+def test_list_feed_writes_delivered_not_watermark_knownness(database):
     event_id = _projected_event(database)
     project_event_for_audience(database, event_id=event_id, user_ids=("user_a",))
 
@@ -149,12 +149,22 @@ def test_list_feed_does_not_write_user_claim_exposures(database):
 
     with database.connect() as connection:
         known_after_list = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = 'user_a'",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND state IN ('displayed', 'read')
+            """,
+        ).fetchone()["count"]
+        delivered_after_list = connection.execute(
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND state = 'delivered'
+            """,
         ).fetchone()["count"]
         deliveries = connection.execute(
             "SELECT COUNT(*) AS count FROM deliveries WHERE user_id = 'user_a'",
         ).fetchone()["count"]
     assert known_after_list == 0
+    assert delivered_after_list == 2
     assert deliveries == 2
 
     accepted = store.record_exposures(
@@ -167,6 +177,9 @@ def test_list_feed_does_not_write_user_claim_exposures(database):
     assert accepted == 2
     with database.connect() as connection:
         known_after_record = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = 'user_a'",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND state IN ('displayed', 'read')
+            """,
         ).fetchone()["count"]
     assert known_after_record == 2

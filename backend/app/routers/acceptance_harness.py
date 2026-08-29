@@ -96,7 +96,11 @@ def claim_exposure_count(
     _require_user(database, user_id)
     with database.connect() as connection:
         row = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = ?",
+            """
+            SELECT COUNT(*) AS count
+            FROM user_claim_exposures
+            WHERE user_id = ? AND state IN ('displayed', 'read')
+            """,
             (user_id,),
         ).fetchone()
     return ExposureCountResponse(count=int(row["count"]) if row is not None else 0)

@@ -374,7 +374,7 @@ def test_revision_6_adds_ranking_feature_tables(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6"}
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_features'"
         ).fetchone()
