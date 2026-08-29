@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from app.database import Database
 from app.db.projection_schema import ensure_projection_schema
 from app.services.ranking import evaluate_importance
-from app.services.relation import evaluate_relation
+from app.services.relation import _normalize, evaluate_relation
 
 
 def project_event_for_audience(
@@ -125,15 +125,13 @@ class FeedProjector:
         return created
 
     def reproject_user(self, *, user_id: str) -> int:
-        """Project all known changes, then recompute the user's relation/rank.
+        """Project candidate events, then recompute the user's relation/rank.
 
-        Topic changes must be enough to populate a user's feed. Previously this
-        method only re-ranked feed items that had already been projected, so a
-        newly selected topic could never surface existing source changes until a
-        separate worker or manual seed happened to project them.
+        Candidates are existing feed items plus events that can match the user's
+        topics or selected repositories. Unrelated global events are not scanned.
         """
         with self._database.connect() as connection:
-            event_ids = [row["id"] for row in connection.execute("SELECT id FROM events").fetchall()]
+            event_ids = self._candidate_event_ids(connection, user_id=user_id)
         for event_id in event_ids:
             self.project_event_for_user(user_id=user_id, event_id=event_id)
 
@@ -209,6 +207,49 @@ class FeedProjector:
                     (user_id,),
                 )
         return updated
+
+    @staticmethod
+    def _candidate_event_ids(connection, *, user_id: str) -> list[str]:
+        ids: set[str] = set()
+        for row in connection.execute(
+            "SELECT DISTINCT event_id FROM feed_items WHERE user_id = ?",
+            (user_id,),
+        ):
+            ids.add(row["event_id"])
+        for row in connection.execute(
+            """
+            SELECT e.id
+            FROM events e
+            JOIN ledger_events le ON le.id = e.id
+            JOIN github_repo_watches w
+              ON w.user_id = ?
+             AND w.selected = 1
+             AND w.full_name = le.source_key
+            """,
+            (user_id,),
+        ):
+            ids.add(row["id"])
+        topics = [
+            token
+            for (name,) in connection.execute(
+                "SELECT name FROM topics WHERE user_id = ?",
+                (user_id,),
+            )
+            if (token := _normalize(name))
+        ]
+        if topics:
+            events = connection.execute(
+                """
+                SELECT e.id, e.title, e.summary, COALESCE(le.source_key, '') AS source_key
+                FROM events e
+                LEFT JOIN ledger_events le ON le.id = e.id
+                """
+            ).fetchall()
+            for event in events:
+                padded = f" {_normalize(' '.join((event['source_key'], event['title'], event['summary'])))} "
+                if any(f" {token} " in padded for token in topics):
+                    ids.add(event["id"])
+        return sorted(ids)
 
     @staticmethod
     def _source_identity(connection, event_id: str) -> tuple[str, str]:
