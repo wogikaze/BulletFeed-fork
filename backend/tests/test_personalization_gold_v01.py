@@ -16,6 +16,10 @@ from app.evaluation.personalization_gold import (
     scan_python_sources,
     validate_judgment_against_schema,
 )
+from app.services.cold_start_policy import (
+    IRRELEVANT_ITEM_RATE_CEILING,
+    PRECISION_AT_5_FLOOR,
+)
 from app.services.user_interest import semantic_match, state_from_personalization_user
 
 _V01 = Path(__file__).parent / "gold" / "personalization" / "v01"
@@ -161,6 +165,27 @@ def test_hard_negatives_exist_and_lexical_baseline_does_not_ace_gate() -> None:
     oracle_top = _oracle_rankings(corpus)[react_user][:3]
     assert hard_ids & set(lexical_top)
     assert not hard_ids & set(oracle_top)
+
+
+def test_evaluator_reports_cold_start_slice_metrics_with_floors() -> None:
+    corpus = _corpus().for_split("pilot")
+    report = evaluate_personalization(corpus, _oracle_rankings(corpus), k=5, split="pilot")
+
+    assert {"cold_start", "history_rich"} <= set(report.slices)
+    cold = report.slices["cold_start"]
+    rich = report.slices["history_rich"]
+    assert cold.slice_name == "cold_start"
+    assert cold.user_count >= 1
+    assert rich.user_count >= 1
+    assert cold.user_count + rich.user_count == report.include_ambiguous.user_count
+    assert 0.0 <= cold.irrelevant_item_rate <= 1.0
+    assert cold.precision_at_k >= PRECISION_AT_5_FLOOR
+    assert cold.irrelevant_item_rate <= IRRELEVANT_ITEM_RATE_CEILING
+    assert any(user.kind == "cold_start" and not user.topics for user in corpus.users)
+    assert any(
+        row.hard_negative and corpus.user_by_id()[row.user_id].kind == "cold_start"
+        for row in corpus.judgments
+    ) or any(row.hard_negative for row in corpus.judgments)
 
 
 def test_evaluator_computes_precision_recall_ndcg_and_redundancy() -> None:

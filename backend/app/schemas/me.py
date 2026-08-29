@@ -73,6 +73,8 @@ class TopicRecommendationItem(ApiModel):
 class TopicRecommendationList(ApiModel):
     version: str
     items: list[TopicRecommendationItem]
+    policy_version: str
+    cohort: str
 
 
 class OnboardingRequest(ApiModel):

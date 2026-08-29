@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
@@ -194,6 +194,8 @@ class PersonalizationMetrics:
     redundancy_at_k: float
     user_count: int
     judgment_count: int
+    irrelevant_item_rate: float = 0.0
+    slice_name: str = "all"
 
 
 @dataclass(frozen=True)
@@ -204,6 +206,7 @@ class PersonalizationEvaluationReport:
     include_ambiguous: PersonalizationMetrics
     exclude_ambiguous: PersonalizationMetrics
     unresolved_ambiguous_count: int
+    slices: dict[str, PersonalizationMetrics] = field(default_factory=dict)
 
 
 def load_personalization_gold(corpus_dir: Path) -> PersonalizationGoldCorpus:
@@ -322,6 +325,18 @@ def evaluate_personalization(
     include = _metrics_for_judgments(scoped, predicted, k=k, drop_ambiguous=False)
     exclude = _metrics_for_judgments(scoped, predicted, k=k, drop_ambiguous=True)
     unresolved = sum(1 for judgment in scoped.judgments if judgment.ambiguous)
+    kinds = sorted({user.kind for user in scoped.users})
+    slices = {
+        kind: _metrics_for_judgments(
+            scoped,
+            predicted,
+            k=k,
+            drop_ambiguous=False,
+            kinds={kind},
+            slice_name=kind,
+        )
+        for kind in kinds
+    }
     return PersonalizationEvaluationReport(
         dataset_version=scoped.dataset_version,
         split=split,
@@ -329,6 +344,7 @@ def evaluate_personalization(
         include_ambiguous=include,
         exclude_ambiguous=exclude,
         unresolved_ambiguous_count=unresolved,
+        slices=slices,
     )
 
 
@@ -338,15 +354,20 @@ def _metrics_for_judgments(
     *,
     k: int,
     drop_ambiguous: bool,
+    kinds: set[str] | None = None,
+    slice_name: str = "all",
 ) -> PersonalizationMetrics:
     items = corpus.item_by_id()
     precisions: list[float] = []
     recalls: list[float] = []
     ndcgs: list[float] = []
     redundancies: list[float] = []
+    irrelevant_rates: list[float] = []
     used_judgments = 0
 
     for user in corpus.users:
+        if kinds is not None and user.kind not in kinds:
+            continue
         selected = [
             judgment
             for judgment in corpus.judgments_for_user(user.user_id)
@@ -370,6 +391,12 @@ def _metrics_for_judgments(
         gains = [by_item[item_id].relevance if item_id in by_item else 0 for item_id in top]
         ideal = sorted((judgment.relevance for judgment in selected), reverse=True)[:k]
         ndcgs.append(_ndcg(gains, ideal))
+        irrelevant = sum(
+            1
+            for item_id in top
+            if item_id in by_item and by_item[item_id].relevance == 0
+        )
+        irrelevant_rates.append(irrelevant / k)
 
         seen_groups: set[str] = set()
         redundant = 0
@@ -386,7 +413,7 @@ def _metrics_for_judgments(
         redundancies.append(redundant / k)
 
     if not precisions:
-        empty = PersonalizationMetrics(k, 0.0, 0.0, 0.0, 0.0, 0, 0)
+        empty = PersonalizationMetrics(k, 0.0, 0.0, 0.0, 0.0, 0, 0, 0.0, slice_name)
         return empty
     return PersonalizationMetrics(
         k=k,
@@ -396,6 +423,8 @@ def _metrics_for_judgments(
         redundancy_at_k=sum(redundancies) / len(redundancies),
         user_count=len(precisions),
         judgment_count=used_judgments,
+        irrelevant_item_rate=sum(irrelevant_rates) / len(irrelevant_rates),
+        slice_name=slice_name,
     )
 
 
