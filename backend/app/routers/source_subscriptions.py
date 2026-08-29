@@ -79,6 +79,7 @@ def add_my_source(
         kind=body.kind,
         url=body.url,
         page_id=body.page_id,
+        catch_up=body.catch_up,
     )
     response.status_code = status.HTTP_201_CREATED if item.created else status.HTTP_200_OK
     return _public_subscription(item)

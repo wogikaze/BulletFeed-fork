@@ -74,7 +74,7 @@ def add_topic(
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[MeStore, Depends(_store)],
 ) -> Topic:
-    return store.add_topic(user["user_id"], body.name, body.type)
+    return store.add_topic(user["user_id"], body.name, body.type, catch_up=body.catch_up)
 
 
 @router.delete("/me/topics/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)

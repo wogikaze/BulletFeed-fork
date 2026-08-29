@@ -39,6 +39,7 @@ class Topic(ApiModel):
 class TopicCreate(ApiModel):
     name: str = Field(min_length=1, max_length=80)
     type: TopicType = "technology"
+    catch_up: bool = False
 
 
 class TopicPatch(ApiModel):

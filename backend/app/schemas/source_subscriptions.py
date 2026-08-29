@@ -12,6 +12,7 @@ class SourceSubscriptionCreate(ApiModel):
     kind: UserSourceKind
     url: str | None = Field(default=None, max_length=2_048)
     page_id: str | None = Field(default=None, max_length=64)
+    catch_up: bool = False
 
     @model_validator(mode="after")
     def require_source_identity(self) -> "SourceSubscriptionCreate":

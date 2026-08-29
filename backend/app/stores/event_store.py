@@ -9,6 +9,7 @@ from app.db.projection_schema import ensure_projection_schema
 from app.schemas.common import CurrentState, Delta, Impact, SourceEvidence, TimelineEntry
 from app.schemas.events import EventDetail
 from app.services.event_access import user_can_access_event
+from app.services.follow_baseline import SUBJECT_EVENT, record_follow_baseline
 
 
 def _delta_from_row(row: sqlite3.Row) -> Delta:
@@ -131,7 +132,15 @@ class EventStore:
             following=bool(follow["following"]) if follow is not None else False,
         )
 
-    def set_following(self, user_id: str, event_id: str, following: bool) -> dict:
+    def set_following(
+        self,
+        user_id: str,
+        event_id: str,
+        following: bool,
+        *,
+        catch_up: bool = False,
+        followed_at: int | None = None,
+    ) -> dict:
         with self._database.connect() as connection:
             event = connection.execute("SELECT id FROM events WHERE id = ?", (event_id,)).fetchone()
             if event is None or not user_can_access_event(
@@ -140,6 +149,11 @@ class EventStore:
                 event_id=event_id,
             ):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event was not found")
+            previous = connection.execute(
+                "SELECT following FROM event_follows WHERE user_id = ? AND event_id = ?",
+                (user_id, event_id),
+            ).fetchone()
+            was_following = bool(previous["following"]) if previous is not None else False
             connection.execute(
                 """
                 INSERT INTO event_follows (user_id, event_id, following)
@@ -148,4 +162,13 @@ class EventStore:
                 """,
                 (user_id, event_id, int(following)),
             )
+            if following and not was_following:
+                record_follow_baseline(
+                    connection,
+                    user_id=user_id,
+                    subject_kind=SUBJECT_EVENT,
+                    subject_id=event_id,
+                    catch_up=catch_up,
+                    followed_at=followed_at,
+                )
         return {"event_id": event_id, "following": following}
