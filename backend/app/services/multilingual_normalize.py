@@ -169,7 +169,9 @@ def detect_language(text: str) -> LanguageTag:
         return "unknown"
     if cjk == 0:
         return "en"
-    if latin == 0 or cjk >= latin:
+    # Japanese technical prose often embeds Latin product/status tokens.
+    # Treat CJK-bearing sentences as ja unless the CJK span is only incidental.
+    if latin == 0 or cjk >= 6 or cjk >= latin:
         return "ja"
     if cjk <= 2 and latin >= 12:
         return "en"
