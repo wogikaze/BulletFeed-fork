@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     web_allowed_hosts: str = ""
     request_timeout_seconds: float = 10.0
     max_response_bytes: int = 1_048_576
+    session_telemetry_enabled: bool = True
 
     @property
     def cors_origins(self) -> list[str]:

@@ -23,6 +23,7 @@ from app.routers import (
     integrations,
     knowledge_bootstrap,
     me,
+    session_telemetry,
     sessions,
     source_discovery,
     source_subscriptions,
@@ -65,6 +66,7 @@ app.include_router(feed.router)
 app.include_router(events.router)
 app.include_router(me.router)
 app.include_router(knowledge_bootstrap.router)
+app.include_router(session_telemetry.router)
 app.include_router(source_subscriptions.router)
 app.include_router(source_discovery.router)
 app.include_router(integrations.router)

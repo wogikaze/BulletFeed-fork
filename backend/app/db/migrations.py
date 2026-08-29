@@ -9,12 +9,13 @@ from app.db.knowledge_evidence_schema import KNOWLEDGE_EVIDENCE_SCHEMA
 from app.db.knowledge_identity_schema import KNOWLEDGE_IDENTITY_SCHEMA
 from app.db.ledger_schema import LEDGER_SCHEMA
 from app.db.schema import PUBLIC_API_SCHEMA
+from app.db.session_telemetry_schema import SESSION_TELEMETRY_SCHEMA
 from app.db.source_discovery_schema import SOURCE_DISCOVERY_SCHEMA
 from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -64,15 +65,10 @@ def apply_schema_migrations(connection: sqlite3.Connection) -> None:
         )
         """
     )
-    applied = {
-        row[0]
-        for row in connection.execute("SELECT revision_id FROM schema_migrations")
-    }
+    applied = {row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")}
     unknown = sorted(applied - set(KNOWN_REVISIONS))
     if unknown:
-        raise UnknownSchemaRevisionError(
-            "Database has unknown schema revision(s): " + ", ".join(unknown)
-        )
+        raise UnknownSchemaRevisionError("Database has unknown schema revision(s): " + ", ".join(unknown))
     for revision_id in KNOWN_REVISIONS:
         if revision_id in applied:
             continue
@@ -83,13 +79,9 @@ def apply_schema_migrations(connection: sqlite3.Connection) -> None:
         )
 
 
-def _add_column_if_missing(
-    connection: sqlite3.Connection, table: str, definition: str
-) -> None:
+def _add_column_if_missing(connection: sqlite3.Connection, table: str, definition: str) -> None:
     column_name = definition.split()[0]
-    existing = {
-        row[1] for row in connection.execute(f"PRAGMA table_info({table})")
-    }
+    existing = {row[1] for row in connection.execute(f"PRAGMA table_info({table})")}
     if column_name not in existing:
         connection.execute(f"ALTER TABLE {table} ADD COLUMN {definition}")
 
@@ -130,15 +122,12 @@ def _apply_revision_1(connection: sqlite3.Connection) -> None:
         """
     )
     connection.execute(
-        "CREATE INDEX IF NOT EXISTS idx_deltas_event_active "
-        "ON deltas(event_id, active, occurred_at, id)"
+        "CREATE INDEX IF NOT EXISTS idx_deltas_event_active ON deltas(event_id, active, occurred_at, id)"
     )
 
 
 def _apply_revision_2(connection: sqlite3.Connection) -> None:
-    job_columns = {
-        row[1] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")
-    }
+    job_columns = {row[1] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
     if "repository_full_name" in job_columns and "source_key" not in job_columns:
         connection.execute(
             """
@@ -202,9 +191,7 @@ def _apply_revision_3(connection: sqlite3.Connection) -> None:
 
 
 def _apply_revision_4(connection: sqlite3.Connection) -> None:
-    _add_column_if_missing(
-        connection, "source_sync_jobs", "last_new_observation_at INTEGER"
-    )
+    _add_column_if_missing(connection, "source_sync_jobs", "last_new_observation_at INTEGER")
 
 
 def _apply_revision_5(connection: sqlite3.Connection) -> None:
@@ -237,19 +224,13 @@ def _apply_revision_6(connection: sqlite3.Connection) -> None:
 
 
 def _apply_revision_7(connection: sqlite3.Connection) -> None:
-    tables = {
-        row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
-    }
+    tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
     if "user_claim_exposures" not in tables:
         return
-    _add_column_if_missing(
-        connection, "user_claim_exposures", "state TEXT NOT NULL DEFAULT 'displayed'"
-    )
+    _add_column_if_missing(connection, "user_claim_exposures", "state TEXT NOT NULL DEFAULT 'displayed'")
     _add_column_if_missing(connection, "user_claim_exposures", "displayed_at TEXT")
     _add_column_if_missing(connection, "user_claim_exposures", "read_at TEXT")
-    _add_column_if_missing(
-        connection, "user_claim_exposures", "delivery_count INTEGER NOT NULL DEFAULT 1"
-    )
+    _add_column_if_missing(connection, "user_claim_exposures", "delivery_count INTEGER NOT NULL DEFAULT 1")
     connection.execute(
         """
         UPDATE user_claim_exposures
@@ -349,17 +330,13 @@ def _apply_revision_11(connection: sqlite3.Connection) -> None:
     Existing exposure rows stay displayed. New clients send dwell_ms and
     visible_ratio; missing metrics remain compatible as displayed.
     """
-    tables = {
-        row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
-    }
+    tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
     if "exposures" not in tables:
         return
     _add_column_if_missing(connection, "exposures", "dwell_ms INTEGER")
     _add_column_if_missing(connection, "exposures", "visible_ratio REAL")
     _add_column_if_missing(connection, "exposures", "policy_version TEXT")
-    _add_column_if_missing(
-        connection, "exposures", "detail_opened INTEGER NOT NULL DEFAULT 0"
-    )
+    _add_column_if_missing(connection, "exposures", "detail_opened INTEGER NOT NULL DEFAULT 0")
 
 
 def _apply_revision_12(connection: sqlite3.Connection) -> None:
@@ -444,6 +421,11 @@ def _apply_revision_15(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_16(connection: sqlite3.Connection) -> None:
+    """Feed-session outcome telemetry. Separate from Event/Claim/Delta."""
+    connection.executescript(SESSION_TELEMETRY_SCHEMA)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -460,4 +442,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "13": _apply_revision_13,
     "14": _apply_revision_14,
     "15": _apply_revision_15,
+    "16": _apply_revision_16,
 }

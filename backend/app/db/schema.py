@@ -293,6 +293,26 @@ CREATE TABLE IF NOT EXISTS user_preference_weights (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS feed_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    started_at INTEGER NOT NULL,
+    ended_at INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS feed_session_outcomes (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    feed_item_id TEXT,
+    feedback_type TEXT,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(session_id) REFERENCES feed_sessions(id)
+);
+
 CREATE TABLE IF NOT EXISTS event_follows (
     user_id TEXT NOT NULL,
     event_id TEXT NOT NULL,

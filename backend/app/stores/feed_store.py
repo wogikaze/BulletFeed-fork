@@ -46,6 +46,13 @@ from app.services.multiobjective_ranker import (
     paginate_ranked,
     rank_candidates,
 )
+from app.services.session_telemetry import (
+    KIND_CARD_DISPLAYED,
+    KIND_DETAIL_READ,
+    KIND_FEEDBACK,
+    KIND_FOLLOW,
+    record_session_outcome,
+)
 from app.services.viewport_exposure import (
     POLICY_VERSION,
     is_meaningful_display,
@@ -632,6 +639,12 @@ class FeedStore:
                 (feed_item_id, user_id),
             )
             _record_read(connection, user_id=user_id, feed_item_id=feed_item_id)
+            record_session_outcome(
+                connection,
+                user_id=user_id,
+                kind=KIND_DETAIL_READ,
+                feed_item_id=feed_item_id,
+            )
         return {"feed_item_id": feed_item_id, "status": "read"}
 
     def save_feedback(self, user_id: str, feed_item_id: str, feedback_type: str) -> dict:
@@ -721,6 +734,13 @@ class FeedStore:
                 (feed_item_id,),
             ).fetchone()
             item_status = current["status"] if current is not None else row["status"]
+            record_session_outcome(
+                connection,
+                user_id=user_id,
+                kind=KIND_FOLLOW if feedback_type == "follow" else KIND_FEEDBACK,
+                feed_item_id=feed_item_id,
+                feedback_type=feedback_type,
+            )
         return {"feed_item_id": feed_item_id, "type": feedback_type, "status": item_status}
 
     def record_exposures(self, user_id: str, items: list[dict[str, object]]) -> int:
@@ -746,7 +766,7 @@ class FeedStore:
                     continue
                 delivery = connection.execute(
                     """
-                    SELECT d.id, f.delta_id, f.event_id, m.claim_id
+                    SELECT d.id, d.feed_item_id, f.delta_id, f.event_id, m.claim_id
                     FROM deliveries d
                     JOIN feed_items f ON f.id = d.feed_item_id
                     LEFT JOIN delta_claim_map m ON m.delta_id = f.delta_id
@@ -784,6 +804,13 @@ class FeedStore:
                         displayed_at=displayed_at,
                         event_id=delivery["event_id"],
                         delta_id=delivery["delta_id"],
+                    )
+                if inserted:
+                    record_session_outcome(
+                        connection,
+                        user_id=user_id,
+                        kind=KIND_CARD_DISPLAYED,
+                        feed_item_id=str(delivery["feed_item_id"]),
                     )
                 accepted += inserted
         return accepted
