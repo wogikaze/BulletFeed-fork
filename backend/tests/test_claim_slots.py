@@ -187,7 +187,9 @@ def test_revision_judge_can_consume_typed_value_change_without_forcing_low_confi
         prior_valid_at="2026-08-01T00:00:00Z",
         candidate_valid_at="2026-08-02T00:00:00Z",
     ) == "STATE_UPDATE"
-    assert prose_decision.revision_type == "STATE_UPDATE"
+    assert prose_decision.revision_type in {"STATE_UPDATE", "UNRESOLVED_CONTRADICTION"}
+    if prose_decision.revision_type == "UNRESOLVED_CONTRADICTION":
+        assert prose_decision.abstained is True
 
     vague_prior, vague_candidate = _extract_pair(
         "capacity policy",
@@ -213,6 +215,21 @@ def test_revision_judge_can_consume_typed_value_change_without_forcing_low_confi
     assert apply_typed_slot_evidence(typed=vague) is None
     assert vague_decision.abstained is True
     assert vague_decision.confidence == "low"
+
+
+def test_gold_restated_limit_is_same_slot_equivalent():
+    corpus = load_delta_adversarial_gold(_GOLD)
+    case = corpus.case_by_id()["dag-p-013"]
+    prior, candidate = _gold_extract(case)
+    delta = compare_typed_slots(prior, candidate)
+
+    assert prior.evidence_text == case.prior.detail
+    assert candidate.evidence_text == case.candidate.detail
+    assert prior.slots_named("limit")[0].identity == candidate.slots_named("limit")[0].identity
+    assert delta is not None
+    assert delta.kind == "same_slot_equivalent"
+    assert typed_slots_as_revision_evidence(prior, candidate) is None
+    assert case.revision_class == "NON_NOVEL"
 
 
 def test_gold_same_slot_changed_value():

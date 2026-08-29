@@ -234,7 +234,7 @@ _DATE_MONTH = re.compile(
 _DATE_YMD = re.compile(r"\b(?P<year>\d{4})[-/](?P<month>\d{1,2})[-/](?P<day>\d{1,2})\b")
 _DATE_PATTERNS = ("%B %d, %Y", "%b %d, %Y")
 _VERSION_RE = re.compile(r"\bv?(?P<version>\d+(?:\.\d+){1,3}(?:[-+][a-z0-9.-]+)?)\b", re.IGNORECASE)
-_NUMBER_RE = re.compile(r"(?<![\w.])(?P<number>-?\d+(?:\.\d+)?)(?![\w.])")
+_NUMBER_RE = re.compile(r"(?<![\w.])(?P<number>-?\d+(?:\.\d+)?)(?![\w]|\.\d)")
 _PRICE_RE = re.compile(
     r"(?P<currency>\$|usd|eur|jpy|¥|€)\s*(?P<amount>\d+(?:,\d{3})*(?:\.\d+)?)"
     r"(?:\s*/\s*(?P<period>[a-z]+))?",
@@ -258,7 +258,6 @@ _LIMIT_COMPACT_RE = re.compile(
     re.IGNORECASE,
 )
 _RANGE_RE = re.compile(
-    r"(?P<entity>[A-Za-z][\w.+-]*)\s*"
     r"(?P<comparator>>=|<=|!=|==|>|<|≥|≤)\s*"
     r"v?(?P<version>\d+(?:\.\d+){0,3})",
     re.IGNORECASE,
@@ -347,7 +346,11 @@ def compare_typed_slots(
         return None
 
     pairs = _align_slots(prior_slots, candidate_slots)
-    changes = [pair for pair in pairs if pair[0] is not None and pair[1] is not None and pair[0].identity != pair[1].identity]
+    changes = [
+        pair
+        for pair in pairs
+        if pair[0] is not None and pair[1] is not None and pair[0].identity != pair[1].identity
+    ]
     if changes:
         left, right = changes[0]
         assert left is not None and right is not None
@@ -554,7 +557,7 @@ def _extract_value_field(
                 "affected_version_range",
                 normalize_version(range_match.group("version")),
                 comparator=normalize_comparator(range_match.group("comparator")),
-                entity=entity or range_match.group("entity"),
+                entity=entity,
                 valid_at=valid_at,
                 origin="value",
                 raw_span=text,
@@ -712,7 +715,7 @@ def _extract_ranges(text: str, *, entity: str | None, valid_at: str | None) -> l
                 "affected_version_range",
                 normalize_version(match.group("version")),
                 comparator=comparator,
-                entity=entity or match.group("entity"),
+                entity=entity,
                 valid_at=valid_at,
                 origin="prose",
                 raw_span=match.group(0),
@@ -858,7 +861,6 @@ def _parse_structured_value(
         if range_match:
             normalized = normalize_version(range_match.group("version"))
             comparator = normalize_comparator(range_match.group("comparator"))
-            entity = entity or range_match.group("entity")
         else:
             normalized = normalize_version(text)
     elif slot_name in {"limit", "quota", "price"}:
@@ -910,8 +912,24 @@ def _merge_authoritative(
     by_slot: dict[SlotName, TypedClaimSlot] = {}
     for group in (prose, value_slots, structured):
         for slot in group:
-            by_slot[slot.slot] = slot
+            existing = by_slot.get(slot.slot)
+            by_slot[slot.slot] = _overlay_slot(slot, existing) if existing else slot
     return tuple(by_slot[name] for name in sorted(by_slot, key=str))
+
+
+def _overlay_slot(preferred: TypedClaimSlot, fallback: TypedClaimSlot) -> TypedClaimSlot:
+    return _slot(
+        preferred.slot,
+        preferred.value,
+        unit=preferred.unit or fallback.unit,
+        comparator=preferred.comparator or fallback.comparator,
+        qualifiers=tuple(dict.fromkeys((*preferred.qualifiers, *fallback.qualifiers))),
+        entity=preferred.entity or fallback.entity,
+        valid_at=preferred.valid_at or fallback.valid_at,
+        origin=preferred.origin,
+        raw_span=preferred.raw_span,
+        confidence=preferred.confidence,
+    )
 
 
 def _dedupe_conflicting(slots: Sequence[TypedClaimSlot]) -> list[TypedClaimSlot]:
@@ -961,7 +979,11 @@ def _best_match(
     ]
     if len(exact) == 1:
         return exact[0]
-    same_slot = [index for index, right in enumerate(candidate) if index not in used and right.slot == left.slot]
+    same_slot = [
+        index
+        for index, right in enumerate(candidate)
+        if index not in used and right.slot == left.slot
+    ]
     if len(same_slot) == 1:
         right = candidate[same_slot[0]]
         left_entity = _entity_key(left.entity)
