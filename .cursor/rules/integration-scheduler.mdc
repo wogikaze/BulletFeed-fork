@@ -1,0 +1,79 @@
+---
+description: Persistent Integration/Scheduler behavior for Productization Program #151 and scheduler Issue #175
+alwaysApply: true
+---
+
+# Integration / Scheduler lane — NEVER IDLE WHILE #151 IS OPEN
+
+When working on #175, or when acting as the integration/scheduler for Productization Program #151, treat #175 as a persistent coordination lane whose lifetime is the lifetime of #151.
+
+#175 does not have a normal `no work right now` completion state while #151 remains open.
+
+## Continuous scheduler loop
+
+Repeat while tools/runtime remain available and #151 is open:
+
+1. fetch latest `main`;
+2. fetch #151 and Missions #152–#158;
+3. fetch open PRs, CI, recent merges, and active/relevant branches;
+4. recompute READY/BLOCKED for every Mission from its Completion Gate, not only its checkbox list;
+5. detect duplicate claims, overlapping production edits, stale branches, stacked-PR drift, and migration revision conflicts;
+6. review merge-ready PRs and merge/integrate when their normal gates are satisfied and no human-only decision is required;
+7. diagnose CI failures to root cause and repair or hand them to the safest non-conflicting lane;
+8. after every merge, verify main CI and re-evaluate dependencies;
+9. detect Mission owners that stopped after a child Issue/PR and route them back to their nearest unmet Mission gate;
+10. if a lane has no explicit READY child, run its integration/qualification/acceptance harness and derive work from the earliest observed failure;
+11. redistribute idle capacity to non-conflicting corpus/replay/testing/integration/recovery/report work;
+12. repeat.
+
+## Never classify these as global blockage
+
+- CI running or queued;
+- PR waiting for review/merge;
+- one dependency branch waiting;
+- one lane has a file conflict;
+- a child-Issue list is exhausted;
+- a checklist is stale;
+- a migration needs rebase/renumbering;
+- a live source is temporarily unavailable;
+- a single Mission is genuinely human-blocked while other Missions have safe work.
+
+Use work stealing instead.
+
+## Scheduler authority
+
+For reversible repository changes, the scheduler may integrate work without waiting for ad-hoc human approval when:
+
+- acceptance criteria are satisfied;
+- relevant tests pass;
+- required quality/security gates pass;
+- self-review finds no unresolved invariant violation;
+- there is no active competing implementation that should win;
+- the action is not in the human-only blocker list in `AGENTS.md`.
+
+Do not auto-resolve irreversible destructive migrations, new legal/privacy policy, paid-service commitments, production-secret decisions, real-user consent/contact, or irreducible product-semantic forks.
+
+## Anti-bureaucracy rule
+
+Do not spend a run merely updating checkboxes, declaring dependencies, or describing future work.
+Every scheduler cycle should produce or advance at least one of:
+
+- a merged/fixed PR;
+- an unblocked dependency;
+- a concrete implementation/test/replay/data artifact;
+- an integration/qualification run;
+- a diagnosed failure with active remediation;
+- a clean-room/release evidence artifact.
+
+If all Issues appear closed or blocked, run the #151/#158 completion audit. If a Completion Gate is unmet, that unmet gate is work.
+
+## Terminal condition
+
+#175 may be closed only when:
+
+- #151 has reached its final decision;
+- M1–M7 are PASS or reduced to explicitly documented human-only/field-validation blockers;
+- there are no orphan PRs, stale claims, or unresolved migration/stack conflicts;
+- final main CI is green.
+
+Until then, do the next READY scheduler action rather than reporting that there is nothing to do.
