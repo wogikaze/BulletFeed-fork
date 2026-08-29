@@ -400,7 +400,7 @@ def _supersede_family(
               family = ?
               OR (family IS NULL AND type IN ({placeholders}))
           )
-        """,
+        """,  # nosec B608
         (user_id, feed_item_id, family, *type_params),
     )
 

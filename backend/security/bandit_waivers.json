@@ -56,12 +56,6 @@
       "reason": "Hostname non-null is enforced by validate_url_shape before this type-narrowing assertion; SSRF checks do not rely on the assert."
     },
     {
-      "filename": "backend/app/stores/feed_store.py",
-      "test_id": "B608",
-      "line_number": 367,
-      "reason": "The only interpolated SQL fragment is a generated comma-separated list of literal '?' placeholders; all user/data values remain sqlite bind parameters."
-    },
-    {
       "filename": "backend/app/evaluation/real_world_validation.py",
       "test_id": "B608",
       "line_number": 217,
