@@ -9,6 +9,7 @@ judgments) is reported, not enforced, until later corpus PRs.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
@@ -308,6 +309,7 @@ def validate_contract(corpus: ValidationCorpus) -> None:
     _assert_unique("event_id", [row.event_id for row in corpus.events])
     _assert_unique("profile_id", [row.profile_id for row in corpus.profiles])
     _assert_unique("judgment_id", [row.judgment_id for row in corpus.judgments])
+    assert_provenance(corpus)
     events = {row.event_id: row for row in corpus.events}
     profiles = {row.profile_id: row for row in corpus.profiles}
     for source in corpus.sources:
@@ -340,6 +342,39 @@ def validate_contract(corpus: ValidationCorpus) -> None:
     report = split_leakage_report(corpus)
     if not report.ok:
         raise ValueError("split leakage: " + "; ".join(report.violations))
+
+
+def assert_provenance(corpus: ValidationCorpus) -> None:
+    """Require lineage fields and bind content_hash to recorded raw evidence."""
+    for source in corpus.sources:
+        if not source.canonical_url.startswith(("https://", "http://")):
+            raise ValueError(f"source {source.source_id} is missing a URL")
+        if not source.collected_at:
+            raise ValueError(f"source {source.source_id} is missing collected_at")
+        if not source.evidence_locator:
+            raise ValueError(f"source {source.source_id} is missing evidence_locator")
+        if not source.raw_evidence.strip():
+            raise ValueError(f"source {source.source_id} is missing raw_evidence")
+        if not source.normalized_evidence.strip():
+            raise ValueError(f"source {source.source_id} is missing normalized_evidence")
+        digest = hashlib.sha256(source.raw_evidence.encode("utf-8")).hexdigest()
+        if digest != source.content_hash:
+            raise ValueError(f"source {source.source_id} content_hash does not match raw_evidence")
+    for event in corpus.events:
+        if not event.provenance.strip():
+            raise ValueError(f"event {event.event_id} is missing provenance")
+
+
+def coverage_inventory(corpus: ValidationCorpus) -> dict[str, int]:
+    """Counts only. Minimum floors are enforced after collection PRs, not here."""
+    return {
+        "events": len(corpus.events),
+        "profiles": len(corpus.profiles),
+        "judgments": len(corpus.judgments),
+        "source_families": len({row.source_family for row in corpus.sources}),
+        "information_types": len({row.information_type for row in corpus.sources}),
+        "languages": len({row.language for row in corpus.sources}),
+    }
 
 
 def split_leakage_report(corpus: ValidationCorpus) -> LeakageReport:

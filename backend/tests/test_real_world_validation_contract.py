@@ -133,6 +133,17 @@ def test_profile_and_redundancy_leakage_are_rejected(tmp_path: Path) -> None:
         load_real_world_validation(dest)
 
 
+def test_content_hash_must_match_raw_evidence(tmp_path: Path) -> None:
+    dest = _copy_corpus(tmp_path)
+
+    def _break_hash(rows):
+        rows[0]["content_hash"] = "0" * 64
+
+    _rewrite(dest / "sources.json", _break_hash)
+    with pytest.raises(ValueError, match="content_hash"):
+        load_real_world_validation(dest)
+
+
 def test_missing_source_field_fails_schema(tmp_path: Path) -> None:
     dest = _copy_corpus(tmp_path)
 
