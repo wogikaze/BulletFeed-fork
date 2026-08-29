@@ -48,16 +48,18 @@ def main() -> int:
         text=True,
         check=False,
     )
-    if process.returncode not in {0, 1}:
-        sys.stderr.write(process.stderr)
-        sys.stderr.write(process.stdout)
-        return process.returncode
-
     try:
         report = json.loads(process.stdout)
     except json.JSONDecodeError:
         sys.stderr.write(process.stderr)
         sys.stderr.write(process.stdout)
+        return process.returncode or 2
+
+    errors = report.get("errors", [])
+    if errors:
+        print("Bandit reported scan errors:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
         return 2
 
     findings = report.get("results", [])
