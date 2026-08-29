@@ -1,20 +1,19 @@
 name: Dependency lock
 
 on:
-  pull_request:
+  push:
+    branches: [main]
     paths:
       - "backend/pyproject.toml"
       - "backend/requirements.lock"
       - "backend/scripts/verify_locked_environment.py"
       - ".github/workflows/dependency-lock.yml"
-  push:
-    branches: [main, completion-pr]
 
 permissions:
   contents: read
 
 concurrency:
-  group: dependency-lock-${{ github.event.pull_request.number || github.ref }}
+  group: dependency-lock-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

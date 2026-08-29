@@ -1,15 +1,14 @@
 name: Backend security
 
 on:
-  pull_request:
   push:
-    branches: [main, completion-pr]
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: backend-security-${{ github.event.pull_request.number || github.ref }}
+  group: backend-security-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
