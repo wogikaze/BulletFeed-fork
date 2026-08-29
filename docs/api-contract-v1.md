@@ -30,7 +30,7 @@ Importance: critical | high | medium | low
 RelationLevel: direct | adjacent | reference
 DeltaType: new_fact | detail | state_update | correction | unresolved_contradiction
 FeedItemStatus: unread | read
-FeedbackType: important | not_relevant
+FeedbackType: important | not_relevant | follow | already_knew | learned_now | less_like_this | undo
 EventPhase: investigating | identified | monitoring | resolved
 TimelineType: announced | state_changed | information_added | corrected | resolved
 SourceKind: statuspage | github_advisory | osv | github_release | github_sbom | rss_atom | json_feed | official_changelog | documentation
@@ -135,10 +135,27 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 
 `PUT /feed/items/{feedItemId}/read` — 当該 Delta を既読にする。詳細 GET では自動既読にしない。
 
-`POST /feed/items/{feedItemId}/feedback` `{ type: important | not_relevant }`
+`POST /feed/items/{feedItemId}/feedback` `{ type: important | not_relevant | follow | already_knew | learned_now | less_like_this | undo }`
 
-- `important`: フィードから消さない
-- `not_relevant`: その FeedItem だけをフィードから外す
+Append-only ledger. Latest row wins per `(userId, feedItemId, type-family)`. `undo` writes a new row that supersedes the latest family for that item; history is retained.
+
+Families:
+
+- ranking: `important`, `not_relevant`
+- knowledge: `already_knew`, `learned_now` (`learned_now` = did_not_know)
+- follow: `follow`
+- preference: `less_like_this`
+
+Behavior:
+
+- `important`: `marked_important`。フィードから消さない。既存互換
+- `not_relevant`: その FeedItem だけを dismiss / 既読にする。既存互換
+- `follow`: 当該 Event の `event_follows` を upsert。Claim / Event / Delta の事実は書き換えない
+- `already_knew` / `learned_now`: ユーザー知識・パーソナライズ状態だけを更新する。Claim / Event / Delta / observation の正本は変更しない
+- `less_like_this`: 受け付けて保存する。トピック全体の非表示や当該 item 以外の dismiss はしない
+- `undo`: 直近 family の派生状態を取り消す。履歴行は消さない
+- 同一シグナルの再送は派生状態として冪等（latest-state）。行は追加される
+- 各行は取得できる範囲で `eventId` / `deltaId` / `claimId` を保持する
 
 `POST /feed/exposures` `{ items: [{ deliveryId, displayedAt }] }`
 
