@@ -5,13 +5,14 @@ import time
 from collections.abc import Callable
 
 from app.db.event_identity_schema import EVENT_IDENTITY_SCHEMA
+from app.db.knowledge_evidence_schema import KNOWLEDGE_EVIDENCE_SCHEMA
 from app.db.ledger_schema import LEDGER_SCHEMA
 from app.db.schema import PUBLIC_API_SCHEMA
 from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -331,6 +332,15 @@ def _apply_revision_9(connection: sqlite3.Connection) -> None:
         _add_column_if_missing(connection, "user_ranking_features", definition)
 
 
+def _apply_revision_10(connection: sqlite3.Connection) -> None:
+    """Append-only personal knowledge evidence. Does not touch the factual ledger.
+
+    Revision 8 is reserved for the source registry (#58).
+    Revision 9 is typed feedback (#45).
+    """
+    connection.executescript(KNOWLEDGE_EVIDENCE_SCHEMA)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -341,4 +351,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "7": _apply_revision_7,
     "8": _apply_revision_8,
     "9": _apply_revision_9,
+    "10": _apply_revision_10,
 }

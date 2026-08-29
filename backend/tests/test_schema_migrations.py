@@ -235,6 +235,21 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_knowledge_signals'"
         ).fetchone()
+        evidence_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(user_knowledge_evidence)")
+        }
+        assert {
+            "id",
+            "user_id",
+            "claim_id",
+            "event_id",
+            "delta_id",
+            "kind",
+            "provenance",
+            "confidence",
+            "source_id",
+            "created_at",
+        } <= evidence_columns
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -636,3 +651,75 @@ def test_revision_9_adds_typed_feedback_tables_and_preserves_rows(tmp_path: Path
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_knowledge_signals'"
         ).fetchone()
+
+
+def test_revision_10_adds_knowledge_evidence_and_preserves_ledger(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-knowledge-evidence.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '10'")
+        connection.execute("DROP TABLE IF EXISTS user_knowledge_evidence")
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_a', 0)")
+        connection.execute(
+            """
+            INSERT INTO observations (
+                id, source_type, source_key, source_observation_id,
+                payload_hash, payload_json, original_url, retrieved_at
+            ) VALUES (
+                'obs_ke', 'statuspage', 'abcd1234', 'inc_ke',
+                'hash', '{}', 'https://example.test', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO ledger_events (
+                id, source_type, source_key, source_event_id, title, created_at
+            ) VALUES (
+                'event_ke', 'statuspage', 'abcd1234', 'inc_ke', 'Legacy',
+                '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO state_claims (
+                id, event_id, observation_id, slot, value_text, detail_text,
+                valid_at, observed_at
+            ) VALUES (
+                'claim_ke', 'event_ke', 'obs_ke', 'status', 'investigating', 'Legacy',
+                '2026-08-22T00:00:00Z', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7", "9", "10"}
+        assert "8" not in revisions
+        columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(user_knowledge_evidence)")
+        }
+        assert {
+            "id",
+            "user_id",
+            "claim_id",
+            "event_id",
+            "delta_id",
+            "kind",
+            "provenance",
+            "confidence",
+            "source_id",
+            "created_at",
+        } <= columns
+        claim = connection.execute(
+            "SELECT value_text FROM state_claims WHERE id = 'claim_ke'"
+        ).fetchone()
+        assert claim["value_text"] == "investigating"
+        assert connection.execute(
+            "SELECT COUNT(*) FROM user_knowledge_evidence"
+        ).fetchone()[0] == 0

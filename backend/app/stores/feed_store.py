@@ -27,6 +27,14 @@ from app.services.feedback_signals import (
     resolve_write_family,
     types_for_family,
 )
+from app.services.knowledge_evidence import (
+    KIND_ALREADY_KNEW,
+    KIND_DELIVERED,
+    KIND_DISPLAYED,
+    KIND_LEARNED_NOW,
+    KIND_READ,
+    append_knowledge_evidence,
+)
 
 _VALID_RELATIONS = {"direct", "adjacent", "reference"}
 _VALID_STATUSES = {"unread", "read"}
@@ -115,6 +123,8 @@ def _upsert_delivered(
     claim_id: str,
     delivery_id: str,
     delivered_at: str,
+    event_id: str | None = None,
+    delta_id: str | None = None,
 ) -> None:
     connection.execute(
         """
@@ -141,6 +151,15 @@ def _upsert_delivered(
         """,
         (user_id, claim_id, delivery_id, delivered_at, KNOWNNESS_DELIVERED),
     )
+    append_knowledge_evidence(
+        connection,
+        user_id=user_id,
+        kind=KIND_DELIVERED,
+        source_id=delivery_id,
+        claim_id=claim_id,
+        event_id=event_id,
+        delta_id=delta_id,
+    )
 
 
 def _upsert_displayed(
@@ -150,6 +169,8 @@ def _upsert_displayed(
     claim_id: str,
     delivery_id: str,
     displayed_at: str,
+    event_id: str | None = None,
+    delta_id: str | None = None,
 ) -> None:
     connection.execute(
         """
@@ -177,6 +198,15 @@ def _upsert_displayed(
             displayed_at,
         ),
     )
+    append_knowledge_evidence(
+        connection,
+        user_id=user_id,
+        kind=KIND_DISPLAYED,
+        source_id=delivery_id,
+        claim_id=claim_id,
+        event_id=event_id,
+        delta_id=delta_id,
+    )
 
 
 def _record_read(
@@ -187,7 +217,7 @@ def _record_read(
 ) -> None:
     mapped = connection.execute(
         """
-        SELECT m.claim_id
+        SELECT m.claim_id, f.event_id, f.delta_id
         FROM feed_items f
         JOIN delta_claim_map m ON m.delta_id = f.delta_id
         WHERE f.id = ? AND f.user_id = ?
@@ -235,6 +265,15 @@ def _record_read(
             KNOWNNESS_READ,
             now,
         ),
+    )
+    append_knowledge_evidence(
+        connection,
+        user_id=user_id,
+        kind=KIND_READ,
+        source_id=delivery_id,
+        claim_id=mapped["claim_id"],
+        event_id=mapped["event_id"],
+        delta_id=mapped["delta_id"],
     )
 
 
@@ -552,6 +591,8 @@ class FeedStore:
                         claim_id=row["claim_id"],
                         delivery_id=delivery_id,
                         delivered_at=created_at,
+                        event_id=row["event_id"],
+                        delta_id=row["delta_id"],
                     )
                 items.append(
                     _row_to_item(
@@ -626,6 +667,7 @@ class FeedStore:
                 feed_item_id=feed_item_id,
                 family=family,
             )
+            feedback_id = f"fb_{secrets.token_urlsafe(8)}"
             connection.execute(
                 """
                 INSERT INTO feedback (
@@ -634,7 +676,7 @@ class FeedStore:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
                 """,
                 (
-                    f"fb_{secrets.token_urlsafe(8)}",
+                    feedback_id,
                     feed_item_id,
                     user_id,
                     feedback_type,
@@ -645,6 +687,20 @@ class FeedStore:
                     family,
                 ),
             )
+            if family == FAMILY_KNOWLEDGE and feedback_type in {
+                KIND_ALREADY_KNEW,
+                KIND_LEARNED_NOW,
+            }:
+                append_knowledge_evidence(
+                    connection,
+                    user_id=user_id,
+                    kind=feedback_type,
+                    source_id=feedback_id,
+                    claim_id=claim_id,
+                    event_id=event_id,
+                    delta_id=delta_id,
+                    created_at=now,
+                )
             _apply_feedback_derived_state(
                 connection,
                 user_id=user_id,
@@ -671,7 +727,7 @@ class FeedStore:
                 delivery_id = item["delivery_id"]
                 delivery = connection.execute(
                     """
-                    SELECT d.id, f.delta_id, m.claim_id
+                    SELECT d.id, f.delta_id, f.event_id, m.claim_id
                     FROM deliveries d
                     JOIN feed_items f ON f.id = d.feed_item_id
                     LEFT JOIN delta_claim_map m ON m.delta_id = f.delta_id
@@ -695,6 +751,8 @@ class FeedStore:
                         claim_id=delivery["claim_id"],
                         delivery_id=delivery_id,
                         displayed_at=item["displayed_at"],
+                        event_id=delivery["event_id"],
+                        delta_id=delivery["delta_id"],
                     )
                 accepted += inserted
         return accepted

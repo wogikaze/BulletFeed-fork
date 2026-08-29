@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+# Delivery / display / read watermarks. These are not a knowledge boolean.
+# Typed known / probably_known / unknown is derived from user_knowledge_evidence
+# (see app.services.knowledge_evidence). GET /feed writes delivered only.
+
 KNOWNNESS_DELIVERED = "delivered"
 KNOWNNESS_DISPLAYED = "displayed"
 KNOWNNESS_READ = "read"
