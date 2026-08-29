@@ -250,7 +250,7 @@ class LedgerProjector:
             return "OSV"
         if source_type == "statuspage":
             return "Statuspage"
-        if source_type in {"rss_atom", "json_feed"}:
+        if source_type in {"rss_atom", "json_feed", "official_changelog", "documentation"}:
             hostname = urlparse(original_url).hostname
             return hostname or source_key
         return source_key or source_type

@@ -1,9 +1,8 @@
 """Typed change candidates from aligned Web sections (#62 / Source-06).
 
-Consumes #61 normalized documents and alignments. Does not write Observations
-or Claims (#63) and does not render JavaScript (#64). generic_web stays
-discovery-only. Low-confidence candidates stay available for downstream
-abstention instead of being forced into semantic truth.
+Consumes #61 normalized documents and alignments. Change extraction itself
+does not write Observations or Claims; #63 ingest does that through the
+ledger. Does not render JavaScript (#64). generic_web stays discovery-only.
 """
 
 from __future__ import annotations
