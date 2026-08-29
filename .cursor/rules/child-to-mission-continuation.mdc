@@ -1,0 +1,22 @@
+---
+description: Continue Productization child-Issue work into its parent Mission instead of stopping after the child PR
+alwaysApply: true
+---
+
+# Productization child Issue continuation
+
+This rule complements @AGENTS.md and `persistent-mission.mdc`.
+
+When the task you receive is a child Issue whose parent chain reaches Productization Program #151 (including descendants of #117, #123, and Missions #152–#158):
+
+1. inspect the Issue's `Parent`, `Program`, `Related`, and dependency links;
+2. walk the parent chain until the nearest Mission #152–#158 is identified;
+3. complete the assigned child Issue with normal tests/CI/review discipline;
+4. **do not voluntarily stop after that child completes** unless the user explicitly said to work on *only* that Issue and nothing beyond it;
+5. fetch the nearest Mission and evaluate its Completion Gate;
+6. start the next non-conflicting READY child or Mission-level integration/qualification work;
+7. continue until the Mission Completion Gate passes or a genuine human-only blocker defined in @AGENTS.md remains after all other READY work is exhausted.
+
+A prompt such as `implement #124`, `fix #137`, or `work through the source issues` should therefore be treated as an entry point into the relevant Productization Mission, not as permission to become idle after one merge, unless the prompt explicitly narrows scope to exactly one Issue.
+
+Never infer `Mission complete` from `all child Issues closed`. Run the Mission acceptance/qualification/evaluation gate on current `main` and derive any remaining work from observed failures.
