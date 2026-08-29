@@ -149,6 +149,24 @@ def test_relation_is_not_folded_into_impact() -> None:
     assert score_axes(related).relevance > score_axes(unrelated).relevance
 
 
+def test_confident_same_target_known_item_can_hide() -> None:
+    hidden = rank_candidates(
+        [
+            _candidate(
+                item_id="known-same",
+                knownness_state=STATE_KNOWN,
+                knownness_confidence=CONFIDENCE_HIGH,
+                identity_label="same_target",
+                identity_confidence=CONFIDENCE_HIGH,
+            )
+        ]
+    )[0]
+    assert hidden.visibility == "hide"
+    assert hidden.hidden is True
+    assert hidden.suppression_version
+    assert "same-target" in hidden.suppression_reason
+
+
 def test_uncertain_knownness_does_not_hide() -> None:
     assert decide_visibility(knownness_state=STATE_PROBABLY_KNOWN, knownness_confidence="medium") == "demote"
     assert decide_visibility(knownness_state=STATE_UNKNOWN, knownness_confidence="low") == "show"

@@ -18,9 +18,10 @@ from app.evaluation.personalization_gold import (
     PersonalizationItem,
     PersonalizationUser,
 )
+from app.services.false_suppression import POLICY_VERSION as SUPPRESSION_POLICY_VERSION
+from app.services.false_suppression import decide_suppression
 from app.services.impact_signals import UNKNOWN, extract_impact_signals, features_for_ranking
 from app.services.knowledge_evidence import (
-    CONFIDENCE_HIGH,
     STATE_KNOWN,
     STATE_PROBABLY_KNOWN,
     STATE_UNKNOWN,
@@ -30,7 +31,7 @@ from app.services.ranking import evaluate_importance
 from app.services.relation import evaluate_relation_from_state
 from app.services.user_interest import state_from_personalization_user
 
-RANKING_POLICY_VERSION = "multiobjective-ranker-v1"
+RANKING_POLICY_VERSION = "multiobjective-ranker-v2"
 CURSOR_VERSION = "v5"
 
 PriorityRule = Literal[
@@ -108,6 +109,9 @@ class RankerCandidate:
     source_type: str = ""
     updated_at: str = ""
     preference_bonus: float = 0.0
+    identity_label: str = "uncertain"
+    identity_confidence: str = "none"
+    revision_class: str = ""
 
 
 @dataclass(frozen=True)
@@ -121,6 +125,8 @@ class RankedItem:
     visibility: VisibilityAction
     sort_key: tuple[Any, ...]
     hidden: bool = False
+    suppression_reason: str = ""
+    suppression_version: str = ""
 
 
 @dataclass
@@ -136,6 +142,8 @@ class _Scored:
     visibility: VisibilityAction
     base_composite: float
     impact_snapshot: Mapping[str, Any]
+    suppression_reason: str = ""
+    suppression_version: str = ""
 
 
 def rank_candidates(
@@ -146,7 +154,7 @@ def rank_candidates(
     """Rank candidates with inspectable axes and greedy diversity penalties.
 
     The same inputs and ``policy_version`` always produce the same order.
-    Items are never dropped for redundancy. Uncertain knownness never hides.
+    Items are never dropped for redundancy. Hide only follows decide_suppression.
     """
     if policy_version != RANKING_POLICY_VERSION:
         raise ValueError(f"unknown ranking policy {policy_version}")
@@ -184,19 +192,39 @@ def priority_rule_for(candidate: RankerCandidate) -> str | None:
     return None
 
 
+def _revision_class_for(candidate: RankerCandidate) -> str:
+    delta = (candidate.delta_type or "").strip().casefold()
+    if delta in _CORRECTION_DELTAS:
+        return "CORRECTION"
+    if delta in _CONFLICT_DELTAS:
+        return "UNRESOLVED_CONTRADICTION"
+    return ""
+
+
 def decide_visibility(
     *,
     knownness_state: str,
     knownness_confidence: str,
     priority_rule: str | None = None,
+    identity_label: str | None = "uncertain",
+    identity_confidence: str | None = "none",
+    revision_class: str | None = None,
+    importance_level: str | None = None,
 ) -> VisibilityAction:
-    """Uncertain evidence may show or demote. It must never hide."""
+    """Production visibility is the false-suppression guard.
+
+    Missing identity stays ``uncertain`` so known+high never hard-hides
+    without a confident same-target decision.
+    """
     del priority_rule
-    if knownness_state == STATE_PROBABLY_KNOWN:
-        return "demote"
-    if knownness_state == STATE_KNOWN and knownness_confidence == CONFIDENCE_HIGH:
-        return "demote"
-    return "show"
+    return decide_suppression(
+        knowledge_state=knownness_state,
+        knowledge_confidence=knownness_confidence,
+        identity_label=identity_label,
+        identity_confidence=identity_confidence,
+        revision_class=revision_class,
+        importance_level=importance_level,
+    ).action
 
 
 def encode_ranking_cursor(item_id: str, *, policy_version: str = RANKING_POLICY_VERSION) -> str:
@@ -331,11 +359,16 @@ def _score_independent(candidate: RankerCandidate) -> _Scored:
     urgency = _urgency_score(snapshot, candidate)
     preference = max(-1.0, min(1.0, candidate.preference_bonus)) * _PREFERENCE_SCALE
     rule = priority_rule_for(candidate)
-    visibility = decide_visibility(
-        knownness_state=candidate.knownness_state,
-        knownness_confidence=candidate.knownness_confidence,
-        priority_rule=rule,
+    revision_class = candidate.revision_class or _revision_class_for(candidate)
+    decision = decide_suppression(
+        knowledge_state=candidate.knownness_state,
+        knowledge_confidence=candidate.knownness_confidence,
+        identity_label=candidate.identity_label,
+        identity_confidence=candidate.identity_confidence,
+        revision_class=revision_class or None,
+        importance_level=candidate.importance_level,
     )
+    visibility = decision.action
     tier = _priority_tier(rule, relevance=relevance)
     base = (
         _WEIGHTS["relevance"] * relevance
@@ -356,6 +389,8 @@ def _score_independent(candidate: RankerCandidate) -> _Scored:
         visibility=visibility,
         base_composite=round(base, 6),
         impact_snapshot=snapshot,
+        suppression_reason=decision.reason,
+        suppression_version=decision.version,
     )
 
 
@@ -401,13 +436,15 @@ def _diversify(scored: Sequence[_Scored], *, policy_version: str) -> list[Ranked
                 composite=composite,
                 visibility=row.visibility,
                 sort_key=sort_key,
-                hidden=False,
+                hidden=row.visibility == "hide",
+                suppression_reason=row.suppression_reason,
+                suppression_version=row.suppression_version or SUPPRESSION_POLICY_VERSION,
             )
             if best_key is None or sort_key > best_key:
                 best_key = sort_key
                 best_item = item
                 best_index = index
-        assert best_item is not None
+        assert best_item is not None  # nosec B101
         selected.append(best_item)
         chosen = remaining.pop(best_index)
         group = chosen.candidate.redundancy_group or chosen.candidate.event_id or chosen.candidate.item_id

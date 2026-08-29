@@ -14,12 +14,6 @@
       "reason": "Type-narrowing invariant after filtering both tuple elements non-null; removal can only fail closed with an exception, not bypass validation."
     },
     {
-      "filename": "backend/app/services/multiobjective_ranker.py",
-      "test_id": "B101",
-      "line_number": 410,
-      "reason": "Internal selection invariant inside a non-empty ranking loop; it does not guard authorization, validation, or trust boundaries."
-    },
-    {
       "filename": "backend/app/services/offline_preference.py",
       "test_id": "B101",
       "line_number": 552,
