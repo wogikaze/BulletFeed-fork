@@ -283,6 +283,8 @@ class MeStore:
             for table in (
                 "user_claim_exposures",
                 "exposures",
+                "user_ranking_features",
+                "user_ranking_resets",
                 "feedback",
                 "event_follows",
                 "event_user_access",

@@ -177,6 +177,22 @@ CREATE TABLE IF NOT EXISTS feedback (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS user_ranking_resets (
+    user_id TEXT PRIMARY KEY,
+    reset_at INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS user_ranking_features (
+    user_id TEXT NOT NULL,
+    feature_kind TEXT NOT NULL,
+    feature_value TEXT NOT NULL,
+    important_count INTEGER NOT NULL,
+    not_relevant_count INTEGER NOT NULL,
+    PRIMARY KEY (user_id, feature_kind, feature_value),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS event_follows (
     user_id TEXT NOT NULL,
     event_id TEXT NOT NULL,
