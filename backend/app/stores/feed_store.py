@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import base64
-import binascii
 import json
 import secrets
 import sqlite3
@@ -28,13 +26,25 @@ from app.services.feedback_signals import (
     types_for_family,
 )
 from app.services.follow_baseline import SUBJECT_EVENT, record_follow_baseline
+from app.services.impact_signals import extract_impact_signals, features_for_ranking
 from app.services.knowledge_evidence import (
+    CONFIDENCE_NONE,
     KIND_ALREADY_KNEW,
     KIND_DELIVERED,
     KIND_DISPLAYED,
     KIND_LEARNED_NOW,
     KIND_READ,
+    STATE_UNKNOWN,
     append_knowledge_evidence,
+    derive_knowledge_state,
+    list_knowledge_evidence,
+)
+from app.services.multiobjective_ranker import (
+    RANKING_POLICY_VERSION,
+    RankerCandidate,
+    decode_ranking_cursor,
+    paginate_ranked,
+    rank_candidates,
 )
 from app.services.viewport_exposure import (
     POLICY_VERSION,
@@ -49,45 +59,62 @@ def _now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def _encode_cursor(
-    knownness_rank: int,
-    importance_rank: int,
-    relation_rank: int,
-    personalization_rank: int,
-    updated_at: str,
-    item_id: str,
-) -> str:
-    raw = (
-        f"v4|{knownness_rank}|{importance_rank}|{relation_rank}|{personalization_rank}|{updated_at}|{item_id}"
-    ).encode()
-    return base64.urlsafe_b64encode(raw).decode().rstrip("=")
-
-
-def _decode_cursor(cursor: str) -> tuple[int, int, int, int, str, str]:
-    padding = "=" * (-len(cursor) % 4)
+def _decode_cursor(cursor: str) -> str:
     try:
-        decoded = base64.urlsafe_b64decode(cursor + padding).decode()
-        (
-            version,
-            knownness_rank,
-            importance_rank,
-            relation_rank,
-            personalization_rank,
-            updated_at,
-            item_id,
-        ) = decoded.split("|", 6)
-        if version != "v4" or not updated_at or not item_id:
-            raise ValueError
-        return (
-            int(knownness_rank),
-            int(importance_rank),
-            int(relation_rank),
-            int(personalization_rank),
-            updated_at,
-            item_id,
-        )
-    except (ValueError, UnicodeDecodeError, binascii.Error) as exc:
+        return decode_ranking_cursor(cursor, policy_version=RANKING_POLICY_VERSION)
+    except ValueError as exc:
         raise unprocessable("cursor is invalid or from an obsolete ranking version") from exc
+
+
+def _knownness_by_feed_item(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    rows: list[sqlite3.Row],
+) -> dict[str, tuple[str, str]]:
+    evidence = list_knowledge_evidence(connection, user_id=user_id)
+    by_claim: dict[str, list] = {}
+    for row in evidence:
+        if row.claim_id:
+            by_claim.setdefault(row.claim_id, []).append(row)
+    states: dict[str, tuple[str, str]] = {}
+    for feed_row in rows:
+        claim_id = feed_row["claim_id"]
+        if not claim_id:
+            states[feed_row["id"]] = (STATE_UNKNOWN, CONFIDENCE_NONE)
+            continue
+        derived = derive_knowledge_state(by_claim.get(claim_id, ()))
+        states[feed_row["id"]] = (derived.state, derived.confidence)
+    return states
+
+
+def _candidate_from_feed_row(row: sqlite3.Row, knownness: tuple[str, str]) -> RankerCandidate:
+    topics = json.loads(row["matched_topics_json"] or "[]")
+    topic_key = topics[0] if topics else row["event_id"]
+    record = {
+        "source_type": row["source_type"],
+        "source_key": row["source_key"],
+        "delta_type": row["delta_type"],
+        "title": row["title"],
+        "summary": row["event_summary"] or row["delta_summary"],
+    }
+    snapshot = features_for_ranking(extract_impact_signals(record))
+    return RankerCandidate(
+        item_id=row["id"],
+        event_id=row["event_id"],
+        redundancy_group=row["event_id"],
+        topic_key=topic_key,
+        relation_level=row["relation_level"],
+        relation_score=0.0,
+        personalization_rank=int(row["personalization_rank"] or 0),
+        importance_level=row["importance_level"],
+        impact_snapshot=snapshot,
+        knownness_state=knownness[0],
+        knownness_confidence=knownness[1],
+        delta_type=row["delta_type"],
+        source_type=row["source_type"],
+        updated_at=row["updated_at"],
+    )
 
 
 def _row_to_item(
@@ -462,9 +489,8 @@ class FeedStore:
         if limit < 1 or limit > 50:
             raise unprocessable("limit must be 1-50")
 
-        cursor_values: tuple[int, int, int, int, str, str] | None = None
         if cursor:
-            cursor_values = _decode_cursor(cursor)
+            _decode_cursor(cursor)
 
         with self._database.connect() as connection:
             follows = {
@@ -479,36 +505,13 @@ class FeedStore:
                 SELECT f.*, d.type AS delta_type, d.summary AS delta_summary,
                        d.before_text, d.after_text, d.occurred_at,
                        claim_map.claim_id AS claim_id,
-                       CASE f.importance_level
-                           WHEN 'critical' THEN 4
-                           WHEN 'high' THEN 3
-                           WHEN 'medium' THEN 2
-                           ELSE 1
-                       END AS importance_rank,
-                       CASE f.relation_level
-                           WHEN 'direct' THEN 3
-                           WHEN 'adjacent' THEN 2
-                           ELSE 1
-                       END AS relation_rank,
-                       CASE
-                           WHEN EXISTS (
-                               SELECT 1 FROM user_knowledge_evidence e
-                               WHERE e.user_id = f.user_id
-                                 AND e.kind IN ('baseline', 'already_knew', 'learned_now')
-                                 AND e.claim_id IS NOT NULL
-                                 AND e.claim_id = claim_map.claim_id
-                           ) THEN 0
-                           WHEN EXISTS (
-                               SELECT 1 FROM user_knowledge_evidence e
-                               WHERE e.user_id = f.user_id
-                                 AND e.kind IN ('displayed', 'read')
-                                 AND e.claim_id IS NOT NULL
-                                 AND e.claim_id = claim_map.claim_id
-                           ) THEN 1
-                           ELSE 2
-                       END AS knownness_rank
+                       COALESCE(le.source_type, 'unknown') AS source_type,
+                       COALESCE(le.source_key, '') AS source_key,
+                       COALESCE(e.summary, '') AS event_summary
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
+                LEFT JOIN events e ON e.id = f.event_id
+                LEFT JOIN ledger_events le ON le.id = f.event_id
                 LEFT JOIN delta_claim_map claim_map ON claim_map.delta_id = f.delta_id
                 LEFT JOIN user_claim_exposures knownness
                     ON knownness.user_id = f.user_id
@@ -545,72 +548,21 @@ class FeedStore:
                 inner_sql += " AND f.status = ?"
                 params.append(item_status)
 
-            sql = f"SELECT * FROM ({inner_sql}) ranked"  # nosec B608
-            if cursor_values is not None:
-                (
-                    knownness_rank,
-                    importance_rank,
-                    relation_rank,
-                    personalization_rank,
-                    updated_at,
-                    item_id,
-                ) = cursor_values
-                sql += """
-                    WHERE knownness_rank < ?
-                       OR (knownness_rank = ? AND importance_rank < ?)
-                       OR (
-                           knownness_rank = ? AND importance_rank = ?
-                           AND relation_rank < ?
-                       )
-                       OR (
-                           knownness_rank = ? AND importance_rank = ?
-                           AND relation_rank = ? AND personalization_rank < ?
-                       )
-                       OR (
-                           knownness_rank = ? AND importance_rank = ?
-                           AND relation_rank = ? AND personalization_rank = ?
-                           AND updated_at < ?
-                       )
-                       OR (
-                           knownness_rank = ? AND importance_rank = ?
-                           AND relation_rank = ? AND personalization_rank = ?
-                           AND updated_at = ? AND id < ?
-                       )
-                """
-                params.extend(
-                    [
-                        knownness_rank,
-                        knownness_rank,
-                        importance_rank,
-                        knownness_rank,
-                        importance_rank,
-                        relation_rank,
-                        knownness_rank,
-                        importance_rank,
-                        relation_rank,
-                        personalization_rank,
-                        knownness_rank,
-                        importance_rank,
-                        relation_rank,
-                        personalization_rank,
-                        updated_at,
-                        knownness_rank,
-                        importance_rank,
-                        relation_rank,
-                        personalization_rank,
-                        updated_at,
-                        item_id,
-                    ]
+            rows = list(connection.execute(inner_sql, params).fetchall())
+            knownness_by_item = _knownness_by_feed_item(connection, user_id=user_id, rows=rows)
+            candidates = [_candidate_from_feed_row(row, knownness_by_item[row["id"]]) for row in rows]
+            ranked = rank_candidates(candidates)
+            try:
+                page, next_cursor = paginate_ranked(
+                    ranked,
+                    cursor=cursor,
+                    limit=limit,
+                    policy_version=RANKING_POLICY_VERSION,
                 )
-            sql += """
-                ORDER BY knownness_rank DESC, importance_rank DESC, relation_rank DESC,
-                         personalization_rank DESC, updated_at DESC, id DESC
-                LIMIT ?
-            """
-            params.append(limit + 1)
-
-            rows = list(connection.execute(sql, params).fetchall())
-            page_rows = rows[:limit]
+            except ValueError as exc:
+                raise unprocessable("cursor is invalid or from an obsolete ranking version") from exc
+            by_id = {row["id"]: row for row in rows}
+            page_rows = [by_id[item.item_id] for item in page]
             sources_by_event: dict[str, list[SourceEvidence]] = {}
             event_ids = list(dict.fromkeys(row["event_id"] for row in page_rows))
             if event_ids:
@@ -664,17 +616,6 @@ class FeedStore:
                     )
                 )
 
-            next_cursor = None
-            if len(rows) > limit and page_rows:
-                last = page_rows[-1]
-                next_cursor = _encode_cursor(
-                    last["knownness_rank"],
-                    last["importance_rank"],
-                    last["relation_rank"],
-                    last["personalization_rank"],
-                    last["updated_at"],
-                    last["id"],
-                )
             return items, next_cursor
 
     def mark_read(self, user_id: str, feed_item_id: str) -> dict:
