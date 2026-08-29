@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from app.services.claim_semantics import canonicalize_text, compare_claim_texts, compare_claims
+from app.services.claim_semantics import canonicalize_text, compare_claim_texts
+from app.services.semantic_equivalence import compare_semantic_equivalence
 
 RevisionType = Literal[
     "NEW_FACT",
@@ -60,7 +61,12 @@ def judge_revision(
             "high",
         )
 
-    equivalence = compare_claims(prior.value, prior.detail, candidate.value, candidate.detail)
+    equivalence = compare_semantic_equivalence(
+        prior.value,
+        prior.detail,
+        candidate.value,
+        candidate.detail,
+    )
     if equivalence.label == "equivalent":
         return RevisionDecision(
             "NON_NOVEL",

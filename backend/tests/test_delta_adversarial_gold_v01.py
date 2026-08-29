@@ -19,8 +19,8 @@ from app.evaluation.delta_adversarial_gold import (
     scan_python_sources,
     token_jaccard,
 )
-from app.services.claim_semantics import compare_claims
 from app.services.semantic_delta import ClaimSnapshot, DeltaContext, judge_revision
+from app.services.semantic_equivalence import compare_semantic_equivalence
 
 _V01 = Path(__file__).parent / "gold" / "delta_adversarial" / "v01"
 _APP = Path(__file__).resolve().parents[1] / "app"
@@ -188,7 +188,7 @@ def test_current_algorithm_diagnostic_on_adversarial_set() -> None:
     predicted: dict[str, DeltaAdversarialPrediction] = {}
     disagreements = 0
     for case in corpus.cases:
-        equivalence = compare_claims(
+        equivalence = compare_semantic_equivalence(
             case.prior.value,
             case.prior.detail,
             case.candidate.value,
