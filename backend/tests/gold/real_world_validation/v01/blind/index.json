@@ -1,7 +1,29 @@
 {
   "split": "blind",
-  "source_ids": ["src_contract_h01"],
-  "event_ids": ["evt_contract_h01"],
-  "profile_ids": ["prf_contract_h01"],
-  "judgment_ids": ["jdg_contract_h01"]
+  "source_ids": [
+    "src_contract_h01"
+  ],
+  "event_ids": [
+    "evt_contract_h01"
+  ],
+  "profile_ids": [
+    "prf_contract_h01",
+    "prf_rw_h35",
+    "prf_rw_h36",
+    "prf_rw_h37",
+    "prf_rw_h38",
+    "prf_rw_h39",
+    "prf_rw_h40",
+    "prf_rw_h41",
+    "prf_rw_h42",
+    "prf_rw_h43",
+    "prf_rw_h44",
+    "prf_rw_h45",
+    "prf_rw_h46",
+    "prf_rw_h47",
+    "prf_rw_h48"
+  ],
+  "judgment_ids": [
+    "jdg_contract_h01"
+  ]
 }
