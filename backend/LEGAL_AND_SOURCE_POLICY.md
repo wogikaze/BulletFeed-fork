@@ -23,6 +23,7 @@
 7. 削除依頼、連携解除、アカウント削除時に関連する非公開データとtokenを削除できるようにする。
 8. LLMの要約・影響推定は原文と区別し、推定であることと確信度を表示する。
 9. `generic_web` は discovery_only のまま自動的な事実にしない。Web差分は Observation と変更候補として残し、Claim/Evidence は catalog 上 allowlist された `official_changelog` / `documentation` に限る。`source_allows_claim_evidence` が拒否したら ingest は fail-closed する。
+10. 興味・トピックからのソース発見は evidence ではない。発見候補と Hacker News の URL 提案は Claim の根拠にしない。Hacker News は discovery_only。購読はユーザーが approve/ignore したあと別経路で明示作成する。発見だけでは subscription を作らない。
 
 ## セキュリティ境界
 

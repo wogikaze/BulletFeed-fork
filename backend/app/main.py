@@ -24,6 +24,7 @@ from app.routers import (
     knowledge_bootstrap,
     me,
     sessions,
+    source_discovery,
     source_subscriptions,
     webhooks,
 )
@@ -65,6 +66,7 @@ app.include_router(events.router)
 app.include_router(me.router)
 app.include_router(knowledge_bootstrap.router)
 app.include_router(source_subscriptions.router)
+app.include_router(source_discovery.router)
 app.include_router(integrations.router)
 app.include_router(auth.router)
 app.include_router(webhooks.router)

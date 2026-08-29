@@ -1,0 +1,106 @@
+{
+  "version": "source-discovery-v0.1",
+  "cases": [
+    {
+      "case_id": "react-official",
+      "topics": ["React"],
+      "relevant_urls": [
+        "https://github.com/facebook/react/releases",
+        "https://react.dev/blog/rss.xml",
+        "https://react.dev/learn"
+      ],
+      "irrelevant_substrings": ["reactor", "project-reactor", "news.ycombinator.com"],
+      "min_precision": 0.6,
+      "min_recall": 0.6,
+      "limit": 6
+    },
+    {
+      "case_id": "compiler-optimization-llvm",
+      "topics": ["compiler optimization"],
+      "relevant_urls": [
+        "https://github.com/llvm/llvm-project/releases",
+        "https://llvm.org/docs/"
+      ],
+      "irrelevant_substrings": ["react.dev", "fastapi"],
+      "min_precision": 0.5,
+      "min_recall": 0.5,
+      "limit": 6
+    },
+    {
+      "case_id": "python-official",
+      "topics": ["Python"],
+      "relevant_urls": [
+        "https://github.com/python/cpython/releases",
+        "https://blog.python.org/feeds/posts/default",
+        "https://docs.python.org/3/"
+      ],
+      "irrelevant_substrings": ["reactor"],
+      "min_precision": 0.5,
+      "min_recall": 0.6,
+      "limit": 6
+    },
+    {
+      "case_id": "kotlin-android",
+      "topics": ["Kotlin", "Android"],
+      "relevant_urls": [
+        "https://github.com/JetBrains/kotlin/releases",
+        "https://blog.jetbrains.com/kotlin/feed/",
+        "https://android-developers.googleblog.com/feeds/posts/default",
+        "https://developer.android.com"
+      ],
+      "irrelevant_substrings": ["react.dev"],
+      "min_precision": 0.5,
+      "min_recall": 0.5,
+      "limit": 8
+    },
+    {
+      "case_id": "cloudflare-workers",
+      "topics": ["Cloudflare Workers"],
+      "relevant_urls": [
+        "https://blog.cloudflare.com/rss/",
+        "https://developers.cloudflare.com/workers/"
+      ],
+      "irrelevant_substrings": ["llvm.org"],
+      "min_precision": 0.5,
+      "min_recall": 0.5,
+      "limit": 6
+    },
+    {
+      "case_id": "openai-api",
+      "topics": ["OpenAI API"],
+      "relevant_urls": [
+        "https://openai.com/news/rss.xml",
+        "https://platform.openai.com/docs"
+      ],
+      "irrelevant_substrings": ["facebook/react"],
+      "min_precision": 0.5,
+      "min_recall": 0.5,
+      "limit": 6
+    },
+    {
+      "case_id": "github-official",
+      "topics": ["GitHub"],
+      "relevant_urls": [
+        "https://github.blog/feed/",
+        "https://kctbh9vrtdwd.statuspage.io/api/v2/summary.json",
+        "https://api.github.com"
+      ],
+      "irrelevant_substrings": ["news.ycombinator.com"],
+      "min_precision": 0.5,
+      "min_recall": 0.6,
+      "limit": 6
+    },
+    {
+      "case_id": "flutter-official",
+      "topics": ["Flutter"],
+      "relevant_urls": [
+        "https://github.com/flutter/flutter/releases",
+        "https://blog.flutter.dev/feed"
+      ],
+      "irrelevant_substrings": ["reactor"],
+      "min_precision": 0.5,
+      "min_recall": 0.5,
+      "limit": 6
+    }
+  ]
+}
