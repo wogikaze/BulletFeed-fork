@@ -8,6 +8,7 @@ from app.evaluation.e2e_unknown_recall import (
 
 _PILOT = Path(__file__).parent / "gold/e2e_unknown_recall/v01/pilot/cases.json"
 _BLIND = Path(__file__).parent / "gold/e2e_unknown_recall/v01/blind/cases.json"
+_PRODUCTION_MODULE = Path(__file__).parents[1] / "app/evaluation/e2e_unknown_recall.py"
 
 
 def test_pilot_e2e_has_both_cohorts_and_stage_attribution() -> None:
@@ -54,6 +55,6 @@ def test_blind_split_is_evaluation_only_and_still_gated() -> None:
 
 
 def test_production_module_does_not_name_blind_path() -> None:
-    text = Path("app/evaluation/e2e_unknown_recall.py").read_text(encoding="utf-8")
+    text = _PRODUCTION_MODULE.read_text(encoding="utf-8")
     assert "e2e_unknown_recall/v01/blind" not in text
     assert "e2e-b-" not in text
