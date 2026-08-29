@@ -309,6 +309,7 @@ class IntegrationStore:
                     (user_id,),
                 ).fetchall()
             ]
+            connection.execute("DELETE FROM github_inferred_signals WHERE user_id = ?", (user_id,))
             connection.execute("DELETE FROM github_repo_watches WHERE user_id = ?", (user_id,))
             connection.execute(
                 """

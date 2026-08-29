@@ -2,9 +2,10 @@
 
 Interest is derived from source signals (topics, selected repositories, inferred
 repository technologies/packages, profile text, and feedback). Nothing here
-writes observations, claims, events, or deltas. There is no schema revision:
-state is versioned by INTEREST_STATE_VERSION plus a fingerprint of the signals
-and can be rebuilt at any time.
+writes observations, claims, events, or deltas. GitHub-inferred priors are a
+separate, weaker signal family with provenance. User interest is versioned by
+INTEREST_STATE_VERSION plus a fingerprint of the signals and can be rebuilt
+at any time.
 """
 
 from __future__ import annotations
@@ -19,6 +20,12 @@ from dataclasses import dataclass
 from typing import Literal
 
 from app.db.topic_catalog import canonical_topic
+from app.services.inferred_priors import (
+    InferredInterestSignal,
+    load_inferred_signals,
+    rebuild_inferred_priors,
+    selected_repository_names,
+)
 
 INTEREST_STATE_VERSION = "user-interest-v1"
 
@@ -125,6 +132,7 @@ class InterestSources:
     profile_interests: tuple[str, ...] = ()
     feedback: tuple[tuple[str, str], ...] = ()
     inferred_technologies: tuple[str, ...] = ()
+    inferred_priors: tuple[InferredInterestSignal, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -429,6 +437,7 @@ def signals_from_sources(sources: InterestSources) -> tuple[InterestSignal, ...]
                 provenance=f"topic:{cleaned}:{priority}",
             )
         )
+    repos_with_priors = {item.repository for item in sources.inferred_priors}
     for full_name, language in sources.repositories:
         repo = full_name.strip()
         if not repo:
@@ -444,23 +453,36 @@ def signals_from_sources(sources: InterestSources) -> tuple[InterestSignal, ...]
                 provenance=f"repo:{repo}",
             )
         )
-        inferred = list(_REPO_INFERRED.get(repo.casefold(), ()))
-        if language.strip():
-            inferred.append(resolve_concept_id(language))
-        for tech in dict.fromkeys(inferred):
-            if not tech:
-                continue
-            signals.append(
-                InterestSignal(
-                    kind="inferred_repository_technology",
-                    origin="inferred",
-                    raw_text=f"{repo}:{tech}",
-                    concept_id=tech if tech in _CONCEPT_BY_ID else resolve_concept_id(tech),
-                    weight=_INFERRED_WEIGHT,
-                    polarity="positive",
-                    provenance=f"repo-inferred:{repo}:{tech}",
+        if repo not in repos_with_priors:
+            inferred = list(_REPO_INFERRED.get(repo.casefold(), ()))
+            if language.strip():
+                inferred.append(resolve_concept_id(language))
+            for tech in dict.fromkeys(inferred):
+                if not tech:
+                    continue
+                signals.append(
+                    InterestSignal(
+                        kind="inferred_repository_technology",
+                        origin="inferred",
+                        raw_text=f"{repo}:{tech}",
+                        concept_id=tech if tech in _CONCEPT_BY_ID else resolve_concept_id(tech),
+                        weight=_INFERRED_WEIGHT,
+                        polarity="positive",
+                        provenance=f"repo-inferred:{repo}:{tech}",
+                    )
                 )
+    for prior in sources.inferred_priors:
+        signals.append(
+            InterestSignal(
+                kind="inferred_repository_technology",
+                origin="inferred",
+                raw_text=prior.topic_name,
+                concept_id=resolve_concept_id(prior.topic_name),
+                weight=prior.weight,
+                polarity="positive",
+                provenance=prior.provenance(),
             )
+        )
     for raw in sources.inferred_technologies:
         cleaned = raw.strip()
         if not cleaned:
@@ -681,12 +703,19 @@ def collect_interest_sources(connection: sqlite3.Connection, user_id: str) -> In
         for row in feedback_rows
         if row["feedback_type"] in {"important", "not_relevant"}
     )
+    selected = selected_repository_names(connection, user_id)
+    inferred_priors = rebuild_inferred_priors(
+        user_id,
+        load_inferred_signals(connection, user_id),
+        selected_repositories=selected,
+    ).signals
     return InterestSources(
         topics=topics,
         repositories=repositories,
         occupation=occupation,
         profile_interests=profile_interests,
         feedback=feedback,
+        inferred_priors=inferred_priors,
     )
 
 

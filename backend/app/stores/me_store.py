@@ -335,6 +335,7 @@ class MeStore:
                 "security_alerts",
                 "deliveries",
                 "feed_items",
+                "github_inferred_signals",
                 "github_repo_watches",
                 "topics",
                 "profiles",
