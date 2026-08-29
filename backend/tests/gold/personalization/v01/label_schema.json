@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bulletfeed.dev/schemas/personalization-gold-label-v01.json",
+  "title": "BulletFeed personalization Gold label v0.1",
+  "label_protocol_version": "personalization-label-v1",
+  "dataset_version": "personalization-v0.1",
+  "$defs": {
+    "judgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "judgment_id",
+        "user_id",
+        "item_id",
+        "relevance",
+        "importance_to_user",
+        "should_surface",
+        "redundancy_group",
+        "rationale",
+        "provenance",
+        "label_protocol_version",
+        "dataset_version",
+        "split"
+      ],
+      "properties": {
+        "judgment_id": { "type": "string", "minLength": 1 },
+        "user_id": { "type": "string", "minLength": 1 },
+        "item_id": { "type": "string", "minLength": 1 },
+        "relevance": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "importance_to_user": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "should_surface": { "type": "boolean" },
+        "redundancy_group": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "provenance": { "type": "string", "minLength": 1 },
+        "ambiguous": { "type": "boolean" },
+        "hard_negative": { "type": "boolean" },
+        "label_protocol_version": { "type": "string", "minLength": 1 },
+        "dataset_version": { "type": "string", "minLength": 1 },
+        "split": { "type": "string", "enum": ["pilot", "blind"] }
+      }
+    }
+  }
+}

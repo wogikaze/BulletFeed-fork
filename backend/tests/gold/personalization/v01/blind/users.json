@@ -1,0 +1,400 @@
+[
+  {
+    "user_id": "pgold-h-u-01",
+    "split": "blind",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "designer",
+      "interests": [],
+      "region": "ca"
+    },
+    "topics": [],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-02",
+    "split": "blind",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "ios intern",
+      "interests": [
+        "mobile"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "Swift",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "swift"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-03",
+    "split": "blind",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "new hire",
+      "interests": [
+        "cli"
+      ],
+      "region": "ie"
+    },
+    "topics": [
+      {
+        "name": "Go",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "go"
+    ],
+    "adjacent_products": [
+      "docker"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-04",
+    "split": "blind",
+    "kind": "cold_start",
+    "profile": {
+      "occupation": "android intern",
+      "interests": [
+        "mobile"
+      ],
+      "region": "kr"
+    },
+    "topics": [
+      {
+        "name": "Java",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "java"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-05",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "web engineer",
+      "interests": [
+        "ssr"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "React",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Next.js",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "vercel/next.js",
+        "language": "TypeScript"
+      },
+      {
+        "full_name": "facebook/react",
+        "language": "JavaScript"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "react",
+      "nextjs"
+    ],
+    "adjacent_products": [
+      "vercel"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-06",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "cluster engineer",
+      "interests": [
+        "scheduling"
+      ],
+      "region": "nl"
+    },
+    "topics": [
+      {
+        "name": "Kubernetes",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Docker",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "kubernetes/kubernetes",
+        "language": "Go"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "kubernetes",
+      "docker"
+    ],
+    "adjacent_products": [
+      "go"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-07",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "python web engineer",
+      "interests": [
+        "orm"
+      ],
+      "region": "au"
+    },
+    "topics": [
+      {
+        "name": "Django",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Python",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "django/django",
+        "language": "Python"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "django",
+      "python"
+    ],
+    "adjacent_products": [
+      "fastapi"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-08",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "ios engineer",
+      "interests": [
+        "swiftui"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "Swift",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "iOS",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "apple/swift",
+        "language": "C++"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "swift",
+      "ios"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-09",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "go engineer",
+      "interests": [
+        "services"
+      ],
+      "region": "pl"
+    },
+    "topics": [
+      {
+        "name": "Go",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Docker",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "moby/moby",
+        "language": "Go"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "go",
+      "docker"
+    ],
+    "adjacent_products": [
+      "kubernetes"
+    ],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-10",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "spring engineer",
+      "interests": [
+        "jvm"
+      ],
+      "region": "fr"
+    },
+    "topics": [
+      {
+        "name": "Java",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Spring",
+        "type": "technology",
+        "priority": "high"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "spring-projects/spring-framework",
+        "language": "Java"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "java",
+      "spring"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-11",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "ruby engineer",
+      "interests": [
+        "monoliths"
+      ],
+      "region": "jp"
+    },
+    "topics": [
+      {
+        "name": "Rails",
+        "type": "technology",
+        "priority": "high"
+      },
+      {
+        "name": "Ruby",
+        "type": "technology",
+        "priority": "normal"
+      }
+    ],
+    "repositories": [
+      {
+        "full_name": "rails/rails",
+        "language": "Ruby"
+      }
+    ],
+    "prior_feedback": [],
+    "products": [
+      "rails",
+      "ruby"
+    ],
+    "adjacent_products": [],
+    "watches_security": false
+  },
+  {
+    "user_id": "pgold-h-u-12",
+    "split": "blind",
+    "kind": "history_rich",
+    "profile": {
+      "occupation": "cloud sre",
+      "interests": [
+        "reliability"
+      ],
+      "region": "us"
+    },
+    "topics": [
+      {
+        "name": "AWS",
+        "type": "service",
+        "priority": "high"
+      },
+      {
+        "name": "statuspage",
+        "type": "service",
+        "priority": "high"
+      }
+    ],
+    "repositories": [],
+    "prior_feedback": [],
+    "products": [
+      "aws"
+    ],
+    "adjacent_products": [],
+    "watches_security": true
+  }
+]
