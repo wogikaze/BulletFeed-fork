@@ -1,0 +1,6 @@
+{
+  "source_type": "statuspage",
+  "impact": "critical",
+  "status": "investigating",
+  "incident_name": "API outage"
+}

@@ -1,0 +1,14 @@
+{
+  "source_type": "github_advisory",
+  "ghsa_id": "GHSA-loww-0000-0000",
+  "severity": "low",
+  "cvss": {
+    "score": 2.1,
+    "vector_string": "CVSS:3.1/AV:L/AC:H/PR:H/UI:R/S:U/C:L/I:N/A:N"
+  },
+  "vulnerabilities": [
+    {
+      "package": {"ecosystem": "npm", "name": "tiny-helper"}
+    }
+  ]
+}
