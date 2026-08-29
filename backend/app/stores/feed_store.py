@@ -39,6 +39,10 @@ from app.services.knowledge_evidence import (
     derive_knowledge_state,
     list_knowledge_evidence,
 )
+from app.services.knowledge_identity import (
+    replay_knowledge_state_for_identity,
+    resolve_claim_knowledge_id,
+)
 from app.services.multiobjective_ranker import (
     RANKING_POLICY_VERSION,
     RankerCandidate,
@@ -91,9 +95,40 @@ def _knownness_by_feed_item(
         if not claim_id:
             states[feed_row["id"]] = (STATE_UNKNOWN, CONFIDENCE_NONE)
             continue
-        derived = derive_knowledge_state(by_claim.get(claim_id, ()))
+        mapped = resolve_claim_knowledge_id(connection, claim_id)
+        if mapped is not None and mapped.decision in {"equivalent", "singleton"}:
+            derived = replay_knowledge_state_for_identity(
+                connection,
+                user_id=user_id,
+                knowledge_id=mapped.knowledge_id,
+            )
+        else:
+            derived = derive_knowledge_state(by_claim.get(claim_id, ()))
         states[feed_row["id"]] = (derived.state, derived.confidence)
     return states
+
+
+def _revision_class_from_delta(delta_type: str | None) -> str:
+    normalized = (delta_type or "").strip().casefold()
+    if normalized == "correction":
+        return "CORRECTION"
+    if normalized in {"unresolved_conflict", "conflict"}:
+        return "UNRESOLVED_CONTRADICTION"
+    return ""
+
+
+def _identity_for_claim(
+    connection: sqlite3.Connection,
+    claim_id: str | None,
+) -> tuple[str, str]:
+    if not claim_id:
+        return "uncertain", "none"
+    mapped = resolve_claim_knowledge_id(connection, claim_id)
+    if mapped is None:
+        return "uncertain", "none"
+    if mapped.decision == "equivalent":
+        return "same_target", mapped.confidence
+    return "uncertain", mapped.confidence or "none"
 
 
 def _relation_score_from_feed_row(
@@ -134,6 +169,7 @@ def _candidate_from_feed_row(
         "summary": row["event_summary"] or row["delta_summary"],
     }
     snapshot = features_for_ranking(extract_impact_signals(record))
+    identity_label, identity_confidence = _identity_for_claim(connection, row["claim_id"])
     return RankerCandidate(
         item_id=row["id"],
         event_id=row["event_id"],
@@ -149,6 +185,9 @@ def _candidate_from_feed_row(
         delta_type=row["delta_type"],
         source_type=row["source_type"],
         updated_at=row["updated_at"],
+        identity_label=identity_label,
+        identity_confidence=identity_confidence,
+        revision_class=_revision_class_from_delta(row["delta_type"]),
     )
 
 
@@ -595,7 +634,7 @@ class FeedStore:
                 )
                 for row in rows
             ]
-            ranked = rank_candidates(candidates)
+            ranked = [item for item in rank_candidates(candidates) if not item.hidden]
             try:
                 page, next_cursor = paginate_ranked(
                     ranked,
