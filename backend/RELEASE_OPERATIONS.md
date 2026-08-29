@@ -2,6 +2,18 @@
 
 The release stack is intentionally a single-host MVP: the API and source-sync worker are separate processes, but both mount the same durable SQLite volume. Public TLS terminates in an owned reverse proxy/load balancer in front of `127.0.0.1:8000`; the Android release build must point only at that HTTPS origin.
 
+## One-command start
+
+From a clean host that has only this repository, Docker, and a filled `.env.release` (copy `.env.release.example`; never commit secrets):
+
+```text
+python scripts/start_release_stack.py --env-file .env.release --compose-file compose.release.yml
+```
+
+The script fail-closes on missing/placeholder GitHub OAuth values, an invalid Fernet token key, or a developer-default database path, then runs `docker compose -f compose.release.yml --env-file .env.release up -d --build`. Validate without starting containers with `--validate-only`.
+
+Do not depend on a developer laptop's existing `data/bulletfeed.db`. The release database path inside the stack is `/data/bulletfeed.db` on the durable `bulletfeed-data` volume.
+
 ## Required services
 
 Run `docker compose -f compose.release.yml up -d api worker`. Both services use `.env.release` and the `bulletfeed-data` volume. `Database.initialize()` is the idempotent schema/migration entry point for both processes, so a newly deployed image upgrades the shared database before serving work.
@@ -21,6 +33,8 @@ Create `.env.release` from `.env.release.example`. The GitHub client secret and 
 Run `docker compose -f compose.release.yml --profile maintenance run --rm backup` from the host scheduler at least daily. The backup command uses SQLite's online backup API rather than copying the live database file. Store the resulting `bulletfeed-backups` volume off-host according to the retention policy. `BULLETFEED_BACKUP_RETENTION_DAYS` controls local pruning only; off-host retention is an infrastructure responsibility.
 
 Restore by stopping `api` and `worker`, replacing `/data/bulletfeed.db` from a verified backup, starting the services, and waiting for `/health/ready` to return 200. Perform a restore drill before public release and periodically afterward.
+
+Operator restore-identity snapshots are a separate durable volume, `bulletfeed-snapshots`. Record one with `docker compose -f compose.release.yml --profile maintenance run --rm snapshot`. Each run writes a SQLite copy plus `bulletfeed-<utc>.identity.json` containing source/snapshot SHA-256 and `schema_migrations` revisions. Restore is valid only when the restored file's SHA-256 matches `snapshot_sha256` and the revision set matches. Backups (`bulletfeed-backups`) remain the scheduled retention copies; snapshots are explicit restore-identity artifacts.
 
 ## Deploy and rollback
 
