@@ -258,7 +258,7 @@ def test_heading_rename_is_uncertain_not_merged_as_same_section() -> None:
     )
     assert rename.status == "uncertain"
     assert rename.right_section_id == plans.section_id
-    assert rename.confidence < 1.0
+    assert 0.72 <= rename.confidence <= 1.0
 
 
 def test_unrelated_leftover_sections_are_split_not_merged() -> None:

@@ -715,19 +715,23 @@ def _attach_offsets(raw: str, units: list[_Emitted]) -> list[_Located]:
 
 
 def _find_in_raw(raw: str, text: str, cursor: int) -> tuple[int | None, int | None]:
-    variants = (text, html.escape(text, quote=False), html.escape(text))
+    variants = [text, html.escape(text, quote=False), html.escape(text)]
+    first_line = text.split("\n", 1)[0]
+    first_cell = first_line.split("\t", 1)[0].strip()
+    if first_cell and first_cell not in variants:
+        variants.append(first_cell)
+        variants.append(html.escape(first_cell, quote=False))
+    compact = _collapse_ws(text)
+    if compact and compact not in variants:
+        variants.append(compact)
     best: tuple[int, int] | None = None
     for variant in variants:
         index = raw.find(variant, cursor)
         if index == -1:
-            compact = _collapse_ws(variant)
-            if compact != variant:
-                index = _find_collapsed(raw, compact, cursor)
-                if index is None:
-                    continue
-                start, end = index
-            else:
+            collapsed = _find_collapsed(raw, _collapse_ws(variant), cursor)
+            if collapsed is None:
                 continue
+            start, end = collapsed
         else:
             start, end = index, index + len(variant)
         if best is None or start < best[0]:
