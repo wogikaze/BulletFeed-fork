@@ -5,6 +5,7 @@
   "label_protocol_version": "event-concepts-gold-v01",
   "rebuild": "deterministic",
   "persistence": "rebuild_or_optional_snapshot",
+  "snapshot": "rebuild_snapshot.json",
   "categories": [
     "aliases",
     "ambiguous_names",

@@ -108,6 +108,16 @@ def test_gold_cases_extract_expected_concepts_and_abstentions() -> None:
             assert matched, (case["id"], expected, extraction.to_snapshot())
 
 
+def test_optional_rebuild_snapshot_matches_extractor() -> None:
+    snapshot = json.loads((_GOLD / "rebuild_snapshot.json").read_text(encoding="utf-8"))
+    assert snapshot["extractor_version"] == EVENT_CONCEPT_VERSION
+    by_id = {case["id"]: case["extraction"] for case in snapshot["cases"]}
+    assert set(by_id) == {case["id"] for case in _cases()}
+    for case in _cases():
+        rebuilt = rebuild_event_concepts(case["input"]).to_snapshot()
+        assert rebuilt == by_id[case["id"]], case["id"]
+
+
 def test_extraction_is_deterministically_rebuildable() -> None:
     case = next(item for item in _cases() if item["id"] == "multi-weighted-advisory-001")
     first = extract_event_concepts(case["input"])
