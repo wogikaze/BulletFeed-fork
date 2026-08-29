@@ -69,17 +69,15 @@ GitHub access tokenはcallback URL、deep link、Androidレスポンスへ一度
 
 ## API例
 
+本番アプリ（`uvicorn app.main:app`）の公開面は OpenAPI（`/docs`）を正とします。認証開始の例:
+
 ```bash
 curl -X POST http://127.0.0.1:8000/v1/sessions
-
-curl 'http://127.0.0.1:8000/v1/sources/github/releases?owner=JetBrains&repository=kotlin'
-
-curl -X POST http://127.0.0.1:8000/v1/sources/osv/query \
-  -H 'Content-Type: application/json' \
-  -d '{"ecosystem":"Maven","package":"org.jetbrains.kotlin:kotlin-stdlib","version":"2.0.0"}'
 ```
 
-RSSは `.env` の `BULLETFEED_RSS_ALLOWED_HOSTS` にあるホストだけ取得できます。HTTPS、標準ポート、公開IP、XML系Content-Type、1 MiB以下に制限し、リダイレクト先も再検査します。
+`app.routers.sources` の `/v1/sources/*`（GitHub Releases / OSV / RSS / Statuspage のプレビュー）は `app.main:app` に mount されていません。テストが別 FastAPI アプリへ載せる内部プレビューであり、ライブ API ではありません。
+
+RSS 取得は `.env` の `BULLETFEED_RSS_ALLOWED_HOSTS` にあるホストだけ許可します。HTTPS、標準ポート、公開IP、XML系 Content-Type、1 MiB 以下に制限し、リダイレクト先も再検査します。
 
 ## テスト
 
