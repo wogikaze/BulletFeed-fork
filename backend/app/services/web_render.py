@@ -31,9 +31,11 @@ from app.services.url_safety import validate_public_url
 from app.services.web_normalize import normalize_web_snapshot
 from app.services.web_snapshots import (
     ACQUISITION_BOUNDED_JS,
+    DEFAULT_USER_AGENT,
     SnapshotStore,
     WebSnapshot,
     content_hash_for,
+    fetch_web_snapshot,
     snapshot_id_for,
 )
 
@@ -258,6 +260,41 @@ async def authorize_render_url(
     if len(bucket) > cap:
         raise RenderFailure(REASON_RUNAWAY, "renderer exceeded the subresource request limit")
     return validated
+
+
+async def acquire_web_snapshot(
+    settings: Settings,
+    url: str,
+    *,
+    store: SnapshotStore,
+    policy: RenderPolicy | None = None,
+    engine: RendererEngine | None = None,
+    retrieved_at: str | None = None,
+    previous: WebSnapshot | None = None,
+    allow_http: bool = False,
+    check_robots: bool = True,
+    user_agent: str | None = None,
+) -> RenderAttempt:
+    """Static fetch first, then optional bounded render. Default policy is static-only."""
+    http_snapshot = await fetch_web_snapshot(
+        settings,
+        url,
+        store=store,
+        retrieved_at=retrieved_at,
+        previous=previous,
+        allow_http=allow_http,
+        check_robots=check_robots,
+        user_agent=user_agent or DEFAULT_USER_AGENT,
+    )
+    return await maybe_render_web_snapshot(
+        settings,
+        http_snapshot,
+        store=store,
+        policy=policy or RenderPolicy(),
+        engine=engine,
+        allow_http=allow_http,
+        retrieved_at=retrieved_at,
+    )
 
 
 async def maybe_render_web_snapshot(

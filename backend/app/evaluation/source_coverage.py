@@ -1,9 +1,9 @@
 """Topic × information-type source coverage benchmark (Source-09 / #65).
 
 Measures which authoritative source classes the current catalog and static
-acquisition path cover. Dynamic/JS-only pages are recorded as static coverage
-gaps that justify later bounded rendering (#64). This module does not render
-JavaScript and does not fetch the live network.
+acquisition path cover. Dynamic/JS-only pages stay ``static_coverage_gap``
+here even after #64: this benchmark does not call ``web_render`` and does
+not fetch the live network. Production rendering is opt-in and fail-closed.
 """
 
 from __future__ import annotations

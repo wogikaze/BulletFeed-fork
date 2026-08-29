@@ -15,12 +15,14 @@ from app.services.web_render import (
     REASON_DISABLED,
     REASON_HOST_NOT_ALLOWLISTED,
     REASON_MEMORY,
+    REASON_OUTPUT_TOO_LARGE,
     REASON_RENDERED,
     REASON_RUNAWAY,
     REASON_STATIC_ONLY,
     REASON_STATIC_SUFFICIENT,
     REASON_TIMEOUT,
     REASON_UNAVAILABLE,
+    REASON_UNSAFE_FINAL_URL,
     REASON_WAIT_UNSATISFIED,
     RENDER_POLICY_BOUNDED_JS,
     WAIT_SELECTOR,
@@ -29,6 +31,7 @@ from app.services.web_render import (
     RenderPolicy,
     ScriptedPage,
     ScriptedRenderer,
+    acquire_web_snapshot,
     authorize_render_url,
     maybe_render_web_snapshot,
     static_extraction_is_insufficient,
@@ -399,3 +402,63 @@ async def test_host_outside_dynamic_allowlist_is_not_rendered(tmp_path: Path) ->
     )
     assert attempt.reason == REASON_HOST_NOT_ALLOWLISTED
     assert attempt.used is False
+
+
+@pytest.mark.asyncio
+async def test_oversized_output_and_private_final_url_fail_closed(tmp_path: Path) -> None:
+    http_snapshot = _snapshot(SPA_SHELL)
+    store = SnapshotStore(tmp_path / "snaps")
+    huge = ScriptedRenderer({PAGE_URL: ScriptedPage(body=b"<main>x</main>" * 200)})
+    redirected = ScriptedRenderer(
+        {PAGE_URL: ScriptedPage(body=RENDERED_PRICING, final_url="https://attacker.example/page")}
+    )
+    with _public_dns():
+        oversized = await maybe_render_web_snapshot(
+            _settings(dynamic_web_max_output_bytes=64),
+            http_snapshot,
+            store=store,
+            policy=RenderPolicy(mode=RENDER_POLICY_BOUNDED_JS),
+            engine=huge,
+        )
+        unsafe = await maybe_render_web_snapshot(
+            _settings(),
+            http_snapshot,
+            store=store,
+            policy=RenderPolicy(mode=RENDER_POLICY_BOUNDED_JS),
+            engine=redirected,
+        )
+    assert oversized.reason == REASON_OUTPUT_TOO_LARGE
+    assert unsafe.reason == REASON_UNSAFE_FINAL_URL
+    assert oversized.used is False
+    assert unsafe.used is False
+
+
+@pytest.mark.asyncio
+async def test_acquire_defaults_to_static_only(tmp_path: Path, monkeypatch) -> None:
+    http_snapshot = _snapshot(SPA_SHELL)
+    store = SnapshotStore(tmp_path / "snaps")
+
+    async def _fake_fetch(*args, **kwargs):
+        del args, kwargs
+        return http_snapshot
+
+    monkeypatch.setattr("app.services.web_render.fetch_web_snapshot", _fake_fetch)
+    engine = ScriptedRenderer({PAGE_URL: ScriptedPage(body=RENDERED_PRICING)})
+    attempt = await acquire_web_snapshot(
+        _settings(),
+        PAGE_URL,
+        store=store,
+        engine=engine,
+    )
+    assert attempt.reason == REASON_STATIC_ONLY
+    assert attempt.used is False
+    with _public_dns():
+        rendered = await acquire_web_snapshot(
+            _settings(),
+            PAGE_URL,
+            store=store,
+            policy=RenderPolicy(mode=RENDER_POLICY_BOUNDED_JS),
+            engine=engine,
+        )
+    assert rendered.used is True
+    assert rendered.reason == REASON_RENDERED
