@@ -174,8 +174,16 @@ def test_private_source_health_is_fail_closed_and_not_listed(
     sources_body = sources.json()
     assert sources_body["workerHeartbeat"] == "ok"
     assert sources_body["sourceIngestion"]["privateOrUnknown"] == 1
+    assert set(sources_body["pipeline"]) == {
+        "fetch",
+        "observation",
+        "revision",
+        "projection",
+        "syncFailure",
+    }
     assert "acme/secret" not in sources.text
     assert "last_error" not in sources.text
+    assert "source_key" not in sources.text
 
 
 def test_unknown_subscription_is_not_treated_as_public(database: Database) -> None:

@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 from app.database import Database
 from app.db.projection_schema import ensure_projection_schema
+from app.observability import record
 
 
 class LedgerProjector:
@@ -232,6 +233,14 @@ class LedgerProjector:
                 """,
                 (event_id, event_id),
             )
+        record(
+            "projection",
+            layer="ledger",
+            event_id=event_id,
+            observation_id=latest_observation["observation_id"],
+            claim_id=latest_state["id"],
+            revision_type=latest_observation["relation_type"],
+        )
 
     @staticmethod
     def _publisher(source_type: str, source_key: str, original_url: str) -> str:

@@ -6,6 +6,7 @@ from typing import Any
 
 from app.config import Settings
 from app.database import Database
+from app.observability import record
 from app.services.event_access import project_repository_event_access
 from app.services.feed_projection import project_event_for_audience
 from app.services.github_sbom_source import fetch_github_sbom, normalize_github_sbom
@@ -300,6 +301,7 @@ async def crawl_sbom_security_events(
     retrieved_at: str,
     token: str | None = None,
 ) -> DependencySecurityIngestResult:
+    record("fetch", source_type="dependency_security")
     sbom_response = await fetch_github_sbom(
         settings,
         owner=owner,

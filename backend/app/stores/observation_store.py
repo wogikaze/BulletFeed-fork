@@ -7,6 +7,7 @@ from typing import Any
 
 from app.database import Database
 from app.db.ledger_schema import LEDGER_SCHEMA
+from app.observability import record
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,7 @@ class ObservationStore:
         observation_id = "obs_" + hashlib.sha256(identity.encode()).hexdigest()[:24]
 
         with self._database.connect() as connection:
-            connection.execute(
+            inserted = connection.execute(
                 """
                 INSERT OR IGNORE INTO observations (
                     id, source_type, source_key, source_observation_id,
@@ -63,13 +64,19 @@ class ObservationStore:
                     published_at,
                     retrieved_at,
                 ),
-            )
+            ).rowcount
             row = connection.execute(
                 "SELECT * FROM observations WHERE id = ?",
                 (observation_id,),
             ).fetchone()
         if row is None:
             raise RuntimeError("observation insert failed")
+        record(
+            "observation",
+            observation_id=observation_id,
+            source_type=source_type,
+            inserted=inserted > 0,
+        )
         return self._row(row)
 
     def list_for_source_observation(

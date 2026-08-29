@@ -5,6 +5,7 @@ from typing import Any
 
 from app.config import Settings
 from app.database import Database
+from app.observability import record
 from app.services.feed_lifecycle import resolve_feed_lifecycle
 from app.services.ledger_projection import LedgerProjector
 from app.services.rss import preview_feed
@@ -87,6 +88,7 @@ async def crawl_feed_events(
     url: str,
     retrieved_at: str,
 ) -> RssIngestResult:
+    record("fetch", source_type="rss_atom")
     preview = await preview_feed(settings, url)
     result = ingest_feed_events(database, preview=preview, retrieved_at=retrieved_at)
     source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""

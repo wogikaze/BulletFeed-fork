@@ -6,6 +6,7 @@ from collections.abc import Sequence
 
 from app.database import Database
 from app.db.projection_schema import ensure_projection_schema
+from app.observability import record
 from app.services.ranking import evaluate_importance
 from app.services.relation import _normalize, evaluate_relation
 
@@ -122,6 +123,13 @@ class FeedProjector:
                     ),
                 )
                 created.append(feed_item_id)
+        record(
+            "projection",
+            layer="feed",
+            event_id=event_id,
+            user_id=user_id,
+            feed_item_count=len(created),
+        )
         return created
 
     def reproject_user(self, *, user_id: str) -> int:

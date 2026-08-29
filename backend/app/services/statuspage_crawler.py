@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from app.config import Settings
 from app.database import Database
+from app.observability import record
 from app.services import statuspage
 from app.services.ledger_projection import LedgerProjector
 from app.services.source_subscriptions import project_events_for_subscription_audience
@@ -17,6 +18,7 @@ async def crawl_statuspage_events(
     page_id: str,
     retrieved_at: str,
 ) -> StatuspageIngestResult:
+    record("fetch", source_type="statuspage")
     summary = await statuspage.get_summary(settings, page_id)
     result = StatuspagePipeline(database).ingest_summary(
         page_id=page_id,

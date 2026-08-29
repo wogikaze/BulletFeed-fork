@@ -5,6 +5,7 @@ from typing import Any
 
 from app.config import Settings
 from app.database import Database
+from app.observability import record
 from app.services.event_access import project_repository_event_access
 from app.services.feed_projection import project_event_for_audience
 from app.services.github import list_releases
@@ -105,6 +106,7 @@ async def crawl_github_release_events(
     retrieved_at: str,
     token: str | None = None,
 ) -> GitHubReleaseIngestResult:
+    record("fetch", source_type="github_release")
     releases = await list_releases(settings, owner, repository, token)
     return ingest_github_release_events(
         database,
