@@ -137,6 +137,8 @@ CREATE TABLE IF NOT EXISTS feed_items (
     importance_confidence TEXT NOT NULL,
     relation_level TEXT NOT NULL,
     relation_reason TEXT NOT NULL,
+    relation_score REAL NOT NULL DEFAULT 0.0,
+    relation_feature_version TEXT NOT NULL DEFAULT '',
     matched_topics_json TEXT NOT NULL,
     matched_repos_json TEXT NOT NULL,
     personalization_rank INTEGER NOT NULL DEFAULT 0,

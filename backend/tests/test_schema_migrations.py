@@ -278,6 +278,10 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'feed_session_outcomes'"
         ).fetchone()
+        feed_item_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(feed_items)")
+        }
+        assert {"relation_score", "relation_feature_version"} <= feed_item_columns
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -858,3 +862,100 @@ def test_revision_13_adds_knowledge_identity_and_preserves_ledger(tmp_path: Path
         assert claim["value_text"] == "investigating"
         assert connection.execute("SELECT COUNT(*) FROM knowledge_identities").fetchone()[0] == 0
         assert connection.execute("SELECT COUNT(*) FROM claim_knowledge_map").fetchone()[0] == 0
+
+
+def test_revision_17_adds_relation_score_without_rewriting_feed_rows(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-relation-score.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '17'")
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_a', 0)")
+        connection.execute(
+            """
+            INSERT INTO events (
+                id, title, summary, current_phase, current_summary,
+                current_since, current_confidence, updated_at
+            ) VALUES (
+                'event_rel', 'Latency', 'Investigating', 'investigating', 'Investigating',
+                '2026-08-22T00:00:00Z', 'high', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO deltas (
+                id, event_id, type, summary, before_text, after_text, occurred_at, active
+            ) VALUES (
+                'delta_rel', 'event_rel', 'state_update', 'Investigating', '', 'Investigating',
+                '2026-08-22T00:00:00Z', 1
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO feed_items (
+                id, user_id, event_id, delta_id, title, importance_level, importance_reason,
+                importance_confidence, relation_level, relation_reason, matched_topics_json,
+                matched_repos_json, personalization_rank, status, dismissed, marked_important,
+                updated_at
+            ) VALUES (
+                'fi_rel', 'user_a', 'event_rel', 'delta_rel', 'Latency', 'medium', 'seed',
+                'medium', 'adjacent', 'topic match', '[]', '[]', 0, 'unread', 0, 0,
+                '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        # Simulate a pre-17 row: drop the new columns if present after DELETE.
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(feed_items)")}
+        if "relation_score" in columns:
+            connection.execute(
+                """
+                CREATE TABLE feed_items_pre17 (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    event_id TEXT NOT NULL,
+                    delta_id TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    importance_level TEXT NOT NULL,
+                    importance_reason TEXT NOT NULL,
+                    importance_confidence TEXT NOT NULL,
+                    relation_level TEXT NOT NULL,
+                    relation_reason TEXT NOT NULL,
+                    matched_topics_json TEXT NOT NULL,
+                    matched_repos_json TEXT NOT NULL,
+                    personalization_rank INTEGER NOT NULL DEFAULT 0,
+                    status TEXT NOT NULL DEFAULT 'unread',
+                    dismissed INTEGER NOT NULL DEFAULT 0,
+                    marked_important INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                """
+                INSERT INTO feed_items_pre17
+                SELECT id, user_id, event_id, delta_id, title, importance_level, importance_reason,
+                       importance_confidence, relation_level, relation_reason, matched_topics_json,
+                       matched_repos_json, personalization_rank, status, dismissed, marked_important,
+                       updated_at
+                FROM feed_items
+                """
+            )
+            connection.execute("DROP TABLE feed_items")
+            connection.execute("ALTER TABLE feed_items_pre17 RENAME TO feed_items")
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == set(KNOWN_REVISIONS)
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(feed_items)")}
+        assert {"relation_score", "relation_feature_version"} <= columns
+        row = connection.execute(
+            "SELECT title, relation_score, relation_feature_version FROM feed_items WHERE id = 'fi_rel'"
+        ).fetchone()
+        assert row["title"] == "Latency"
+        assert row["relation_score"] == 0.0
+        assert row["relation_feature_version"] == ""

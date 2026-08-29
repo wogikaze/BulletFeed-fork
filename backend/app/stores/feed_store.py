@@ -46,6 +46,7 @@ from app.services.multiobjective_ranker import (
     paginate_ranked,
     rank_candidates,
 )
+from app.services.relation import RELATION_FEATURE_VERSION, evaluate_relation
 from app.services.session_telemetry import (
     KIND_CARD_DISPLAYED,
     KIND_DETAIL_READ,
@@ -95,7 +96,34 @@ def _knownness_by_feed_item(
     return states
 
 
-def _candidate_from_feed_row(row: sqlite3.Row, knownness: tuple[str, str]) -> RankerCandidate:
+def _relation_score_from_feed_row(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    row: sqlite3.Row,
+) -> float:
+    keys = set(row.keys())
+    stored_version = row["relation_feature_version"] if "relation_feature_version" in keys else ""
+    if stored_version == RELATION_FEATURE_VERSION:
+        return max(0.0, min(1.0, float(row["relation_score"] or 0.0)))
+    signal = evaluate_relation(
+        connection,
+        user_id=user_id,
+        source_type=row["source_type"],
+        source_key=row["source_key"],
+        event_title=row["title"],
+        event_summary=row["event_summary"] or row["delta_summary"],
+    )
+    return signal.score
+
+
+def _candidate_from_feed_row(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    row: sqlite3.Row,
+    knownness: tuple[str, str],
+) -> RankerCandidate:
     topics = json.loads(row["matched_topics_json"] or "[]")
     topic_key = topics[0] if topics else row["event_id"]
     record = {
@@ -112,7 +140,7 @@ def _candidate_from_feed_row(row: sqlite3.Row, knownness: tuple[str, str]) -> Ra
         redundancy_group=row["event_id"],
         topic_key=topic_key,
         relation_level=row["relation_level"],
-        relation_score=0.0,
+        relation_score=_relation_score_from_feed_row(connection, user_id=user_id, row=row),
         personalization_rank=int(row["personalization_rank"] or 0),
         importance_level=row["importance_level"],
         impact_snapshot=snapshot,
@@ -558,7 +586,15 @@ class FeedStore:
 
             rows = list(connection.execute(inner_sql, params).fetchall())
             knownness_by_item = _knownness_by_feed_item(connection, user_id=user_id, rows=rows)
-            candidates = [_candidate_from_feed_row(row, knownness_by_item[row["id"]]) for row in rows]
+            candidates = [
+                _candidate_from_feed_row(
+                    connection,
+                    user_id=user_id,
+                    row=row,
+                    knownness=knownness_by_item[row["id"]],
+                )
+                for row in rows
+            ]
             ranked = rank_candidates(candidates)
             try:
                 page, next_cursor = paginate_ranked(

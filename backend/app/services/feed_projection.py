@@ -93,10 +93,11 @@ class FeedProjector:
                     INSERT INTO feed_items (
                         id, user_id, event_id, delta_id, title,
                         importance_level, importance_reason, importance_confidence,
-                        relation_level, relation_reason, matched_topics_json,
+                        relation_level, relation_reason, relation_score,
+                        relation_feature_version, matched_topics_json,
                         matched_repos_json, personalization_rank,
                         status, dismissed, marked_important, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unread', 0, 0, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unread', 0, 0, ?)
                     ON CONFLICT(id) DO UPDATE SET
                         title = excluded.title,
                         importance_level = excluded.importance_level,
@@ -104,6 +105,8 @@ class FeedProjector:
                         importance_confidence = excluded.importance_confidence,
                         relation_level = excluded.relation_level,
                         relation_reason = excluded.relation_reason,
+                        relation_score = excluded.relation_score,
+                        relation_feature_version = excluded.relation_feature_version,
                         matched_topics_json = excluded.matched_topics_json,
                         matched_repos_json = excluded.matched_repos_json,
                         personalization_rank = excluded.personalization_rank,
@@ -124,6 +127,8 @@ class FeedProjector:
                         importance.confidence,
                         relation.level,
                         relation.reason,
+                        relation.score,
+                        relation.feature_version,
                         json.dumps(relation.matched_topics),
                         json.dumps(relation.matched_repositories),
                         relation.personalization_rank,
@@ -177,6 +182,7 @@ class FeedProjector:
                     """
                     UPDATE feed_items
                     SET relation_level = ?, relation_reason = ?,
+                        relation_score = ?, relation_feature_version = ?,
                         matched_topics_json = ?, matched_repos_json = ?,
                         personalization_rank = ?
                     WHERE user_id = ? AND event_id = ?
@@ -184,6 +190,8 @@ class FeedProjector:
                     (
                         relation.level,
                         relation.reason,
+                        relation.score,
+                        relation.feature_version,
                         json.dumps(relation.matched_topics),
                         json.dumps(relation.matched_repositories),
                         relation.personalization_rank,
