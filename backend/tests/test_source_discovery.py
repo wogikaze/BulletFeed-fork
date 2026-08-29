@@ -62,9 +62,18 @@ def _seed_user(connection, user_id: str, *, topics: tuple[tuple[str, str], ...] 
         )
 
 
+_COUNT_TABLES = {
+    "source_sync_subscriptions": "SELECT COUNT(*) AS count FROM source_sync_subscriptions",
+    "source_sync_jobs": "SELECT COUNT(*) AS count FROM source_sync_jobs",
+    "observations": "SELECT COUNT(*) AS count FROM observations",
+    "state_claims": "SELECT COUNT(*) AS count FROM state_claims",
+}
+
+
 def _count(database: Database, table: str) -> int:
+    query = _COUNT_TABLES[table]
     with database.connect() as connection:
-        return int(connection.execute(f"SELECT COUNT(*) AS count FROM {table}").fetchone()["count"])
+        return int(connection.execute(query).fetchone()["count"])
 
 
 def test_discovery_is_not_evidence_and_hn_stays_discovery_only() -> None:
@@ -91,7 +100,11 @@ def test_discovery_is_not_evidence_and_hn_stays_discovery_only() -> None:
     assert result.items
     assert all(item.evidence_eligible is False for item in result.items)
     assert all(source_candidate_allows_claim_evidence(item) is False for item in result.items)
-    official = [item for item in result.items if "react.dev" in item.canonical_url or "facebook/react" in item.canonical_url]
+    official = [
+        item
+        for item in result.items
+        if "react.dev" in item.canonical_url or "facebook/react" in item.canonical_url
+    ]
     assert official
     assert official[0].authority_status == "authoritative"
     assert official[0].score > max(
@@ -245,7 +258,11 @@ def test_approve_ignore_does_not_auto_subscribe(tmp_path: Path) -> None:
     assert _count(database, "state_claims") == 0
 
 
-def test_api_lists_and_decides_without_subscribing(client: TestClient, auth_headers, database: Database) -> None:
+def test_api_lists_and_decides_without_subscribing(
+    client: TestClient,
+    auth_headers,
+    database: Database,
+) -> None:
     created = client.post(
         "/v1/me/topics",
         headers=auth_headers,

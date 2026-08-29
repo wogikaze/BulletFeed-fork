@@ -149,10 +149,6 @@ def infer_source_family(url: str) -> SourceKind:
         return SourceKind.RSS_ATOM
     if host in {"github.com", "api.github.com"} and ("/releases" in path or path in {"", "/"}):
         return SourceKind.GITHUB_RELEASE
-    if "changelog" in path:
-        return SourceKind.OFFICIAL_CHANGELOG
-    if "docs" in path or "documentation" in path or "/learn" in path:
-        return SourceKind.DOCUMENTATION
     return SourceKind.GENERIC_WEB
 
 
