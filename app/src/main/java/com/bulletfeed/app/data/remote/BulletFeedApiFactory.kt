@@ -18,19 +18,24 @@ object BulletFeedApiFactory {
 
     fun create(context: Context): Pair<BulletFeedApi, SessionManager> {
         val sessionManager = SessionManager(context)
-        val baseUrl = resolveBaseUrl()
+        return create(resolveBaseUrl(), sessionManager) to sessionManager
+    }
+
+    fun create(
+        baseUrl: String,
+        sessionManager: SessionManager,
+    ): BulletFeedApi {
         val client = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .addInterceptor(authInterceptor(sessionManager))
             .build()
-        val api = Retrofit.Builder()
+        return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(BulletFeedApi::class.java)
-        return api to sessionManager
     }
 
     private fun authInterceptor(sessionManager: SessionManager): Interceptor =

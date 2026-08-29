@@ -107,3 +107,30 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+val acceptanceBaseUrl =
+    providers.gradleProperty("bulletfeed.acceptance.baseUrl")
+        .orElse(providers.environmentVariable("BULLETFEED_ACCEPTANCE_BASE_URL"))
+
+tasks.withType<Test>().configureEach {
+    val url = acceptanceBaseUrl.orNull?.trim().orEmpty()
+    if (url.isNotEmpty()) {
+        systemProperty("bulletfeed.acceptance.baseUrl", url)
+    } else {
+        exclude("**/RealBackendAcceptanceTest.class")
+    }
+}
+
+tasks.register<Exec>("realBackendAcceptanceTest") {
+    group = "verification"
+    description =
+        "Run RemoteBulletFeedRepository against an ephemeral local FastAPI+SQLite harness"
+    workingDir = rootProject.projectDir
+    val windows = System.getProperty("os.name").lowercase().contains("windows")
+    val venvPython = listOf(
+        rootProject.projectDir.resolve("backend/.venv/Scripts/python.exe"),
+        rootProject.projectDir.resolve("backend/.venv/bin/python"),
+    ).firstOrNull { it.exists() }
+    val python = venvPython?.absolutePath ?: if (windows) "python" else "python3"
+    commandLine(python, "backend/scripts/run_real_backend_android_acceptance.py")
+}

@@ -1,7 +1,6 @@
 package com.bulletfeed.app
 
 import android.content.Context
-import androidx.core.content.edit
 
 data class PendingGithubAuthorization(
     val flowId: String,
@@ -11,12 +10,13 @@ data class PendingGithubAuthorization(
 )
 
 class SessionManager(
-    context: Context,
+    private val secrets: SecretStore,
+    private val prefs: SessionPreferenceStore,
 ) {
-    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val secrets = KeystoreSecretStore(context)
-
-    init {
+    constructor(context: Context) : this(
+        KeystoreSecretStore(context),
+        AndroidSessionPreferenceStore(context),
+    ) {
         migrateLegacySecret(KEY_ACCESS_TOKEN)
         migrateLegacySecret(KEY_GITHUB_POLL_TOKEN)
     }
@@ -30,28 +30,26 @@ class SessionManager(
         set(value) = secrets.put(KEY_REFRESH_TOKEN, value)
 
     var userId: String?
-        get() = prefs.getString(KEY_USER_ID, null)
-        set(value) = prefs.edit { putString(KEY_USER_ID, value) }
+        get() = prefs.getString(KEY_USER_ID)
+        set(value) = prefs.putString(KEY_USER_ID, value)
 
     var pendingGithubAuthorization: PendingGithubAuthorization?
         get() {
-            val flowId = prefs.getString(KEY_GITHUB_FLOW_ID, null) ?: return null
+            val flowId = prefs.getString(KEY_GITHUB_FLOW_ID) ?: return null
             val pollToken = secrets.get(KEY_GITHUB_POLL_TOKEN) ?: return null
-            val authorizationUrl = prefs.getString(KEY_GITHUB_AUTH_URL, null) ?: return null
+            val authorizationUrl = prefs.getString(KEY_GITHUB_AUTH_URL) ?: return null
             val expiresAtMillis = prefs.getLong(KEY_GITHUB_EXPIRES_AT, 0L)
             return PendingGithubAuthorization(flowId, pollToken, authorizationUrl, expiresAtMillis)
         }
         set(value) {
-            prefs.edit {
-                if (value == null) {
-                    remove(KEY_GITHUB_FLOW_ID)
-                    remove(KEY_GITHUB_AUTH_URL)
-                    remove(KEY_GITHUB_EXPIRES_AT)
-                } else {
-                    putString(KEY_GITHUB_FLOW_ID, value.flowId)
-                    putString(KEY_GITHUB_AUTH_URL, value.authorizationUrl)
-                    putLong(KEY_GITHUB_EXPIRES_AT, value.expiresAtMillis)
-                }
+            if (value == null) {
+                prefs.remove(KEY_GITHUB_FLOW_ID)
+                prefs.remove(KEY_GITHUB_AUTH_URL)
+                prefs.remove(KEY_GITHUB_EXPIRES_AT)
+            } else {
+                prefs.putString(KEY_GITHUB_FLOW_ID, value.flowId)
+                prefs.putString(KEY_GITHUB_AUTH_URL, value.authorizationUrl)
+                prefs.putLong(KEY_GITHUB_EXPIRES_AT, value.expiresAtMillis)
             }
             secrets.put(KEY_GITHUB_POLL_TOKEN, value?.pollToken)
         }
@@ -68,23 +66,22 @@ class SessionManager(
 
     fun clearSession() {
         secrets.clear()
-        prefs.edit { clear() }
+        prefs.clear()
     }
 
     private fun migrateLegacySecret(key: String) {
-        val legacy = prefs.getString(key, null) ?: return
+        val legacy = prefs.getString(key) ?: return
         if (secrets.get(key) == null) secrets.put(key, legacy)
-        prefs.edit { remove(key) }
+        prefs.remove(key)
     }
 
-    companion object {
-        private const val PREFS_NAME = "bulletfeed_session"
-        private const val KEY_ACCESS_TOKEN = "access_token"
-        private const val KEY_REFRESH_TOKEN = "refresh_token"
-        private const val KEY_USER_ID = "user_id"
-        private const val KEY_GITHUB_FLOW_ID = "github_flow_id"
-        private const val KEY_GITHUB_POLL_TOKEN = "github_poll_token"
-        private const val KEY_GITHUB_AUTH_URL = "github_auth_url"
-        private const val KEY_GITHUB_EXPIRES_AT = "github_expires_at"
+    private companion object {
+        const val KEY_ACCESS_TOKEN = "access_token"
+        const val KEY_REFRESH_TOKEN = "refresh_token"
+        const val KEY_USER_ID = "user_id"
+        const val KEY_GITHUB_FLOW_ID = "github_flow_id"
+        const val KEY_GITHUB_POLL_TOKEN = "github_poll_token"
+        const val KEY_GITHUB_AUTH_URL = "github_auth_url"
+        const val KEY_GITHUB_EXPIRES_AT = "github_expires_at"
     }
 }
