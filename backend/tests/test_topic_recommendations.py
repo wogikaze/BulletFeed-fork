@@ -175,7 +175,10 @@ def test_hard_negatives_are_not_recommended() -> None:
     assert "reactos" not in blob
     assert "nuclear" not in blob
     assert "project-reactor" not in identities
-    assert all("reactor" not in item.reason.casefold() or "hard" in item.reason.casefold() for item in result.items)
+    assert all(
+        "reactor" not in item.reason.casefold() or "hard" in item.reason.casefold()
+        for item in result.items
+    )
 
 
 def test_low_confidence_candidates_abstain() -> None:
@@ -243,16 +246,29 @@ def test_does_not_auto_add_topics(client: TestClient, auth_headers: dict[str, st
     assert body["version"] == TOPIC_RECOMMENDATION_VERSION
     assert body["items"]
     first = body["items"][0]
-    assert {"id", "name", "type", "score", "reason", "provenance", "alreadyFollowed", "confidence", "sourceSignals"} <= set(
-        first
-    )
+    required = {
+        "id",
+        "name",
+        "type",
+        "score",
+        "reason",
+        "provenance",
+        "alreadyFollowed",
+        "confidence",
+        "sourceSignals",
+    }
+    assert required <= set(first)
     assert first["provenance"] in {"explicit", "inferred"}
 
     after = client.get("/v1/me/topics", headers=auth_headers)
-    assert [item["name"] for item in after.json()["items"]] == [item["name"] for item in before.json()["items"]]
+    before_names = [item["name"] for item in before.json()["items"]]
+    after_names = [item["name"] for item in after.json()["items"]]
+    assert after_names == before_names
 
 
-def test_api_requires_auth_and_is_distinct_from_search(client: TestClient, auth_headers: dict[str, str]) -> None:
+def test_api_requires_auth_and_is_distinct_from_search(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
     assert client.get("/v1/me/topic-recommendations").status_code == 401
 
     search = client.get("/v1/topics/search", headers=auth_headers, params={"q": "cloud"})
@@ -315,7 +331,9 @@ def test_gold_precision_of_recommended_names_vs_user_relevant_topics() -> None:
 
 def _world_ledger_snapshot(database: Database) -> dict[str, object]:
     with database.connect() as connection:
-        observations = list(connection.execute("SELECT id, payload_hash FROM observations ORDER BY id").fetchall())
+        observations = list(
+            connection.execute("SELECT id, payload_hash FROM observations ORDER BY id").fetchall()
+        )
         events = list(connection.execute("SELECT id FROM ledger_events ORDER BY id").fetchall())
         claims = list(connection.execute("SELECT id FROM state_claims ORDER BY id").fetchall())
         relations = list(connection.execute("SELECT id FROM claim_relations ORDER BY id").fetchall())
