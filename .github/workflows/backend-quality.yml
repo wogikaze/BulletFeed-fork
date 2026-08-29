@@ -46,6 +46,9 @@ jobs:
       - name: Delta-06 asymmetric threshold calibration gate
         run: python backend/scripts/run_delta_calibration.py --split blind --check
 
+      - name: Rec-12 ranking benchmark regression gate
+        run: python backend/scripts/run_ranking_benchmark.py --split pilot --check
+
       - name: Run Ruff
         run: ruff check backend
 

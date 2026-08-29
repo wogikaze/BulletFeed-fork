@@ -1,0 +1,13 @@
+{
+  "benchmark_version": "ranking-benchmark-v0.1",
+  "dataset_version": "personalization-v0.1",
+  "label_protocol_version": "personalization-label-v1",
+  "ranking_contract_version": "feed-order-v4",
+  "gold_corpus": "tests/gold/personalization/v01",
+  "labels_rewritten": false,
+  "observation_history": "fixed synthetic Observation ids derived from gold item_id; no live fetch",
+  "splits": {
+    "pilot": "used for development floors and regression gates",
+    "blind": "evaluation-only; not used to tune ranking code"
+  }
+}
