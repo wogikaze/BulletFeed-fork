@@ -1,0 +1,13 @@
+{
+  "abstain_confidence": "low",
+  "different_event_overlap": 0.55,
+  "different_overlap": 0.55,
+  "equivalent_overlap": 0.8,
+  "false_merge_cost": 5.0,
+  "false_split_cost": 1.0,
+  "replay_version": "delta-thresholds-v1[eq=0.80,diff=0.55,same_event=0.80,merge_cost=5,split_cost=1,select=pilot]",
+  "same_event_overlap": 0.8,
+  "selection_split": "pilot",
+  "uncertain_cost": 0.25,
+  "version": "delta-thresholds-v1"
+}

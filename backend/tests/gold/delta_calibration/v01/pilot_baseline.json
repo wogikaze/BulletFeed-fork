@@ -1,0 +1,112 @@
+{
+  "accuracy_maximizer": {
+    "accuracy": 0.2857142857142857,
+    "cost": 22.5,
+    "different_overlap": 0.55,
+    "equivalent_overlap": 0.8,
+    "false_merge_count": 0,
+    "false_split_count": 20,
+    "pair_count": 28,
+    "uncertain_count": 10
+  },
+  "benchmark_version": "delta-calibration-v0.1",
+  "dataset_version": "delta-adversarial-v0.1",
+  "false_merge_count": 0,
+  "false_merge_rate": 0.0,
+  "false_split_count": 20,
+  "false_split_rate": 0.7142857142857143,
+  "families": [
+    {
+      "false_merge_count": 0,
+      "false_split_count": 20,
+      "family": "equivalence",
+      "pair_count": 28,
+      "reliability": [
+        {
+          "abstention_rate": 0.3333333333333333,
+          "accuracy": 0.7777777777777778,
+          "confidence": "high",
+          "samples": 9
+        },
+        {
+          "abstention_rate": 0.2,
+          "accuracy": 0.6,
+          "confidence": "medium",
+          "samples": 15
+        },
+        {
+          "abstention_rate": 1.0,
+          "accuracy": 1.0,
+          "confidence": "low",
+          "samples": 4
+        }
+      ],
+      "uncertain_count": 10
+    },
+    {
+      "false_merge_count": 0,
+      "false_split_count": 20,
+      "family": "coreference",
+      "pair_count": 28,
+      "reliability": [
+        {
+          "abstention_rate": 0.3333333333333333,
+          "accuracy": 0.2222222222222222,
+          "confidence": "high",
+          "samples": 9
+        },
+        {
+          "abstention_rate": 0.2,
+          "accuracy": 0.13333333333333333,
+          "confidence": "medium",
+          "samples": 15
+        },
+        {
+          "abstention_rate": 1.0,
+          "accuracy": 1.0,
+          "confidence": "low",
+          "samples": 4
+        }
+      ],
+      "uncertain_count": 10
+    }
+  ],
+  "labels_rewritten": false,
+  "predicted_uncertain_count": 10,
+  "replay": {
+    "delta_thresholds_version": "delta-thresholds-v1",
+    "different_event_overlap": 0.55,
+    "different_overlap": 0.55,
+    "equivalent_overlap": 0.8,
+    "false_merge_cost": 5.0,
+    "false_split_cost": 1.0,
+    "replay_version": "delta-thresholds-v1[eq=0.80,diff=0.55,same_event=0.80,merge_cost=5,split_cost=1,select=pilot]",
+    "same_event_overlap": 0.8,
+    "selection_split": "pilot"
+  },
+  "selected": {
+    "accuracy": 0.2857142857142857,
+    "cost": 22.5,
+    "different_overlap": 0.55,
+    "equivalent_overlap": 0.8,
+    "false_merge_count": 0,
+    "false_split_count": 20,
+    "pair_count": 28,
+    "uncertain_count": 10
+  },
+  "selected_by": "asymmetric_cost",
+  "split": "pilot",
+  "thresholds": {
+    "abstain_confidence": "low",
+    "different_event_overlap": 0.55,
+    "different_overlap": 0.55,
+    "equivalent_overlap": 0.8,
+    "false_merge_cost": 5.0,
+    "false_split_cost": 1.0,
+    "replay_version": "delta-thresholds-v1[eq=0.80,diff=0.55,same_event=0.80,merge_cost=5,split_cost=1,select=pilot]",
+    "same_event_overlap": 0.8,
+    "selection_split": "pilot",
+    "uncertain_cost": 0.25,
+    "version": "delta-thresholds-v1"
+  }
+}
