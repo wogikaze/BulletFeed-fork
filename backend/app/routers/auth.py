@@ -148,7 +148,6 @@ async def github_callback(
         github_user = await github.get_user(settings, github_token)
         now = int(time.time())
         token_expires_at = now + int(token_data["expires_in"]) if token_data.get("expires_in") else None
-        source_session_lifetime = min(int(token_data.get("expires_in", 28_800)), 28_800)
         app_access_token = secrets.token_urlsafe(48)
         refresh_token = secrets.token_urlsafe(64)
         database.complete_oauth_flow(
@@ -161,7 +160,6 @@ async def github_callback(
             encrypted_app_access_token=cipher.encrypt(app_access_token),
             refresh_token=refresh_token,
             encrypted_refresh_token=cipher.encrypt(refresh_token),
-            app_session_expires_at=now + source_session_lifetime,
             user_session_expires_at=now + _USER_SESSION_TTL_SECONDS,
             refresh_expires_at=now + _REFRESH_TTL_SECONDS,
         )
