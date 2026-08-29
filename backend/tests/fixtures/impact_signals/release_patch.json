@@ -1,0 +1,7 @@
+{
+  "source_type": "github_release",
+  "source_key": "acme/sdk",
+  "tag_name": "v1.0.1",
+  "prerelease": false,
+  "body": "Bug fixes."
+}

@@ -1,0 +1,6 @@
+{
+  "source_type": "statuspage",
+  "impact": "major",
+  "status": "identified",
+  "incident_name": "Elevated error rates"
+}

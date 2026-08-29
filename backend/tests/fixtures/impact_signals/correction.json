@@ -1,0 +1,8 @@
+{
+  "source_type": "statuspage",
+  "delta_type": "correction",
+  "explicit_correction": true,
+  "impact": "minor",
+  "status": "identified",
+  "body": "Correction: previous update was incorrect about the affected region."
+}

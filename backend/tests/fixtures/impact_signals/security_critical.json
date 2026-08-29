@@ -1,0 +1,14 @@
+{
+  "source_type": "github_advisory",
+  "ghsa_id": "GHSA-crit-0000-0000",
+  "severity": "critical",
+  "cvss": {
+    "score": 9.8,
+    "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+  },
+  "vulnerabilities": [
+    {
+      "package": {"ecosystem": "pip", "name": "demo"}
+    }
+  ]
+}
