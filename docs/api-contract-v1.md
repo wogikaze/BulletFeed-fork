@@ -142,8 +142,10 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 
 `POST /feed/exposures` `{ items: [{ deliveryId, displayedAt }] }`
 
-- GET /feed だけでは known にしない
-- 未知 `deliveryId` は無視、バッチ上限 50、`deliveryId` で冪等
+- Claim knownness は `delivered` / `displayed` / `read`
+- `GET /feed` は delivery と `delivered` を書く。watermark（再投影抑制）は `displayed` または `read` だけが進める
+- 未表示の item は bounded retry（既定 3 回）後に GET から外れるが、`delivered` だけでは permanently known にしない
+- 未知 `deliveryId` は無視、バッチ上限 50、`deliveryId` で冪等。複数端末の同一 `claim` は先勝ち
 
 ### Event
 

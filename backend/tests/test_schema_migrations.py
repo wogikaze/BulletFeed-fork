@@ -171,7 +171,7 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
                 "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
             )
         ]
-        assert revisions == ["1", "2", "3", "4", "5", "6"]
+        assert revisions == ["1", "2", "3", "4", "5", "6", "7"]
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_features'"
         ).fetchone()
@@ -204,6 +204,10 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
         ).fetchone() is None
+        knownness_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(user_claim_exposures)")
+        }
+        assert {"state", "displayed_at", "read_at", "delivery_count"} <= knownness_columns
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -247,7 +251,7 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6"}
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "source_key" in columns
         assert "repository_full_name" not in columns
@@ -276,7 +280,7 @@ def test_revision_3_adds_subscription_user_mapping(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6"}
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
@@ -319,7 +323,7 @@ def test_revision_4_adds_last_new_observation_at(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6"}
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "last_new_observation_at" in columns
         row = connection.execute(
@@ -364,7 +368,100 @@ def test_revision_5_drops_app_sessions(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6"}
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
         ).fetchone() is None
+
+
+def test_revision_7_adds_knownness_states_and_preserves_displayed_rows(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-knownness-states.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '7'")
+        connection.execute(
+            """
+            CREATE TABLE user_claim_exposures_legacy (
+                user_id TEXT NOT NULL,
+                claim_id TEXT NOT NULL,
+                delivery_id TEXT NOT NULL,
+                delivered_at TEXT NOT NULL,
+                PRIMARY KEY(user_id, claim_id)
+            )
+            """
+        )
+        connection.execute("DROP TABLE user_claim_exposures")
+        connection.execute(
+            "ALTER TABLE user_claim_exposures_legacy RENAME TO user_claim_exposures"
+        )
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_a', 0)")
+        connection.execute(
+            """
+            INSERT INTO events (
+                id, title, summary, current_phase, current_summary,
+                current_since, current_confidence, updated_at
+            ) VALUES (
+                'event_legacy', 'Legacy', 'Legacy', 'identified', 'Legacy',
+                '2026-08-22T00:00:00Z', 'high', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO deltas (
+                id, event_id, type, summary, before_text, after_text, occurred_at, active
+            ) VALUES (
+                'delta_legacy', 'event_legacy', 'state_update', 'Legacy',
+                '', 'Legacy', '2026-08-22T00:00:00Z', 1
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO feed_items (
+                id, user_id, event_id, delta_id, title,
+                importance_level, importance_reason, importance_confidence,
+                relation_level, relation_reason, matched_topics_json, matched_repos_json,
+                status, dismissed, marked_important, updated_at
+            ) VALUES (
+                'fi_legacy', 'user_a', 'event_legacy', 'delta_legacy', 'Legacy',
+                'high', 'test', 0.9, 'direct', 'test', '[]', '[]',
+                'read', 0, 0, '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO deliveries (id, feed_item_id, user_id, created_at)
+            VALUES ('dlv_legacy', 'fi_legacy', 'user_a', '2026-08-22T00:01:00Z')
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO user_claim_exposures (user_id, claim_id, delivery_id, delivered_at)
+            VALUES ('user_a', 'claim_legacy', 'dlv_legacy', '2026-08-22T00:02:00Z')
+            """
+        )
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(user_claim_exposures)")
+        }
+        assert {"state", "displayed_at", "read_at", "delivery_count"} <= columns
+        row = connection.execute(
+            """
+            SELECT state, displayed_at, read_at, delivery_count
+            FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND claim_id = 'claim_legacy'
+            """
+        ).fetchone()
+        assert row["state"] == "read"
+        assert row["displayed_at"] == "2026-08-22T00:02:00Z"
+        assert row["read_at"] == "2026-08-22T00:02:00Z"
+        assert row["delivery_count"] == 1

@@ -8,6 +8,12 @@ import sqlite3
 from datetime import UTC, datetime
 
 from app.database import Database
+from app.db.knownness import (
+    KNOWNNESS_DELIVERED,
+    KNOWNNESS_DISPLAYED,
+    KNOWNNESS_READ,
+    UNDISPLAYED_DELIVERY_RETRY_LIMIT,
+)
 from app.errors import not_found, unprocessable
 from app.schemas.common import Delta, Importance, MatchedRepository, Relation, SourceEvidence
 from app.schemas.feed import PublicFeedItem
@@ -92,6 +98,136 @@ def _row_to_item(
     )
 
 
+def _upsert_delivered(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    claim_id: str,
+    delivery_id: str,
+    delivered_at: str,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO user_claim_exposures (
+            user_id, claim_id, delivery_id, delivered_at, state,
+            displayed_at, read_at, delivery_count
+        ) VALUES (?, ?, ?, ?, ?, NULL, NULL, 1)
+        ON CONFLICT(user_id, claim_id) DO UPDATE SET
+            delivery_id = CASE
+                WHEN user_claim_exposures.state = 'delivered'
+                THEN excluded.delivery_id
+                ELSE user_claim_exposures.delivery_id
+            END,
+            delivered_at = CASE
+                WHEN user_claim_exposures.state = 'delivered'
+                THEN excluded.delivered_at
+                ELSE user_claim_exposures.delivered_at
+            END,
+            delivery_count = CASE
+                WHEN user_claim_exposures.state = 'delivered'
+                THEN user_claim_exposures.delivery_count + 1
+                ELSE user_claim_exposures.delivery_count
+            END
+        """,
+        (user_id, claim_id, delivery_id, delivered_at, KNOWNNESS_DELIVERED),
+    )
+
+
+def _upsert_displayed(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    claim_id: str,
+    delivery_id: str,
+    displayed_at: str,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO user_claim_exposures (
+            user_id, claim_id, delivery_id, delivered_at, state,
+            displayed_at, read_at, delivery_count
+        ) VALUES (?, ?, ?, ?, ?, ?, NULL, 1)
+        ON CONFLICT(user_id, claim_id) DO UPDATE SET
+            state = CASE
+                WHEN user_claim_exposures.state = 'read' THEN 'read'
+                ELSE 'displayed'
+            END,
+            displayed_at = COALESCE(user_claim_exposures.displayed_at, excluded.displayed_at),
+            delivery_id = CASE
+                WHEN user_claim_exposures.state = 'delivered' THEN excluded.delivery_id
+                ELSE user_claim_exposures.delivery_id
+            END
+        """,
+        (
+            user_id,
+            claim_id,
+            delivery_id,
+            displayed_at,
+            KNOWNNESS_DISPLAYED,
+            displayed_at,
+        ),
+    )
+
+
+def _record_read(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    feed_item_id: str,
+) -> None:
+    mapped = connection.execute(
+        """
+        SELECT m.claim_id
+        FROM feed_items f
+        JOIN delta_claim_map m ON m.delta_id = f.delta_id
+        WHERE f.id = ? AND f.user_id = ?
+        """,
+        (feed_item_id, user_id),
+    ).fetchone()
+    if mapped is None:
+        return
+    delivery = connection.execute(
+        """
+        SELECT id, created_at
+        FROM deliveries
+        WHERE feed_item_id = ? AND user_id = ?
+        ORDER BY created_at DESC, id DESC
+        LIMIT 1
+        """,
+        (feed_item_id, user_id),
+    ).fetchone()
+    now = _now_iso()
+    if delivery is None:
+        delivery_id = f"dlv_{secrets.token_urlsafe(10)}"
+        connection.execute(
+            "INSERT INTO deliveries (id, feed_item_id, user_id, created_at) VALUES (?, ?, ?, ?)",
+            (delivery_id, feed_item_id, user_id, now),
+        )
+        delivered_at = now
+    else:
+        delivery_id = delivery["id"]
+        delivered_at = delivery["created_at"]
+    connection.execute(
+        """
+        INSERT INTO user_claim_exposures (
+            user_id, claim_id, delivery_id, delivered_at, state,
+            displayed_at, read_at, delivery_count
+        ) VALUES (?, ?, ?, ?, ?, NULL, ?, 1)
+        ON CONFLICT(user_id, claim_id) DO UPDATE SET
+            state = 'read',
+            read_at = COALESCE(user_claim_exposures.read_at, excluded.read_at)
+        """,
+        (
+            user_id,
+            mapped["claim_id"],
+            delivery_id,
+            delivered_at,
+            KNOWNNESS_READ,
+            now,
+        ),
+    )
+
+
 class FeedStore:
     def __init__(self, database: Database) -> None:
         self._database = database
@@ -128,6 +264,7 @@ class FeedStore:
             inner_sql = """
                 SELECT f.*, d.type AS delta_type, d.summary AS delta_summary,
                        d.before_text, d.after_text, d.occurred_at,
+                       claim_map.claim_id AS claim_id,
                        CASE f.importance_level
                            WHEN 'critical' THEN 4
                            WHEN 'high' THEN 3
@@ -141,7 +278,16 @@ class FeedStore:
                        END AS relation_rank
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
+                LEFT JOIN delta_claim_map claim_map ON claim_map.delta_id = f.delta_id
+                LEFT JOIN user_claim_exposures knownness
+                    ON knownness.user_id = f.user_id
+                   AND knownness.claim_id = claim_map.claim_id
                 WHERE f.user_id = ? AND f.dismissed = 0
+                  AND (
+                      knownness.claim_id IS NULL
+                      OR knownness.state != ?
+                      OR knownness.delivery_count < ?
+                  )
                   AND (
                       NOT EXISTS (
                           SELECT 1 FROM event_visibility v
@@ -155,7 +301,12 @@ class FeedStore:
                       )
                   )
             """
-            params: list[object] = [user_id, int(datetime.now(UTC).timestamp())]
+            params: list[object] = [
+                user_id,
+                KNOWNNESS_DELIVERED,
+                UNDISPLAYED_DELIVERY_RETRY_LIMIT,
+                int(datetime.now(UTC).timestamp()),
+            ]
             if relation is not None:
                 inner_sql += " AND f.relation_level = ?"
                 params.append(relation)
@@ -244,6 +395,14 @@ class FeedStore:
                     "INSERT INTO deliveries (id, feed_item_id, user_id, created_at) VALUES (?, ?, ?, ?)",
                     (delivery_id, row["id"], user_id, created_at),
                 )
+                if row["claim_id"] is not None:
+                    _upsert_delivered(
+                        connection,
+                        user_id=user_id,
+                        claim_id=row["claim_id"],
+                        delivery_id=delivery_id,
+                        delivered_at=created_at,
+                    )
                 items.append(
                     _row_to_item(
                         row,
@@ -277,6 +436,7 @@ class FeedStore:
                 "UPDATE feed_items SET status = 'read' WHERE id = ? AND user_id = ?",
                 (feed_item_id, user_id),
             )
+            _record_read(connection, user_id=user_id, feed_item_id=feed_item_id)
         return {"feed_item_id": feed_item_id, "status": "read"}
 
     def save_feedback(self, user_id: str, feed_item_id: str, feedback_type: str) -> dict:
@@ -343,13 +503,12 @@ class FeedStore:
                     (delivery_id, user_id, item["displayed_at"], now),
                 ).rowcount
                 if delivery["claim_id"] is not None:
-                    connection.execute(
-                        """
-                        INSERT OR IGNORE INTO user_claim_exposures (
-                            user_id, claim_id, delivery_id, delivered_at
-                        ) VALUES (?, ?, ?, ?)
-                        """,
-                        (user_id, delivery["claim_id"], delivery_id, item["displayed_at"]),
+                    _upsert_displayed(
+                        connection,
+                        user_id=user_id,
+                        claim_id=delivery["claim_id"],
+                        delivery_id=delivery_id,
+                        displayed_at=item["displayed_at"],
                     )
                 accepted += inserted
         return accepted

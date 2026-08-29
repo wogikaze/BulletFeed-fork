@@ -78,6 +78,10 @@ CREATE TABLE IF NOT EXISTS user_claim_exposures (
     claim_id TEXT NOT NULL,
     delivery_id TEXT NOT NULL,
     delivered_at TEXT NOT NULL,
+    state TEXT NOT NULL DEFAULT 'displayed',
+    displayed_at TEXT,
+    read_at TEXT,
+    delivery_count INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY(user_id, claim_id),
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(claim_id) REFERENCES state_claims(id),
@@ -86,6 +90,9 @@ CREATE TABLE IF NOT EXISTS user_claim_exposures (
 
 CREATE INDEX IF NOT EXISTS idx_user_claim_exposures_user
 ON user_claim_exposures(user_id, delivered_at, claim_id);
+
+CREATE INDEX IF NOT EXISTS idx_user_claim_exposures_state
+ON user_claim_exposures(user_id, state, claim_id);
 
 CREATE TABLE IF NOT EXISTS event_visibility (
     event_id TEXT PRIMARY KEY,

@@ -29,7 +29,10 @@ def test_feed_delivery_is_not_exposure_or_knownness(
     user_id = _seed_workspace(database)
     with database.connect() as connection:
         before_known = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = ?",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = ? AND state IN ('displayed', 'read')
+            """,
             (user_id,),
         ).fetchone()["count"]
         before_exposed = connection.execute(
@@ -47,7 +50,10 @@ def test_feed_delivery_is_not_exposure_or_knownness(
 
     with database.connect() as connection:
         after_delivery_known = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = ?",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = ? AND state IN ('displayed', 'read')
+            """,
             (user_id,),
         ).fetchone()["count"]
         after_delivery_exposed = connection.execute(

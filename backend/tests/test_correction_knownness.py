@@ -100,7 +100,10 @@ def test_known_user_receives_later_correction_without_reprojecting_known_claim(d
         known_claims = {
             row["claim_id"]
             for row in connection.execute(
-                "SELECT claim_id FROM user_claim_exposures WHERE user_id = 'user_a'"
+                """
+                SELECT claim_id FROM user_claim_exposures
+                WHERE user_id = 'user_a' AND state IN ('displayed', 'read')
+                """
             ).fetchall()
         }
 

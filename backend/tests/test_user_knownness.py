@@ -64,9 +64,19 @@ def test_exposed_claims_become_known_without_cross_user_contamination(database):
 
     with database.connect() as connection:
         known_after_delivery = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = 'user_a'",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND state IN ('displayed', 'read')
+            """,
+        ).fetchone()["count"]
+        delivered_after_get = connection.execute(
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND state = 'delivered'
+            """,
         ).fetchone()["count"]
     assert known_after_delivery == 0
+    assert delivered_after_get == 2
 
     accepted = store.record_exposures(
         "user_a",
@@ -82,10 +92,16 @@ def test_exposed_claims_become_known_without_cross_user_contamination(database):
 
     with database.connect() as connection:
         known_a = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = 'user_a'",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_a' AND state IN ('displayed', 'read')
+            """,
         ).fetchone()["count"]
         known_b = connection.execute(
-            "SELECT COUNT(*) AS count FROM user_claim_exposures WHERE user_id = 'user_b'",
+            """
+            SELECT COUNT(*) AS count FROM user_claim_exposures
+            WHERE user_id = 'user_b' AND state IN ('displayed', 'read')
+            """,
         ).fetchone()["count"]
     assert known_a == 2
     assert known_b == 0
