@@ -362,6 +362,23 @@ def _display_name(concept_id: str, fallback: str) -> str:
     return fallback.strip() or concept_id
 
 
+def known_concept_ids() -> frozenset[str]:
+    return frozenset(_CONCEPT_BY_ID)
+
+
+def concept_display_name(concept_id: str, fallback: str = "") -> str:
+    return _display_name(concept_id, fallback or concept_id)
+
+
+def concept_neighbors(concept_id: str) -> tuple[str, ...]:
+    return _neighbors_of(concept_id)
+
+
+def concept_vetoes(concept_id: str) -> tuple[str, ...]:
+    spec = _CONCEPT_BY_ID.get(concept_id)
+    return spec.vetoes if spec is not None else ()
+
+
 def _neighbors_of(concept_id: str) -> tuple[str, ...]:
     spec = _CONCEPT_BY_ID.get(concept_id)
     return spec.neighbors if spec is not None else ()

@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from app.schemas.common import ApiModel, TopicPriority, TopicType
+from app.schemas.common import ApiModel, Confidence, TopicPriority, TopicType
 
 OnboardingState = Literal["profile", "github_pending", "repository_pending", "ready"]
 
@@ -52,6 +52,26 @@ class TopicList(ApiModel):
 
 class TopicSearchResult(ApiModel):
     items: list[Topic]
+
+
+TopicRecommendationProvenance = Literal["explicit", "inferred"]
+
+
+class TopicRecommendationItem(ApiModel):
+    id: str
+    name: str
+    type: TopicType
+    score: float
+    reason: str
+    provenance: TopicRecommendationProvenance
+    already_followed: bool
+    confidence: Confidence
+    source_signals: list[str]
+
+
+class TopicRecommendationList(ApiModel):
+    version: str
+    items: list[TopicRecommendationItem]
 
 
 class OnboardingRequest(ApiModel):

@@ -9,8 +9,10 @@ from fastapi import HTTPException, status
 
 from app.database import Database
 from app.errors import not_found, unprocessable
-from app.schemas.me import MeBootstrap, Profile, Topic
+from app.schemas.common import TopicType
+from app.schemas.me import MeBootstrap, Profile, Topic, TopicRecommendationItem, TopicRecommendationList
 from app.services.feed_projection import FeedProjector
+from app.services.topic_recommendations import recommend_topics_for_user
 
 _MIN_TOPICS = 5
 _MAX_TOPICS = 20
@@ -18,6 +20,12 @@ _MAX_TOPICS = 20
 
 def _iso(ts: int) -> str:
     return datetime.fromtimestamp(ts, UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _topic_type(value: str) -> TopicType:
+    if value in {"technology", "service", "company"}:
+        return value
+    return "technology"
 
 
 def _topic_from_row(row) -> Topic:
@@ -161,6 +169,38 @@ class MeStore:
             updated = connection.execute("SELECT * FROM topics WHERE id = ?", (topic_id,)).fetchone()
         self._projector.reproject_user(user_id=user_id)
         return _topic_from_row(updated)
+
+    def list_topic_recommendations(
+        self,
+        user_id: str,
+        *,
+        limit: int = 10,
+        include_followed: bool = True,
+    ) -> TopicRecommendationList:
+        with self._database.connect() as connection:
+            result = recommend_topics_for_user(
+                connection,
+                user_id,
+                limit=limit,
+                include_followed=include_followed,
+            )
+        return TopicRecommendationList(
+            version=result.version,
+            items=[
+                TopicRecommendationItem(
+                    id=item.topic_id,
+                    name=item.name,
+                    type=_topic_type(item.topic_type),
+                    score=item.score,
+                    reason=item.reason,
+                    provenance=item.provenance,
+                    already_followed=item.already_followed,
+                    confidence=item.confidence,
+                    source_signals=list(item.source_signals),
+                )
+                for item in result.items
+            ],
+        )
 
     def search_topics(self, query: str) -> list[Topic]:
         needle = f"%{query.strip()}%"

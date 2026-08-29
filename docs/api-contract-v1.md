@@ -176,7 +176,19 @@ Behavior:
 `GET/PUT /me/profile` fields: `occupation, interests[], region`  
 `GET/POST /me/topics` `DELETE /me/topics/{topicId}` `PATCH /me/topics/{topicId}` `{ priority?, order? }`  
 `GET /topics/search?q=` カタログ検索。自由入力の POST は残す。  
+`GET /me/topic-recommendations?limit=&includeFollowed=` 認証済みのトピック推薦。検索ではない。トピックを自動追加しない。  
 `PUT /me/onboarding` は既存 Android 用。profile 必須 + topics 5件以上。
+
+`GET /me/topic-recommendations`
+
+- limit 1–20、既定 10。`includeFollowed` 既定 true（追跡済みは `alreadyFollowed` で明示）
+- 並び: score desc, name
+- 応答: `{ version, items: TopicRecommendation[] }`
+- `version`: `topic-recommendations-v1`
+- 各 item: `id, name, type, score, reason, provenance, alreadyFollowed, confidence, sourceSignals`
+- `provenance`: `explicit`（宣言済み興味）または `inferred`（隣接・リポジトリ推定・catalog fallback）
+- コールドスタート（興味シグナルなし）は catalog fallback。`provenance=inferred`、reason に catalog と記す。explicit にはしない。方針本体は #47
+- ledger / topics を書き換えない。Hard-negative（React ユーザーへの reactor 等）は返さない
 
 ### GitHub
 

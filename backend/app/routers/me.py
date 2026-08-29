@@ -14,6 +14,7 @@ from app.schemas.me import (
     TopicCreate,
     TopicList,
     TopicPatch,
+    TopicRecommendationList,
     TopicSearchResult,
 )
 from app.stores.me_store import MeStore
@@ -103,6 +104,20 @@ def search_topics(
     q: Annotated[str, Query(min_length=1)],
 ) -> TopicSearchResult:
     return TopicSearchResult(items=store.search_topics(q))
+
+
+@router.get("/me/topic-recommendations", response_model=TopicRecommendationList)
+def list_topic_recommendations(
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[MeStore, Depends(_store)],
+    limit: Annotated[int, Query(ge=1, le=20)] = 10,
+    include_followed: Annotated[bool, Query(alias="includeFollowed")] = True,
+) -> TopicRecommendationList:
+    return store.list_topic_recommendations(
+        user["user_id"],
+        limit=limit,
+        include_followed=include_followed,
+    )
 
 
 @router.put("/me/onboarding", response_model=OnboardingResponse)
