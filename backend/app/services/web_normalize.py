@@ -22,7 +22,7 @@ SECTION_ID_PREFIX = "sec_"
 BLOCK_ID_PREFIX = "blk_"
 
 # Structural extraction only. JavaScript rendering is out of scope (#64).
-# Change-candidate typing is out of scope (#62). This module never writes
+# Change-candidate typing lives in web_changes.py (#62). This module never writes
 # Observations or Claims; generic_web remains discovery-only.
 
 SKIP_TAGS = frozenset(
