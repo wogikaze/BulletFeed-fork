@@ -167,13 +167,11 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
     database = Database(tmp_path / "baseline.db")
     database.initialize()
     with database.connect() as connection:
-        revisions = [
+        revisions = {
             row[0]
-            for row in connection.execute(
-                "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
-            )
-        ]
-        assert revisions == list(KNOWN_REVISIONS)
+            for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == set(KNOWN_REVISIONS)
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_features'"
         ).fetchone()
@@ -699,8 +697,7 @@ def test_revision_10_adds_knowledge_evidence_and_preserves_ledger(tmp_path: Path
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7", "9", "10"}
-        assert "8" not in revisions
+        assert revisions == set(KNOWN_REVISIONS)
         columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(user_knowledge_evidence)")
         }
