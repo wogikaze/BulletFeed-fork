@@ -3,6 +3,8 @@ name: Backend security
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
@@ -41,8 +43,8 @@ jobs:
       - name: Audit locked dependencies
         run: pip-audit --require-hashes -r backend/requirements.lock
 
-      - name: Run Bandit
-        run: bandit -q -r backend/app
+      - name: Run Bandit with reviewed waivers
+        run: python backend/scripts/run_bandit_gate.py
 
       - name: Run Semgrep security audit
         run: semgrep scan --config p/security-audit --error --metrics=off backend/app
