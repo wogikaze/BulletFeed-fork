@@ -129,8 +129,9 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 `GET /feed?relation=&status=&cursor=&limit=`
 
 - limit 1–50、既定 20
-- 並び: `importance_rank DESC, relation_rank DESC, personalization_rank DESC, updated_at DESC, id DESC`（`FeedStore.list_feed`。未読はソートキーにしない。未読優先は `status=unread` かクライアント側ピン留め）
-- cursor: `v3|{importance_rank}|{relation_rank}|{personalization_rank}|{updated_at}|{id}` を URL-safe Base64
+- 並び: `multiobjective-ranker-v1`（[ADR-0013](adr/0013-multiobjective-ranker-v1.md)）。軸は relevance（Relation）、importance/impact、novelty/knownness、redundancy penalty。未読はソートキーにしない。未読優先は `status=unread` かクライアント側ピン留め
+- cursor: `v5|{policy_version}|{item_id}` を URL-safe Base64。同一 ranking version のあいだ安定。旧 cursor は `obsolete ranking version`
+- 訂正と critical な security/incident は明示的な priority rule。同一 Event / redundancy group は多様性ペナルティ（削除しない）。不確実な knownness は hide しない
 - 応答: `{ items: FeedItem[], nextCursor }`
 
 `PUT /feed/items/{feedItemId}/read` — 当該 Delta を既読にする。詳細 GET では自動既読にしない。

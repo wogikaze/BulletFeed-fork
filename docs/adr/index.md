@@ -15,6 +15,7 @@
 | ADR-0011 | Accepted (Phase 1で記述) | 既存backend prototypeの移植後削除 |
 | [ADR-0012](0012-viewport-exposure-v1.md) | Accepted | 意味のあるビューポート露出方針 v1 (Known-03) |
 | [ADR-0013](0013-false-suppression-v1.md) | Accepted | 不確かな既知度に対する保守的な誤抑制ガード v1 (Known-05) |
+| [ADR-0014](0014-multiobjective-ranker-v1.md) | Accepted | 冗長性制御付き多目的ランキング v1 (Rec-08) |
 
 ## ADR様式
 
