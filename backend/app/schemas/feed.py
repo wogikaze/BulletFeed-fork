@@ -48,6 +48,9 @@ class ReadResponse(ApiModel):
 class ExposureItem(ApiModel):
     delivery_id: str
     displayed_at: str
+    dwell_ms: int | None = Field(default=None, ge=0)
+    visible_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
+    detail_opened: bool = False
 
 
 class ExposuresRequest(ApiModel):

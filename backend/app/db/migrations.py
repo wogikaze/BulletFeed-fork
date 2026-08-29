@@ -12,7 +12,7 @@ from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "12")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -341,11 +341,30 @@ def _apply_revision_10(connection: sqlite3.Connection) -> None:
     connection.executescript(KNOWLEDGE_EVIDENCE_SCHEMA)
 
 
+def _apply_revision_11(connection: sqlite3.Connection) -> None:
+    """Audit columns for meaningful viewport display (Known-03).
+
+    Existing exposure rows stay displayed. New clients send dwell_ms and
+    visible_ratio; missing metrics remain compatible as displayed.
+    """
+    tables = {
+        row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    }
+    if "exposures" not in tables:
+        return
+    _add_column_if_missing(connection, "exposures", "dwell_ms INTEGER")
+    _add_column_if_missing(connection, "exposures", "visible_ratio REAL")
+    _add_column_if_missing(connection, "exposures", "policy_version TEXT")
+    _add_column_if_missing(
+        connection, "exposures", "detail_opened INTEGER NOT NULL DEFAULT 0"
+    )
+
+
 def _apply_revision_12(connection: sqlite3.Connection) -> None:
     """GitHub-inferred interest signals. Does not replace explicit user interests.
 
     Revision 8 is the source registry (#58). Revisions 9-10 are typed feedback
-    and knowledge evidence. Revision 11 is reserved; this branch keeps 12.
+    and knowledge evidence. Revision 11 is viewport exposure columns.
     """
     connection.execute(
         """
@@ -381,5 +400,6 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "8": _apply_revision_8,
     "9": _apply_revision_9,
     "10": _apply_revision_10,
+    "11": _apply_revision_11,
     "12": _apply_revision_12,
 }

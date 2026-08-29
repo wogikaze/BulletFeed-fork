@@ -31,7 +31,7 @@ Default `./gradlew :app:testDebugUnitTest` stays offline and excludes that class
 3. GitHub OAuthを完了する。repositoryをまだ保存していない状態が`repository_pending`であり、main Feedへready遷移しないことを確認する。
 4. public/private repositoryを選択して保存する。repository選択後にtopic inferenceが反映され、stateが`ready`になることを確認する。
 5. source workerが取り込んだ実EventをFeedで表示する。Feed cardでtitle、importance、relation、timestamp、source publisher/provenanceが確認できること。
-6. Feed pageを取得した直後、まだviewportへ表示していないdeliveryについて `displayed`/`read` watermark が増えていないことを確認する。GET は `delivered` になり得る。実際にcardを表示し、`/feed/exposures` が成功したdeliveryだけcanonical claim knownnessへ反映されることを確認する。
+6. Feed pageを取得した直後、まだviewportへ表示していないdeliveryについて `displayed`/`read` watermark が増えていないことを確認する。GET は `delivered` になり得る。高速スクロールの一瞬交差だけでは `displayed` にならないこと。意味のある表示（最短滞在と可視割合、または detail を開く）のあと `/feed/exposures` が成功したdeliveryだけcanonical claim knownnessへ反映されることを確認する。
 7. 通信を一時的に失敗させてexposure POSTを失敗させ、同じprocess内でviewportを再表示したとき再送されることを確認する。失敗したdeliveryをclientがrecorded扱いしないこと。
 8. Event detailを開き、opened/latest deltaのbefore/after、current state、impact、timeline、Evidence/Source、published/retrieved time、元URLがserver EventDetailと一致することを確認する。deep link `bulletfeed://event/{id}` からも同じdetailへ到達する。
 9. follow/unfollow、read、important、not relevantを操作し、client-side optimistic fictionではなくserver再取得後の状態へ収束することを確認する。50件より後ろのpage itemでもread/feedbackが成功する。

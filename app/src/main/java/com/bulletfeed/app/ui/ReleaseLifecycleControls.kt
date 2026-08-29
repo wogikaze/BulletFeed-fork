@@ -42,7 +42,7 @@ fun FeedScreen(
     loadMoreError: String?,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
-    onVisibleFeedItems: (List<String>) -> Unit,
+    onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
     modifier: Modifier = Modifier,

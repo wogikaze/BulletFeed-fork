@@ -157,12 +157,18 @@ Behavior:
 - 同一シグナルの再送は派生状態として冪等（latest-state）。行は追加される
 - 各行は取得できる範囲で `eventId` / `deltaId` / `claimId` を保持する
 
-`POST /feed/exposures` `{ items: [{ deliveryId, displayedAt }] }`
+`POST /feed/exposures` `{ items: [{ deliveryId, displayedAt, dwellMs?, visibleRatio?, detailOpened? }] }`
 
 - Claim knownness は `delivered` / `displayed` / `read`
 - `GET /feed` は delivery と `delivered` を書く。watermark（再投影抑制）は `displayed` または `read` だけが進める
 - 未表示の item は bounded retry（既定 3 回）後に GET から外れるが、`delivered` だけでは permanently known にしない
 - 未知 `deliveryId` は無視、バッチ上限 50、`deliveryId` で冪等。複数端末の同一 `claim` は先勝ち
+- 意味のある表示方針は `viewport-exposure-v1`（[ADR-0012](adr/0012-viewport-exposure-v1.md)）。`KIND_DISPLAYED` は政策を満たした露出だけ
+- 新クライアントは `dwellMs`（ミリ秒）と `visibleRatio`（0.0–1.0）を送る。最短滞在 1000ms かつ可視割合 0.50 を満たさない item は `displayed` にしない
+- `dwellMs` と `visibleRatio` を両方省略した既存クライアントは **displayed として扱う（互換）**
+- `detailOpened=true` は Event detail を開いた明示操作。dwell / ratio が低くても displayed
+- 高速スクロールの一瞬交差や 1px 程度の露出は知識証跡にしない。生スクロール座標は送らない
+- 受理した露出は `dwell_ms` / `visible_ratio` / `policy_version` / `detail_opened` を残し、なぜ数えたかを監査できる
 
 ### Event
 

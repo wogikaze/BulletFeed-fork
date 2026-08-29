@@ -173,3 +173,39 @@ def test_mark_read_and_feedback_and_exposures(
     )
     assert ignored.status_code == 200
     assert ignored.json()["accepted"] == 0
+
+    remaining_feed = client.get("/v1/feed", headers=auth_headers).json()["items"]
+    brief = remaining_feed[0]
+    rejected = client.post(
+        "/v1/feed/exposures",
+        headers=auth_headers,
+        json={
+            "items": [
+                {
+                    "deliveryId": brief["deliveryId"],
+                    "displayedAt": "2026-08-18T05:01:00Z",
+                    "dwellMs": 80,
+                    "visibleRatio": 0.1,
+                }
+            ]
+        },
+    )
+    assert rejected.status_code == 200
+    assert rejected.json()["accepted"] == 0
+
+    accepted_metrics = client.post(
+        "/v1/feed/exposures",
+        headers=auth_headers,
+        json={
+            "items": [
+                {
+                    "deliveryId": brief["deliveryId"],
+                    "displayedAt": "2026-08-18T05:02:00Z",
+                    "dwellMs": 1200,
+                    "visibleRatio": 0.8,
+                }
+            ]
+        },
+    )
+    assert accepted_metrics.status_code == 200
+    assert accepted_metrics.json()["accepted"] == 1

@@ -1,6 +1,7 @@
 package com.bulletfeed.app
 
 import android.content.Context
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -103,6 +104,10 @@ class BulletFeedViewModel(
     private val githubSelectionEdits = mutableMapOf<String, Boolean>()
     private val recordedExposureDeliveryIds = mutableSetOf<String>()
     private val pendingExposureDeliveryIds = mutableSetOf<String>()
+    private val pendingExposureFeedItemIds = mutableMapOf<String, String>()
+    private val viewportTracker = ViewportExposureTracker(nowMs = { SystemClock.elapsedRealtime() })
+    private var lastViewportSnapshots: List<ViewportItemSnapshot> = emptyList()
+    private var dwellRecheckJob: Job? = null
 
     init {
         refresh()
@@ -319,28 +324,62 @@ class BulletFeedViewModel(
         }
     }
 
-    fun recordFeedExposures(feedItemIds: List<String>) {
-        val deliveryIds = feedItemIds
-            .asSequence()
-            .mapNotNull { _uiState.value.feedDeliveryIds[it] }
-            .distinct()
-            .filterNot { it in recordedExposureDeliveryIds || it in pendingExposureDeliveryIds }
-            .take(50)
-            .toList()
-        if (deliveryIds.isEmpty()) return
+    fun recordFeedViewportSnapshots(items: List<ViewportItemSnapshot>) {
+        lastViewportSnapshots = items
+        postMeaningfulExposures(viewportTracker.onSnapshots(items))
+        scheduleDwellRecheck()
+    }
+
+    private fun scheduleDwellRecheck() {
+        dwellRecheckJob?.cancel()
+        val dueAt = viewportTracker.nextDueAtMs() ?: return
+        dwellRecheckJob = viewModelScope.launch {
+            delay((dueAt - SystemClock.elapsedRealtime()).coerceAtLeast(0L))
+            postMeaningfulExposures(viewportTracker.onSnapshots(lastViewportSnapshots))
+            scheduleDwellRecheck()
+        }
+    }
+
+    private fun postMeaningfulExposures(ready: List<MeaningfulViewportExposure>) {
+        if (ready.isEmpty()) return
+        val deliveryByFeedItem = _uiState.value.feedDeliveryIds
         val displayedAt = currentUtcTimestamp()
-        pendingExposureDeliveryIds += deliveryIds
+        val exposures = mutableListOf<FeedExposure>()
+        val deliveryIds = mutableListOf<String>()
+        ready.forEach { item ->
+            val deliveryId = deliveryByFeedItem[item.feedItemId] ?: return@forEach
+            if (deliveryId in recordedExposureDeliveryIds || deliveryId in pendingExposureDeliveryIds) {
+                return@forEach
+            }
+            deliveryIds += deliveryId
+            pendingExposureFeedItemIds[deliveryId] = item.feedItemId
+            exposures +=
+                FeedExposure(
+                    deliveryId = deliveryId,
+                    displayedAt = displayedAt,
+                    dwellMs = item.dwellMs,
+                    visibleRatio = item.visibleRatio,
+                    detailOpened = item.detailOpened,
+                )
+        }
+        val limited = exposures.take(50)
+        val limitedIds = deliveryIds.take(50)
+        if (limited.isEmpty()) return
+        pendingExposureDeliveryIds += limitedIds
         viewModelScope.launch {
             try {
-                repository.recordExposures(deliveryIds.map { FeedExposure(it, displayedAt) })
-                pendingExposureDeliveryIds.removeAll(deliveryIds.toSet())
-                recordedExposureDeliveryIds += deliveryIds
+                repository.recordExposures(limited)
+                pendingExposureDeliveryIds.removeAll(limitedIds.toSet())
+                recordedExposureDeliveryIds += limitedIds
+                limitedIds.forEach { pendingExposureFeedItemIds.remove(it) }
             } catch (error: CancellationException) {
-                pendingExposureDeliveryIds.removeAll(deliveryIds.toSet())
+                pendingExposureDeliveryIds.removeAll(limitedIds.toSet())
+                viewportTracker.allowRetry(limitedIds.mapNotNull { pendingExposureFeedItemIds.remove(it) })
                 throw error
             } catch (error: Throwable) {
                 // Failed knownness writes must remain retryable when the same items are visible again.
-                pendingExposureDeliveryIds.removeAll(deliveryIds.toSet())
+                pendingExposureDeliveryIds.removeAll(limitedIds.toSet())
+                viewportTracker.allowRetry(limitedIds.mapNotNull { pendingExposureFeedItemIds.remove(it) })
                 if (error.isUnauthorized()) handleRootFailure(error)
             }
         }
@@ -350,6 +389,9 @@ class BulletFeedViewModel(
         eventId: String,
         fromFeedItemId: String? = null,
     ) {
+        fromFeedItemId?.let { feedItemId ->
+            postMeaningfulExposures(listOf(viewportTracker.onDetailOpened(feedItemId)))
+        }
         val version = ++eventDetailVersion
         eventDetailJob?.cancel()
         eventDetailJob = viewModelScope.launch {
@@ -1107,6 +1149,10 @@ class BulletFeedViewModel(
     private fun clearExposureTracking() {
         recordedExposureDeliveryIds.clear()
         pendingExposureDeliveryIds.clear()
+        pendingExposureFeedItemIds.clear()
+        lastViewportSnapshots = emptyList()
+        dwellRecheckJob?.cancel()
+        viewportTracker.reset()
     }
 
     private fun handleRootFailure(error: Throwable) {
