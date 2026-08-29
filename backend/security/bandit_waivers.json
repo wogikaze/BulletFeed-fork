@@ -60,6 +60,12 @@
       "test_id": "B608",
       "line_number": 367,
       "reason": "The only interpolated SQL fragment is a generated comma-separated list of literal '?' placeholders; all user/data values remain sqlite bind parameters."
+    },
+    {
+      "filename": "backend/app/evaluation/real_world_validation.py",
+      "test_id": "B608",
+      "line_number": 217,
+      "reason": "Bandit parses the interpolated validation error text 'event_update must set is_real_event=true' as SQL UPDATE/SET syntax; this line only constructs a ValueError message and performs no query or database operation."
     }
   ]
 }
