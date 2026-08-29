@@ -349,6 +349,8 @@ class MeStore:
                 "source_sync_subscription_users",
                 "user_claim_exposures",
                 "exposures",
+                "feed_session_outcomes",
+                "feed_sessions",
                 "user_preference_weights",
                 "user_preference_models",
                 "user_ranking_features",

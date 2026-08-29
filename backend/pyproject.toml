@@ -46,6 +46,7 @@ ignore = ["S101"]
 "app/stores/feed_store.py" = ["S608"]
 "app/services/follow_baseline.py" = ["S608"]
 "app/services/knowledge_bootstrap.py" = ["S608"]
+"app/services/session_telemetry.py" = ["S608"]
 "app/services/feedback_signals.py" = ["S608"]
 "app/stores/me_store.py" = ["S608"]
 # PUBLIC_API_SCHEMA is an embedded SQL migration string; physical SQL line width is not Python API style.

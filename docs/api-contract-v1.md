@@ -200,6 +200,20 @@ Behavior:
 
 低信頼の inferred bootstrap は hide しない。他人の bootstrap は見えない。
 
+### Feed session outcomes
+
+実セッションの成果指標。Event / Claim / Delta とは別表。生スクロール座標は保存しない。`GET /feed` では session を開始しない。
+
+`POST /me/feed-sessions` — session 開始。無効化時は空 id を返す。
+
+`POST /me/feed-sessions/{sessionId}/end` — 任意の終了サマリ。他人の id は 404。
+
+`GET /me/feed-sessions/metrics` — usefulCardRate / alreadyKnownReshowRate / cardsToUsefulItem / feedbackResponseRate。
+
+`DELETE /me/feed-sessions` — 当該ユーザーの telemetry だけ消す。ledger は残す。
+
+`BULLETFEED_SESSION_TELEMETRY_ENABLED=false` で無効化しても feed は動く。保持 30 日。
+
 `GET /me/topic-recommendations`
 
 - limit 1–20、既定 10。`includeFollowed` 既定 true（追跡済みは `alreadyFollowed` で明示）
