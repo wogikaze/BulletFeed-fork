@@ -52,6 +52,7 @@ ignore = ["S101"]
 # PUBLIC_API_SCHEMA is an embedded SQL migration string; physical SQL line width is not Python API style.
 "app/db/schema.py" = ["E501"]
 "tests/*" = ["S105", "S106"]
+"scripts/materialize_real_world_validation_integrity.py" = ["S310", "E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

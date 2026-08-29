@@ -1,0 +1,9 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-p6mc-m468-83gw",
+  "requested_at": "2026-08-29T13:19:45Z",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "final_url": "https://api.github.com/advisories/GHSA-p6mc-m468-83gw",
+  "etag": "W/\"49862eaa7c90b601f153bc40dce53d66fa7497315337f0a651d63b7b80258b4e\"",
+  "last_modified": "Tue, 12 Aug 2025 21:43:40 GMT"
+}

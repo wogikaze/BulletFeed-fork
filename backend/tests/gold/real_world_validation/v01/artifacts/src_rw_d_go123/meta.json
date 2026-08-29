@@ -1,0 +1,11 @@
+{
+  "url": "https://api.github.com/repos/golang/go/git/commits/6885bad7dd86880be6929c02085e5c7a67ff2887",
+  "requested_at": "2026-08-29T13:19:45Z",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "final_url": "https://api.github.com/repos/golang/go/git/commits/6885bad7dd86880be6929c02085e5c7a67ff2887",
+  "etag": "W/\"8141e68c2629bec9fb01610611d730550fb500cc656f9fb3d3c62c727740807f\"",
+  "last_modified": "Tue, 13 Aug 2024 16:16:34 GMT",
+  "resolved_from_ref": "https://api.github.com/repos/golang/go/git/refs/tags/go1.23.0",
+  "tag": "go1.23.0"
+}

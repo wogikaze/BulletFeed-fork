@@ -1,0 +1,9 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-jfh8-c2jp-5v3q",
+  "requested_at": "2026-08-29T13:20:09Z",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "final_url": "https://api.github.com/advisories/GHSA-jfh8-c2jp-5v3q",
+  "etag": "W/\"541e1c31c060f2851a41bbd0c54391b9db15906a7a4259c8a6a51494e2f9bf5e\"",
+  "last_modified": "Wed, 22 Oct 2025 19:13:26 GMT"
+}

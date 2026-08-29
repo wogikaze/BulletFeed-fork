@@ -3,7 +3,11 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from app.evaluation.real_world_validation import load_real_world_validation
+from app.evaluation.real_world_validation import (
+    PERSONA_INDEPENDENCE_NOTE,
+    load_real_world_validation,
+    persona_template_counts,
+)
 
 _V01 = Path(__file__).parent / "gold" / "real_world_validation" / "v01"
 
@@ -30,7 +34,9 @@ def test_constructed_profiles_meet_b2_slices() -> None:
     assert splits["pilot"] == 20
     assert splits["dev"] == 15
     assert splits["blind"] == 15
-    assert _PERSONAS <= {profile.persona_template for profile in corpus.profiles}
+    assert _PERSONAS == {profile.persona_template for profile in corpus.profiles}
+    assert persona_template_counts(corpus)
+    assert corpus.manifest.persona_independence_note == PERSONA_INDEPENDENCE_NOTE
     assert {profile.language_focus for profile in corpus.profiles} == {"en", "ja", "mixed"}
     assert {profile.interest_breadth for profile in corpus.profiles} == {"broad", "narrow"}
     assert {profile.ecosystem for profile in corpus.profiles} == {"popular", "niche"}

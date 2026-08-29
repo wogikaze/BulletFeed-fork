@@ -1,0 +1,11 @@
+{
+  "url": "local-contract-fixture:src_contract_d01",
+  "requested_at": "2026-08-29T00:00:00Z",
+  "http_status": 200,
+  "content_type": "text/plain; charset=utf-8",
+  "final_url": "local-contract-fixture:src_contract_d01",
+  "etag": null,
+  "last_modified": null,
+  "fetch_kind": "local_contract_fixture",
+  "note": "Synthetic contract fixture bytes. Not a live page fetch."
+}

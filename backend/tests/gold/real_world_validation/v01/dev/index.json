@@ -4,18 +4,14 @@
     "src_contract_d01",
     "src_rw_d_go123",
     "src_rw_d_advisory",
-    "src_rw_d_cfstatus",
     "src_rw_d_rustblog",
-    "src_rw_d_jsonfeed",
     "src_rw_d_react"
   ],
   "event_ids": [
     "evt_contract_d01",
     "evt_rw_d_go123",
     "evt_rw_d_advisory",
-    "evt_rw_d_cfstatus",
     "evt_rw_d_rustblog",
-    "evt_rw_d_jsonfeed",
     "evt_rw_d_react"
   ],
   "profile_ids": [

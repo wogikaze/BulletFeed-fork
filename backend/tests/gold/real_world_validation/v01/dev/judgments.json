@@ -1,0 +1,18 @@
+[
+  {
+    "judgment_id": "jdg_contract_d01",
+    "profile_id": "prf_contract_d01",
+    "event_id": "evt_contract_d01",
+    "split": "dev",
+    "stratum": "already_known",
+    "relevance": 2,
+    "importance_to_user": 1,
+    "known_before": true,
+    "should_surface": false,
+    "rationale": "History-rich profile already marked this incident known.",
+    "provenance": "contract-fixture-dev",
+    "label_protocol_version": "label-protocol-v1",
+    "dataset_version": "real-world-validation-v0.2",
+    "ambiguous": false
+  }
+]

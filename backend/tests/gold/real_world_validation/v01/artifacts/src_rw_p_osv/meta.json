@@ -1,0 +1,9 @@
+{
+  "url": "https://api.osv.dev/v1/vulns/CVE-2023-4863",
+  "requested_at": "2026-08-29T13:19:00Z",
+  "http_status": 200,
+  "content_type": "application/json",
+  "final_url": "https://api.osv.dev/v1/vulns/CVE-2023-4863",
+  "etag": null,
+  "last_modified": null
+}

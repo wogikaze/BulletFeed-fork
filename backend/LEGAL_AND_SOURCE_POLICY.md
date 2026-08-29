@@ -12,6 +12,10 @@
 | Statuspage | 公開Status API | incident ID、状態、更新時刻、根拠URL | 管理APIの秘密情報 |
 | 公式公開HTML | 運営allowlist上のHTTPS静的取得（不変スナップショット）。静的抽出が不足し、かつソース方針が明示オプトインのときだけ上限付き動的レンダ（#64） | 生バイト、応答ヘッダ、取得日時、content hash、robots判定。レンダ時は HTTP 親スナップショット ID と `acquisition_mode`。Observation（provenance付き）。Claim/Evidence は `official_changelog` / `documentation` のallowlist公式ページのみ | ログイン必須ページ、Cookie、任意URL、再配布、`generic_web` からの自動Claim化。フラグ無効時の JS 実行結果 |
 
+## 評価コーパスの取得物
+
+`backend/tests/gold/real_world_validation/` の artifact は評価専用である。公式 REST/OSV JSON は API が返す source payload を保存する。公式 HTML は cited snapshot（応答バイトとヘッダ）を保存し、製品フィードへ再配布しない。手書き/LLM 要約を `raw_evidence` として hash しない。
+
 ## 必須ルール
 
 1. APIまたは配信者が明示的に公開したRSS / Atomを優先する。

@@ -13,6 +13,7 @@ from app.evaluation.real_world_validation import (
     capacity_status,
     coverage_inventory,
     load_real_world_validation,
+    load_real_world_validation_for_production_scoring,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -37,13 +38,18 @@ def main() -> None:
     leaks = scan_python_sources(APP, _holdout_tokens())
     if leaks:
         raise SystemExit("real-world validation holdout leaked into production:\n" + "\n".join(leaks))
+    scoring = load_real_world_validation_for_production_scoring(CORPUS)
+    scoring_rows = scoring.sources + scoring.events + scoring.profiles + scoring.judgments
+    if any(row.split == "blind" for row in scoring_rows):
+        raise SystemExit("production-scoring loader returned a blind record")
     status = capacity_status(corpus)
     coverage = coverage_inventory(corpus)
     print(
         "real-world validation contract OK: "
-        f"events={status.event_count} profiles={status.profile_count} "
-        f"judgments={status.judgment_count} capacity_met={status.meets_targets} "
-        f"coverage={coverage}"
+        f"real_events={status.real_event_count} events={status.event_count} "
+        f"profiles={status.profile_count} judgments={status.judgment_count} "
+        f"persona_templates={status.persona_template_count} "
+        f"capacity_met={status.meets_targets} coverage={coverage}"
     )
 
 

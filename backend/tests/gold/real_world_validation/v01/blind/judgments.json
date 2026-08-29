@@ -1,0 +1,18 @@
+[
+  {
+    "judgment_id": "jdg_contract_h01",
+    "profile_id": "prf_contract_h01",
+    "event_id": "evt_contract_h01",
+    "split": "blind",
+    "stratum": "hard_negative",
+    "relevance": 0,
+    "importance_to_user": 0,
+    "known_before": false,
+    "should_surface": false,
+    "rationale": "Holdout stratum example. Do not embed this id in production modules.",
+    "provenance": "contract-fixture-holdout",
+    "label_protocol_version": "label-protocol-v1",
+    "dataset_version": "real-world-validation-v0.2",
+    "ambiguous": false
+  }
+]
