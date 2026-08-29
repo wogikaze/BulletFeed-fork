@@ -1,6 +1,6 @@
 # BulletFeed API 契約 v1
 
-更新日: 2026-08-22  
+更新日: 2026-08-29  
 用途: Android公開API。Observation / Claim ledger / Semantic Delta 判定などの内部処理は公開しない。
 
 ## 1. 基本方針
@@ -33,7 +33,8 @@ FeedItemStatus: unread | read
 FeedbackType: important | not_relevant
 EventPhase: investigating | identified | monitoring | resolved
 TimelineType: announced | state_changed | information_added | corrected | resolved
-SourceKind: statuspage | github_advisory | osv | github_release | official_changelog | documentation
+SourceKind: statuspage | github_advisory | osv | github_release | github_sbom | rss_atom | json_feed | official_changelog | documentation
+  (`official_changelog` / `documentation` は `source_policies` と公開スキーマ上の kind。専用 ingest adapter は持たない)
 TopicType: technology | service | company
 TopicPriority: high | normal | low
 ```
@@ -128,7 +129,8 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 `GET /feed?relation=&status=&cursor=&limit=`
 
 - limit 1–50、既定 20
-- 並び: `updatedAt desc, id desc`（未読はソートキーにしない。未読優先は `status=unread` かクライアント側ピン留め）
+- 並び: `importance_rank DESC, relation_rank DESC, personalization_rank DESC, updated_at DESC, id DESC`（`FeedStore.list_feed`。未読はソートキーにしない。未読優先は `status=unread` かクライアント側ピン留め）
+- cursor: `v3|{importance_rank}|{relation_rank}|{personalization_rank}|{updated_at}|{id}` を URL-safe Base64
 - 応答: `{ items: FeedItem[], nextCursor }`
 
 `PUT /feed/items/{feedItemId}/read` — 当該 Delta を既読にする。詳細 GET では自動既読にしない。

@@ -35,7 +35,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 必要環境はAndroid Studio、JDK 17、Android SDK Platform 36です。
 
-Debug buildはAndroid Emulator向けに `http://10.0.2.2:8000/` を使用し、debugだけcleartextを許可します。
+Debug の `BuildConfig.BASE_URL` は `http://10.0.2.2:8000/` です。`BulletFeedApiFactory.resolveBaseUrl` は次の1手順だけです。ホストで backend を `127.0.0.1:8000` で起動します。Emulator では Factory が `10.0.2.2` をそのまま使い、エミュレータのホスト別名で backend に届きます。実機では Factory が `10.0.2.2` を `127.0.0.1` に置換するので、先に `adb reverse tcp:8000 tcp:8000` を実行します。debug だけ cleartext を許可します。
 
 ```bash
 ./gradlew :app:assembleDebug
