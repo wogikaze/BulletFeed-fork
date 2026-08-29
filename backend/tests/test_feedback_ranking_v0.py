@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from app.database import Database
+from app.db.migrations import KNOWN_REVISIONS
 from app.services.feed_projection import FeedProjector
 from app.services.ranking import evaluate_importance
 from app.services.ranking_feedback import (
@@ -374,7 +375,7 @@ def test_revision_6_adds_ranking_feature_tables(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        assert revisions == set(KNOWN_REVISIONS)
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_features'"
         ).fetchone()
