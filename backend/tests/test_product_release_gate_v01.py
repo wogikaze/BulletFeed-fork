@@ -12,6 +12,7 @@ _FLOORS = Path(__file__).parent / "gold/product_release/v01/floors.json"
 _E2E = Path(__file__).parent / "gold/e2e_unknown_recall/v01/pilot/cases.json"
 _KNOWNNESS = Path(__file__).parent / "gold/knownness/v01"
 _COVERAGE = Path(__file__).parent / "gold/source_coverage/v01"
+_PRODUCTION_MODULE = Path(__file__).parents[1] / "app/evaluation/product_release_gate.py"
 
 
 def _report(**overrides):
@@ -60,5 +61,5 @@ def test_floor_file_changes_require_new_version_reason() -> None:
 
 
 def test_production_module_does_not_load_blind_paths() -> None:
-    text = Path("app/evaluation/product_release_gate.py").read_text(encoding="utf-8")
+    text = _PRODUCTION_MODULE.read_text(encoding="utf-8")
     assert "blind" not in text
