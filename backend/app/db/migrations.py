@@ -7,10 +7,11 @@ from collections.abc import Callable
 from app.db.event_identity_schema import EVENT_IDENTITY_SCHEMA
 from app.db.ledger_schema import LEDGER_SCHEMA
 from app.db.schema import PUBLIC_API_SCHEMA
+from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -276,6 +277,10 @@ def _apply_revision_7(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_8(connection: sqlite3.Connection) -> None:
+    connection.executescript(SOURCE_REGISTRY_SCHEMA)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -284,4 +289,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "5": _apply_revision_5,
     "6": _apply_revision_6,
     "7": _apply_revision_7,
+    "8": _apply_revision_8,
 }

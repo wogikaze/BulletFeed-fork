@@ -5,9 +5,10 @@ import pytest
 
 from app.database import Database
 from app.db.ledger_schema import LEDGER_SCHEMA
-from app.db.migrations import UnknownSchemaRevisionError
+from app.db.migrations import KNOWN_REVISIONS, UnknownSchemaRevisionError
 from app.db.schema import PUBLIC_API_SCHEMA
 from app.db.seed import TOPIC_CATALOG
+from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
@@ -61,6 +62,7 @@ def _install_current_unversioned_schema(database: Database) -> None:
         connection.executescript(LEDGER_SCHEMA)
         connection.executescript(STATE_LEDGER_SCHEMA)
         connection.executescript(SYNC_SCHEMA)
+        connection.executescript(SOURCE_REGISTRY_SCHEMA)
         connection.executemany(
             "INSERT OR IGNORE INTO topic_catalog (id, name, type) VALUES (?, ?, ?)",
             TOPIC_CATALOG,
@@ -171,7 +173,7 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
                 "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
             )
         ]
-        assert revisions == ["1", "2", "3", "4", "5", "6", "7"]
+        assert revisions == list(KNOWN_REVISIONS)
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_features'"
         ).fetchone()
@@ -208,6 +210,15 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
             row["name"] for row in connection.execute("PRAGMA table_info(user_claim_exposures)")
         }
         assert {"state", "displayed_at", "read_at", "delivery_count"} <= knownness_columns
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_publishers'"
+        ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_endpoints'"
+        ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_endpoint_lineage'"
+        ).fetchone()
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -251,7 +262,7 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        assert revisions == set(KNOWN_REVISIONS)
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "source_key" in columns
         assert "repository_full_name" not in columns
@@ -280,7 +291,7 @@ def test_revision_3_adds_subscription_user_mapping(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        assert revisions == set(KNOWN_REVISIONS)
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
@@ -323,7 +334,7 @@ def test_revision_4_adds_last_new_observation_at(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        assert revisions == set(KNOWN_REVISIONS)
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "last_new_observation_at" in columns
         row = connection.execute(
@@ -368,7 +379,7 @@ def test_revision_5_drops_app_sessions(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        assert revisions == set(KNOWN_REVISIONS)
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
         ).fetchone() is None
@@ -449,7 +460,7 @@ def test_revision_7_adds_knownness_states_and_preserves_displayed_rows(tmp_path:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5", "6", "7"}
+        assert revisions == set(KNOWN_REVISIONS)
         columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(user_claim_exposures)")
         }
@@ -465,3 +476,32 @@ def test_revision_7_adds_knownness_states_and_preserves_displayed_rows(tmp_path:
         assert row["displayed_at"] == "2026-08-22T00:02:00Z"
         assert row["read_at"] == "2026-08-22T00:02:00Z"
         assert row["delivery_count"] == 1
+
+
+def test_revision_8_adds_source_registry_tables(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-source-registry.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '8'")
+        connection.execute("DROP TABLE IF EXISTS source_endpoint_lineage")
+        connection.execute("DROP TABLE IF EXISTS source_endpoints")
+        connection.execute("DROP TABLE IF EXISTS source_publishers")
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == set(KNOWN_REVISIONS)
+        for table in ("source_publishers", "source_endpoints", "source_endpoint_lineage"):
+            assert connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+                (table,),
+            ).fetchone()
+        endpoint_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(source_endpoints)")
+        }
+        assert {"endpoint_id", "publisher_id", "family", "canonical_url", "previous_endpoint_id"} <= (
+            endpoint_columns
+        )
