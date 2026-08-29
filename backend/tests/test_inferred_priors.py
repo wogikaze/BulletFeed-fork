@@ -57,7 +57,13 @@ def _signal(
     return replace(signal, inference_version=inference_version)
 
 
-def _seed_user(connection, user_id: str, *, topics: tuple[str, ...] = (), repos: tuple[str, ...] = ()) -> None:
+def _seed_user(
+    connection,
+    user_id: str,
+    *,
+    topics: tuple[str, ...] = (),
+    repos: tuple[str, ...] = (),
+) -> None:
     connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", (user_id,))
     for index, name in enumerate(topics):
         connection.execute(
@@ -155,9 +161,15 @@ def test_add_and_remove_repository_withdraws_only_that_repo(database: Database) 
     assert all(signal.repository == "acme/api" for signal in removed.signals)
     with database.connect() as connection:
         interest = load_user_interest(connection, "user_a")
-        topics = [row["name"] for row in connection.execute("SELECT name FROM topics WHERE user_id = 'user_a'")]
+        topics = [
+            row["name"]
+            for row in connection.execute("SELECT name FROM topics WHERE user_id = 'user_a'")
+        ]
     assert "React" in topics
-    assert any(concept.concept_id == "react" and concept.origin == "explicit" for concept in interest.concepts)
+    assert any(
+        concept.concept_id == "react" and concept.origin == "explicit"
+        for concept in interest.concepts
+    )
 
 
 def test_overlapping_repositories_aggregate_deterministically() -> None:
