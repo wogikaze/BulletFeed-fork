@@ -1,6 +1,9 @@
-import sqlite3
+from __future__ import annotations
 
-from app.database import Database
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.database import Database
 
 EVENT_IDENTITY_SCHEMA = """
 CREATE TABLE IF NOT EXISTS event_identity_aliases (
@@ -34,15 +37,3 @@ ON event_identity_repairs(source_event_id, created_at, id);
 def ensure_event_identity_schema(database: Database) -> None:
     with database.connect() as connection:
         connection.executescript(EVENT_IDENTITY_SCHEMA)
-        migrations = (
-            (
-                "ALTER TABLE event_identity_aliases ADD COLUMN decision_version "
-                "TEXT NOT NULL DEFAULT 'manual-v1'"
-            ),
-            "ALTER TABLE event_identity_repairs ADD COLUMN metadata_json TEXT NOT NULL DEFAULT '{}'",
-        )
-        for statement in migrations:
-            try:
-                connection.execute(statement)
-            except sqlite3.OperationalError:
-                pass

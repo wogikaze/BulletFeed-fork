@@ -4,12 +4,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from app.db.ledger_schema import LEDGER_SCHEMA
 from app.db.legacy_demo_cleanup import remove_legacy_demo_workspace
-from app.db.schema import PUBLIC_API_SCHEMA
+from app.db.migrations import apply_schema_migrations
 from app.db.seed import TOPIC_CATALOG
-from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
-from app.db.sync_schema import SYNC_SCHEMA
 from app.security import TokenCipher, token_hash
 
 
@@ -29,65 +26,11 @@ class Database:
     def initialize(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as connection:
-            connection.executescript(PUBLIC_API_SCHEMA)
-            connection.executescript(LEDGER_SCHEMA)
-            connection.executescript(STATE_LEDGER_SCHEMA)
-            connection.executescript(SYNC_SCHEMA)
+            apply_schema_migrations(connection)
             connection.executemany(
                 "INSERT OR IGNORE INTO topic_catalog (id, name, type) VALUES (?, ?, ?)",
                 TOPIC_CATALOG,
             )
-            connection.executescript(
-                """
-                CREATE TABLE IF NOT EXISTS oauth_flows (
-                    flow_id TEXT PRIMARY KEY,
-                    state_hash TEXT NOT NULL UNIQUE,
-                    poll_token_hash TEXT NOT NULL,
-                    pkce_verifier_encrypted TEXT NOT NULL,
-                    user_id TEXT,
-                    status TEXT NOT NULL,
-                    detail TEXT,
-                    github_login TEXT,
-                    app_access_token_encrypted TEXT,
-                    refresh_token_encrypted TEXT,
-                    expires_at INTEGER NOT NULL,
-                    created_at INTEGER NOT NULL
-                );
-
-                CREATE TABLE IF NOT EXISTS github_connections (
-                    github_user_id INTEGER PRIMARY KEY,
-                    login TEXT NOT NULL,
-                    avatar_url TEXT,
-                    github_token_encrypted TEXT NOT NULL,
-                    token_expires_at INTEGER,
-                    updated_at INTEGER NOT NULL
-                );
-
-                CREATE TABLE IF NOT EXISTS app_sessions (
-                    token_hash TEXT PRIMARY KEY,
-                    github_user_id INTEGER NOT NULL,
-                    expires_at INTEGER NOT NULL,
-                    created_at INTEGER NOT NULL,
-                    FOREIGN KEY(github_user_id) REFERENCES github_connections(github_user_id)
-                );
-                """
-            )
-            for column, table in [
-                ("github_user_id INTEGER", "users"),
-                ("github_login TEXT", "users"),
-                ("onboarding_state TEXT NOT NULL DEFAULT 'profile'", "users"),
-                ("github_credential_state TEXT NOT NULL DEFAULT 'disconnected'", "users"),
-                ("user_id TEXT", "oauth_flows"),
-                ("refresh_token_encrypted TEXT", "oauth_flows"),
-                ("source_updated_at TEXT NOT NULL DEFAULT ''", "state_claims"),
-                ("revision_hint TEXT NOT NULL DEFAULT ''", "state_claims"),
-                ("private INTEGER NOT NULL DEFAULT 1", "github_repo_watches"),
-                ("personalization_rank INTEGER NOT NULL DEFAULT 0", "feed_items"),
-            ]:
-                try:
-                    connection.execute(f"ALTER TABLE {table} ADD COLUMN {column}")
-                except sqlite3.OperationalError:
-                    pass
             connection.execute(
                 "UPDATE state_claims SET source_updated_at = valid_at WHERE source_updated_at = ''"
             )
@@ -103,13 +46,6 @@ class Database:
                 UPDATE users
                 SET github_credential_state = 'connected'
                 WHERE github_connected = 1 AND github_credential_state = 'disconnected'
-                """
-            )
-            connection.execute(
-                """
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_users_github_identity
-                ON users(github_user_id)
-                WHERE github_user_id IS NOT NULL
                 """
             )
             remove_legacy_demo_workspace(connection)

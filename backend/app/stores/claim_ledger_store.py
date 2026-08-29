@@ -33,18 +33,6 @@ class ClaimLedgerStore:
         self._database = database
         with self._database.connect() as connection:
             connection.executescript(STATE_LEDGER_SCHEMA)
-            migrations = (
-                "ALTER TABLE claim_evidence ADD COLUMN dependence_key TEXT NOT NULL DEFAULT ''",
-                "ALTER TABLE claim_relations ADD COLUMN decision_reason TEXT NOT NULL DEFAULT ''",
-                "ALTER TABLE claim_relations ADD COLUMN decision_confidence TEXT NOT NULL DEFAULT 'high'",
-                "ALTER TABLE claim_relations ADD COLUMN decision_version TEXT NOT NULL DEFAULT 'legacy'",
-                "ALTER TABLE claim_relations ADD COLUMN decision_abstained INTEGER NOT NULL DEFAULT 0",
-            )
-            for statement in migrations:
-                try:
-                    connection.execute(statement)
-                except sqlite3.OperationalError:
-                    pass
         ensure_event_identity_schema(database)
 
     def ingest(
