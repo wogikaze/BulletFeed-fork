@@ -8,6 +8,7 @@ from app.database import Database
 from app.db.projection_schema import ensure_projection_schema
 from app.observability import record
 from app.services.ranking import evaluate_importance
+from app.services.ranking_feedback import apply_feedback_ranking
 from app.services.relation import _normalize, evaluate_relation
 
 
@@ -123,6 +124,7 @@ class FeedProjector:
                     ),
                 )
                 created.append(feed_item_id)
+            apply_feedback_ranking(connection, user_id=user_id)
         record(
             "projection",
             layer="feed",
@@ -182,6 +184,7 @@ class FeedProjector:
                         event["id"],
                     ),
                 ).rowcount
+            apply_feedback_ranking(connection, user_id=user_id)
             topic_count = connection.execute(
                 "SELECT COUNT(*) FROM topics WHERE user_id = ?", (user_id,)
             ).fetchone()[0]

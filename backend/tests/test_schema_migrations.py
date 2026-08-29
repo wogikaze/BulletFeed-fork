@@ -171,7 +171,13 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
                 "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
             )
         ]
-        assert revisions == ["1", "2", "3", "4", "5"]
+        assert revisions == ["1", "2", "3", "4", "5", "6"]
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_features'"
+        ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_resets'"
+        ).fetchone()
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'"
         ).fetchone()
@@ -241,7 +247,7 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5"}
+        assert revisions == {"1", "2", "3", "4", "5", "6"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "source_key" in columns
         assert "repository_full_name" not in columns
@@ -270,7 +276,7 @@ def test_revision_3_adds_subscription_user_mapping(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5"}
+        assert revisions == {"1", "2", "3", "4", "5", "6"}
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
@@ -313,7 +319,7 @@ def test_revision_4_adds_last_new_observation_at(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5"}
+        assert revisions == {"1", "2", "3", "4", "5", "6"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "last_new_observation_at" in columns
         row = connection.execute(
@@ -358,7 +364,7 @@ def test_revision_5_drops_app_sessions(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4", "5"}
+        assert revisions == {"1", "2", "3", "4", "5", "6"}
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
         ).fetchone() is None
