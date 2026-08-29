@@ -115,7 +115,7 @@ def _identity_for_claim(
     mapped = resolve_claim_knowledge_id(connection, claim_id)
     if mapped is None:
         return "uncertain", "none"
-    if mapped.decision in {"equivalent", "singleton"}:
+    if mapped.decision == "equivalent":
         return "same_target", mapped.confidence
     return "uncertain", mapped.confidence or "none"
 

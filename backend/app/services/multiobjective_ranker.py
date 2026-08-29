@@ -444,7 +444,7 @@ def _diversify(scored: Sequence[_Scored], *, policy_version: str) -> list[Ranked
                 best_key = sort_key
                 best_item = item
                 best_index = index
-        assert best_item is not None
+        assert best_item is not None  # nosec B101
         selected.append(best_item)
         chosen = remaining.pop(best_index)
         group = chosen.candidate.redundancy_group or chosen.candidate.event_id or chosen.candidate.item_id
