@@ -10,7 +10,7 @@ from app.db.schema import PUBLIC_API_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1",)
+KNOWN_REVISIONS = ("1", "2")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -131,6 +131,60 @@ def _apply_revision_1(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_2(connection: sqlite3.Connection) -> None:
+    job_columns = {
+        row[1] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")
+    }
+    if "repository_full_name" in job_columns and "source_key" not in job_columns:
+        connection.execute(
+            """
+            CREATE TABLE source_sync_jobs_v2 (
+                source_type TEXT NOT NULL,
+                source_key TEXT NOT NULL,
+                next_run_at INTEGER NOT NULL,
+                lease_until INTEGER NOT NULL DEFAULT 0,
+                lease_token TEXT,
+                failure_count INTEGER NOT NULL DEFAULT 0,
+                last_attempt_at INTEGER,
+                last_success_at INTEGER,
+                last_error TEXT,
+                PRIMARY KEY(source_type, source_key)
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO source_sync_jobs_v2 (
+                source_type, source_key, next_run_at, lease_until, lease_token,
+                failure_count, last_attempt_at, last_success_at, last_error
+            )
+            SELECT
+                source_type, repository_full_name, next_run_at, lease_until, lease_token,
+                failure_count, last_attempt_at, last_success_at, last_error
+            FROM source_sync_jobs
+            """
+        )
+        connection.execute("DROP TABLE source_sync_jobs")
+        connection.execute("ALTER TABLE source_sync_jobs_v2 RENAME TO source_sync_jobs")
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_source_sync_jobs_due
+            ON source_sync_jobs(next_run_at, lease_until)
+            """
+        )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS source_sync_subscriptions (
+            source_type TEXT NOT NULL,
+            source_key TEXT NOT NULL,
+            selected INTEGER NOT NULL DEFAULT 1,
+            PRIMARY KEY(source_type, source_key)
+        )
+        """
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
+    "2": _apply_revision_2,
 }
