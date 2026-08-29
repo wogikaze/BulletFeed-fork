@@ -1,0 +1,786 @@
+[
+  {
+    "family": "same_fact_different_wording",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/7s119p1yxttr",
+    "prior": {
+      "value": "investigating",
+      "detail": "Incident with Copilot: users see elevated errors from the default model.",
+      "valid_at": "2026-08-03T09:53:27Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "The primary Copilot model is returning an unusually high error rate.",
+      "valid_at": "2026-08-03T10:10:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "copilot-model-errors",
+    "prior_event_id": "dag-bevt-copilot-errors",
+    "candidate_event_id": "dag-bevt-copilot-errors",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same Copilot error-rate fact with different wording.",
+    "bundle_id": "dag-blind-wording",
+    "case_id": "dag-b-001",
+    "split": "blind"
+  },
+  {
+    "family": "same_fact_different_wording",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-wm3w-8rrp-j577",
+    "prior": {
+      "value": "affected",
+      "detail": "Guzzle can widen host-only cookie scope.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "affected",
+      "detail": "Host-only cookies set by Guzzle may apply more broadly than the original host.",
+      "valid_at": "2026-07-18T08:00:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "guzzle-host-cookie",
+    "prior_event_id": "dag-bevt-guzzle-host",
+    "candidate_event_id": "dag-bevt-guzzle-host",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same host-only cookie scope bug restated.",
+    "bundle_id": "dag-blind-wording",
+    "case_id": "dag-b-002",
+    "split": "blind"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "degraded",
+      "detail": "GitHub webhooks are degraded in ap-northeast-1.",
+      "valid_at": "2026-07-14T17:38:00Z"
+    },
+    "candidate": {
+      "value": "degraded",
+      "detail": "GitHub webhooks are degraded in us-west-2.",
+      "valid_at": "2026-07-14T17:40:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "webhook-region-split",
+    "prior_event_id": "dag-bevt-hook-apne",
+    "candidate_event_id": "dag-bevt-hook-usw2",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same webhook wording, different regions, different events.",
+    "bundle_id": "dag-blind-samewords",
+    "case_id": "dag-b-003",
+    "split": "blind"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/api/v2/incidents.json",
+    "prior": {
+      "value": "investigating",
+      "detail": "Incident with Pull Requests: some users cannot merge.",
+      "valid_at": "2026-07-24T19:37:28Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Incident with Issues: some users cannot merge.",
+      "valid_at": "2026-07-24T19:40:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "pr-vs-issues",
+    "prior_event_id": "dag-bevt-pr-merge",
+    "candidate_event_id": "dag-bevt-issues-merge",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Shared incident boilerplate names two products.",
+    "bundle_id": "dag-blind-samewords",
+    "case_id": "dag-b-004",
+    "split": "blind"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "elevated errors",
+      "detail": "Claude Fable 5 is experiencing elevated errors.",
+      "valid_at": "2026-07-30T09:07:42Z"
+    },
+    "candidate": {
+      "value": "elevated errors",
+      "detail": "GPT 5.6 Luna is experiencing elevated errors.",
+      "valid_at": "2026-08-01T11:16:25Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "model-provider-split",
+    "prior_event_id": "dag-bevt-claude-fable",
+    "candidate_event_id": "dag-bevt-gpt-luna",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same error phrasing for two model providers.",
+    "bundle_id": "dag-blind-samewords",
+    "case_id": "dag-b-005",
+    "split": "blind"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "Node.js",
+    "provenance_url": "https://nodejs.org/en/blog/release/v22.17.0",
+    "prior": {
+      "value": "current",
+      "detail": "Node.js 22.16.0 is the Current release line.",
+      "valid_at": "2026-06-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "current",
+      "detail": "Node.js 22.17.0 is the Current release line.",
+      "valid_at": "2026-06-24T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "nodejs-22-current",
+    "prior_event_id": "dag-bevt-node22",
+    "candidate_event_id": "dag-bevt-node22",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Minor version bump updates the Current line.",
+    "bundle_id": "dag-blind-numeric",
+    "case_id": "dag-b-006",
+    "split": "blind"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "timeout 30s",
+      "detail": "The Actions job timeout is 30 seconds.",
+      "valid_at": "2026-07-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "timeout 30m",
+      "detail": "The Actions job timeout is 30 minutes.",
+      "valid_at": "2026-07-02T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "actions-timeout-unit",
+    "prior_event_id": "dag-bevt-timeout",
+    "candidate_event_id": "dag-bevt-timeout",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Identical numeral with seconds versus minutes is a unit change.",
+    "bundle_id": "dag-blind-numeric",
+    "case_id": "dag-b-007",
+    "split": "blind"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "React",
+    "provenance_url": "https://react.dev/blog/2024/12/05/react-19",
+    "prior": {
+      "value": "released",
+      "detail": "React 19.0.0 is generally available as of December 5, 2024.",
+      "valid_at": "2024-12-05T00:00:00Z"
+    },
+    "candidate": {
+      "value": "released",
+      "detail": "React 19.0.0 is generally available as of December 5, 2025.",
+      "valid_at": "2024-12-06T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "CORRECTION",
+    "event_label": "react19-ga-date",
+    "prior_event_id": "dag-bevt-react19-date",
+    "candidate_event_id": "dag-bevt-react19-date",
+    "explicit_correction": true,
+    "unresolved_source_conflict": false,
+    "rationale": "Publication year change is a date correction.",
+    "bundle_id": "dag-blind-numeric",
+    "case_id": "dag-b-008",
+    "split": "blind"
+  },
+  {
+    "family": "negation_comparator",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "enabled",
+      "detail": "Fine-grained personal access tokens are enabled for all organizations.",
+      "valid_at": "2026-08-10T18:02:00Z"
+    },
+    "candidate": {
+      "value": "disabled",
+      "detail": "Fine-grained personal access tokens are not enabled for all organizations.",
+      "valid_at": "2026-08-10T18:20:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "CORRECTION",
+    "event_label": "pat-enabled",
+    "prior_event_id": "dag-bevt-pat-enabled",
+    "candidate_event_id": "dag-bevt-pat-enabled",
+    "explicit_correction": true,
+    "unresolved_source_conflict": false,
+    "rationale": "Negation of the enablement claim is labeled a correction.",
+    "bundle_id": "dag-blind-negation",
+    "case_id": "dag-b-009",
+    "split": "blind"
+  },
+  {
+    "family": "negation_comparator",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "at least 4 vCPU",
+      "detail": "Runners must have at least 4 vCPU.",
+      "valid_at": "2026-07-09T04:34:00Z"
+    },
+    "candidate": {
+      "value": "at most 4 vCPU",
+      "detail": "Runners must have at most 4 vCPU.",
+      "valid_at": "2026-07-09T05:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "runner-vcpu-bound",
+    "prior_event_id": "dag-bevt-vcpu",
+    "candidate_event_id": "dag-bevt-vcpu",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "At-least versus at-most changes the constraint.",
+    "bundle_id": "dag-blind-negation",
+    "case_id": "dag-b-010",
+    "split": "blind"
+  },
+  {
+    "family": "partial_detail_vs_restatement",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "released",
+      "detail": "Widget v4 reaches general availability.",
+      "valid_at": "2026-08-13T11:00:00Z"
+    },
+    "candidate": {
+      "value": "released",
+      "detail": "Widget v4 reaches general availability and ships signed provenance attestations.",
+      "valid_at": "2026-08-13T12:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "DETAIL",
+    "event_label": "widget-v4-ga",
+    "prior_event_id": "dag-bevt-widget-v4",
+    "candidate_event_id": "dag-bevt-widget-v4",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Provenance attestation is additional detail on the same GA event.",
+    "bundle_id": "dag-blind-detail",
+    "case_id": "dag-b-011",
+    "split": "blind"
+  },
+  {
+    "family": "partial_detail_vs_restatement",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "released",
+      "detail": "Widget v4 reaches general availability.",
+      "valid_at": "2026-08-13T11:00:00Z"
+    },
+    "candidate": {
+      "value": "released",
+      "detail": "The fourth major Widget line is now generally available.",
+      "valid_at": "2026-08-13T11:20:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "widget-v4-restate",
+    "prior_event_id": "dag-bevt-widget-restate",
+    "candidate_event_id": "dag-bevt-widget-restate",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Ordinal restatement of the same GA fact.",
+    "bundle_id": "dag-blind-detail",
+    "case_id": "dag-b-012",
+    "split": "blind"
+  },
+  {
+    "family": "correction_vs_state_update",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "fixed",
+      "detail": "GHSA-wm3w-8rrp-j577 is fixed in 7.15.0.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "fixed",
+      "detail": "Correction: GHSA-wm3w-8rrp-j577 is fixed in 7.15.1, not 7.15.0.",
+      "valid_at": "2026-07-18T06:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "CORRECTION",
+    "event_label": "host-cookie-fixed-ver",
+    "prior_event_id": "dag-bevt-host-fix",
+    "candidate_event_id": "dag-bevt-host-fix",
+    "explicit_correction": true,
+    "unresolved_source_conflict": false,
+    "rationale": "Wrong fixed version is an explicit correction.",
+    "bundle_id": "dag-blind-correction",
+    "case_id": "dag-b-013",
+    "split": "blind"
+  },
+  {
+    "family": "correction_vs_state_update",
+    "kind": "real_public_source",
+    "hard_negative": false,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/7s119p1yxttr",
+    "prior": {
+      "value": "investigating",
+      "detail": "Incident with Copilot.",
+      "valid_at": "2026-08-03T09:53:27Z"
+    },
+    "candidate": {
+      "value": "resolved",
+      "detail": "This incident has been resolved.",
+      "valid_at": "2026-08-03T11:25:12Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "copilot-lifecycle",
+    "prior_event_id": "dag-bevt-copilot-life",
+    "candidate_event_id": "dag-bevt-copilot-life",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Investigating to resolved is an ordinary state update.",
+    "bundle_id": "dag-blind-correction",
+    "case_id": "dag-b-014",
+    "split": "blind"
+  },
+  {
+    "family": "delayed_out_of_order",
+    "kind": "real_public_source",
+    "hard_negative": false,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/7s119p1yxttr",
+    "prior": {
+      "value": "resolved",
+      "detail": "This incident has been resolved.",
+      "valid_at": "2026-08-03T11:25:12Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Incident with Copilot.",
+      "valid_at": "2026-08-03T09:53:27Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "copilot-late-history",
+    "prior_event_id": "dag-bevt-copilot-late",
+    "candidate_event_id": "dag-bevt-copilot-late",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Earlier Copilot investigating update arrives after resolved.",
+    "bundle_id": "dag-blind-delayed",
+    "case_id": "dag-b-015",
+    "split": "blind"
+  },
+  {
+    "family": "delayed_out_of_order",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "monitoring",
+      "detail": "Runner pods became stuck in an idle state.",
+      "valid_at": "2026-08-07T02:10:00Z"
+    },
+    "candidate": {
+      "value": "monitoring",
+      "detail": "Runner pods became stuck in an idle state.",
+      "valid_at": "2026-08-07T02:03:41Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "runner-idle-reorder",
+    "prior_event_id": "dag-bevt-runner-idle",
+    "candidate_event_id": "dag-bevt-runner-idle",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Identical delayed monitoring note is non-novel.",
+    "bundle_id": "dag-blind-delayed",
+    "case_id": "dag-b-016",
+    "split": "blind"
+  },
+  {
+    "family": "cross_source_restatement",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-wm3w-8rrp-j577",
+    "prior": {
+      "value": "affected",
+      "detail": "Guzzle: Host-only cookie scope is not preserved.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "affected",
+      "detail": "OSV restatement: Guzzle fails to keep host-only cookie scoping.",
+      "valid_at": "2026-07-19T00:00:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "guzzle-host-osv",
+    "prior_event_id": "dag-bevt-guzzle-osv",
+    "candidate_event_id": "dag-bevt-guzzle-osv",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Advisory and OSV-style writeup describe the same issue.",
+    "bundle_id": "dag-blind-crosssource",
+    "case_id": "dag-b-017",
+    "split": "blind"
+  },
+  {
+    "family": "cross_source_restatement",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/cstx3v63mklm",
+    "prior": {
+      "value": "investigating",
+      "detail": "Delays starting Actions runs.",
+      "valid_at": "2026-07-09T04:34:24Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Status digest: Actions jobs are slow to leave the queued state.",
+      "valid_at": "2026-07-09T04:50:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "actions-queue-delay",
+    "prior_event_id": "dag-bevt-actions-queue",
+    "candidate_event_id": "dag-bevt-actions-queue",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Statuspage and digest restatement of the same queue delay.",
+    "bundle_id": "dag-blind-crosssource",
+    "case_id": "dag-b-018",
+    "split": "blind"
+  },
+  {
+    "family": "japanese_mixed_technical",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "eol",
+      "detail": "Python 3.9 のサポートは 2025-10-31 に終了します。",
+      "valid_at": "2026-01-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "eol",
+      "detail": "Python 3.9 support ends on 2025-10-31.",
+      "valid_at": "2026-01-01T00:20:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "py39-eol-jp",
+    "prior_event_id": "dag-bevt-py39-jp",
+    "candidate_event_id": "dag-bevt-py39-jp",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Japanese and English state the same EOL date.",
+    "bundle_id": "dag-blind-japanese",
+    "case_id": "dag-b-019",
+    "split": "blind"
+  },
+  {
+    "family": "japanese_mixed_technical",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "degraded",
+      "detail": "Pages のデプロイ遅延が発生しています。",
+      "valid_at": "2026-08-06T15:03:55Z"
+    },
+    "candidate": {
+      "value": "degraded",
+      "detail": "Actions のデプロイ遅延が発生しています。",
+      "valid_at": "2026-08-06T15:05:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "pages-vs-actions-jp",
+    "prior_event_id": "dag-bevt-pages-jp",
+    "candidate_event_id": "dag-bevt-actions-jp-delay",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Japanese mixed text swaps Pages versus Actions.",
+    "bundle_id": "dag-blind-japanese",
+    "case_id": "dag-b-020",
+    "split": "blind"
+  },
+  {
+    "family": "japanese_mixed_technical",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-f283-ghqc-fg79",
+    "prior": {
+      "value": "affected",
+      "detail": "Guzzle の CookieJar は応答 cookie を無制限に受け入れます。",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "affected",
+      "detail": "The built-in CookieJar accepts unbounded response cookies.",
+      "valid_at": "2026-07-18T04:00:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "guzzle-cookie-jp",
+    "prior_event_id": "dag-bevt-cookie-jp",
+    "candidate_event_id": "dag-bevt-cookie-jp",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Japanese mixed restatement of the public CookieJar advisory.",
+    "bundle_id": "dag-blind-japanese",
+    "case_id": "dag-b-021",
+    "split": "blind"
+  },
+  {
+    "family": "entity_alias_product_rename",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "Microsoft Learn",
+    "provenance_url": "https://learn.microsoft.com/en-us/entra/fundamentals/new-name",
+    "prior": {
+      "value": "available",
+      "detail": "Azure AD B2C token issuance is available.",
+      "valid_at": "2026-03-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "available",
+      "detail": "Microsoft Entra External ID token issuance is available.",
+      "valid_at": "2026-03-01T00:10:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "entra-external",
+    "prior_event_id": "dag-bevt-entra-ext",
+    "candidate_event_id": "dag-bevt-entra-ext",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Azure AD B2C and Entra External ID name the successor product.",
+    "bundle_id": "dag-blind-alias",
+    "case_id": "dag-b-022",
+    "split": "blind"
+  },
+  {
+    "family": "entity_alias_product_rename",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "deprecated",
+      "detail": "Atom feeds remain supported alongside RSS.",
+      "valid_at": "2026-02-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "deprecated",
+      "detail": "RSS feeds remain supported alongside Atom.",
+      "valid_at": "2026-02-01T00:05:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "atom-rss-alias",
+    "prior_event_id": "dag-bevt-atom-rss",
+    "candidate_event_id": "dag-bevt-atom-rss",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Commuted product mention still asserts joint support.",
+    "bundle_id": "dag-blind-alias",
+    "case_id": "dag-b-023",
+    "split": "blind"
+  },
+  {
+    "family": "entity_alias_product_rename",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "released",
+      "detail": "Next.js 15 is generally available.",
+      "valid_at": "2026-10-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "released",
+      "detail": "Next 15 is generally available.",
+      "valid_at": "2026-10-01T00:05:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "nextjs-alias",
+    "prior_event_id": "dag-bevt-next15",
+    "candidate_event_id": "dag-bevt-next15",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Next.js and Next name the same framework release.",
+    "bundle_id": "dag-blind-alias",
+    "case_id": "dag-b-024",
+    "split": "blind"
+  },
+  {
+    "family": "same_fact_different_wording",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "quota policy",
+      "detail": "Organization spending quota is enforced for billed seats.",
+      "valid_at": "2026-07-01T10:51:00Z"
+    },
+    "candidate": {
+      "value": "quota policy",
+      "detail": "Organization spending quota is reviewed for billed seats.",
+      "valid_at": "2026-07-01T11:10:00Z"
+    },
+    "equivalence": "uncertain",
+    "revision_class": "UNRESOLVED_CONTRADICTION",
+    "event_label": "quota-enforced-vs-reviewed",
+    "prior_event_id": "dag-bevt-quota",
+    "candidate_event_id": "dag-bevt-quota",
+    "explicit_correction": false,
+    "unresolved_source_conflict": true,
+    "rationale": "Enforced versus reviewed is lexically close but semantically unresolved.",
+    "bundle_id": "dag-blind-wording",
+    "case_id": "dag-b-025",
+    "split": "blind"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "limit 5000/hour",
+      "detail": "REST API primary rate limit is 5000 requests per hour.",
+      "valid_at": "2026-06-10T15:20:00Z"
+    },
+    "candidate": {
+      "value": "limit 5000/day",
+      "detail": "REST API primary rate limit is 5000 requests per day.",
+      "valid_at": "2026-06-10T16:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "rest-rate-window",
+    "prior_event_id": "dag-bevt-rest-rate",
+    "candidate_event_id": "dag-bevt-rest-rate",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same 5000 quota over hour versus day is a unit/window change.",
+    "bundle_id": "dag-blind-numeric",
+    "case_id": "dag-b-026",
+    "split": "blind"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "critical",
+      "detail": "OpenSSL 3.0.6 is affected by CVE-2022-3602.",
+      "valid_at": "2022-11-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "critical",
+      "detail": "OpenSSL 3.0.6 is affected by CVE-2022-3786.",
+      "valid_at": "2022-11-01T00:10:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "openssl-cve-split",
+    "prior_event_id": "dag-bevt-ossl-3602",
+    "candidate_event_id": "dag-bevt-ossl-3786",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Two OpenSSL CVEs share version text but are different facts.",
+    "bundle_id": "dag-blind-samewords",
+    "case_id": "dag-b-027",
+    "split": "blind"
+  },
+  {
+    "family": "correction_vs_state_update",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "monitoring",
+      "detail": "The degradation has been mitigated.",
+      "valid_at": "2026-08-07T00:06:24Z"
+    },
+    "candidate": {
+      "value": "resolved",
+      "detail": "The degradation has been resolved.",
+      "valid_at": "2026-08-07T02:04:44Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "mitigated-to-resolved",
+    "prior_event_id": "dag-bevt-mitigated-res",
+    "candidate_event_id": "dag-bevt-mitigated-res",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Mitigated to resolved is a later state, not a correction.",
+    "bundle_id": "dag-blind-correction",
+    "case_id": "dag-b-028",
+    "split": "blind"
+  }
+]

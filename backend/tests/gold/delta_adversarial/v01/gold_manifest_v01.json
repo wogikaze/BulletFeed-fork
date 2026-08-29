@@ -1,0 +1,596 @@
+{
+  "dataset_id": "bulletfeed-delta-adversarial-gold-v0.1",
+  "dataset_version": "delta-adversarial-v0.1",
+  "label_protocol_version": "delta-adversarial-label-v1",
+  "minimum_cases": 40,
+  "minimum_hard_negatives": 16,
+  "minimum_real_case_ratio": 0.3,
+  "required_families": [
+    "same_fact_different_wording",
+    "same_words_different_fact",
+    "numeric_version_date_unit",
+    "negation_comparator",
+    "partial_detail_vs_restatement",
+    "correction_vs_state_update",
+    "delayed_out_of_order",
+    "cross_source_restatement",
+    "japanese_mixed_technical",
+    "entity_alias_product_rename"
+  ],
+  "files": {
+    "pilot_index": "pilot/index.json",
+    "pilot_cases": "pilot/cases.json",
+    "blind_index": "blind/index.json",
+    "blind_cases": "blind/cases.json"
+  },
+  "splits": {
+    "pilot": {
+      "cases": 28
+    },
+    "blind": {
+      "cases": 28
+    }
+  },
+  "entries": [
+    {
+      "case_id": "dag-p-001",
+      "bundle_id": "dag-pilot-wording",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_fact_different_wording",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://www.githubstatus.com/incidents/qcvjkzcs7j74"
+    },
+    {
+      "case_id": "dag-p-002",
+      "bundle_id": "dag-pilot-wording",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_fact_different_wording",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-h95v-h523-3mw8"
+    },
+    {
+      "case_id": "dag-p-003",
+      "bundle_id": "dag-pilot-samewords",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_words_different_fact",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-004",
+      "bundle_id": "dag-pilot-samewords",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_words_different_fact",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-005",
+      "bundle_id": "dag-pilot-samewords",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_words_different_fact",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://www.githubstatus.com/api/v2/incidents.json"
+    },
+    {
+      "case_id": "dag-p-006",
+      "bundle_id": "dag-pilot-numeric",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "numeric_version_date_unit",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://nodejs.org/en/blog/release/v20.19.1"
+    },
+    {
+      "case_id": "dag-p-007",
+      "bundle_id": "dag-pilot-numeric",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "numeric_version_date_unit",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-008",
+      "bundle_id": "dag-pilot-numeric",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "numeric_version_date_unit",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://devguide.python.org/versions/"
+    },
+    {
+      "case_id": "dag-p-009",
+      "bundle_id": "dag-pilot-negation",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "negation_comparator",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-010",
+      "bundle_id": "dag-pilot-negation",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "negation_comparator",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-011",
+      "bundle_id": "dag-pilot-negation",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "negation_comparator",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-012",
+      "bundle_id": "dag-pilot-detail",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "partial_detail_vs_restatement",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-013",
+      "bundle_id": "dag-pilot-detail",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "partial_detail_vs_restatement",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-014",
+      "bundle_id": "dag-pilot-correction",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "correction_vs_state_update",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-015",
+      "bundle_id": "dag-pilot-correction",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "correction_vs_state_update",
+      "kind": "real_public_source",
+      "hard_negative": false,
+      "provenance": "https://www.githubstatus.com/incidents/qcvjkzcs7j74"
+    },
+    {
+      "case_id": "dag-p-016",
+      "bundle_id": "dag-pilot-delayed",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "delayed_out_of_order",
+      "kind": "real_public_source",
+      "hard_negative": false,
+      "provenance": "https://www.githubstatus.com/incidents/qcvjkzcs7j74"
+    },
+    {
+      "case_id": "dag-p-017",
+      "bundle_id": "dag-pilot-delayed",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "delayed_out_of_order",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-018",
+      "bundle_id": "dag-pilot-crosssource",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "cross_source_restatement",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-f283-ghqc-fg79"
+    },
+    {
+      "case_id": "dag-p-019",
+      "bundle_id": "dag-pilot-crosssource",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "cross_source_restatement",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-h95v-h523-3mw8"
+    },
+    {
+      "case_id": "dag-p-020",
+      "bundle_id": "dag-pilot-japanese",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "japanese_mixed_technical",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-021",
+      "bundle_id": "dag-pilot-japanese",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "japanese_mixed_technical",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-022",
+      "bundle_id": "dag-pilot-japanese",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "japanese_mixed_technical",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://www.githubstatus.com/incidents/qcvjkzcs7j74"
+    },
+    {
+      "case_id": "dag-p-023",
+      "bundle_id": "dag-pilot-alias",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "entity_alias_product_rename",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://learn.microsoft.com/en-us/entra/fundamentals/new-name"
+    },
+    {
+      "case_id": "dag-p-024",
+      "bundle_id": "dag-pilot-alias",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "entity_alias_product_rename",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://developer.x.com/en/docs/twitter-api"
+    },
+    {
+      "case_id": "dag-p-025",
+      "bundle_id": "dag-pilot-alias",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "entity_alias_product_rename",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-026",
+      "bundle_id": "dag-pilot-wording",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_fact_different_wording",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-p-027",
+      "bundle_id": "dag-pilot-numeric",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "numeric_version_date_unit",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-h95v-h523-3mw8"
+    },
+    {
+      "case_id": "dag-p-028",
+      "bundle_id": "dag-pilot-samewords",
+      "source": "pilot/cases.json",
+      "split": "pilot",
+      "family": "same_words_different_fact",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-001",
+      "bundle_id": "dag-blind-wording",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_fact_different_wording",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://www.githubstatus.com/incidents/7s119p1yxttr"
+    },
+    {
+      "case_id": "dag-b-002",
+      "bundle_id": "dag-blind-wording",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_fact_different_wording",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-wm3w-8rrp-j577"
+    },
+    {
+      "case_id": "dag-b-003",
+      "bundle_id": "dag-blind-samewords",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_words_different_fact",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-004",
+      "bundle_id": "dag-blind-samewords",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_words_different_fact",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://www.githubstatus.com/api/v2/incidents.json"
+    },
+    {
+      "case_id": "dag-b-005",
+      "bundle_id": "dag-blind-samewords",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_words_different_fact",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-006",
+      "bundle_id": "dag-blind-numeric",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "numeric_version_date_unit",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://nodejs.org/en/blog/release/v22.17.0"
+    },
+    {
+      "case_id": "dag-b-007",
+      "bundle_id": "dag-blind-numeric",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "numeric_version_date_unit",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-008",
+      "bundle_id": "dag-blind-numeric",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "numeric_version_date_unit",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://react.dev/blog/2024/12/05/react-19"
+    },
+    {
+      "case_id": "dag-b-009",
+      "bundle_id": "dag-blind-negation",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "negation_comparator",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-010",
+      "bundle_id": "dag-blind-negation",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "negation_comparator",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-011",
+      "bundle_id": "dag-blind-detail",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "partial_detail_vs_restatement",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-012",
+      "bundle_id": "dag-blind-detail",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "partial_detail_vs_restatement",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-013",
+      "bundle_id": "dag-blind-correction",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "correction_vs_state_update",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-014",
+      "bundle_id": "dag-blind-correction",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "correction_vs_state_update",
+      "kind": "real_public_source",
+      "hard_negative": false,
+      "provenance": "https://www.githubstatus.com/incidents/7s119p1yxttr"
+    },
+    {
+      "case_id": "dag-b-015",
+      "bundle_id": "dag-blind-delayed",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "delayed_out_of_order",
+      "kind": "real_public_source",
+      "hard_negative": false,
+      "provenance": "https://www.githubstatus.com/incidents/7s119p1yxttr"
+    },
+    {
+      "case_id": "dag-b-016",
+      "bundle_id": "dag-blind-delayed",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "delayed_out_of_order",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-017",
+      "bundle_id": "dag-blind-crosssource",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "cross_source_restatement",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-wm3w-8rrp-j577"
+    },
+    {
+      "case_id": "dag-b-018",
+      "bundle_id": "dag-blind-crosssource",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "cross_source_restatement",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://www.githubstatus.com/incidents/cstx3v63mklm"
+    },
+    {
+      "case_id": "dag-b-019",
+      "bundle_id": "dag-blind-japanese",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "japanese_mixed_technical",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-020",
+      "bundle_id": "dag-blind-japanese",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "japanese_mixed_technical",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-021",
+      "bundle_id": "dag-blind-japanese",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "japanese_mixed_technical",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://github.com/advisories/GHSA-f283-ghqc-fg79"
+    },
+    {
+      "case_id": "dag-b-022",
+      "bundle_id": "dag-blind-alias",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "entity_alias_product_rename",
+      "kind": "real_public_source",
+      "hard_negative": true,
+      "provenance": "https://learn.microsoft.com/en-us/entra/fundamentals/new-name"
+    },
+    {
+      "case_id": "dag-b-023",
+      "bundle_id": "dag-blind-alias",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "entity_alias_product_rename",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-024",
+      "bundle_id": "dag-blind-alias",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "entity_alias_product_rename",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-025",
+      "bundle_id": "dag-blind-wording",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_fact_different_wording",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-026",
+      "bundle_id": "dag-blind-numeric",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "numeric_version_date_unit",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-027",
+      "bundle_id": "dag-blind-samewords",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "same_words_different_fact",
+      "kind": "synthetic_fixed",
+      "hard_negative": true,
+      "provenance": "adversarial test fixture"
+    },
+    {
+      "case_id": "dag-b-028",
+      "bundle_id": "dag-blind-correction",
+      "source": "blind/cases.json",
+      "split": "blind",
+      "family": "correction_vs_state_update",
+      "kind": "synthetic_fixed",
+      "hard_negative": false,
+      "provenance": "adversarial test fixture"
+    }
+  ]
+}
