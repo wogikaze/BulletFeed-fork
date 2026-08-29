@@ -5,12 +5,15 @@ import json
 from collections.abc import Sequence
 
 from app.database import Database
-from app.db.knownness import WATERMARK_STATE_SQL
+from app.db.knownness import WATERMARK_STATES
 from app.db.projection_schema import ensure_projection_schema
 from app.observability import record
 from app.services.ranking import evaluate_importance
 from app.services.ranking_feedback import apply_feedback_ranking
 from app.services.relation import _normalize, evaluate_relation
+
+if len(WATERMARK_STATES) != 2:
+    raise RuntimeError("novel-delta SQL binds exactly two watermark states")
 
 
 def project_event_for_audience(
@@ -52,15 +55,16 @@ class FeedProjector:
                 event_summary=event["summary"],
             )
 
+            # (?, ?) matches WATERMARK_STATES. Bindings fail if that tuple changes.
             deltas = connection.execute(
-                f"""
+                """
                 SELECT d.*
                 FROM deltas d
                 JOIN delta_claim_map m ON m.delta_id = d.id
                 JOIN state_claims candidate ON candidate.id = m.claim_id
                 LEFT JOIN user_claim_exposures k
                     ON k.claim_id = m.claim_id AND k.user_id = ?
-                   AND k.state IN {WATERMARK_STATE_SQL}
+                   AND k.state IN (?, ?)
                 WHERE d.event_id = ?
                   AND d.active = 1
                   AND k.claim_id IS NULL
@@ -71,12 +75,12 @@ class FeedProjector:
                           FROM user_claim_exposures known
                           JOIN state_claims known_claim ON known_claim.id = known.claim_id
                           WHERE known.user_id = ? AND known_claim.event_id = d.event_id
-                            AND known.state IN {WATERMARK_STATE_SQL}
+                            AND known.state IN (?, ?)
                       ), '')
                   )
                 ORDER BY d.occurred_at, d.id
-                """,  # nosec B608
-                (user_id, event_id, user_id),
+                """,
+                (user_id, *WATERMARK_STATES, event_id, user_id, *WATERMARK_STATES),
             ).fetchall()
             for delta in deltas:
                 feed_item_id = self._stable_id("fi", f"{user_id}|{delta['id']}")
