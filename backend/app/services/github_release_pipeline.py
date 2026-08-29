@@ -6,7 +6,7 @@ from typing import Any
 from app.config import Settings
 from app.database import Database
 from app.services.event_access import project_repository_event_access
-from app.services.feed_projection import FeedProjector
+from app.services.feed_projection import project_event_for_audience
 from app.services.github import list_releases
 from app.services.github_release_source import normalize_github_releases
 from app.services.ledger_projection import LedgerProjector
@@ -93,9 +93,7 @@ def _project_for_watchers(database: Database, *, repository_key: str, event_id: 
         repository_key=repository_key,
         event_id=event_id,
     )
-    feed = FeedProjector(database)
-    for user_id in user_ids:
-        feed.project_event_for_user(user_id=user_id, event_id=event_id)
+    project_event_for_audience(database, event_id=event_id, user_ids=user_ids)
 
 
 async def crawl_github_release_events(
