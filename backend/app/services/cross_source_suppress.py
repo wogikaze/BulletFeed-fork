@@ -14,6 +14,8 @@ from typing import Final, Literal
 from app.schemas.common import SourceEvidence
 from app.services.false_suppression import (
     POLICY_VERSION as GUARD_VERSION,
+)
+from app.services.false_suppression import (
     SuppressionDecision,
     decide_suppression,
 )
