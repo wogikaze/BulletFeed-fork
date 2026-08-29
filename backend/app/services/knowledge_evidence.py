@@ -78,12 +78,13 @@ IMPLICIT_VIEW_KINDS: Final[frozenset[str]] = frozenset({KIND_DISPLAYED, KIND_REA
 
 @dataclass(frozen=True)
 class KnowledgeTarget:
-    """Knowledge key. Semantic identity (#50) is out of scope; ids are used as-is."""
+    """Knowledge key. Claim IDs stay as stored; knowledge_id is the #50 target."""
 
     user_id: str
     claim_id: str | None = None
     event_id: str | None = None
     delta_id: str | None = None
+    knowledge_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -156,6 +157,8 @@ def presentation_for_item(
 
 
 def target_key(target: KnowledgeTarget) -> tuple[str, ...]:
+    if target.knowledge_id:
+        return ("knowledge", target.user_id, target.knowledge_id)
     if target.claim_id:
         return ("claim", target.user_id, target.claim_id)
     if target.event_id and target.delta_id:
@@ -169,6 +172,8 @@ def evidence_matches_target(row: KnowledgeEvidence, target: KnowledgeTarget) -> 
     if row.user_id != target.user_id:
         return False
     key = target_key(target)
+    if key[0] == "knowledge":
+        return False
     if key[0] == "claim":
         return row.claim_id == target.claim_id
     if key[0] == "delta":
@@ -251,12 +256,14 @@ def list_knowledge_evidence(
     claim_id: str | None = None,
     event_id: str | None = None,
     delta_id: str | None = None,
+    knowledge_id: str | None = None,
 ) -> list[KnowledgeEvidence]:
     target = KnowledgeTarget(
         user_id=user_id,
         claim_id=claim_id,
         event_id=event_id,
         delta_id=delta_id,
+        knowledge_id=knowledge_id,
     )
     rows = connection.execute(
         """
@@ -269,6 +276,11 @@ def list_knowledge_evidence(
         (user_id,),
     ).fetchall()
     evidence = [_row_to_evidence(row) for row in rows]
+    if target.knowledge_id:
+        from app.services.knowledge_identity import claims_for_knowledge_id
+
+        allowed = set(claims_for_knowledge_id(connection, target.knowledge_id))
+        return [row for row in evidence if row.claim_id in allowed]
     if target_key(target)[0] == "user":
         return evidence
     return [row for row in evidence if evidence_matches_target(row, target)]
@@ -281,6 +293,7 @@ def replay_knowledge_state(
     claim_id: str | None = None,
     event_id: str | None = None,
     delta_id: str | None = None,
+    knowledge_id: str | None = None,
 ) -> DerivedKnowledge:
     return derive_knowledge_state(
         list_knowledge_evidence(
@@ -289,6 +302,7 @@ def replay_knowledge_state(
             claim_id=claim_id,
             event_id=event_id,
             delta_id=delta_id,
+            knowledge_id=knowledge_id,
         )
     )
 

@@ -6,13 +6,14 @@ from collections.abc import Callable
 
 from app.db.event_identity_schema import EVENT_IDENTITY_SCHEMA
 from app.db.knowledge_evidence_schema import KNOWLEDGE_EVIDENCE_SCHEMA
+from app.db.knowledge_identity_schema import KNOWLEDGE_IDENTITY_SCHEMA
 from app.db.ledger_schema import LEDGER_SCHEMA
 from app.db.schema import PUBLIC_API_SCHEMA
 from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -389,6 +390,14 @@ def _apply_revision_12(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_13(connection: sqlite3.Connection) -> None:
+    """Semantic knowledge identity maps. Does not touch the factual ledger.
+
+    Revision 8 is the source registry (#58). Revision 12 is inferred priors.
+    """
+    connection.executescript(KNOWLEDGE_IDENTITY_SCHEMA)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -402,4 +411,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "10": _apply_revision_10,
     "11": _apply_revision_11,
     "12": _apply_revision_12,
+    "13": _apply_revision_13,
 }
