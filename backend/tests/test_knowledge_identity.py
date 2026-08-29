@@ -2,11 +2,11 @@ import json
 from pathlib import Path
 
 from app.services.event_identity_repair import EventIdentityRepairService
+from app.services.feed_projection import FeedProjector
 from app.services.feedback_signals import (
     assert_feedback_does_not_mutate_ledger,
     ledger_world_state,
 )
-from app.services.feed_projection import FeedProjector
 from app.services.knowledge_evidence import (
     KIND_ALREADY_KNEW,
     KIND_DELIVERED,
@@ -365,7 +365,9 @@ def test_get_feed_still_does_not_mark_known_for_shared_identity(database) -> Non
         assert set(states) == {left.claim_id, right.claim_id}
         assert set(states.values()) == {"delivered"}
         mapping = resolve_claim_knowledge_id(connection, left.claim_id)
-        assert mapping is not None
+        other = resolve_claim_knowledge_id(connection, right.claim_id)
+        assert mapping is not None and other is not None
+        assert mapping.knowledge_id == other.knowledge_id
         derived = replay_knowledge_state_for_identity(
             connection, user_id="learner", knowledge_id=mapping.knowledge_id
         )

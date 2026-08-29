@@ -5,6 +5,7 @@ import json
 import re
 import sqlite3
 import time
+import unicodedata
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal
@@ -42,6 +43,14 @@ Confidence = Literal["high", "medium", "low"]
 _DATE_TOKEN_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 _CVE_RE = re.compile(r"\bcve-\d{4}-\d{4,}\b", re.IGNORECASE)
 _GHSA_RE = re.compile(r"\bghsa-[a-z0-9]+(?:-[a-z0-9]+)+\b", re.IGNORECASE)
+_SOURCE_FRAME_PREFIXES = (
+    "we are ",
+    "we're ",
+    "we were ",
+    "our team is ",
+    "the team is ",
+    "we ",
+)
 
 
 @dataclass(frozen=True)
@@ -94,7 +103,10 @@ def fingerprint_claim(
     detail: str = "",
     slot: str = "",
 ) -> KnowledgeIdentityFingerprint:
-    canonical = canonicalize_claim(value, detail)
+    canonical = canonicalize_claim(
+        _prepare_identity_text(value),
+        _prepare_identity_text(detail),
+    )
     return _fingerprint_canonical(canonical, slot=slot)
 
 
@@ -139,10 +151,10 @@ def compare_knowledge_identity(
             None,
         )
     equivalence = compare_claims(
-        left_value,
-        left_detail,
-        right_value,
-        right_detail,
+        _prepare_identity_text(left_value),
+        _prepare_identity_text(left_detail),
+        _prepare_identity_text(right_value),
+        _prepare_identity_text(right_detail),
         policy=policy,
     )
     if equivalence.label == "equivalent":
@@ -519,6 +531,16 @@ def _fingerprint_canonical(
         version=KNOWLEDGE_IDENTITY_VERSION,
         payload_json=payload_json,
     )
+
+
+def _prepare_identity_text(text: str) -> str:
+    """Drop source-framing prefixes so cross-source restatements can match."""
+    output = unicodedata.normalize("NFKC", text).strip()
+    lowered = output.casefold()
+    for prefix in _SOURCE_FRAME_PREFIXES:
+        if lowered.startswith(prefix):
+            return output[len(prefix) :].strip()
+    return output
 
 
 def _stable_ids(*texts: str) -> tuple[str, ...]:
