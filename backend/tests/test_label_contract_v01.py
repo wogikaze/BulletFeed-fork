@@ -239,6 +239,26 @@ def test_filter_unresolved_ambiguous_excludes_or_reports_separately() -> None:
     resolved = filter_unresolved_ambiguous(_annotations(), _adjudications())
     assert {record.annotation_id for record in resolved.unresolved_ambiguous} == unresolved_ids
 
+    clearing = AdjudicationRecord(
+        adjudication_id="adj-ambiguous-clear",
+        item_id="item-ambiguous-001",
+        family=LabelFamily.RELEVANCE,
+        source_annotation_ids=("ann-ambiguous-a", "ann-ambiguous-b"),
+        source_dataset_version="label-contract-v0.1",
+        produced_dataset_version="label-contract-v0.1.2",
+        resolved_value=0,
+        resolved_ambiguous=AmbiguousFlag.NONE,
+        adjudicator_id="adjudicator-1",
+        rationale="Profile later supplied; repository is untracked.",
+        protocol_version=PROTOCOL_VERSION,
+        adjudicated_at="2026-08-29T13:00:00Z",
+        provenance="test",
+        split="pilot",
+    )
+    cleared = filter_unresolved_ambiguous(_annotations(), (*_adjudications(), clearing))
+    assert cleared.unresolved_ambiguous == ()
+    assert {"ann-ambiguous-a", "ann-ambiguous-b"} <= {record.annotation_id for record in cleared.scorable}
+
 
 def test_cohen_kappa_and_percent_agreement_match_hand_calculation() -> None:
     left = (0, 1, 0, 1)
