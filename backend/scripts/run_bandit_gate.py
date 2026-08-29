@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -41,19 +42,35 @@ def main() -> int:
             raise SystemExit(f"duplicate Bandit waiver: {key}")
         expected[key] = str(waiver["reason"])
 
-    process = subprocess.run(
-        [sys.executable, "-m", "bandit", "-r", "backend/app", "-f", "json"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    try:
-        report = json.loads(process.stdout)
-    except json.JSONDecodeError:
-        sys.stderr.write(process.stderr)
-        sys.stderr.write(process.stdout)
-        return process.returncode or 2
+    with tempfile.TemporaryDirectory(prefix="bulletfeed-bandit-") as temp_dir:
+        report_path = Path(temp_dir) / "report.json"
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "bandit",
+                "-r",
+                "backend/app",
+                "-f",
+                "json",
+                "-o",
+                str(report_path),
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if not report_path.is_file():
+            sys.stderr.write(process.stderr)
+            sys.stderr.write(process.stdout)
+            return process.returncode or 2
+        try:
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            sys.stderr.write(process.stderr)
+            sys.stderr.write(process.stdout)
+            return process.returncode or 2
 
     errors = report.get("errors", [])
     if errors:
