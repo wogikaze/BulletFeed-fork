@@ -14,7 +14,7 @@ from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -407,6 +407,43 @@ def _apply_revision_14(connection: sqlite3.Connection) -> None:
     connection.executescript(SOURCE_DISCOVERY_SCHEMA)
 
 
+def _apply_revision_15(connection: sqlite3.Connection) -> None:
+    """Per-user offline preference weights. Ranking overlay only.
+
+    Does not write Event, Claim, Delta, or Observation rows.
+    """
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS user_preference_models (
+            user_id TEXT PRIMARY KEY,
+            policy_version TEXT NOT NULL,
+            schema_version TEXT NOT NULL,
+            evidence_count INTEGER NOT NULL,
+            fingerprint TEXT NOT NULL,
+            trained_at INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS user_preference_weights (
+            user_id TEXT NOT NULL,
+            feature_kind TEXT NOT NULL,
+            feature_value TEXT NOT NULL,
+            weight REAL NOT NULL,
+            evidence_count INTEGER NOT NULL,
+            positive_mass REAL NOT NULL,
+            negative_mass REAL NOT NULL,
+            policy_version TEXT NOT NULL,
+            trained_at INTEGER NOT NULL,
+            PRIMARY KEY (user_id, feature_kind, feature_value),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -422,4 +459,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "12": _apply_revision_12,
     "13": _apply_revision_13,
     "14": _apply_revision_14,
+    "15": _apply_revision_15,
 }
