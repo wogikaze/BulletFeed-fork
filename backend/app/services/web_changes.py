@@ -2,7 +2,7 @@
 
 Consumes #61 normalized documents and alignments. Change extraction itself
 does not write Observations or Claims; #63 ingest does that through the
-ledger. Does not render JavaScript (#64). generic_web stays discovery-only.
+ledger. Does not start a renderer (#64). generic_web stays discovery-only.
 """
 
 from __future__ import annotations
