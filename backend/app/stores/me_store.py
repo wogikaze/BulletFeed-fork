@@ -281,6 +281,8 @@ class MeStore:
             github_user_id = user["github_user_id"]
             connection.execute("UPDATE oauth_flows SET user_id = NULL WHERE user_id = ?", (user_id,))
             for table in (
+                "user_knowledge_evidence",
+                "user_knowledge_signals",
                 "user_claim_exposures",
                 "exposures",
                 "user_ranking_features",
