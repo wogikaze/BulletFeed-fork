@@ -117,6 +117,7 @@ def ingest_web_changeset(
     audience_user_ids: Sequence[str] = (),
     coreference_subject: str | None = None,
     coreference_user_id: str | None = None,
+    event_title: str | None = None,
 ) -> WebClaimIngestResult:
     """Append provenance Observations; mint Claims only when policy allows."""
     source_type = resolve_web_claim_source_type(
@@ -170,7 +171,7 @@ def ingest_web_changeset(
     claims: list[LedgerClaim] = []
     if claim_eligible and claim_plans:
         ledger = ClaimLedgerStore(database)
-        page_title = _page_title(changeset, right_snapshot or left_snapshot)
+        page_title = event_title or _page_title(changeset, right_snapshot or left_snapshot)
         for candidate, plan in claim_plans:
             observation = by_candidate[candidate.candidate_id]
             claim = ledger.ingest(
@@ -252,7 +253,7 @@ def _claim_plan(candidate: ChangeCandidate) -> dict[str, Any] | None:
     if candidate.change_kind in {"ambiguous_change", "non_meaningful", "link_target_change"}:
         return None
     slot = _slot_for(candidate)
-    value = _value_for(candidate)
+    value = _value_for(candidate, slot)
     if not slot or not value:
         return None
     old_value = candidate.old_value
@@ -297,7 +298,19 @@ def _slot_for(candidate: ChangeCandidate) -> str | None:
     return None
 
 
-def _value_for(candidate: ChangeCandidate) -> str:
+def _value_for(candidate: ChangeCandidate, slot: str | None = None) -> str:
+    slot = slot or _slot_for(candidate)
+    texts = [
+        candidate.new_span.text if candidate.new_span else "",
+        _candidate_text(candidate),
+    ]
+    if slot:
+        for text in texts:
+            if not text.strip():
+                continue
+            matches = extract_claim_slots(text, detail_text=text).slots_named(slot)
+            if matches:
+                return matches[0].value
     if candidate.new_value:
         return candidate.new_value
     if candidate.operation == "delete" and candidate.old_value:

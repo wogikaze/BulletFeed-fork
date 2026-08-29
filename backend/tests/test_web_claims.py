@@ -309,22 +309,29 @@ def test_same_page_repeated_changes_preserve_history(tmp_path: Path) -> None:
 def test_added_detail_uses_existing_revision_judge(tmp_path: Path) -> None:
     database = _database(tmp_path)
     registry = _allowlist()
-    first = _snapshot(_page(sections=[("Changelog", "<p>Widget 2.0 released.</p>")]))
+    empty = _snapshot(_page(sections=[("Changelog", "<p>Coming soon.</p>")]))
+    first = _snapshot(
+        _page(sections=[("Changelog", "<p>Widget 2.0 released.</p>")]),
+        retrieved_at="2026-08-29T12:00:00Z",
+    )
     second = _snapshot(
-        _page(sections=[("Changelog", "<p>Widget 2.0 released. Includes SSO and audit logs.</p>")]),
+        _page(
+            sections=[
+                (
+                    "Changelog",
+                    "<p>Widget 2.0 released.</p><p>Widget 2.0 also includes SSO.</p>",
+                )
+            ]
+        ),
         retrieved_at="2026-08-30T00:00:00Z",
     )
     initial = ingest_web_changeset(
         database,
-        extract_web_snapshot_changes(
-            _snapshot(_page(sections=[("Changelog", "<p>Coming soon.</p>")])),
-            first,
-        ),
-        left_snapshot=_snapshot(_page(sections=[("Changelog", "<p>Coming soon.</p>")])),
+        extract_web_snapshot_changes(empty, first),
+        left_snapshot=empty,
         right_snapshot=first,
         registry=registry,
         requested_family=SourceKind.OFFICIAL_CHANGELOG.value,
-        retrieved_at="2026-08-29T00:00:00Z",
     )
     detail = ingest_web_changeset(
         database,
@@ -334,17 +341,12 @@ def test_added_detail_uses_existing_revision_judge(tmp_path: Path) -> None:
         registry=registry,
         requested_family=SourceKind.OFFICIAL_CHANGELOG.value,
     )
-    if not initial.claims:
-        # First snapshot may be treated as an insert of version 2.0 on the later pass.
-        assert detail.claims
-        return
-    versions = [claim for claim in (*initial.claims, *detail.claims) if claim.slot == "version"]
-    if len(versions) >= 2:
-        assert versions[0].event_id == versions[-1].event_id
-        assert versions[-1].relation_type in {"DETAIL", "NON_NOVEL", "STATE_UPDATE", "NEW_FACT"}
-    else:
-        assert detail.claims
-        assert any("SSO" in claim.detail or "2.0" in claim.value for claim in detail.claims)
+    first_version = next(claim for claim in initial.claims if claim.slot == "version")
+    second_version = next(claim for claim in detail.claims if claim.slot == "version")
+    assert first_version.event_id == second_version.event_id
+    assert first_version.value == second_version.value
+    assert second_version.relation_type == "DETAIL"
+    assert "SSO" in second_version.detail
 
 
 def test_ambiguous_prose_is_observation_only(tmp_path: Path) -> None:
@@ -375,7 +377,9 @@ def test_correction_is_history_preserving(tmp_path: Path) -> None:
     registry = _allowlist()
     first = _snapshot(_page(sections=_price_sections("$12")))
     second = _snapshot(
-        _page(sections=_price_sections("$10", note="Corrected: monthly plans.")),
+        _page(
+            sections=_price_sections("$10 (corrected)", note="Monthly plans."),
+        ),
         retrieved_at="2026-08-30T00:00:00Z",
     )
     initial = ingest_web_changeset(
@@ -446,6 +450,7 @@ def test_cross_source_same_event_uses_existing_coreference(tmp_path: Path) -> No
         registry=registry,
         requested_family=SourceKind.OFFICIAL_CHANGELOG.value,
         coreference_subject="Widget 2.0 released",
+        event_title="Widget 2.0 released",
         project=False,
     )
     assert result.claims
