@@ -116,4 +116,5 @@ def test_rss_feed_matches_user_topic_as_adjacent_relation(tmp_path: Path) -> Non
     assert row["relation_level"] == "adjacent"
     assert json.loads(row["matched_topics_json"]) == ["Kotlin"]
     assert json.loads(row["matched_repos_json"]) == []
-    assert row["relation_reason"] == "Matches one or more topics you follow."
+    assert "Kotlin" in row["relation_reason"]
+    assert "relation-features-v01" in row["relation_reason"]
