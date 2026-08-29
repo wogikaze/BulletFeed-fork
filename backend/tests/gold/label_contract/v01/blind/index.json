@@ -1,0 +1,5 @@
+{
+  "split": "blind",
+  "item_ids": ["item-blind-001"],
+  "annotation_ids": ["ann-blind-a-001"]
+}

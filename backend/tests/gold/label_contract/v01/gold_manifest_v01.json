@@ -1,0 +1,36 @@
+{
+  "dataset_id": "bulletfeed-label-contract-v0.1",
+  "dataset_version": "label-contract-v0.1",
+  "protocol_version": "label-protocol-v1",
+  "split": "mixed",
+  "provenance": "annotator=fixture-v01; protocol=label-protocol-v1; kind=synthetic_fixed; issue=74",
+  "source_kind": "synthetic_fixed",
+  "created_at": "2026-08-29T00:00:00Z",
+  "description": "Eval-03 labeling protocol fixture: double-labeled subset, one disagreement, one ambiguous, one adjudication",
+  "parent_dataset_version": null,
+  "annotation_ids": [
+    "ann-agree-a",
+    "ann-agree-b",
+    "ann-disagree-a",
+    "ann-disagree-b",
+    "ann-ambiguous-a",
+    "ann-ambiguous-b",
+    "ann-adjudicate-a",
+    "ann-adjudicate-b",
+    "ann-blind-a-001"
+  ],
+  "double_label_ids": [
+    "pair-agree-001",
+    "pair-disagree-001",
+    "pair-ambiguous-001",
+    "pair-adjudicate-001"
+  ],
+  "adjudication_ids": ["adj-equivalence-001"],
+  "entry_ids": [
+    "item-agree-001",
+    "item-disagree-001",
+    "item-ambiguous-001",
+    "item-adjudicate-001",
+    "item-blind-001"
+  ]
+}

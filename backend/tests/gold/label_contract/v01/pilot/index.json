@@ -1,0 +1,19 @@
+{
+  "split": "pilot",
+  "item_ids": [
+    "item-agree-001",
+    "item-disagree-001",
+    "item-ambiguous-001",
+    "item-adjudicate-001"
+  ],
+  "annotation_ids": [
+    "ann-agree-a",
+    "ann-agree-b",
+    "ann-disagree-a",
+    "ann-disagree-b",
+    "ann-ambiguous-a",
+    "ann-ambiguous-b",
+    "ann-adjudicate-a",
+    "ann-adjudicate-b"
+  ]
+}

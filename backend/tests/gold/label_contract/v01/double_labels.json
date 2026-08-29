@@ -1,0 +1,50 @@
+[
+  {
+    "pair_id": "pair-agree-001",
+    "item_id": "item-agree-001",
+    "annotation_a_id": "ann-agree-a",
+    "annotation_b_id": "ann-agree-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": ["relevance", "user_importance", "knownness", "should_surface"],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot"
+  },
+  {
+    "pair_id": "pair-disagree-001",
+    "item_id": "item-disagree-001",
+    "annotation_a_id": "ann-disagree-a",
+    "annotation_b_id": "ann-disagree-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": ["relevance", "user_importance", "should_surface"],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot"
+  },
+  {
+    "pair_id": "pair-ambiguous-001",
+    "item_id": "item-ambiguous-001",
+    "annotation_a_id": "ann-ambiguous-a",
+    "annotation_b_id": "ann-ambiguous-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": ["relevance"],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot"
+  },
+  {
+    "pair_id": "pair-adjudicate-001",
+    "item_id": "item-adjudicate-001",
+    "annotation_a_id": "ann-adjudicate-a",
+    "annotation_b_id": "ann-adjudicate-b",
+    "annotator_a_id": "annotator-a",
+    "annotator_b_id": "annotator-b",
+    "families": ["semantic_equivalence", "novelty_revision"],
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot"
+  }
+]
