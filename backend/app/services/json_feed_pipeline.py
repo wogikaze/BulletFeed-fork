@@ -5,6 +5,7 @@ from typing import Any
 
 from app.config import Settings
 from app.database import Database
+from app.observability import record
 from app.services.feed_lifecycle import resolve_feed_lifecycle
 from app.services.json_feed import fetch_json_feed, normalize_json_feed
 from app.services.ledger_projection import LedgerProjector
@@ -84,6 +85,7 @@ async def crawl_json_feed_events(
     url: str,
     retrieved_at: str,
 ) -> JsonFeedIngestResult:
+    record("fetch", source_type="json_feed")
     feed, final_url = await fetch_json_feed(settings, url)
     result = ingest_json_feed_events(
         database,

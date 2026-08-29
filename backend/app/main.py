@@ -15,6 +15,7 @@ from app.db.topic_catalog import install_topic_catalog
 from app.dependencies import get_database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 from app.models import HealthResponse
+from app.observability import public_counters
 from app.routers import auth, events, feed, integrations, me, sessions
 
 
@@ -99,4 +100,5 @@ def source_health(
     return {
         "workerHeartbeat": summary.worker_heartbeat,
         "sourceIngestion": summary.as_public_dict(),
+        "pipeline": public_counters(),
     }

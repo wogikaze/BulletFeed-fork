@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 
 from app.config import Settings, get_settings
 from app.database import Database
+from app.observability import record, source_key_digest
 from app.security import TokenCipher
 from app.services import github
 from app.services.dependency_security_pipeline import crawl_sbom_security_events
@@ -219,12 +220,22 @@ class WatchSyncWorker:
                 break
             job = jobs[0]
             attempted += 1
+            job_fields = {
+                "source_type": job.source_type,
+                "source_key_digest": source_key_digest(job.source_type, job.source_key),
+            }
+            record("fetch", **job_fields)
             observation_count_before = self._observation_count(job.source_key)
             try:
                 await self._run_with_lease_heartbeat(job, now=job_started_at)
             except Exception as exc:
                 finished_at = int(time.time()) if now is None else scheduled_at
                 self._finish_failure(job, exc, now=finished_at)
+                record(
+                    "sync_failure",
+                    **job_fields,
+                    error_type=type(exc).__name__,
+                )
                 failed += 1
             else:
                 finished_at = int(time.time()) if now is None else scheduled_at
@@ -233,6 +244,11 @@ class WatchSyncWorker:
                 )
                 self._finish_success(
                     job, now=finished_at, new_observations=new_observations
+                )
+                record(
+                    "sync_success",
+                    **job_fields,
+                    new_observations=new_observations,
                 )
                 succeeded += 1
         return SyncRunSummary(attempted=attempted, succeeded=succeeded, failed=failed)

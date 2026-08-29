@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from app.database import Database
 from app.db.event_identity_schema import ensure_event_identity_schema
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
+from app.observability import record
 from app.services.event_coreference import CoreferenceInput, EventCoreferenceEngine
 from app.services.semantic_delta import ClaimSnapshot, DeltaContext, judge_revision
 from app.services.source_catalog import source_allows_claim_evidence
@@ -163,7 +164,7 @@ class ClaimLedgerStore:
             if row is None:
                 raise RuntimeError("claim relation rebuild failed")
 
-        return LedgerClaim(
+        claim = LedgerClaim(
             event_id=event_id,
             claim_id=claim_id,
             slot=row["slot"],
@@ -173,6 +174,14 @@ class ClaimLedgerStore:
             source_updated_at=row["source_updated_at"],
             relation_type=row["relation_type"],
         )
+        record(
+            "revision",
+            observation_id=observation.id,
+            event_id=claim.event_id,
+            claim_id=claim.claim_id,
+            revision_type=claim.relation_type,
+        )
+        return claim
 
     def add_evidence(
         self,
