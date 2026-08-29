@@ -47,7 +47,7 @@ def test_contract_fixture_loads_and_keeps_holdout_out_of_production() -> None:
     status = capacity_status(corpus)
     assert status.meets_targets is False
     assert status.event_count == 3
-    assert status.profile_count == 3
+    assert status.profile_count == 50
     assert status.judgment_count == 3
 
 
