@@ -849,6 +849,28 @@ class FeedStore:
                         additional_by_id.get(row["id"], []),
                     )
                 )
+            page_ids = {row["id"] for row in page_rows}
+            for card in projection.cards:
+                if card.displayed_id not in page_ids:
+                    continue
+                for source in card.additional_sources:
+                    extra = rows_by_id.get(source.candidate_id)
+                    if extra is None or extra["claim_id"] is None:
+                        continue
+                    extra_delivery = f"dlv_{secrets.token_urlsafe(10)}"
+                    connection.execute(
+                        "INSERT INTO deliveries (id, feed_item_id, user_id, created_at) VALUES (?, ?, ?, ?)",
+                        (extra_delivery, extra["id"], user_id, created_at),
+                    )
+                    _upsert_delivered(
+                        connection,
+                        user_id=user_id,
+                        claim_id=extra["claim_id"],
+                        delivery_id=extra_delivery,
+                        delivered_at=created_at,
+                        event_id=extra["event_id"],
+                        delta_id=extra["delta_id"],
+                    )
 
             return items, next_cursor
 
