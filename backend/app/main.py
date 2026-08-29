@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -51,6 +52,10 @@ app.include_router(events.router)
 app.include_router(me.router)
 app.include_router(integrations.router)
 app.include_router(auth.router)
+if os.environ.get("BULLETFEED_ACCEPTANCE_HARNESS") == "1":
+    from app.routers import acceptance_harness
+
+    app.include_router(acceptance_harness.router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["system"])

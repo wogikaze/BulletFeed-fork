@@ -53,6 +53,7 @@ BULLETFEED_RELEASE_BASE_URL=https://api.example.com/ ./gradlew :app:assembleRele
 
 ```bash
 ./gradlew ktlintCheck lint testDebugUnitTest
+./gradlew :app:realBackendAcceptanceTest
 
 cd backend
 ruff check .

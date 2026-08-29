@@ -14,11 +14,11 @@ import javax.crypto.spec.GCMParameterSpec
 
 internal class KeystoreSecretStore(
     context: Context,
-) {
+) : SecretStore {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
 
-    fun get(key: String): String? {
+    override fun get(key: String): String? {
         val encoded = prefs.getString(key, null) ?: return null
         return runCatching {
             val separator = encoded.indexOf('.')
@@ -34,7 +34,7 @@ internal class KeystoreSecretStore(
         }
     }
 
-    fun put(
+    override fun put(
         key: String,
         value: String?,
     ) {
@@ -51,11 +51,11 @@ internal class KeystoreSecretStore(
         prefs.edit { putString(key, encoded) }
     }
 
-    fun remove(key: String) {
+    override fun remove(key: String) {
         prefs.edit { remove(key) }
     }
 
-    fun clear() {
+    override fun clear() {
         prefs.edit { clear() }
     }
 

@@ -1,5 +1,19 @@
 # Real backend MVP acceptance
 
+## Automated Android remote-client suite
+
+JVM integration harness that drives production `BulletFeedApi` + `RemoteBulletFeedRepository` against an ephemeral local FastAPI + SQLite instance. Maestro mock fixtures are not this gate. No GitHub OAuth.
+
+```bash
+./gradlew :app:realBackendAcceptanceTest
+```
+
+Requires a backend Python environment with package extras installable as `pip install -e '.[dev]'` (or an equivalent venv that can import `app` and `uvicorn`). The task starts a 127.0.0.1 harness with `BULLETFEED_ACCEPTANCE_HARNESS=1`, then runs `RealBackendAcceptanceTest`.
+
+Default `./gradlew :app:testDebugUnitTest` stays offline and excludes that class unless `-Pbulletfeed.acceptance.baseUrl=` is set.
+
+---
+
 この手順はPR #81系のDraft解除条件です。Mock Repository、固定demo seed、Mock初期状態のMaestro flowだけでは合格にしません。Android debug/release candidateと実FastAPI + source-sync workerを同じbackend contractで動かし、server stateを直接確認できるtest environmentで実施します。
 
 ## Preconditions
