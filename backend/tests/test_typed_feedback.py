@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.database import Database
 from app.db.seed import seed_catalog, seed_user_workspace
+from app.services.feed_projection import FeedProjector
 from app.services.feedback_signals import (
     FAMILY_KNOWLEDGE,
     FAMILY_RANKING,
@@ -10,7 +11,6 @@ from app.services.feedback_signals import (
     latest_type_for_family,
     ledger_world_state,
 )
-from app.services.feed_projection import FeedProjector
 from app.services.ranking_feedback import apply_feedback_ranking
 from app.services.statuspage_pipeline import StatuspagePipeline
 from app.stores.feed_store import FeedStore
@@ -91,10 +91,10 @@ def _feedback_rows(connection, *, user_id: str, feed_item_id: str) -> list:
     return list(
         connection.execute(
             """
-            SELECT type, family, superseded, event_id, delta_id, claim_id
+            SELECT type, family, superseded, event_id, delta_id, claim_id, created_at
             FROM feedback
             WHERE user_id = ? AND feed_item_id = ?
-            ORDER BY created_at ASC, id ASC
+            ORDER BY created_at ASC, rowid ASC
             """,
             (user_id, feed_item_id),
         ).fetchall()
@@ -139,6 +139,12 @@ def test_accepts_expanded_feedback_types_and_keeps_ranking_compat(
     database: Database,
 ) -> None:
     _seed_demo_workspace(database)
+    user_id = _current_user_id(database)
+    with database.connect() as connection:
+        topics_before = connection.execute(
+            "SELECT COUNT(*) AS count FROM topics WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()["count"]
     feed = client.get("/v1/feed", headers=auth_headers).json()["items"]
     important_item = next(item for item in feed if item["eventId"] == "workers-runtime")
     dismissed_item = next(item for item in feed if item["eventId"] == "kotlin-release")
@@ -195,7 +201,6 @@ def test_accepts_expanded_feedback_types_and_keeps_ranking_compat(
     assert learned.status_code == 200
     assert learned.json()["type"] == "learned_now"
 
-    user_id = _current_user_id(database)
     with database.connect() as connection:
         important_row = connection.execute(
             "SELECT marked_important, dismissed FROM feed_items WHERE id = ?",
@@ -212,7 +217,7 @@ def test_accepts_expanded_feedback_types_and_keeps_ranking_compat(
             """
             SELECT signal, superseded FROM user_knowledge_signals
             WHERE user_id = ? AND feed_item_id = ?
-            ORDER BY created_at ASC, id ASC
+            ORDER BY created_at ASC, rowid ASC
             """,
             (user_id, knowledge_item["id"]),
         ).fetchall()
@@ -228,7 +233,7 @@ def test_accepts_expanded_feedback_types_and_keeps_ranking_compat(
             "SELECT COUNT(*) AS count FROM topics WHERE user_id = ?",
             (user_id,),
         ).fetchone()["count"]
-        assert topics >= 1
+        assert topics == topics_before
 
 
 def test_repeated_feedback_is_append_only_with_latest_state(
@@ -403,7 +408,7 @@ def test_knowledge_signals_never_mutate_ledger_or_observations(database: Databas
             SELECT signal, event_id, claim_id, superseded
             FROM user_knowledge_signals
             WHERE user_id = 'learner' AND feed_item_id = ?
-            ORDER BY created_at ASC, id ASC
+            ORDER BY created_at ASC, rowid ASC
             """,
             (item_id,),
         ).fetchall()

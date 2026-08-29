@@ -238,6 +238,32 @@ def _record_read(
     )
 
 
+def _next_created_at(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    feed_item_id: str,
+) -> int:
+    """Second-resolution clock, incremented when the same item is written again.
+
+    Ranking reset compares `feedback.created_at > reset_at` in seconds. Latest-state
+    still needs a total order, so a same-second write on the same item steps +1.
+    """
+    now = int(datetime.now().timestamp())
+    latest = connection.execute(
+        """
+        SELECT MAX(created_at) AS created_at
+        FROM feedback
+        WHERE user_id = ? AND feed_item_id = ?
+        """,
+        (user_id, feed_item_id),
+    ).fetchone()
+    latest_at = latest["created_at"] if latest is not None else None
+    if latest_at is not None and now <= int(latest_at):
+        return int(latest_at) + 1
+    return now
+
+
 def _supersede_family(
     connection: sqlite3.Connection,
     *,
@@ -566,7 +592,6 @@ class FeedStore:
     def save_feedback(self, user_id: str, feed_item_id: str, feedback_type: str) -> dict:
         if not is_allowed_feedback_type(feedback_type):
             raise unprocessable("feedback type is invalid")
-        now = int(datetime.now().timestamp())
         with self._database.connect() as connection:
             row = connection.execute(
                 """
@@ -589,6 +614,11 @@ class FeedStore:
                     user_id=user_id,
                     feed_item_id=feed_item_id,
                 ),
+            )
+            now = _next_created_at(
+                connection,
+                user_id=user_id,
+                feed_item_id=feed_item_id,
             )
             _supersede_family(
                 connection,
