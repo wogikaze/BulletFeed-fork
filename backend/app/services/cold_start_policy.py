@@ -10,14 +10,12 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from typing import Literal, TypeVar
-
-TRecommendation = TypeVar("TRecommendation")
+from typing import Literal
 
 from app.db.topic_catalog import TOPIC_CATALOG, canonical_topic
 from app.services.user_interest import (
-    InterestSources,
     InterestSignal,
+    InterestSources,
     UserInterestState,
     rebuild_user_interest,
 )
@@ -192,7 +190,7 @@ def clamp_score_delta(base_score: float, incoming_score: float) -> float:
     return round(base_score + delta, 4)
 
 
-def bound_first_feedback_items(
+def bound_first_feedback_items[TRecommendation](
     base_items: Sequence[TRecommendation],
     incoming_items: Sequence[TRecommendation],
 ) -> list[TRecommendation]:
