@@ -207,8 +207,14 @@ class PersonalizationEvaluationReport:
 
 
 def load_personalization_gold(corpus_dir: Path) -> PersonalizationGoldCorpus:
-    users = tuple(_user_from_record(UserRecord.model_validate(raw)) for raw in _load_json_array(corpus_dir / "users.json"))
-    items = tuple(_item_from_record(ItemRecord.model_validate(raw)) for raw in _load_json_array(corpus_dir / "items.json"))
+    users = tuple(
+        _user_from_record(UserRecord.model_validate(raw))
+        for raw in _load_json_array(corpus_dir / "users.json")
+    )
+    items = tuple(
+        _item_from_record(ItemRecord.model_validate(raw))
+        for raw in _load_json_array(corpus_dir / "items.json")
+    )
     judgments = tuple(
         _judgment_from_record(JudgmentRecord.model_validate(raw))
         for raw in _load_json_array(corpus_dir / "judgments.json")

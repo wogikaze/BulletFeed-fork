@@ -149,7 +149,11 @@ def test_hard_negatives_exist_and_lexical_baseline_does_not_ace_gate() -> None:
     assert lexical.include_ambiguous.precision_at_k < 0.80
     assert lexical.include_ambiguous.ndcg_at_k < 0.85
 
-    react_user = next(user.user_id for user in corpus.users if "react" in user.products and user.kind == "history_rich")
+    react_user = next(
+        user.user_id
+        for user in corpus.users
+        if "react" in user.products and user.kind == "history_rich"
+    )
     hard_ids = {row.item_id for row in corpus.judgments if row.user_id == react_user and row.hard_negative}
     assert hard_ids
     lexical_top = _lexical_rankings(corpus)[react_user][:3]

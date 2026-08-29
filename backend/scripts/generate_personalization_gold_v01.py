@@ -830,7 +830,11 @@ def _label(user: UserSpec, item: ItemSpec) -> tuple[int, int, bool, bool, bool, 
             relevance, importance = 3, 2
         else:
             relevance, importance = 2, 2
-        why = "security watch matches an advisory" if security_hit and not exact else f"item product {item.product} matches the user profile"
+        why = (
+            "security watch matches an advisory"
+            if security_hit and not exact
+            else f"item product {item.product} matches the user profile"
+        )
         return relevance, importance, True, False, False, why
     if adjacent:
         return (
@@ -846,7 +850,11 @@ def _label(user: UserSpec, item: ItemSpec) -> tuple[int, int, bool, bool, bool, 
     return 0, 0, False, False, False, f"No topical or repository overlap with {item.product}."
 
 
-def _build_split(split: str, users: tuple[UserSpec, ...], items: tuple[ItemSpec, ...]) -> tuple[list, list, list]:
+def _build_split(
+    split: str,
+    users: tuple[UserSpec, ...],
+    items: tuple[ItemSpec, ...],
+) -> tuple[list, list, list]:
     user_rows = [_user_payload(split, spec) for spec in users]
     item_rows = [_item_payload(split, spec) for spec in items]
     judgments: list[dict[str, object]] = []
