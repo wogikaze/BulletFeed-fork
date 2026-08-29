@@ -1,0 +1,33 @@
+{
+  "dataset_id": "bulletfeed-source-coverage-gold-v0.1",
+  "dataset_version": "source-coverage-v0.1",
+  "label_protocol_version": "source-coverage-label-v1",
+  "benchmark_version": "source-coverage-benchmark-v0.1",
+  "minimum_information_types": 8,
+  "source_families": [
+    "github",
+    "statuspage",
+    "rss_atom",
+    "json_feed",
+    "static_web",
+    "dynamic_web"
+  ],
+  "information_types": [
+    "release",
+    "security",
+    "incident",
+    "pricing",
+    "api_docs",
+    "deprecation",
+    "policy",
+    "roadmap_changelog"
+  ],
+  "js_rendering_implemented": false,
+  "files": {
+    "pilot_cases": "pilot/cases.json",
+    "pilot_index": "pilot/index.json",
+    "blind_cases": "blind/cases.json",
+    "blind_index": "blind/index.json"
+  },
+  "note": "Dynamic Web cases measure static coverage gaps. This dataset does not implement JS rendering."
+}

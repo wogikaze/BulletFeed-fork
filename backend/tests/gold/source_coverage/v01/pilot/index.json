@@ -1,0 +1,69 @@
+{
+  "split": "pilot",
+  "case_ids": [
+    "scov-p-001",
+    "scov-p-002",
+    "scov-p-003",
+    "scov-p-004",
+    "scov-p-005",
+    "scov-p-006",
+    "scov-p-007",
+    "scov-p-008",
+    "scov-p-009",
+    "scov-p-010",
+    "scov-p-011",
+    "scov-p-012",
+    "scov-p-013",
+    "scov-p-014",
+    "scov-p-015",
+    "scov-p-016"
+  ],
+  "urls": [
+    "https://github.com/facebook/react/releases",
+    "https://github.com/advisories?query=react",
+    "https://osv.dev/list?q=react",
+    "https://www.githubstatus.com/api/v2/summary.json",
+    "https://github.blog/feed/",
+    "https://www.jsonfeed.org/feed.json",
+    "https://nodejs.org/docs/latest/api/",
+    "https://devguide.python.org/versions/",
+    "https://kubernetes.io/docs/concepts/security/",
+    "https://react.dev/blog",
+    "https://stripe.com/pricing",
+    "https://vercel.com/dashboard",
+    "https://news.ycombinator.com",
+    "https://docs.example.invalid/changelog",
+    "https://discord.com/developers/docs/change-log",
+    "https://www.githubstatus.com"
+  ],
+  "topics": [
+    "Acme SDK",
+    "Discord API",
+    "GitHub",
+    "JSON Feed",
+    "Kubernetes",
+    "Node.js",
+    "Python",
+    "React",
+    "Stripe",
+    "Vercel"
+  ],
+  "information_types": [
+    "api_docs",
+    "deprecation",
+    "incident",
+    "policy",
+    "pricing",
+    "release",
+    "roadmap_changelog",
+    "security"
+  ],
+  "source_families": [
+    "dynamic_web",
+    "github",
+    "json_feed",
+    "rss_atom",
+    "static_web",
+    "statuspage"
+  ]
+}
