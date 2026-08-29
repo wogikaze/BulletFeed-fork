@@ -219,6 +219,7 @@ class WatchSyncWorker:
                 break
             job = jobs[0]
             attempted += 1
+            observation_count_before = self._observation_count(job.source_key)
             try:
                 await self._run_with_lease_heartbeat(job, now=job_started_at)
             except Exception as exc:
@@ -227,7 +228,12 @@ class WatchSyncWorker:
                 failed += 1
             else:
                 finished_at = int(time.time()) if now is None else scheduled_at
-                self._finish_success(job, now=finished_at)
+                new_observations = (
+                    self._observation_count(job.source_key) > observation_count_before
+                )
+                self._finish_success(
+                    job, now=finished_at, new_observations=new_observations
+                )
                 succeeded += 1
         return SyncRunSummary(attempted=attempted, succeeded=succeeded, failed=failed)
 
@@ -448,17 +454,36 @@ class WatchSyncWorker:
             raise RuntimeError(detail)
         return self._cipher.decrypt(row["github_token_encrypted"])
 
-    def _finish_success(self, job: SyncJob, *, now: int) -> None:
+    def _observation_count(self, source_key: str) -> int:
+        with self._database.connect() as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS count FROM observations WHERE source_key = ?",
+                (source_key,),
+            ).fetchone()
+        return int(row["count"])
+
+    def _finish_success(
+        self,
+        job: SyncJob,
+        *,
+        now: int,
+        new_observations: bool = False,
+    ) -> None:
         with self._database.connect() as connection:
             connection.execute(
                 """
                 UPDATE source_sync_jobs
                 SET next_run_at = ?, lease_until = 0, lease_token = NULL, failure_count = 0,
-                    last_success_at = ?, last_error = NULL
+                    last_success_at = ?, last_error = NULL,
+                    last_new_observation_at = CASE
+                        WHEN ? THEN ? ELSE last_new_observation_at
+                    END
                 WHERE source_type = ? AND source_key = ? AND lease_token = ?
                 """,
                 (
                     now + self._poll_interval_seconds,
+                    now,
+                    int(new_observations),
                     now,
                     job.source_type,
                     job.source_key,

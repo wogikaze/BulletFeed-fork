@@ -1,4 +1,5 @@
 import os
+import time
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -9,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.database import Database
 from app.db.release_lifecycle import install_release_lifecycle_guards, worker_is_fresh
+from app.db.source_health import summarize_source_health
 from app.db.topic_catalog import install_topic_catalog
 from app.dependencies import get_database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
@@ -80,4 +82,21 @@ def readiness(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Source sync worker heartbeat is stale or missing",
         )
-    return {"status": "ready", "database": "ok", "sourceSyncWorker": "ok"}
+    ingestion = summarize_source_health(database, now=int(time.time()))
+    return {
+        "status": "ready",
+        "database": "ok",
+        "sourceSyncWorker": "ok",
+        "sourceIngestion": ingestion.as_public_dict(),
+    }
+
+
+@app.get("/health/sources", tags=["system"])
+def source_health(
+    database: Annotated[Database, Depends(get_database)],
+) -> dict[str, object]:
+    summary = summarize_source_health(database, now=int(time.time()))
+    return {
+        "workerHeartbeat": summary.worker_heartbeat,
+        "sourceIngestion": summary.as_public_dict(),
+    }

@@ -132,7 +132,13 @@ def test_readiness_requires_fresh_worker_heartbeat(
     record_worker_heartbeat(database, detail="test")
     ready = client.get("/health/ready")
     assert ready.status_code == 200
-    assert ready.json()["sourceSyncWorker"] == "ok"
+    body = ready.json()
+    assert body["sourceSyncWorker"] == "ok"
+    assert "sourceIngestion" in body
+    assert "source_key" not in body
+    serialized = str(body)
+    assert "acme/" not in serialized
+    assert "owner/" not in serialized
 
 
 def test_worker_watch_revocation_requires_github_reauthorization(database: Database) -> None:

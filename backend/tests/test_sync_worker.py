@@ -4,6 +4,7 @@ from cryptography.fernet import Fernet
 from app import sync_worker
 from app.config import Settings
 from app.database import Database
+from app.db.source_health import list_source_health
 from app.security import TokenCipher
 from app.services import statuspage_crawler
 from app.services.source_subscriptions import add_subscription_user
@@ -616,9 +617,19 @@ async def test_run_once_rss_http_is_mockable_and_refetch_keeps_observation_id(
         exposures = connection.execute("SELECT COUNT(*) AS count FROM user_claim_exposures").fetchone()[
             "count"
         ]
+        job = connection.execute(
+            """
+            SELECT last_success_at, last_new_observation_at, failure_count
+            FROM source_sync_jobs
+            WHERE source_type = 'rss_atom'
+            """
+        ).fetchone()
     assert len(rows) == 1
     assert feed_items >= 1
     assert exposures == 0
+    assert job["last_success_at"] == 9_300
+    assert job["last_new_observation_at"] == 9_000
+    assert job["failure_count"] == 0
 
 
 @pytest.mark.asyncio
@@ -840,3 +851,192 @@ def test_unsubscribed_statuspage_stops_after_lease_expiry(tmp_path) -> None:
             """
         ).fetchone()["count"]
     assert count == 0
+
+
+def _insert_observation(database: Database, *, source_key: str, observation_id: str) -> None:
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO observations (
+                id, source_type, source_key, source_observation_id,
+                payload_hash, payload_json, original_url, retrieved_at
+            ) VALUES (?, 'github_release', ?, ?, 'hash', '{}', 'https://example.test', '2026-08-29T00:00:00Z')
+            """,
+            (observation_id, source_key, observation_id),
+        )
+
+
+@pytest.mark.asyncio
+async def test_successful_empty_fetch_updates_freshness_not_new_observation(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database = _database_with_watch(tmp_path)
+    settings = Settings(database_path=database.path)
+
+    async def empty_crawl(*args, **kwargs):
+        del args, kwargs
+
+    monkeypatch.setattr(sync_worker, "crawl_github_release_events", empty_crawl)
+    monkeypatch.setattr(sync_worker, "crawl_sbom_security_events", empty_crawl)
+    worker = WatchSyncWorker(settings, database, poll_interval_seconds=300, batch_size=10)
+
+    await worker.run_once(now=20_000)
+
+    with database.connect() as connection:
+        rows = connection.execute(
+            """
+            SELECT last_attempt_at, last_success_at, last_new_observation_at,
+                   failure_count, next_run_at
+            FROM source_sync_jobs
+            """
+        ).fetchall()
+    assert len(rows) == 2
+    for row in rows:
+        assert row["last_attempt_at"] == 20_000
+        assert row["last_success_at"] == 20_000
+        assert row["last_new_observation_at"] is None
+        assert row["failure_count"] == 0
+        assert row["next_run_at"] == 20_300
+
+
+@pytest.mark.asyncio
+async def test_successful_fetch_with_new_observation_records_timestamp(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database = _database_with_watch(tmp_path)
+    settings = Settings(database_path=database.path)
+
+    async def release_with_observation(settings, database, **kwargs):
+        del settings, kwargs
+        _insert_observation(
+            database, source_key="acme/widget", observation_id="obs_release_new"
+        )
+
+    async def empty_security(*args, **kwargs):
+        del args, kwargs
+
+    monkeypatch.setattr(sync_worker, "crawl_github_release_events", release_with_observation)
+    monkeypatch.setattr(sync_worker, "crawl_sbom_security_events", empty_security)
+    worker = WatchSyncWorker(settings, database, poll_interval_seconds=300, batch_size=10)
+
+    await worker.run_once(now=21_000)
+
+    with database.connect() as connection:
+        release = connection.execute(
+            """
+            SELECT last_success_at, last_new_observation_at
+            FROM source_sync_jobs
+            WHERE source_type = 'github_release'
+            """
+        ).fetchone()
+        security = connection.execute(
+            """
+            SELECT last_success_at, last_new_observation_at
+            FROM source_sync_jobs
+            WHERE source_type = 'dependency_security'
+            """
+        ).fetchone()
+    assert release["last_success_at"] == 21_000
+    assert release["last_new_observation_at"] == 21_000
+    assert security["last_success_at"] == 21_000
+    assert security["last_new_observation_at"] is None
+
+
+@pytest.mark.asyncio
+async def test_failed_fetch_preserves_success_and_new_observation_timestamps(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database = _database_with_watch(tmp_path)
+    settings = Settings(database_path=database.path)
+    fail_security = False
+
+    async def release_ok(*args, **kwargs):
+        del args, kwargs
+
+    async def security_maybe_fail(settings, database, **kwargs):
+        del settings, kwargs
+        if fail_security:
+            raise RuntimeError("osv unavailable")
+        _insert_observation(
+            database, source_key="acme/widget", observation_id="obs_security_new"
+        )
+
+    monkeypatch.setattr(sync_worker, "crawl_github_release_events", release_ok)
+    monkeypatch.setattr(sync_worker, "crawl_sbom_security_events", security_maybe_fail)
+    worker = WatchSyncWorker(
+        settings,
+        database,
+        poll_interval_seconds=300,
+        retry_base_seconds=30,
+        retry_max_seconds=300,
+        batch_size=10,
+    )
+
+    await worker.run_once(now=22_000)
+    fail_security = True
+    second = await worker.run_once(now=22_300)
+
+    assert second.failed == 1
+    with database.connect() as connection:
+        security = connection.execute(
+            """
+            SELECT last_attempt_at, last_success_at, last_new_observation_at,
+                   failure_count, next_run_at
+            FROM source_sync_jobs
+            WHERE source_type = 'dependency_security'
+            """
+        ).fetchone()
+        observations = connection.execute("SELECT COUNT(*) AS count FROM observations").fetchone()
+    assert security["last_attempt_at"] == 22_300
+    assert security["last_success_at"] == 22_000
+    assert security["last_new_observation_at"] == 22_000
+    assert security["failure_count"] == 1
+    assert security["next_run_at"] == 22_330
+    assert observations["count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_repeated_failures_use_deterministic_backoff_and_mark_source_stale(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database = _database_with_watch(tmp_path)
+    settings = Settings(database_path=database.path)
+
+    async def always_fail(*args, **kwargs):
+        del args, kwargs
+        raise RuntimeError("source unavailable")
+
+    monkeypatch.setattr(sync_worker, "crawl_github_release_events", always_fail)
+    monkeypatch.setattr(sync_worker, "crawl_sbom_security_events", always_fail)
+    worker = WatchSyncWorker(
+        settings,
+        database,
+        poll_interval_seconds=300,
+        retry_base_seconds=30,
+        retry_max_seconds=300,
+        batch_size=10,
+    )
+
+    first = await worker.run_once(now=23_000)
+    second = await worker.run_once(now=23_030)
+
+    assert first.failed == 2
+    assert second.failed == 2
+    with database.connect() as connection:
+        rows = connection.execute(
+            """
+            SELECT failure_count, last_success_at, next_run_at
+            FROM source_sync_jobs
+            """
+        ).fetchall()
+    assert {row["failure_count"] for row in rows} == {2}
+    assert {row["last_success_at"] for row in rows} == {None}
+    assert {row["next_run_at"] for row in rows} == {23_090}
+
+    records = list_source_health(database)
+    assert all(record.is_stale(now=24_000, stale_after_seconds=600) for record in records)
+    assert all(record.is_failing() for record in records)
