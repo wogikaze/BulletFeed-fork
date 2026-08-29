@@ -6,7 +6,8 @@ Rankers consume this snapshot, not raw Observation payloads.
 from __future__ import annotations
 
 import json
-from typing import Any, Final, Mapping
+from collections.abc import Mapping
+from typing import Any, Final
 
 from app.services.impact_signals import extract_impact_signals, features_for_ranking
 
