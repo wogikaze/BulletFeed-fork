@@ -85,11 +85,11 @@ def test_retry_recovers_when_observation_commits_before_claim_transaction_fails(
     item = normalize_incident_updates("abcd1234", _summary())[0]
     store = IncidentLedgerStore(database)
 
-    def fail_rebuild(connection, event_id):
-        del connection, event_id
+    def fail_rebuild(connection, event_id, slot):
+        del connection, event_id, slot
         raise RuntimeError("simulated crash")
 
-    monkeypatch.setattr(store, "_rebuild_relations", fail_rebuild)
+    monkeypatch.setattr(store._ledger, "_rebuild_relations", fail_rebuild)
     with pytest.raises(RuntimeError, match="simulated crash"):
         store.ingest(item, retrieved_at="2026-08-22T00:01:00Z")
 
