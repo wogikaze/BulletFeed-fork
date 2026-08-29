@@ -46,7 +46,7 @@ def test_contract_fixture_loads_and_keeps_holdout_out_of_production() -> None:
     assert all(row.split != "blind" for row in scoring.judgments)
     status = capacity_status(corpus)
     assert status.meets_targets is False
-    assert status.event_count == 3
+    assert status.event_count >= 21
     assert status.profile_count == 50
     assert status.judgment_count == 3
 

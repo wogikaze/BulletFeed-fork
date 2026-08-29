@@ -1,10 +1,22 @@
 {
   "split": "pilot",
   "source_ids": [
-    "src_contract_p01"
+    "src_contract_p01",
+    "src_rw_p_rust180",
+    "src_rw_p_ghsa",
+    "src_rw_p_osv",
+    "src_rw_p_ghstatus",
+    "src_rw_p_ghblog",
+    "src_rw_p_py312"
   ],
   "event_ids": [
-    "evt_contract_p01"
+    "evt_contract_p01",
+    "evt_rw_p_rust180",
+    "evt_rw_p_ghsa",
+    "evt_rw_p_osv",
+    "evt_rw_p_ghstatus",
+    "evt_rw_p_ghblog",
+    "evt_rw_p_py312"
   ],
   "profile_ids": [
     "prf_contract_p01",
