@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 
+from app.services.multilingual_normalize import prepare_for_english_canonicalize
+
 EquivalenceLabel = Literal["equivalent", "not_equivalent", "uncertain"]
 Confidence = Literal["high", "medium", "low"]
 
@@ -72,7 +74,11 @@ _STOPWORDS = {
 _NEGATION_TOKENS = {"not", "no", "never", "without", "disabled", "removed"}
 _VERSION_RE = re.compile(r"\bv?\d+(?:\.\d+){1,3}(?:[-+][a-z0-9.-]+)?\b", re.IGNORECASE)
 _NUMBER_RE = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")
-_TOKEN_RE = re.compile(r"[a-z0-9]+(?:[._/-][a-z0-9]+)*|>=|<=|!=|==|>|<", re.IGNORECASE)
+_TOKEN_RE = re.compile(
+    r"[a-z0-9]+(?:[._/-][a-z0-9]+)*|>=|<=|!=|==|>|<|"
+    r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]+",
+    re.IGNORECASE,
+)
 _DATE_PATTERNS = ("%B %d, %Y", "%b %d, %Y", "%Y/%m/%d")
 
 
@@ -133,7 +139,8 @@ def canonicalize_text(
     *,
     entity_aliases: Mapping[str, str] | None = None,
 ) -> CanonicalText:
-    normalized = unicodedata.normalize("NFKC", value).casefold().strip()
+    prepared = prepare_for_english_canonicalize(value)
+    normalized = unicodedata.normalize("NFKC", prepared).casefold().strip()
     normalized = _normalize_dates(normalized)
     normalized = re.sub(r"(?<=\d),(?=\d)", "", normalized)
 
