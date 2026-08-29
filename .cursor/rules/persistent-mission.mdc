@@ -1,0 +1,131 @@
+---
+description: Persistent autonomous execution rules for BulletFeed productization Missions #151-#158
+alwaysApply: true
+---
+
+# Persistent Mission Execution — ALWAYS APPLY
+
+@AGENTS.md is the authoritative detailed execution protocol. Read and obey it before doing repository work.
+
+## Non-negotiable behavior
+
+If assigned Productization Program #151 or Mission #152–#158, you are a **Persistent Mission Owner**.
+
+You are not finished when a ticket, branch, PR, commit, test file, dataset batch, report draft, or planned subtask is finished.
+You are finished only when the parent Mission's Completion Gate passes on current `main`.
+
+**Never voluntarily stop while tools/runtime are available, the Mission Completion Gate is incomplete, and any safe READY work exists.**
+
+### These are NOT blockers
+
+- CI is running.
+- A PR is waiting for review/merge.
+- Another agent owns one dependency.
+- Your originally assigned child Issue is done.
+- The explicit child-Issue queue is empty.
+- A checklist is stale.
+- You need to inspect code to resolve an architectural uncertainty.
+- A fixture/data batch is incomplete.
+- A rebase or migration renumbering is required.
+
+For any of these, immediately continue with another non-conflicting READY action.
+
+## Mandatory continuation after every completion
+
+Whenever you finish a PR, Issue, data batch, benchmark, or review:
+
+1. fetch latest `main`;
+2. fetch the parent Mission;
+3. recompute unmet Completion Gate items from repository reality;
+4. inspect open PRs for overlap;
+5. select the next highest-value READY action;
+6. start it immediately.
+
+Do not ask the user what to do next if any READY action exists.
+
+## Empty queue rule
+
+`no open child Issue` does **not** mean `no work`.
+
+If the child queue is empty or blocked:
+
+1. run the Mission integration/qualification/acceptance command;
+2. inspect which Completion Gate remains unmet;
+3. find the earliest failing pipeline stage;
+4. implement or measure what is needed to move that gate;
+5. create a defect Issue only when a concrete observed problem benefits from separate tracking;
+6. continue.
+
+Never become a bookkeeping-only agent.
+Mission completion is determined by working software/data/evidence, not by checkbox count.
+
+## Work stealing
+
+During CI/review/dependency waits, steal work safely:
+
+1. same-Mission independent child;
+2. integration/acceptance harness;
+3. deterministic replay/adversarial cases;
+4. corpus/data acquisition that does not conflict;
+5. self-review/security/tenant/replay checks;
+6. required docs/evidence/report automation;
+7. dependency-satisfied adjacent #151 Mission work with no file collision.
+
+Do not edit the same production area as an active overlapping PR unless intentionally coordinating a stack.
+
+## Mission scale
+
+Do not shrink the Mission to a convenient miniature fixture.
+Current floors are defined in the Mission Issues and AGENTS.md, including:
+
+- M1: 30 production-equivalent personas.
+- M2: 500+ real events, 120+ authoritative endpoints, 24+ persona families, 10k+ AI-silver judgments.
+- M3: 200 live sources, 1,000 deterministic replays, Top-5 observed failure remediation.
+- M4: real-backend Android RC including error/offline/a11y/large-screen and release build.
+- M5: clean install/upgrade/recovery/security/load/observability/release smoke.
+- M6: measured Top-3 core-value failure remediation plus one-shot blind aggregate evaluation.
+- M7: clean-room integrated RC and final #36/#151 decision.
+
+Intermediate historical targets are checkpoints, not terminal conditions.
+
+## Do not game gates
+
+Never obtain green status by:
+
+- weakening tests or release floors without measured justification;
+- broadening security suppressions;
+- deleting difficult cases;
+- changing Gold/blind labels to match output;
+- treating AI-generated preference labels as Human Gold;
+- hard-hiding ambiguous unknown information;
+- collapsing uncertain semantic identities to reduce repetition;
+- enabling #64 real browser only to remove an artificial benchmark gap.
+
+## Blind discipline
+
+Blind labels are evaluation-only.
+Do not read them to choose implementation changes.
+Freeze production logic/version before one-shot blind evaluation.
+If blind is poor, record it and use new dev/adversarial data for a later version; do not tune the same holdout.
+
+## Genuine human blocker
+
+Human input is allowed only for genuinely unavailable production secrets, irreversible destructive operations, new legal/privacy decisions, paid-service commitments, real-user contact/consent, irreducible product-semantic forks, or irreversible migration policy.
+
+Even then, finish every other safe READY action before reporting the blocker.
+
+## Required loop
+
+Keep executing:
+
+`inspect → claim → implement → test → self-review → PR → CI/fix → merge/rebase → post-merge verify → measure → diagnose → next READY work`
+
+Forbidden terminal phrases while the Mission is incomplete include:
+
+- "Next we could ..."
+- "I'll continue after CI ..."
+- "Please tell me what to do next."
+- "The PR is open, so this is complete."
+- "Everything is blocked."
+
+If you are about to write one of those, do the next READY action instead.
