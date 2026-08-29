@@ -1,0 +1,786 @@
+[
+  {
+    "family": "same_fact_different_wording",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/qcvjkzcs7j74",
+    "prior": {
+      "value": "investigating",
+      "detail": "Workflow runs are failing to start.",
+      "valid_at": "2026-08-06T15:45:14Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Newly queued Actions jobs never leave the queued state and do not begin execution.",
+      "valid_at": "2026-08-06T16:10:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "github-actions-start-failure",
+    "prior_event_id": "dag-pevt-actions-start",
+    "candidate_event_id": "dag-pevt-actions-start",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same Actions start-failure fact restated with radically different wording.",
+    "bundle_id": "dag-pilot-wording",
+    "case_id": "dag-p-001",
+    "split": "pilot"
+  },
+  {
+    "family": "same_fact_different_wording",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-h95v-h523-3mw8",
+    "prior": {
+      "value": "affected",
+      "detail": "Affected Guzzle versions can disclose URI fragments in generated Referer headers.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "affected",
+      "detail": "Redirects from Guzzle may leak the URL hash through the Referer header.",
+      "valid_at": "2026-07-18T12:00:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "guzzle-referer-fragment",
+    "prior_event_id": "dag-pevt-guzzle-referer",
+    "candidate_event_id": "dag-pevt-guzzle-referer",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same advisory fact with different technical wording.",
+    "bundle_id": "dag-pilot-wording",
+    "case_id": "dag-p-002",
+    "split": "pilot"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "degraded",
+      "detail": "GitHub Actions runners are degraded in us-east-1.",
+      "valid_at": "2026-08-10T09:00:00Z"
+    },
+    "candidate": {
+      "value": "degraded",
+      "detail": "GitHub Actions runners are degraded in eu-west-1.",
+      "valid_at": "2026-08-10T09:05:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "actions-region-split",
+    "prior_event_id": "dag-pevt-actions-useast",
+    "candidate_event_id": "dag-pevt-actions-euwest",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Near-identical wording describes two regional incidents.",
+    "bundle_id": "dag-pilot-samewords",
+    "case_id": "dag-p-003",
+    "split": "pilot"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "not starting",
+      "detail": "Copilot Cloud Agent jobs are not starting for some users.",
+      "valid_at": "2026-08-05T11:38:00Z"
+    },
+    "candidate": {
+      "value": "not starting",
+      "detail": "Copilot code completion jobs are not starting for some users.",
+      "valid_at": "2026-08-05T11:40:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "copilot-product-split",
+    "prior_event_id": "dag-pevt-copilot-agent",
+    "candidate_event_id": "dag-pevt-copilot-complete",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Shared Copilot wording hides two different product surfaces.",
+    "bundle_id": "dag-pilot-samewords",
+    "case_id": "dag-p-004",
+    "split": "pilot"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/api/v2/incidents.json",
+    "prior": {
+      "value": "investigating",
+      "detail": "Incident with Actions: degraded performance.",
+      "valid_at": "2026-08-06T15:22:49Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Incident with Pages: degraded performance.",
+      "valid_at": "2026-08-06T15:03:55Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "actions-vs-pages",
+    "prior_event_id": "dag-pevt-actions-degraded",
+    "candidate_event_id": "dag-pevt-pages-degraded",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Actions and Pages incidents share boilerplate but are distinct events.",
+    "bundle_id": "dag-pilot-samewords",
+    "case_id": "dag-p-005",
+    "split": "pilot"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "Node.js",
+    "provenance_url": "https://nodejs.org/en/blog/release/v20.19.1",
+    "prior": {
+      "value": "current lts",
+      "detail": "Node.js 20.19.0 is the current LTS release.",
+      "valid_at": "2026-05-14T00:00:00Z"
+    },
+    "candidate": {
+      "value": "current lts",
+      "detail": "Node.js 20.19.1 is the current LTS release.",
+      "valid_at": "2026-05-15T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "nodejs-20-lts",
+    "prior_event_id": "dag-pevt-node20-lts",
+    "candidate_event_id": "dag-pevt-node20-lts",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Patch version change is a factual update of the same release line.",
+    "bundle_id": "dag-pilot-numeric",
+    "case_id": "dag-p-006",
+    "split": "pilot"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "limit 1000 mb",
+      "detail": "Upload limit increased to 1000 MB.",
+      "valid_at": "2026-08-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "limit 1000 gb",
+      "detail": "Upload limit increased to 1000 GB.",
+      "valid_at": "2026-08-02T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "upload-limit-unit",
+    "prior_event_id": "dag-pevt-upload-limit",
+    "candidate_event_id": "dag-pevt-upload-limit",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same numeral with a different unit changes the fact.",
+    "bundle_id": "dag-pilot-numeric",
+    "case_id": "dag-p-007",
+    "split": "pilot"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "Python",
+    "provenance_url": "https://devguide.python.org/versions/",
+    "prior": {
+      "value": "eol",
+      "detail": "Support for Python 3.9 ends on October 31, 2025.",
+      "valid_at": "2026-01-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "eol",
+      "detail": "Support for Python 3.9 ends on October 31, 2026.",
+      "valid_at": "2026-01-02T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "CORRECTION",
+    "event_label": "python39-eol",
+    "prior_event_id": "dag-pevt-py39-eol",
+    "candidate_event_id": "dag-pevt-py39-eol",
+    "explicit_correction": true,
+    "unresolved_source_conflict": false,
+    "rationale": "EOL date change is a correction of the published schedule.",
+    "bundle_id": "dag-pilot-numeric",
+    "case_id": "dag-p-008",
+    "split": "pilot"
+  },
+  {
+    "family": "negation_comparator",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "supported",
+      "detail": "Python 3.10 is supported.",
+      "valid_at": "2026-08-12T09:00:00Z"
+    },
+    "candidate": {
+      "value": "not supported",
+      "detail": "Python 3.10 is not supported.",
+      "valid_at": "2026-08-12T10:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "CORRECTION",
+    "event_label": "python310-support",
+    "prior_event_id": "dag-pevt-py310-support",
+    "candidate_event_id": "dag-pevt-py310-support",
+    "explicit_correction": true,
+    "unresolved_source_conflict": false,
+    "rationale": "Negation reverses the support claim; source marks a correction.",
+    "bundle_id": "dag-pilot-negation",
+    "case_id": "dag-p-009",
+    "split": "pilot"
+  },
+  {
+    "family": "negation_comparator",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "minimum >= 3.10",
+      "detail": "Python >= 3.10 is required.",
+      "valid_at": "2026-08-12T09:00:00Z"
+    },
+    "candidate": {
+      "value": "maximum <= 3.10",
+      "detail": "Python <= 3.10 is required.",
+      "valid_at": "2026-08-12T11:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "python-comparator",
+    "prior_event_id": "dag-pevt-py-comparator",
+    "candidate_event_id": "dag-pevt-py-comparator",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Comparator flip changes the supported range.",
+    "bundle_id": "dag-pilot-negation",
+    "case_id": "dag-p-010",
+    "split": "pilot"
+  },
+  {
+    "family": "negation_comparator",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "supported",
+      "detail": "Python 3.10 is supported in production.",
+      "valid_at": "2026-08-12T09:00:00Z"
+    },
+    "candidate": {
+      "value": "unsupported",
+      "detail": "Python 3.10 support has been dropped in production.",
+      "valid_at": "2026-08-12T12:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "python310-dropped",
+    "prior_event_id": "dag-pevt-py310-dropped",
+    "candidate_event_id": "dag-pevt-py310-dropped",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Paraphrased negation (dropped) is not the same support fact.",
+    "bundle_id": "dag-pilot-negation",
+    "case_id": "dag-p-011",
+    "split": "pilot"
+  },
+  {
+    "family": "partial_detail_vs_restatement",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "active",
+      "detail": "Limit increased to 1,000 requests per minute.",
+      "valid_at": "2026-08-11T09:00:00Z"
+    },
+    "candidate": {
+      "value": "active",
+      "detail": "Limit increased to 1,000 requests per minute with documented burst guidance.",
+      "valid_at": "2026-08-11T10:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "DETAIL",
+    "event_label": "api-limit",
+    "prior_event_id": "dag-pevt-api-limit",
+    "candidate_event_id": "dag-pevt-api-limit",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Added burst guidance is extra detail, not a restatement.",
+    "bundle_id": "dag-pilot-detail",
+    "case_id": "dag-p-012",
+    "split": "pilot"
+  },
+  {
+    "family": "partial_detail_vs_restatement",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "active",
+      "detail": "Limit increased to 1,000 requests per minute.",
+      "valid_at": "2026-08-11T09:00:00Z"
+    },
+    "candidate": {
+      "value": "active",
+      "detail": "The per-minute request cap is now one thousand.",
+      "valid_at": "2026-08-11T09:30:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "api-limit-restate",
+    "prior_event_id": "dag-pevt-api-limit-restate",
+    "candidate_event_id": "dag-pevt-api-limit-restate",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Number-word restatement is equivalent despite low lexical overlap.",
+    "bundle_id": "dag-pilot-detail",
+    "case_id": "dag-p-013",
+    "split": "pilot"
+  },
+  {
+    "family": "correction_vs_state_update",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "resolved",
+      "detail": "This incident has been resolved at 11:00 UTC.",
+      "valid_at": "2026-08-07T11:00:00Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Correction: the incident remains ongoing; the 11:00 UTC resolution was posted in error.",
+      "valid_at": "2026-08-07T11:20:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "CORRECTION",
+    "event_label": "false-resolution",
+    "prior_event_id": "dag-pevt-false-resolution",
+    "candidate_event_id": "dag-pevt-false-resolution",
+    "explicit_correction": true,
+    "unresolved_source_conflict": false,
+    "rationale": "Explicit retraction of a false resolution is a correction.",
+    "bundle_id": "dag-pilot-correction",
+    "case_id": "dag-p-014",
+    "split": "pilot"
+  },
+  {
+    "family": "correction_vs_state_update",
+    "kind": "real_public_source",
+    "hard_negative": false,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/qcvjkzcs7j74",
+    "prior": {
+      "value": "investigating",
+      "detail": "Degraded performance for Actions.",
+      "valid_at": "2026-08-06T15:22:49Z"
+    },
+    "candidate": {
+      "value": "resolved",
+      "detail": "This incident has been resolved.",
+      "valid_at": "2026-08-07T02:04:44Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "github-actions-lifecycle",
+    "prior_event_id": "dag-pevt-actions-lifecycle",
+    "candidate_event_id": "dag-pevt-actions-lifecycle",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Ordinary later lifecycle transition is a state update, not a correction.",
+    "bundle_id": "dag-pilot-correction",
+    "case_id": "dag-p-015",
+    "split": "pilot"
+  },
+  {
+    "family": "delayed_out_of_order",
+    "kind": "real_public_source",
+    "hard_negative": false,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/qcvjkzcs7j74",
+    "prior": {
+      "value": "resolved",
+      "detail": "This incident has been resolved.",
+      "valid_at": "2026-08-07T02:04:44Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Degraded performance for Actions.",
+      "valid_at": "2026-08-06T15:22:49Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "github-actions-late-history",
+    "prior_event_id": "dag-pevt-actions-late",
+    "candidate_event_id": "dag-pevt-actions-late",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Earlier investigating update arrives after resolved and is retained as historical fact.",
+    "bundle_id": "dag-pilot-delayed",
+    "case_id": "dag-p-016",
+    "split": "pilot"
+  },
+  {
+    "family": "delayed_out_of_order",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "investigating",
+      "detail": "Webhook delivery latency is elevated for all organizations.",
+      "valid_at": "2026-07-14T18:00:00Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Webhook delivery latency is elevated for all organizations.",
+      "valid_at": "2026-07-14T17:38:28Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "webhook-latency-reorder",
+    "prior_event_id": "dag-pevt-webhook-latency",
+    "candidate_event_id": "dag-pevt-webhook-latency",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Same observation replayed out of order is non-novel.",
+    "bundle_id": "dag-pilot-delayed",
+    "case_id": "dag-p-017",
+    "split": "pilot"
+  },
+  {
+    "family": "cross_source_restatement",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-f283-ghqc-fg79",
+    "prior": {
+      "value": "affected",
+      "detail": "The built-in CookieJar accepts unbounded response cookies.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "affected",
+      "detail": "Guzzle CookieJar can store an unbounded number of Set-Cookie values from a single response.",
+      "valid_at": "2026-07-19T00:00:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "guzzle-cookie-dos",
+    "prior_event_id": "dag-pevt-guzzle-cookie",
+    "candidate_event_id": "dag-pevt-guzzle-cookie",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Cross-source restatement of the same CookieJar advisory.",
+    "bundle_id": "dag-pilot-crosssource",
+    "case_id": "dag-p-018",
+    "split": "pilot"
+  },
+  {
+    "family": "cross_source_restatement",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-h95v-h523-3mw8",
+    "prior": {
+      "value": "withdrawn duplicate",
+      "detail": "Duplicate Advisory: Guzzle URI fragments disclosed in redirect Referer headers.",
+      "valid_at": "2026-08-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "affected",
+      "detail": "Guzzle: URI fragments disclosed in redirect Referer headers.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "guzzle-referer-cross",
+    "prior_event_id": "dag-pevt-guzzle-referer-dup",
+    "candidate_event_id": "dag-pevt-guzzle-referer-dup",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Duplicate advisory listing restates the same withdrawn-as-duplicate fact.",
+    "bundle_id": "dag-pilot-crosssource",
+    "case_id": "dag-p-019",
+    "split": "pilot"
+  },
+  {
+    "family": "japanese_mixed_technical",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "investigating",
+      "detail": "Actions のワークフロー起動に失敗しています。",
+      "valid_at": "2026-08-06T15:45:14Z"
+    },
+    "candidate": {
+      "value": "investigating",
+      "detail": "Actions workflows are failing to start.",
+      "valid_at": "2026-08-06T15:50:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "actions-jp-en",
+    "prior_event_id": "dag-pevt-actions-jp",
+    "candidate_event_id": "dag-pevt-actions-jp",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Japanese and English describe the same Actions start failure.",
+    "bundle_id": "dag-pilot-japanese",
+    "case_id": "dag-p-020",
+    "split": "pilot"
+  },
+  {
+    "family": "japanese_mixed_technical",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "supported",
+      "detail": "Python 3.10 は CI でサポートされています。",
+      "valid_at": "2026-08-12T09:00:00Z"
+    },
+    "candidate": {
+      "value": "supported",
+      "detail": "Python 3.10 は docs でサポートされています。",
+      "valid_at": "2026-08-12T09:10:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "py310-ci-vs-docs",
+    "prior_event_id": "dag-pevt-py310-ci",
+    "candidate_event_id": "dag-pevt-py310-docs",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Shared Japanese/English tokens describe CI support versus docs support.",
+    "bundle_id": "dag-pilot-japanese",
+    "case_id": "dag-p-021",
+    "split": "pilot"
+  },
+  {
+    "family": "japanese_mixed_technical",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Status",
+    "provenance_url": "https://www.githubstatus.com/incidents/qcvjkzcs7j74",
+    "prior": {
+      "value": "mitigated",
+      "detail": "Actions の性能低下は緩和されました。",
+      "valid_at": "2026-08-07T00:06:24Z"
+    },
+    "candidate": {
+      "value": "mitigated",
+      "detail": "The degradation has been mitigated.",
+      "valid_at": "2026-08-07T00:10:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "actions-mitigated-jp",
+    "prior_event_id": "dag-pevt-actions-mitigated",
+    "candidate_event_id": "dag-pevt-actions-mitigated",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Mixed Japanese restatement of the public Actions mitigation update.",
+    "bundle_id": "dag-pilot-japanese",
+    "case_id": "dag-p-022",
+    "split": "pilot"
+  },
+  {
+    "family": "entity_alias_product_rename",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "Microsoft Learn",
+    "provenance_url": "https://learn.microsoft.com/en-us/entra/fundamentals/new-name",
+    "prior": {
+      "value": "degraded",
+      "detail": "Azure Active Directory sign-in is degraded.",
+      "valid_at": "2026-06-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "degraded",
+      "detail": "Microsoft Entra ID sign-in is degraded.",
+      "valid_at": "2026-06-01T00:10:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "entra-signin",
+    "prior_event_id": "dag-pevt-entra-signin",
+    "candidate_event_id": "dag-pevt-entra-signin",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Product rename: Azure AD and Entra ID name the same service.",
+    "bundle_id": "dag-pilot-alias",
+    "case_id": "dag-p-023",
+    "split": "pilot"
+  },
+  {
+    "family": "entity_alias_product_rename",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "X Developer Platform",
+    "provenance_url": "https://developer.x.com/en/docs/twitter-api",
+    "prior": {
+      "value": "limit 300/15m",
+      "detail": "Twitter API v2 rate limit remains 300 requests per 15 minutes.",
+      "valid_at": "2026-04-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "limit 300/15m",
+      "detail": "X API v2 rate limit remains 300 requests per 15 minutes.",
+      "valid_at": "2026-04-01T00:15:00Z"
+    },
+    "equivalence": "equivalent",
+    "revision_class": "NON_NOVEL",
+    "event_label": "twitter-x-api-limit",
+    "prior_event_id": "dag-pevt-twitter-x",
+    "candidate_event_id": "dag-pevt-twitter-x",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Twitter/X rename restates the same API quota.",
+    "bundle_id": "dag-pilot-alias",
+    "case_id": "dag-p-024",
+    "split": "pilot"
+  },
+  {
+    "family": "entity_alias_product_rename",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "released",
+      "detail": "React 19 is generally available.",
+      "valid_at": "2026-12-05T00:00:00Z"
+    },
+    "candidate": {
+      "value": "released",
+      "detail": "React Native 19 is generally available.",
+      "valid_at": "2026-12-05T00:05:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "react-vs-rn",
+    "prior_event_id": "dag-pevt-react19",
+    "candidate_event_id": "dag-pevt-rn19",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Adjacent product names are not the same release event.",
+    "bundle_id": "dag-pilot-alias",
+    "case_id": "dag-p-025",
+    "split": "pilot"
+  },
+  {
+    "family": "same_fact_different_wording",
+    "kind": "synthetic_fixed",
+    "hard_negative": false,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "capacity policy",
+      "detail": "Service capacity policy is active for standard users.",
+      "valid_at": "2026-08-01T00:00:00Z"
+    },
+    "candidate": {
+      "value": "capacity policy",
+      "detail": "Service capacity policy changes for selected users.",
+      "valid_at": "2026-08-02T00:00:00Z"
+    },
+    "equivalence": "uncertain",
+    "revision_class": "UNRESOLVED_CONTRADICTION",
+    "event_label": "capacity-policy-ambiguous",
+    "prior_event_id": "dag-pevt-capacity",
+    "candidate_event_id": "dag-pevt-capacity",
+    "explicit_correction": false,
+    "unresolved_source_conflict": true,
+    "rationale": "Wording is close but the policy scope is ambiguous.",
+    "bundle_id": "dag-pilot-wording",
+    "case_id": "dag-p-026",
+    "split": "pilot"
+  },
+  {
+    "family": "numeric_version_date_unit",
+    "kind": "real_public_source",
+    "hard_negative": true,
+    "publisher": "GitHub Advisory Database",
+    "provenance_url": "https://github.com/advisories/GHSA-h95v-h523-3mw8",
+    "prior": {
+      "value": "fixed 7.15.1",
+      "detail": "The Referer fragment leak is fixed in Guzzle 7.15.1.",
+      "valid_at": "2026-07-18T00:00:00Z"
+    },
+    "candidate": {
+      "value": "fixed 7.15.2",
+      "detail": "The Referer fragment leak is fixed in Guzzle 7.15.2.",
+      "valid_at": "2026-07-19T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "STATE_UPDATE",
+    "event_label": "guzzle-fixed-version",
+    "prior_event_id": "dag-pevt-guzzle-fixed",
+    "candidate_event_id": "dag-pevt-guzzle-fixed",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Fixed-version identifier change is a numeric/version fact change.",
+    "bundle_id": "dag-pilot-numeric",
+    "case_id": "dag-p-027",
+    "split": "pilot"
+  },
+  {
+    "family": "same_words_different_fact",
+    "kind": "synthetic_fixed",
+    "hard_negative": true,
+    "publisher": "adversarial fixture",
+    "provenance_url": "adversarial test fixture",
+    "prior": {
+      "value": "critical",
+      "detail": "CVE-2021-44228 affects log4j-core 2.14.1.",
+      "valid_at": "2021-12-10T00:00:00Z"
+    },
+    "candidate": {
+      "value": "critical",
+      "detail": "CVE-2021-45046 affects log4j-core 2.14.1.",
+      "valid_at": "2021-12-14T00:00:00Z"
+    },
+    "equivalence": "not_equivalent",
+    "revision_class": "NEW_FACT",
+    "event_label": "log4j-cve-split",
+    "prior_event_id": "dag-pevt-log4j-44228",
+    "candidate_event_id": "dag-pevt-log4j-45046",
+    "explicit_correction": false,
+    "unresolved_source_conflict": false,
+    "rationale": "Near-identical advisory wording names two different CVEs.",
+    "bundle_id": "dag-pilot-samewords",
+    "case_id": "dag-p-028",
+    "split": "pilot"
+  }
+]
