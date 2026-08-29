@@ -161,6 +161,7 @@ Behavior:
 - `undo`: 直近 family の派生状態を取り消す。履歴行は消さない
 - 同一シグナルの再送は派生状態として冪等（latest-state）。行は追加される
 - 各行は取得できる範囲で `eventId` / `deltaId` / `claimId` を保持する
+- オフライン学習（`preference-training-v1` / `offline-preference-v1`、[ADR-0013](adr/0013-offline-preference-v1.md)）は typed feedback からユーザー単位の嗜好重みを決定論バッチで再構築する。Claim / Event / Delta は書き換えない。blind ラベルは学習入力に含めない。効いた item の `importance.reason` に政策版が付く
 
 `POST /feed/exposures` `{ items: [{ deliveryId, displayedAt }] }`
 

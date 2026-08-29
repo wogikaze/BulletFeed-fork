@@ -266,6 +266,12 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'claim_knowledge_map'"
         ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_preference_models'"
+        ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_preference_weights'"
+        ).fetchone()
 
 
 LEGACY_SOURCE_SYNC_JOBS = """

@@ -345,9 +345,12 @@ class MeStore:
             for table in (
                 "user_knowledge_evidence",
                 "user_knowledge_signals",
+                "source_discovery_decisions",
                 "source_sync_subscription_users",
                 "user_claim_exposures",
                 "exposures",
+                "user_preference_weights",
+                "user_preference_models",
                 "user_ranking_features",
                 "user_ranking_resets",
                 "feedback",

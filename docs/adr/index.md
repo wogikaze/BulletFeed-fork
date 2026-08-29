@@ -18,6 +18,7 @@
 | [ADR-0014](0014-multiobjective-ranker-v1.md) | Accepted | 冗長性制御付き多目的ランキング v1 (Rec-08) |
 | [ADR-0015](0015-cross-source-suppress-v1.md) | Accepted | クロスソースの繰り返し事実抑制 v1 (Known-06) |
 | [ADR-0016](0016-knowledge-bootstrap-v1.md) | Accepted | 既存知識の明示ブートストラップ v1 (Known-08) |
+| [ADR-0017](0017-offline-preference-v1.md) | Accepted | 型付きフィードバックからのオフライン嗜好学習 v1 (Rec-10) |
 
 ## ADR様式
 

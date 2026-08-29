@@ -131,6 +131,8 @@ class SessionCreationPolicy:
                 for table in _USER_DATA_TABLES
             ):
                 continue
+            connection.execute("DELETE FROM user_preference_weights WHERE user_id = ?", (user_id,))
+            connection.execute("DELETE FROM user_preference_models WHERE user_id = ?", (user_id,))
             connection.execute("DELETE FROM user_ranking_features WHERE user_id = ?", (user_id,))
             connection.execute("DELETE FROM user_ranking_resets WHERE user_id = ?", (user_id,))
             connection.execute("DELETE FROM user_sessions WHERE user_id = ?", (user_id,))

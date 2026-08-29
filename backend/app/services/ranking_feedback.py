@@ -6,6 +6,12 @@ import time
 from typing import Literal
 
 from app.services.feedback_signals import RANKING_FEATURE_TYPES
+from app.services.offline_preference import (
+    UserPreferenceState,
+    preference_overlay,
+    reset_user_preference,
+    train_and_persist_user_preference,
+)
 from app.services.ranking import evaluate_importance
 from app.services.relation import evaluate_relation
 
@@ -24,9 +30,15 @@ def apply_feedback_ranking(connection: sqlite3.Connection, *, user_id: str) -> i
 
     Baseline importance/relation still come from evaluate_importance /
     evaluate_relation. Feedback never enters those functions or judge_revision.
+    Learned preference weights are a deterministic batch rebuild.
     """
     rebuild_user_ranking_features(connection, user_id=user_id)
-    return _apply_adjustments(connection, user_id=user_id)
+    preference = train_and_persist_user_preference(
+        connection,
+        user_id=user_id,
+        reset_at=_reset_at(connection, user_id),
+    )
+    return _apply_adjustments(connection, user_id=user_id, preference=preference)
 
 
 def reset_feedback_ranking(
@@ -44,6 +56,7 @@ def reset_feedback_ranking(
         """,
         (user_id, at),
     )
+    reset_user_preference(connection, user_id=user_id)
     return apply_feedback_ranking(connection, user_id=user_id)
 
 
@@ -168,7 +181,11 @@ def _explain(kind: Adjustment, count: int, source_type: str) -> str:
     )
 
 
-def _apply_adjustments(connection: sqlite3.Connection, *, user_id: str) -> int:
+def _apply_adjustments(
+    connection: sqlite3.Connection,
+    *, user_id: str,
+    preference: UserPreferenceState,
+) -> int:
     features = _features(connection, user_id)
     items = connection.execute(
         """
@@ -214,6 +231,21 @@ def _apply_adjustments(connection: sqlite3.Connection, *, user_id: str) -> int:
             suffix = _explain(kind, counts[1], source_type)
             relation_reason = f"{relation.reason} {suffix}".strip()
             personalization_rank = max(0, relation.personalization_rank - RANK_BONUS)
+        has_explicit = relation.level == "direct" or bool(relation.matched_topics) or bool(
+            relation.matched_repositories
+        )
+        overlay = preference_overlay(
+            preference,
+            source_type=source_type,
+            text=" ".join(part for part in (item["title"], item["summary"]) if part),
+            has_explicit_authority=has_explicit,
+        )
+        if overlay.applied:
+            # Rank-only. Preference never rewrites importance/relation levels;
+            # explicit topic/repo matches use a smaller cap than implicit items.
+            personalization_rank = max(0, personalization_rank + overlay.rank_delta)
+            if overlay.debug:
+                importance_reason = f"{importance_reason} {overlay.debug}".strip()
         connection.execute(
             """
             UPDATE feed_items

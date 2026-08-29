@@ -269,6 +269,30 @@ CREATE TABLE IF NOT EXISTS user_ranking_features (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS user_preference_models (
+    user_id TEXT PRIMARY KEY,
+    policy_version TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    evidence_count INTEGER NOT NULL,
+    fingerprint TEXT NOT NULL,
+    trained_at INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS user_preference_weights (
+    user_id TEXT NOT NULL,
+    feature_kind TEXT NOT NULL,
+    feature_value TEXT NOT NULL,
+    weight REAL NOT NULL,
+    evidence_count INTEGER NOT NULL,
+    positive_mass REAL NOT NULL,
+    negative_mass REAL NOT NULL,
+    policy_version TEXT NOT NULL,
+    trained_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, feature_kind, feature_value),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS event_follows (
     user_id TEXT NOT NULL,
     event_id TEXT NOT NULL,
