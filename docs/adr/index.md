@@ -23,6 +23,7 @@
 | [ADR-0019](0019-e2e-unknown-recall-v1.md) | Accepted | ソースからフィードまでの重要未知再現率 v1 (Eval-01) |
 | [ADR-0020](0020-product-release-gate-v1.md) | Accepted | 非対称プロダクト価値リリースゲート v1 (Eval-02) |
 | [ADR-0021](0021-bounded-dynamic-web-v1.md) | Accepted | 上限付き動的 Web レンダリング v1 (Source-08) |
+| [ADR-0022](0022-real-world-validation-contract-v1.md) | Accepted | 実世界 Core Value 検証コーパス契約 v1 (#117) |
 
 ## ADR様式
 

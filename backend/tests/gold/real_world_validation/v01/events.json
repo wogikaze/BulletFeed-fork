@@ -1,0 +1,35 @@
+[
+  {
+    "event_id": "evt_contract_p01",
+    "split": "pilot",
+    "title": "Pilot contract release v0.0.1",
+    "information_type": "release",
+    "language": "en",
+    "redundancy_group": "rg_contract_p01",
+    "mirror_group": "mg_contract_p01",
+    "occurred_at": "2026-08-28T00:00:00Z",
+    "provenance": "contract-fixture-pilot"
+  },
+  {
+    "event_id": "evt_contract_d01",
+    "split": "dev",
+    "title": "Dev contract incident",
+    "information_type": "incident",
+    "language": "en",
+    "redundancy_group": "rg_contract_d01",
+    "mirror_group": "mg_contract_d01",
+    "occurred_at": "2026-08-28T00:00:00Z",
+    "provenance": "contract-fixture-dev"
+  },
+  {
+    "event_id": "evt_contract_h01",
+    "split": "blind",
+    "title": "Holdout contract advisory",
+    "information_type": "security",
+    "language": "en",
+    "redundancy_group": "rg_contract_h01",
+    "mirror_group": "mg_contract_h01",
+    "occurred_at": "2026-08-28T00:00:00Z",
+    "provenance": "contract-fixture-holdout"
+  }
+]

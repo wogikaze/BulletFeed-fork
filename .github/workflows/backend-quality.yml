@@ -45,6 +45,9 @@ jobs:
       - name: Enforce blind Gold isolation
         run: python backend/scripts/check_blind_gold_leakage.py
 
+      - name: Real-world validation corpus contract
+        run: python backend/scripts/check_real_world_validation_contract.py
+
       - name: Delta-06 asymmetric threshold calibration gate
         run: python backend/scripts/run_delta_calibration.py --split blind --check
 

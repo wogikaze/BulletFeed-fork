@@ -1,0 +1,46 @@
+{
+  "dataset_id": "bulletfeed-real-world-validation-v0.1",
+  "dataset_version": "real-world-validation-v0.1",
+  "contract_version": "real-world-validation-contract-v1",
+  "label_protocol_version": "label-protocol-v1",
+  "required_source_fields": [
+    "source_id",
+    "canonical_url",
+    "publisher",
+    "source_family",
+    "information_type",
+    "language",
+    "collected_at",
+    "content_hash",
+    "evidence_locator",
+    "event_id",
+    "split"
+  ],
+  "targets": {
+    "min_events": 100,
+    "min_profiles": 50,
+    "min_judgments": 2000,
+    "min_source_families": 6
+  },
+  "splits": ["pilot", "dev", "blind"],
+  "leakage_checks": [
+    "canonical_url",
+    "event_id",
+    "mirror_group",
+    "profile_id",
+    "redundancy_group"
+  ],
+  "files": {
+    "sources": "sources.json",
+    "events": "events.json",
+    "profiles": "profiles.json",
+    "judgments": "judgments/records.json",
+    "judgment_schema": "judgments/schema.json",
+    "pilot_index": "pilot/index.json",
+    "dev_index": "dev/index.json",
+    "blind_index": "blind/index.json"
+  },
+  "production_behavior_changed": false,
+  "phase": "contract",
+  "note": "Phase 0 contract fixture only. Capacity targets are not claimed. Later PRs add real sources, profiles, and judgments to this schema."
+}

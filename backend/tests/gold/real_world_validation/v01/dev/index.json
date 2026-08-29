@@ -1,0 +1,7 @@
+{
+  "split": "dev",
+  "source_ids": ["src_contract_d01"],
+  "event_ids": ["evt_contract_d01"],
+  "profile_ids": ["prf_contract_d01"],
+  "judgment_ids": ["jdg_contract_d01"]
+}
