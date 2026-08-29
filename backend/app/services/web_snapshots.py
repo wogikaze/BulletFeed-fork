@@ -241,7 +241,11 @@ class SnapshotStore:
 
     def list_ids(self) -> tuple[str, ...]:
         return tuple(
-            sorted(path.name for path in self.root.iterdir() if path.is_dir() and path.name.startswith("snap_"))
+            sorted(
+                path.name
+                for path in self.root.iterdir()
+                if path.is_dir() and path.name.startswith("snap_")
+            )
         )
 
 
