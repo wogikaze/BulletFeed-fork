@@ -143,7 +143,15 @@ class RemoteFeedRepository(
         if (items.isEmpty()) return
         api.recordExposures(
             ExposuresDto(
-                items.take(50).map { ExposureDto(it.deliveryId, it.displayedAt) },
+                items.take(50).map { item ->
+                    ExposureDto(
+                        deliveryId = item.deliveryId,
+                        displayedAt = item.displayedAt,
+                        dwellMs = item.dwellMs,
+                        visibleRatio = item.visibleRatio,
+                        detailOpened = item.detailOpened,
+                    )
+                },
             ),
         )
     }

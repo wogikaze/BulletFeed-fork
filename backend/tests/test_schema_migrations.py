@@ -251,6 +251,15 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
             "source_id",
             "created_at",
         } <= evidence_columns
+        exposure_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(exposures)")
+        }
+        assert {
+            "dwell_ms",
+            "visible_ratio",
+            "policy_version",
+            "detail_opened",
+        } <= exposure_columns
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -723,3 +732,39 @@ def test_revision_10_adds_knowledge_evidence_and_preserves_ledger(tmp_path: Path
         assert connection.execute(
             "SELECT COUNT(*) FROM user_knowledge_evidence"
         ).fetchone()[0] == 0
+
+
+def test_revision_11_adds_exposure_audit_columns(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-viewport-exposure.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '11'")
+        connection.execute("ALTER TABLE exposures RENAME TO exposures_full")
+        connection.execute(
+            """
+            CREATE TABLE exposures (
+                delivery_id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                displayed_at TEXT NOT NULL,
+                created_at INTEGER NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO exposures (delivery_id, user_id, displayed_at, created_at)
+            SELECT delivery_id, user_id, displayed_at, created_at FROM exposures_full
+            """
+        )
+        connection.execute("DROP TABLE exposures_full")
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == set(KNOWN_REVISIONS)
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(exposures)")}
+        assert {"dwell_ms", "visible_ratio", "policy_version", "detail_opened"} <= columns

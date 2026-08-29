@@ -164,6 +164,10 @@ CREATE TABLE IF NOT EXISTS exposures (
     user_id TEXT NOT NULL,
     displayed_at TEXT NOT NULL,
     created_at INTEGER NOT NULL,
+    dwell_ms INTEGER,
+    visible_ratio REAL,
+    policy_version TEXT,
+    detail_opened INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 

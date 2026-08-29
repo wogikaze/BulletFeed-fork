@@ -77,7 +77,7 @@ fun FeedScreen(
     isFiltering: Boolean,
     loadMoreError: String?,
     onLoadMore: () -> Unit,
-    onVisibleFeedItems: (List<String>) -> Unit,
+    onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -90,9 +90,23 @@ fun FeedScreen(
 
     LaunchedEffect(listState) {
         snapshotFlow {
-            listState.layoutInfo.visibleItemsInfo.mapNotNull { info -> info.key as? String }
-        }.distinctUntilChanged().collect { feedItemIds ->
-            if (feedItemIds.isNotEmpty()) onVisibleFeedItems(feedItemIds)
+            val layoutInfo = listState.layoutInfo
+            val viewportStart = layoutInfo.viewportStartOffset
+            val viewportEnd = layoutInfo.viewportEndOffset
+            layoutInfo.visibleItemsInfo.mapNotNull { info ->
+                val feedItemId = info.key as? String ?: return@mapNotNull null
+                ViewportItemSnapshot(
+                    feedItemId = feedItemId,
+                    visibleRatio = visibleRatio(
+                        offset = info.offset,
+                        size = info.size,
+                        viewportStart = viewportStart,
+                        viewportEnd = viewportEnd,
+                    ),
+                )
+            }
+        }.distinctUntilChanged().collect { snapshots ->
+            onVisibleFeedItems(snapshots)
         }
     }
 

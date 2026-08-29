@@ -247,6 +247,9 @@ data class ExposuresDto(
 data class ExposureDto(
     val deliveryId: String,
     val displayedAt: String,
+    val dwellMs: Long? = null,
+    val visibleRatio: Float? = null,
+    val detailOpened: Boolean = false,
 )
 
 @Serializable

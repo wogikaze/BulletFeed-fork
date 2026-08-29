@@ -354,7 +354,7 @@ private fun ReadyApplication(
             onDeleteAccount = viewModel::deleteAccount,
             onRefresh = viewModel::refresh,
             onLoadMoreFeed = viewModel::loadMoreFeed,
-            onVisibleFeedItems = viewModel::recordFeedExposures,
+            onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
         )
     }
     uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
@@ -382,7 +382,7 @@ private fun MainNavigation(
     onDeleteAccount: () -> Unit,
     onRefresh: () -> Unit,
     onLoadMoreFeed: () -> Unit,
-    onVisibleFeedItems: (List<String>) -> Unit,
+    onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
 ) = Scaffold(
     bottomBar = {
         NavigationBar(containerColor = Color(0xFFF6EFEB)) {

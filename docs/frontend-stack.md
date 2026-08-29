@@ -13,7 +13,7 @@
 
 - Remote Repositoryを既定化し、session、Feed、EventDetail、profile、topics、GitHub、security、notificationsを実APIへ接続。
 - Feedはbackendのrelation filterとcursor paginationを利用し、重要 / 不要 / 既読 / フォローを明示操作に統一。
-- FeedItemの実画面露出をdeliveryId単位で `/v1/feed/exposures` へ記録。
+- FeedItemの意味のある画面露出（dwell + 可視割合、または detail を開く）をdeliveryId単位で `/v1/feed/exposures` へ記録。一瞬の交差は送らない。
 - 空Feedからテーマ管理またはGitHub連携へ遷移可能。
 - Topicsはcatalog検索、technology / service / company追加、priority変更、order変更、削除を実APIへ接続。
 - Settingsのprofile編集を実APIへ接続。

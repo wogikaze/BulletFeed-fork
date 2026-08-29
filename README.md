@@ -4,7 +4,7 @@
 
 ## 現在の実装
 
-Androidは `RemoteBulletFeedRepository` を本線としてFastAPI backendへ接続します。Feedはserver ordering/cursor paginationをそのまま使い、カードからEvent detailへ遷移すると変更前後、impact、timeline、Evidence/Source、元URLを表示します。Feedで実際にviewportへ表示されたdeliveryだけを `/v1/feed/exposures` へ送り、backendがcanonical claim exposureをknownnessへ反映します。`GET /feed` しただけではknownになりません。
+Androidは `RemoteBulletFeedRepository` を本線としてFastAPI backendへ接続します。Feedはserver ordering/cursor paginationをそのまま使い、カードからEvent detailへ遷移すると変更前後、impact、timeline、Evidence/Source、元URLを表示します。Feedで意味のある viewport 露出（`viewport-exposure-v1`: 最短 1000ms かつ可視割合 0.50、または detail を開く）だけを `/v1/feed/exposures` へ送り、backendが `KIND_DISPLAYED` を記録します。一瞬の交差やごく一部だけの可視は displayed にしません。`GET /feed` しただけではknownになりません。delivered は displayed ではありません。
 
 プロフィール・テーマ・priority/orderはserver-side personalizationへ反映され、変更時に既存Feedを再projectionします。GitHub連携は実OAuth、repository選択、private repository access、Security Alert、通知までbackend contractへ接続されています。GitHub onboardingは `profile -> github_pending -> repository_pending -> ready` のstate machineで、OAuthやrepository選択を途中離脱した状態をready扱いにしません。
 

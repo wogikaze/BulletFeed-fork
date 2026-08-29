@@ -35,6 +35,10 @@ from app.services.knowledge_evidence import (
     KIND_READ,
     append_knowledge_evidence,
 )
+from app.services.viewport_exposure import (
+    POLICY_VERSION,
+    is_meaningful_display,
+)
 
 _VALID_RELATIONS = {"direct", "adjacent", "reference"}
 _VALID_STATUSES = {"unread", "read"}
@@ -719,12 +723,27 @@ class FeedStore:
             item_status = current["status"] if current is not None else row["status"]
         return {"feed_item_id": feed_item_id, "type": feedback_type, "status": item_status}
 
-    def record_exposures(self, user_id: str, items: list[dict[str, str]]) -> int:
+    def record_exposures(self, user_id: str, items: list[dict[str, object]]) -> int:
         accepted = 0
         now = int(datetime.now().timestamp())
         with self._database.connect() as connection:
             for item in items:
-                delivery_id = item["delivery_id"]
+                delivery_id = str(item["delivery_id"])
+                displayed_at = str(item["displayed_at"])
+                dwell_raw = item.get("dwell_ms")
+                ratio_raw = item.get("visible_ratio")
+                dwell_ms = int(dwell_raw) if dwell_raw is not None else None
+                visible_ratio = float(ratio_raw) if ratio_raw is not None else None
+                detail_opened = bool(item.get("detail_opened") or False)
+                if not is_meaningful_display(
+                    dwell_ms=dwell_ms,
+                    visible_ratio=visible_ratio,
+                    detail_opened=detail_opened,
+                ):
+                    # Too-brief or tiny visibility stays delivered. Do not write
+                    # exposures or KIND_DISPLAYED — a later meaningful POST
+                    # for the same delivery_id must still be able to count.
+                    continue
                 delivery = connection.execute(
                     """
                     SELECT d.id, f.delta_id, f.event_id, m.claim_id
@@ -739,10 +758,22 @@ class FeedStore:
                     continue
                 inserted = connection.execute(
                     """
-                    INSERT OR IGNORE INTO exposures (delivery_id, user_id, displayed_at, created_at)
-                    VALUES (?, ?, ?, ?)
+                    INSERT OR IGNORE INTO exposures (
+                        delivery_id, user_id, displayed_at, created_at,
+                        dwell_ms, visible_ratio, policy_version, detail_opened
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (delivery_id, user_id, item["displayed_at"], now),
+                    (
+                        delivery_id,
+                        user_id,
+                        displayed_at,
+                        now,
+                        dwell_ms,
+                        visible_ratio,
+                        POLICY_VERSION,
+                        int(detail_opened),
+                    ),
                 ).rowcount
                 if delivery["claim_id"] is not None:
                     _upsert_displayed(
@@ -750,7 +781,7 @@ class FeedStore:
                         user_id=user_id,
                         claim_id=delivery["claim_id"],
                         delivery_id=delivery_id,
-                        displayed_at=item["displayed_at"],
+                        displayed_at=displayed_at,
                         event_id=delivery["event_id"],
                         delta_id=delivery["delta_id"],
                     )

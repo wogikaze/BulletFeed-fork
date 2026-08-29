@@ -139,6 +139,9 @@ data class EventDetail(
 data class FeedExposure(
     val deliveryId: String,
     val displayedAt: String,
+    val dwellMs: Long? = null,
+    val visibleRatio: Float? = null,
+    val detailOpened: Boolean = false,
 )
 
 data class UserTopic(
