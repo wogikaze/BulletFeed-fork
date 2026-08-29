@@ -39,7 +39,10 @@ from app.services.knowledge_evidence import (
     derive_knowledge_state,
     list_knowledge_evidence,
 )
-from app.services.knowledge_identity import resolve_claim_knowledge_id
+from app.services.knowledge_identity import (
+    replay_knowledge_state_for_identity,
+    resolve_claim_knowledge_id,
+)
 from app.services.multiobjective_ranker import (
     RANKING_POLICY_VERSION,
     RankerCandidate,
@@ -92,7 +95,15 @@ def _knownness_by_feed_item(
         if not claim_id:
             states[feed_row["id"]] = (STATE_UNKNOWN, CONFIDENCE_NONE)
             continue
-        derived = derive_knowledge_state(by_claim.get(claim_id, ()))
+        mapped = resolve_claim_knowledge_id(connection, claim_id)
+        if mapped is not None and mapped.decision in {"equivalent", "singleton"}:
+            derived = replay_knowledge_state_for_identity(
+                connection,
+                user_id=user_id,
+                knowledge_id=mapped.knowledge_id,
+            )
+        else:
+            derived = derive_knowledge_state(by_claim.get(claim_id, ()))
         states[feed_row["id"]] = (derived.state, derived.confidence)
     return states
 
