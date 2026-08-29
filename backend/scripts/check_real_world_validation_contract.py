@@ -11,6 +11,7 @@ from pathlib import Path
 from app.evaluation.personalization_gold import scan_python_sources
 from app.evaluation.real_world_validation import (
     capacity_status,
+    coverage_inventory,
     load_real_world_validation,
 )
 
@@ -37,10 +38,12 @@ def main() -> None:
     if leaks:
         raise SystemExit("real-world validation holdout leaked into production:\n" + "\n".join(leaks))
     status = capacity_status(corpus)
+    coverage = coverage_inventory(corpus)
     print(
         "real-world validation contract OK: "
         f"events={status.event_count} profiles={status.profile_count} "
-        f"judgments={status.judgment_count} capacity_met={status.meets_targets}"
+        f"judgments={status.judgment_count} capacity_met={status.meets_targets} "
+        f"coverage={coverage}"
     )
 
 
