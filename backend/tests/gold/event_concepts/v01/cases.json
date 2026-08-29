@@ -1,0 +1,373 @@
+[
+  {
+    "id": "alias-k8s-001",
+    "category": "aliases",
+    "input": {
+      "event_id": "evt-alias-k8s",
+      "source_type": "osv",
+      "source_key": "GHSA-2c7m-w9v9-j2qh",
+      "title": "k8s API server authz bypass",
+      "summary": "A Kubernetes authorization bypass is tracked as CVE-2026-12345.",
+      "structured": {
+        "ghsa_ids": ["GHSA-2c7m-w9v9-j2qh"],
+        "cve_ids": ["CVE-2026-12345"]
+      }
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "kubernetes",
+          "canonical_name": "Kubernetes",
+          "aliases_contain": ["k8s"]
+        },
+        {
+          "stable_id": "cve:CVE-2026-12345"
+        },
+        {
+          "stable_id": "ghsa:GHSA-2C7M-W9V9-J2QH"
+        }
+      ],
+      "concept_ids_absent": ["react", "java"]
+    }
+  },
+  {
+    "id": "alias-nodejs-001",
+    "category": "aliases",
+    "input": {
+      "event_id": "evt-alias-nodejs",
+      "source_type": "rss_atom",
+      "source_key": "https://nodejs.org/feed.xml",
+      "title": "nodejs 22 LTS maintenance",
+      "summary": "The Node.js runtime receives a security fix."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "node-js",
+          "canonical_name": "Node.js",
+          "aliases_contain": ["nodejs"]
+        }
+      ]
+    }
+  },
+  {
+    "id": "alias-postgres-001",
+    "category": "aliases",
+    "input": {
+      "event_id": "evt-alias-postgres",
+      "source_type": "json_feed",
+      "source_key": "https://www.postgresql.org/feed.json",
+      "title": "Postgres connection pooler update",
+      "summary": "PostgreSQL operators should apply the latest patch."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "postgresql",
+          "canonical_name": "PostgreSQL",
+          "aliases_contain": ["Postgres"]
+        }
+      ]
+    }
+  },
+  {
+    "id": "ambiguous-java-island-001",
+    "category": "ambiguous_names",
+    "input": {
+      "event_id": "evt-java-island",
+      "source_type": "rss_atom",
+      "source_key": "https://earthquake.example/java-aftershocks",
+      "title": "Java island earthquake status",
+      "summary": "A geology RSS feed reports aftershocks on the island of Java."
+    },
+    "expect": {
+      "concept_ids_absent": ["java"],
+      "abstentions": [
+        {
+          "candidate_concept_id": "java",
+          "raw_contains": "Java"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ambiguous-go-pokemon-001",
+    "category": "ambiguous_names",
+    "input": {
+      "event_id": "evt-pokemon-go",
+      "source_type": "statuspage",
+      "source_key": "niantic",
+      "title": "Pokémon GO map outage",
+      "summary": "Niantic Status: Pokémon GO live map tiles are failing in several regions."
+    },
+    "expect": {
+      "concept_ids_absent": ["go"],
+      "abstentions": [
+        {
+          "candidate_concept_id": "go",
+          "raw_contains": "GO"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ambiguous-react-verb-001",
+    "category": "ambiguous_names",
+    "input": {
+      "event_id": "evt-react-verb",
+      "source_type": "rss_atom",
+      "source_key": "https://incident.example/feed/how-to-react",
+      "title": "How to react during an incident",
+      "summary": "An operations newsletter about staying calm and how to react under load."
+    },
+    "expect": {
+      "concept_ids_absent": ["react"],
+      "abstentions": [
+        {
+          "candidate_concept_id": "react",
+          "raw_contains": "react"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ambiguous-swift-network-001",
+    "category": "ambiguous_names",
+    "input": {
+      "event_id": "evt-swift-network",
+      "source_type": "rss_atom",
+      "source_key": "https://advisories.example/swift-settlement",
+      "title": "SWIFT interbank outage advisory",
+      "summary": "A payments advisory describes a SWIFT network settlement delay."
+    },
+    "expect": {
+      "concept_ids_absent": ["swift"],
+      "abstentions": [
+        {
+          "candidate_concept_id": "swift",
+          "raw_contains": "SWIFT"
+        }
+      ]
+    }
+  },
+  {
+    "id": "versioned-python-001",
+    "category": "versioned_products",
+    "input": {
+      "event_id": "evt-python-312",
+      "source_type": "json_feed",
+      "source_key": "https://www.pythonweekly.com/archive/712.json",
+      "title": "Python 3.12 is now the minimum runtime",
+      "summary": "The CPython 3.12 runtime is required for the SDK release."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "python",
+          "canonical_name": "Python",
+          "product_version": "3.12"
+        }
+      ]
+    }
+  },
+  {
+    "id": "versioned-react-001",
+    "category": "versioned_products",
+    "input": {
+      "event_id": "evt-react-19",
+      "source_type": "github_release",
+      "source_key": "facebook/react",
+      "title": "React 19.1.0 released",
+      "summary": "facebook/react tagged v19.1.0 with compiler fixes."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "react",
+          "canonical_name": "React",
+          "product_version": "19.1.0"
+        },
+        {
+          "concept_id": "repo:facebook/react",
+          "stable_id": "repo:facebook/react"
+        }
+      ],
+      "concept_ids_absent": ["project-reactor"]
+    }
+  },
+  {
+    "id": "versioned-go-001",
+    "category": "versioned_products",
+    "input": {
+      "event_id": "evt-go-122",
+      "source_type": "github_release",
+      "source_key": "golang/go",
+      "title": "Go 1.22.4 released",
+      "summary": "golang/go tagged 1.22.4 with compiler fixes."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "go",
+          "canonical_name": "Go",
+          "product_version": "1.22.4"
+        },
+        {
+          "stable_id": "repo:golang/go"
+        }
+      ]
+    }
+  },
+  {
+    "id": "versioned-java-runtime-001",
+    "category": "versioned_products",
+    "input": {
+      "event_id": "evt-java-21",
+      "source_type": "rss_atom",
+      "source_key": "https://openjdk.org/feed.xml",
+      "title": "Java 21 LTS released",
+      "summary": "The Java runtime and JDK 21 compiler are now generally available."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "java",
+          "canonical_name": "Java",
+          "product_version": "21"
+        }
+      ]
+    }
+  },
+  {
+    "id": "collision-reactor-nuclear-001",
+    "category": "lexical_collisions",
+    "input": {
+      "event_id": "evt-nuclear-reactor",
+      "source_type": "rss_atom",
+      "source_key": "https://www.iaea.org/news/reactor-inspection-2026",
+      "title": "IAEA nuclear reactor inspection briefing",
+      "summary": "An IAEA feed notes a scheduled reactor containment inspection in Europe."
+    },
+    "expect": {
+      "concept_ids_absent": ["react", "project-reactor"]
+    }
+  },
+  {
+    "id": "collision-project-reactor-001",
+    "category": "lexical_collisions",
+    "input": {
+      "event_id": "evt-project-reactor",
+      "source_type": "github_release",
+      "source_key": "reactor/reactor-core",
+      "title": "Project Reactor 3.7.0 released",
+      "summary": "reactor/reactor-core tagged 3.7.0 for the Java reactive library."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "concept_id": "project-reactor",
+          "canonical_name": "Project Reactor"
+        },
+        {
+          "concept_id": "java",
+          "canonical_name": "Java"
+        },
+        {
+          "stable_id": "repo:reactor/reactor-core"
+        }
+      ],
+      "concept_ids_absent": ["react"]
+    }
+  },
+  {
+    "id": "collision-reactos-001",
+    "category": "lexical_collisions",
+    "input": {
+      "event_id": "evt-reactos",
+      "source_type": "github_release",
+      "source_key": "reactos/reactos",
+      "title": "ReactOS 0.4.15 released",
+      "summary": "ReactOS, the Windows-compatible OS, tagged 0.4.15 with USB fixes."
+    },
+    "expect": {
+      "concepts": [
+        {
+          "stable_id": "repo:reactos/reactos"
+        }
+      ],
+      "concept_ids_absent": ["react"]
+    }
+  },
+  {
+    "id": "structured-cve-override-001",
+    "category": "structured_override",
+    "input": {
+      "event_id": "evt-structured-cve",
+      "source_type": "osv",
+      "source_key": "npm/react",
+      "title": "Old writeup mentions CVE-2020-1111 in passing",
+      "summary": "React server components remain in scope for this record.",
+      "structured": {
+        "cve_ids": ["CVE-2026-99999"],
+        "packages": ["pkg:npm/react@19.0.0"]
+      }
+    },
+    "expect": {
+      "concepts": [
+        {
+          "stable_id": "cve:CVE-2026-99999"
+        },
+        {
+          "concept_id": "react",
+          "canonical_name": "React",
+          "stable_id": "pkg:npm/react",
+          "aliases_contain": ["React"]
+        }
+      ],
+      "stable_ids_absent": ["cve:CVE-2020-1111"],
+      "abstentions": [
+        {
+          "candidate_concept_id": "cve:CVE-2020-1111",
+          "reason": "structured_identifier_override"
+        }
+      ]
+    }
+  },
+  {
+    "id": "multi-weighted-advisory-001",
+    "category": "multi_weighted",
+    "input": {
+      "event_id": "evt-react-xss",
+      "source_type": "github_advisory",
+      "source_key": "GHSA-2c7m-w9v9-j2qh",
+      "title": "GHSA-2c7m-w9v9-j2qh XSS in React server components",
+      "summary": "A high-severity XSS advisory affects facebook/react.",
+      "structured": {
+        "ghsa_ids": ["GHSA-2c7m-w9v9-j2qh"],
+        "repository": "facebook/react"
+      }
+    },
+    "expect": {
+      "min_concepts": 3,
+      "concepts": [
+        {
+          "stable_id": "ghsa:GHSA-2C7M-W9V9-J2QH",
+          "min_weight": 1.0
+        },
+        {
+          "stable_id": "repo:facebook/react",
+          "min_weight": 1.0
+        },
+        {
+          "concept_id": "react",
+          "canonical_name": "React",
+          "min_weight": 0.7
+        },
+        {
+          "concept_id": "xss",
+          "canonical_name": "XSS"
+        }
+      ]
+    }
+  }
+]
