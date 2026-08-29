@@ -95,6 +95,30 @@ class DtoMappersContractTest {
     }
 
     @Test
+    fun `feed feedback types serialize to api snake case and keep ranking aliases`() {
+        val expected = mapOf(
+            FeedFeedbackType.IMPORTANT to "important",
+            FeedFeedbackType.NOT_RELEVANT to "not_relevant",
+            FeedFeedbackType.FOLLOW to "follow",
+            FeedFeedbackType.ALREADY_KNEW to "already_knew",
+            FeedFeedbackType.LEARNED_NOW to "learned_now",
+            FeedFeedbackType.LESS_LIKE_THIS to "less_like_this",
+            FeedFeedbackType.UNDO to "undo",
+        )
+        expected.forEach { (type, wire) ->
+            assertEquals(wire, type.name.lowercase())
+        }
+        assertEquals(FeedFeedbackType.IMPORTANT, Feedback.IMPORTANT.toFeedFeedbackType())
+        assertEquals(FeedFeedbackType.NOT_RELEVANT, Feedback.NOT_RELEVANT.toFeedFeedbackType())
+        assertEquals(FeedFeedbackType.FOLLOW, Feedback.FOLLOW.toFeedFeedbackType())
+        assertEquals(FeedFeedbackType.ALREADY_KNEW, Feedback.ALREADY_KNEW.toFeedFeedbackType())
+        assertEquals(FeedFeedbackType.LEARNED_NOW, Feedback.LEARNED_NOW.toFeedFeedbackType())
+        assertEquals(FeedFeedbackType.LESS_LIKE_THIS, Feedback.LESS_LIKE_THIS.toFeedFeedbackType())
+        assertEquals(FeedFeedbackType.UNDO, Feedback.UNDO.toFeedFeedbackType())
+        assertEquals(null, Feedback.READ.toFeedFeedbackType())
+    }
+
+    @Test
     fun `pagination merge preserves backend order and removes duplicate feed item ids`() {
         val first = feedEvent("event-a", "feed-a")
         val second = feedEvent("event-b", "feed-b")

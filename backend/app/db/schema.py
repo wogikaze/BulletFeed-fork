@@ -173,9 +173,33 @@ CREATE TABLE IF NOT EXISTS feedback (
     user_id TEXT NOT NULL,
     type TEXT NOT NULL,
     created_at INTEGER NOT NULL,
+    event_id TEXT,
+    delta_id TEXT,
+    claim_id TEXT,
+    family TEXT,
+    superseded INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY(feed_item_id) REFERENCES feed_items(id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_feedback_latest
+ON feedback(user_id, feed_item_id, family, superseded, created_at, id);
+
+CREATE TABLE IF NOT EXISTS user_knowledge_signals (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    feed_item_id TEXT,
+    event_id TEXT,
+    delta_id TEXT,
+    claim_id TEXT,
+    signal TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    superseded INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_knowledge_signals_latest
+ON user_knowledge_signals(user_id, event_id, delta_id, claim_id, superseded);
 
 CREATE TABLE IF NOT EXISTS user_ranking_resets (
     user_id TEXT PRIMARY KEY,
@@ -189,6 +213,10 @@ CREATE TABLE IF NOT EXISTS user_ranking_features (
     feature_value TEXT NOT NULL,
     important_count INTEGER NOT NULL,
     not_relevant_count INTEGER NOT NULL,
+    follow_count INTEGER NOT NULL DEFAULT 0,
+    already_knew_count INTEGER NOT NULL DEFAULT 0,
+    learned_now_count INTEGER NOT NULL DEFAULT 0,
+    less_like_this_count INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, feature_kind, feature_value),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );

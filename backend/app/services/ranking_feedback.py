@@ -5,6 +5,7 @@ import sqlite3
 import time
 from typing import Literal
 
+from app.services.feedback_signals import RANKING_FEATURE_TYPES
 from app.services.ranking import evaluate_importance
 from app.services.relation import evaluate_relation
 
@@ -51,20 +52,47 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
     connection.execute("DELETE FROM user_ranking_features WHERE user_id = ?", (user_id,))
     rows = connection.execute(
         """
-        SELECT COALESCE(le.source_type, 'unknown') AS feature_value,
-               fb.type AS feedback_type,
-               COUNT(*) AS n
-        FROM feedback fb
-        JOIN feed_items f ON f.id = fb.feed_item_id AND f.user_id = fb.user_id
-        LEFT JOIN ledger_events le ON le.id = f.event_id
-        WHERE fb.user_id = ? AND fb.created_at > ?
+        WITH latest AS (
+            SELECT
+                fb.type AS feedback_type,
+                COALESCE(le.source_type, 'unknown') AS feature_value
+            FROM (
+                SELECT
+                    user_id,
+                    feed_item_id,
+                    type,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY user_id, feed_item_id, COALESCE(
+                            family,
+                            CASE type
+                                WHEN 'important' THEN 'ranking'
+                                WHEN 'not_relevant' THEN 'ranking'
+                                WHEN 'already_knew' THEN 'knowledge'
+                                WHEN 'learned_now' THEN 'knowledge'
+                                WHEN 'follow' THEN 'follow'
+                                WHEN 'less_like_this' THEN 'preference'
+                                ELSE type
+                            END
+                        )
+                        ORDER BY created_at DESC, id DESC
+                    ) AS rn
+                FROM feedback
+                WHERE user_id = ? AND created_at > ?
+            ) fb
+            JOIN feed_items f ON f.id = fb.feed_item_id AND f.user_id = fb.user_id
+            LEFT JOIN ledger_events le ON le.id = f.event_id
+            WHERE fb.rn = 1 AND fb.type != 'undo'
+        )
+        SELECT feature_value, feedback_type, COUNT(*) AS n
+        FROM latest
         GROUP BY feature_value, feedback_type
         """,
         (user_id, reset_at),
     ).fetchall()
+    empty = {name: 0 for name in RANKING_FEATURE_TYPES}
     tallies: dict[str, dict[str, int]] = {}
     for row in rows:
-        bucket = tallies.setdefault(row["feature_value"], {"important": 0, "not_relevant": 0})
+        bucket = tallies.setdefault(row["feature_value"], dict(empty))
         feedback_type = row["feedback_type"]
         if feedback_type in bucket:
             bucket[feedback_type] = int(row["n"])
@@ -72,8 +100,10 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
         connection.execute(
             """
             INSERT INTO user_ranking_features (
-                user_id, feature_kind, feature_value, important_count, not_relevant_count
-            ) VALUES (?, ?, ?, ?, ?)
+                user_id, feature_kind, feature_value,
+                important_count, not_relevant_count,
+                follow_count, already_knew_count, learned_now_count, less_like_this_count
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 user_id,
@@ -81,6 +111,10 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
                 feature_value,
                 counts["important"],
                 counts["not_relevant"],
+                counts["follow"],
+                counts["already_knew"],
+                counts["learned_now"],
+                counts["less_like_this"],
             ),
         )
 

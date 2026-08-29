@@ -17,6 +17,16 @@ from app.db.knownness import (
 from app.errors import not_found, unprocessable
 from app.schemas.common import Delta, Importance, MatchedRepository, Relation, SourceEvidence
 from app.schemas.feed import PublicFeedItem
+from app.services.feedback_signals import (
+    FAMILY_FOLLOW,
+    FAMILY_KNOWLEDGE,
+    FAMILY_PREFERENCE,
+    FAMILY_RANKING,
+    is_allowed_feedback_type,
+    latest_family_for_item,
+    resolve_write_family,
+    types_for_family,
+)
 
 _VALID_RELATIONS = {"direct", "adjacent", "reference"}
 _VALID_STATUSES = {"unread", "read"}
@@ -226,6 +236,146 @@ def _record_read(
             now,
         ),
     )
+
+
+def _next_created_at(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    feed_item_id: str,
+) -> int:
+    """Second-resolution clock, incremented when the same item is written again.
+
+    Ranking reset compares `feedback.created_at > reset_at` in seconds. Latest-state
+    still needs a total order, so a same-second write on the same item steps +1.
+    """
+    now = int(datetime.now().timestamp())
+    latest = connection.execute(
+        """
+        SELECT MAX(created_at) AS created_at
+        FROM feedback
+        WHERE user_id = ? AND feed_item_id = ?
+        """,
+        (user_id, feed_item_id),
+    ).fetchone()
+    latest_at = latest["created_at"] if latest is not None else None
+    if latest_at is not None and now <= int(latest_at):
+        return int(latest_at) + 1
+    return now
+
+
+def _supersede_family(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    feed_item_id: str,
+    family: str | None,
+) -> None:
+    if family is None:
+        return
+    family_types = types_for_family(family)
+    placeholders = ", ".join("?" for _ in family_types) if family_types else "?"
+    type_params: tuple[str, ...] = tuple(sorted(family_types)) if family_types else ("",)
+    connection.execute(
+        f"""
+        UPDATE feedback
+        SET superseded = 1
+        WHERE user_id = ? AND feed_item_id = ? AND superseded = 0
+          AND (
+              family = ?
+              OR (family IS NULL AND type IN ({placeholders}))
+          )
+        """,
+        (user_id, feed_item_id, family, *type_params),
+    )
+
+
+def _apply_feedback_derived_state(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    feed_item_id: str,
+    event_id: str,
+    delta_id: str,
+    claim_id: str | None,
+    feedback_type: str,
+    family: str | None,
+    created_at: int,
+) -> None:
+    if family == FAMILY_RANKING:
+        if feedback_type == "not_relevant":
+            connection.execute(
+                """
+                UPDATE feed_items
+                SET dismissed = 1, status = 'read'
+                WHERE id = ? AND user_id = ?
+                """,
+                (feed_item_id, user_id),
+            )
+        elif feedback_type == "important":
+            connection.execute(
+                """
+                UPDATE feed_items
+                SET marked_important = 1, dismissed = 0
+                WHERE id = ? AND user_id = ?
+                """,
+                (feed_item_id, user_id),
+            )
+        elif feedback_type == "undo":
+            connection.execute(
+                """
+                UPDATE feed_items
+                SET marked_important = 0, dismissed = 0
+                WHERE id = ? AND user_id = ?
+                """,
+                (feed_item_id, user_id),
+            )
+        return
+
+    if family == FAMILY_FOLLOW:
+        following = 0 if feedback_type == "undo" else 1
+        connection.execute(
+            """
+            INSERT INTO event_follows (user_id, event_id, following)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id, event_id) DO UPDATE SET following = excluded.following
+            """,
+            (user_id, event_id, following),
+        )
+        return
+
+    if family == FAMILY_KNOWLEDGE:
+        connection.execute(
+            """
+            UPDATE user_knowledge_signals
+            SET superseded = 1
+            WHERE user_id = ? AND feed_item_id = ? AND superseded = 0
+            """,
+            (user_id, feed_item_id),
+        )
+        if feedback_type != "undo":
+            connection.execute(
+                """
+                INSERT INTO user_knowledge_signals (
+                    id, user_id, feed_item_id, event_id, delta_id, claim_id,
+                    signal, created_at, superseded
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+                """,
+                (
+                    f"uks_{secrets.token_urlsafe(8)}",
+                    user_id,
+                    feed_item_id,
+                    event_id,
+                    delta_id,
+                    claim_id,
+                    feedback_type,
+                    created_at,
+                ),
+            )
+        return
+
+    if family == FAMILY_PREFERENCE:
+        return
 
 
 class FeedStore:
@@ -440,36 +590,72 @@ class FeedStore:
         return {"feed_item_id": feed_item_id, "status": "read"}
 
     def save_feedback(self, user_id: str, feed_item_id: str, feedback_type: str) -> dict:
-        if feedback_type not in {"important", "not_relevant"}:
+        if not is_allowed_feedback_type(feedback_type):
             raise unprocessable("feedback type is invalid")
-        now = int(datetime.now().timestamp())
         with self._database.connect() as connection:
             row = connection.execute(
-                "SELECT id, status FROM feed_items WHERE id = ? AND user_id = ?",
+                """
+                SELECT f.id, f.status, f.event_id, f.delta_id, m.claim_id
+                FROM feed_items f
+                LEFT JOIN delta_claim_map m ON m.delta_id = f.delta_id
+                WHERE f.id = ? AND f.user_id = ?
+                """,
                 (feed_item_id, user_id),
             ).fetchone()
             if row is None:
                 raise not_found("Feed item was not found")
+            event_id = row["event_id"]
+            delta_id = row["delta_id"]
+            claim_id = row["claim_id"]
+            family = resolve_write_family(
+                feedback_type=feedback_type,
+                latest_family=latest_family_for_item(
+                    connection,
+                    user_id=user_id,
+                    feed_item_id=feed_item_id,
+                ),
+            )
+            now = _next_created_at(
+                connection,
+                user_id=user_id,
+                feed_item_id=feed_item_id,
+            )
+            _supersede_family(
+                connection,
+                user_id=user_id,
+                feed_item_id=feed_item_id,
+                family=family,
+            )
             connection.execute(
-                "INSERT INTO feedback (id, feed_item_id, user_id, type, created_at) VALUES (?, ?, ?, ?, ?)",
+                """
+                INSERT INTO feedback (
+                    id, feed_item_id, user_id, type, created_at,
+                    event_id, delta_id, claim_id, family, superseded
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+                """,
                 (
                     f"fb_{secrets.token_urlsafe(8)}",
                     feed_item_id,
                     user_id,
                     feedback_type,
                     now,
+                    event_id,
+                    delta_id,
+                    claim_id,
+                    family,
                 ),
             )
-            if feedback_type == "not_relevant":
-                connection.execute(
-                    "UPDATE feed_items SET dismissed = 1, status = 'read' WHERE id = ? AND user_id = ?",
-                    (feed_item_id, user_id),
-                )
-            else:
-                connection.execute(
-                    "UPDATE feed_items SET marked_important = 1 WHERE id = ? AND user_id = ?",
-                    (feed_item_id, user_id),
-                )
+            _apply_feedback_derived_state(
+                connection,
+                user_id=user_id,
+                feed_item_id=feed_item_id,
+                event_id=event_id,
+                delta_id=delta_id,
+                claim_id=claim_id,
+                feedback_type=feedback_type,
+                family=family,
+                created_at=now,
+            )
             current = connection.execute(
                 "SELECT status FROM feed_items WHERE id = ?",
                 (feed_item_id,),

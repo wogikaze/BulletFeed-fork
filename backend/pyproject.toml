@@ -44,6 +44,7 @@ ignore = ["S101"]
 # user input remains parameterized. Keep the exception local rather than disabling S608 globally.
 "app/database.py" = ["S608"]
 "app/stores/feed_store.py" = ["S608"]
+"app/services/feedback_signals.py" = ["S608"]
 "app/stores/me_store.py" = ["S608"]
 # PUBLIC_API_SCHEMA is an embedded SQL migration string; physical SQL line width is not Python API style.
 "app/db/schema.py" = ["E501"]

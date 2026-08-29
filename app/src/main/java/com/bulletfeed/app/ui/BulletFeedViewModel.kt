@@ -466,10 +466,9 @@ class BulletFeedViewModel(
     ) {
         val event = _uiState.value.events.firstOrNull { it.id == eventId } ?: return
         launchEventMutation(eventId) {
-            when (feedback) {
-                Feedback.READ -> repository.markFeedItemRead(event.feedItemId)
-                Feedback.IMPORTANT -> repository.sendFeedFeedback(event.feedItemId, FeedFeedbackType.IMPORTANT)
-                Feedback.NOT_RELEVANT -> repository.sendFeedFeedback(event.feedItemId, FeedFeedbackType.NOT_RELEVANT)
+            when (val type = feedback.toFeedFeedbackType()) {
+                null -> repository.markFeedItemRead(event.feedItemId)
+                else -> repository.sendFeedFeedback(event.feedItemId, type)
             }
             reloadFeedFromServer()
         }
