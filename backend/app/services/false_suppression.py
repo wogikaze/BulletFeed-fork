@@ -19,20 +19,15 @@ from app.services.knowledge_evidence import (
     STATE_PROBABLY_KNOWN,
     STATE_UNKNOWN,
     VisibilityAction,
-    may_hide as evidence_may_hide,
 )
 from app.services.knowledge_identity import KnowledgeIdentityDecision, identity_may_hide
 
 POLICY_VERSION: Final = "false-suppression-v1"
 MIN_HIDE_CONFIDENCE: Final = CONFIDENCE_HIGH
 
-CROSSING_REVISIONS: Final[frozenset[str]] = frozenset(
-    {"CORRECTION", "UNRESOLVED_CONTRADICTION"}
-)
+CROSSING_REVISIONS: Final[frozenset[str]] = frozenset({"CORRECTION", "UNRESOLVED_CONTRADICTION"})
 UNCERTAIN_LABELS: Final[frozenset[str]] = frozenset({"uncertain"})
-DIFFERENT_LABELS: Final[frozenset[str]] = frozenset(
-    {"different_target", "not_equivalent", "not_same_target"}
-)
+DIFFERENT_LABELS: Final[frozenset[str]] = frozenset({"different_target", "not_equivalent", "not_same_target"})
 SAME_LABELS: Final[frozenset[str]] = frozenset({"same_target", "equivalent"})
 
 CONFIDENCE_ORDER: Final[dict[str, int]] = {
@@ -161,9 +156,7 @@ def decide_suppression(
         stale_exposure=stale_exposure,
     )
     high_value = importance_level in HIGH_VALUE_IMPORTANCE
-    unknownish = knowledge_state != STATE_KNOWN or not meets_min_hide_confidence(
-        knowledge_confidence
-    )
+    unknownish = knowledge_state != STATE_KNOWN or not meets_min_hide_confidence(knowledge_confidence)
 
     if _is_crossing_revision(revision_class):
         action: VisibilityAction = "show"
@@ -198,7 +191,6 @@ def decide_suppression(
         and (identity_label is None or identity_label in SAME_LABELS)
         and (equivalence_label is None or equivalence_label in SAME_LABELS)
         and not uncertain
-        and evidence_may_hide(state=knowledge_state, confidence=knowledge_confidence)
         and (identity is None or identity_may_hide(identity))
     ):
         action = "hide"

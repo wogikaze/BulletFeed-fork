@@ -112,11 +112,14 @@ def test_critical_unknown_always_surfaces() -> None:
         )
         assert decision.action == "show"
         assert decision.may_hide is False
-        assert may_hide(
-            state=STATE_UNKNOWN,
-            confidence=confidence,
-            importance_level="critical",
-        ) is False
+        assert (
+            may_hide(
+                state=STATE_UNKNOWN,
+                confidence=confidence,
+                importance_level="critical",
+            )
+            is False
+        )
 
     delivered_only = decide_suppression(
         knowledge_state=STATE_UNKNOWN,

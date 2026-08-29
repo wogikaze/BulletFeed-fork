@@ -130,16 +130,10 @@ def evaluate_false_suppression(
 ) -> FalseSuppressionReport:
     unknown = [case for case in cases if case.gold_novelty == "new"]
     known_duplicates = [
-        case
-        for case in cases
-        if case.gold_novelty == "already_knew" and not case.should_surface
+        case for case in cases if case.gold_novelty == "already_knew" and not case.should_surface
     ]
-    unknown_hidden = [
-        case for case in unknown if predictions.get(case.case_id) == "hide"
-    ]
-    repeated = [
-        case for case in known_duplicates if predictions.get(case.case_id) != "hide"
-    ]
+    unknown_hidden = [case for case in unknown if predictions.get(case.case_id) == "hide"]
+    repeated = [case for case in known_duplicates if predictions.get(case.case_id) != "hide"]
     return FalseSuppressionReport(
         dataset_version=DATASET_VERSION,
         policy_version=policy_version,
@@ -202,9 +196,7 @@ def require_false_suppression_gate(
 ) -> None:
     violations = false_suppression_release_violations(report, thresholds)
     if violations:
-        raise AssertionError(
-            "false-suppression release gate failed: " + "; ".join(violations)
-        )
+        raise AssertionError("false-suppression release gate failed: " + "; ".join(violations))
 
 
 def require_no_repetition_false_suppression_tradeoff(
@@ -214,9 +206,7 @@ def require_no_repetition_false_suppression_tradeoff(
 ) -> None:
     violations = repetition_regression_violations(current, previous, thresholds)
     if violations:
-        raise AssertionError(
-            "false-suppression release gate failed: " + "; ".join(violations)
-        )
+        raise AssertionError("false-suppression release gate failed: " + "; ".join(violations))
 
 
 def _case_from_payload(item: Mapping[str, Any]) -> FalseSuppressionCase:
@@ -253,9 +243,7 @@ def _validate_corpus(cases: Sequence[FalseSuppressionCase]) -> None:
         raise ValueError(f"corpus missing required families: {sorted(missing)}")
     if not any(case.gold_novelty == "new" for case in cases):
         raise ValueError("corpus needs gold-new cases for false-suppression rate")
-    if not any(
-        case.gold_novelty == "already_knew" and not case.should_surface for case in cases
-    ):
+    if not any(case.gold_novelty == "already_knew" and not case.should_surface for case in cases):
         raise ValueError("corpus needs known-duplicate cases for repetition rate")
 
 
