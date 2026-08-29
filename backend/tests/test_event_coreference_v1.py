@@ -121,7 +121,9 @@ def test_cross_source_policy_lifecycle_uses_common_coreference_interface(tmp_pat
 
     assert decision.label == "same_event"
     assert decision.candidate_event_id == first.event_id
-    assert decision.version.startswith("event-coreference-v1[")
+    assert decision.version.startswith("event-coreference-v2[")
+    assert decision.reason
+    assert decision.confidence
 
 
 def test_version_hard_negative_prevents_same_entity_release_merge(tmp_path: Path):
@@ -207,7 +209,7 @@ def test_claim_ledger_can_opt_into_coreference_and_records_stable_alias(tmp_path
             (first.event_id,),
         ).fetchone()
     assert alias is not None
-    assert alias["decision_version"].startswith("event-coreference-v1[")
+    assert alias["decision_version"].startswith("event-coreference-v2[")
 
 
 def test_candidate_retrieval_is_bounded_and_private_events_fail_closed(tmp_path: Path):

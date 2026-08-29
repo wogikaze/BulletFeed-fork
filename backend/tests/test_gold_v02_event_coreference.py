@@ -14,7 +14,7 @@ def _title(event_label: str) -> str:
     return event_label.replace("-", " ")
 
 
-def test_event_coreference_v1_has_full_candidate_recall_and_zero_identity_errors_on_gold(database):
+def test_event_coreference_has_full_candidate_recall_and_zero_identity_errors_on_gold(database):
     dataset = json.loads(_GOLD.read_text(encoding="utf-8"))
     bundle = next(
         item
@@ -96,5 +96,5 @@ def test_event_coreference_v1_has_full_candidate_recall_and_zero_identity_errors
     for bucket in buckets:
         if bucket.confidence in {"high", "medium"}:
             assert bucket.accuracy >= 0.90
-    assert "event-coreference-v1" in engine.decision_version
+    assert "event-coreference-v2" in engine.decision_version
     assert "same=0.75" in engine.decision_version
