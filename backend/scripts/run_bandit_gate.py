@@ -44,7 +44,8 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="bulletfeed-bandit-") as temp_dir:
         report_path = Path(temp_dir) / "report.json"
-        process = subprocess.run(
+        # Fixed executable/module/arguments; the only runtime value is our private temp path.
+        process = subprocess.run(  # noqa: S603
             [
                 sys.executable,
                 "-m",
