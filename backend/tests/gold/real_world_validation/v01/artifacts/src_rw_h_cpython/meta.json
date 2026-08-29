@@ -1,0 +1,11 @@
+{
+  "url": "https://api.github.com/repos/python/cpython/git/commits/8e8a4baf652f6e1cee7acde9d78c4b6154539748",
+  "requested_at": "2026-08-29T13:20:09Z",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "final_url": "https://api.github.com/repos/python/cpython/git/commits/8e8a4baf652f6e1cee7acde9d78c4b6154539748",
+  "etag": "W/\"fdbdd774a69ecb3460c587fa0e3150bc4a65dc5dd7b1db11cbcd22f5312bfcd3\"",
+  "last_modified": "Thu, 06 Jun 2024 18:26:44 GMT",
+  "resolved_from_ref": "https://api.github.com/repos/python/cpython/git/refs/tags/v3.12.4",
+  "tag": "v3.12.4"
+}

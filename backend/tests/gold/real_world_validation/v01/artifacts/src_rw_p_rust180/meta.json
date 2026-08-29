@@ -1,0 +1,9 @@
+{
+  "url": "https://api.github.com/repos/rust-lang/rust/releases/tags/1.80.0",
+  "requested_at": "2026-08-29T13:19:00Z",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "final_url": "https://api.github.com/repos/rust-lang/rust/releases/tags/1.80.0",
+  "etag": "W/\"905c65108586e7cf033fee31e8fa00deee46eea730e0962a1bc429e25838ac63\"",
+  "last_modified": "Fri, 23 Aug 2024 13:23:20 GMT"
+}

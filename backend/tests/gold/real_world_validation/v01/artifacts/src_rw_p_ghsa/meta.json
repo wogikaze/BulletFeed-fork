@@ -1,0 +1,9 @@
+{
+  "url": "https://api.github.com/advisories/GHSA-7rjr-3q55-vv33",
+  "requested_at": "2026-08-29T13:19:00Z",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "final_url": "https://api.github.com/advisories/GHSA-7rjr-3q55-vv33",
+  "etag": "W/\"ec121ab8b852cc48b1a00a409320bd2b21152d9c3dbb066ddb50e42d4c6fe762\"",
+  "last_modified": "Wed, 22 Oct 2025 19:12:19 GMT"
+}

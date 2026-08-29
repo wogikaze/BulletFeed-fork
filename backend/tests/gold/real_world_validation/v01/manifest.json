@@ -1,7 +1,7 @@
 {
-  "dataset_id": "bulletfeed-real-world-validation-v0.1",
-  "dataset_version": "real-world-validation-v0.1",
-  "contract_version": "real-world-validation-contract-v1",
+  "dataset_id": "bulletfeed-real-world-validation-v0.2",
+  "dataset_version": "real-world-validation-v0.2",
+  "contract_version": "real-world-validation-contract-v1.1",
   "label_protocol_version": "label-protocol-v1",
   "required_source_fields": [
     "source_id",
@@ -14,7 +14,11 @@
     "content_hash",
     "evidence_locator",
     "event_id",
-    "split"
+    "split",
+    "source_role",
+    "fetch",
+    "evidence_text",
+    "normalized_evidence"
   ],
   "targets": {
     "min_events": 100,
@@ -22,7 +26,11 @@
     "min_judgments": 2000,
     "min_source_families": 6
   },
-  "splits": ["pilot", "dev", "blind"],
+  "splits": [
+    "pilot",
+    "dev",
+    "blind"
+  ],
   "leakage_checks": [
     "canonical_url",
     "event_id",
@@ -31,16 +39,17 @@
     "redundancy_group"
   ],
   "files": {
-    "sources": "sources.json",
-    "events": "events.json",
-    "profiles": "profiles.json",
-    "judgments": "judgments/records.json",
     "judgment_schema": "judgments/schema.json",
-    "pilot_index": "pilot/index.json",
-    "dev_index": "dev/index.json",
-    "blind_index": "blind/index.json"
+    "artifacts": "artifacts/{source_id}/body.bin",
+    "artifact_meta": "artifacts/{source_id}/meta.json",
+    "split_sources": "{split}/sources.json",
+    "split_events": "{split}/events.json",
+    "split_profiles": "{split}/profiles.json",
+    "split_judgments": "{split}/judgments.json",
+    "split_index": "{split}/index.json"
   },
   "production_behavior_changed": false,
-  "phase": "contract",
-  "note": "Phase 0 contract fixture only. Capacity targets are not claimed. Later PRs add real sources, profiles, and judgments to this schema."
+  "phase": "corpus-integrity",
+  "note": "Integrity rewrite of #118–#121. Blind labels are physical files. content_hash binds to saved fetch artifacts. Only individual release/advisory/dated-post records count as real events. Index/history/feed/documentation pages were removed from event count. F-batch collection and B3 labeling stay paused until this lands.",
+  "persona_independence_note": "Constructed profiles are clustered by persona_template. Do not treat len(profiles) as independent n for bootstrap CIs; cluster by persona family."
 }

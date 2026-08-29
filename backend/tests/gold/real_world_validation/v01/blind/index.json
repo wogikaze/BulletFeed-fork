@@ -4,19 +4,13 @@
     "src_contract_h01",
     "src_rw_h_cpython",
     "src_rw_h_osv2",
-    "src_rw_h_npm",
-    "src_rw_h_ja",
-    "src_rw_h_feed",
-    "src_rw_h_mdn"
+    "src_rw_h_npm"
   ],
   "event_ids": [
     "evt_contract_h01",
     "evt_rw_h_cpython",
     "evt_rw_h_osv2",
-    "evt_rw_h_npm",
-    "evt_rw_h_ja",
-    "evt_rw_h_feed",
-    "evt_rw_h_mdn"
+    "evt_rw_h_npm"
   ],
   "profile_ids": [
     "prf_contract_h01",

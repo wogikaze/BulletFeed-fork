@@ -1,0 +1,18 @@
+[
+  {
+    "judgment_id": "jdg_contract_p01",
+    "profile_id": "prf_contract_p01",
+    "event_id": "evt_contract_p01",
+    "split": "pilot",
+    "stratum": "clear_positive",
+    "relevance": 3,
+    "importance_to_user": 2,
+    "known_before": false,
+    "should_surface": true,
+    "rationale": "Followed repository released a version the constructed profile would want.",
+    "provenance": "contract-fixture-pilot",
+    "label_protocol_version": "label-protocol-v1",
+    "dataset_version": "real-world-validation-v0.2",
+    "ambiguous": false
+  }
+]
