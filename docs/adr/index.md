@@ -21,6 +21,7 @@
 | [ADR-0017](0017-offline-preference-v1.md) | Accepted | 型付きフィードバックからのオフライン嗜好学習 v1 (Rec-10) |
 | [ADR-0018](0018-session-telemetry-v1.md) | Accepted | 実フィードセッション成果指標 v1 (Eval-04) |
 | [ADR-0019](0019-e2e-unknown-recall-v1.md) | Accepted | ソースからフィードまでの重要未知再現率 v1 (Eval-01) |
+| [ADR-0020](0020-product-release-gate-v1.md) | Accepted | 非対称プロダクト価値リリースゲート v1 (Eval-02) |
 
 ## ADR様式
 
