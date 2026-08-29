@@ -31,4 +31,11 @@ def update_following(
     user: Annotated[dict, Depends(require_user)],
     store: Annotated[EventStore, Depends(_store)],
 ) -> FollowingResponse:
-    return FollowingResponse.model_validate(store.set_following(user["user_id"], event_id, body.following))
+    return FollowingResponse.model_validate(
+        store.set_following(
+            user["user_id"],
+            event_id,
+            body.following,
+            catch_up=body.catch_up,
+        )
+    )

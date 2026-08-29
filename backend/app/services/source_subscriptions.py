@@ -12,6 +12,7 @@ from app.config import Settings
 from app.database import Database
 from app.errors import not_found, unprocessable
 from app.services.feed_projection import project_event_for_audience
+from app.services.follow_baseline import SUBJECT_SOURCE, record_follow_baseline
 from app.services.rss import validate_feed_url
 from app.services.source_catalog import SourceKind
 from app.services.source_registry import SourceRegistry, canonicalize_url, endpoint_id
@@ -162,6 +163,7 @@ def add_user_source_subscription(
     page_id: str | None = None,
     now: int | None = None,
     registry: SourceRegistry | None = None,
+    catch_up: bool = False,
 ) -> UserSourceSubscription:
     source_type, source_key, canonical_url, resolved_page_id = resolve_user_source_identity(
         settings,
@@ -182,6 +184,19 @@ def add_user_source_subscription(
         source_key=source_key,
         user_id=user_id,
     )
+    if not already:
+        followed_at = int(time.time()) if now is None else now
+        with database.connect() as connection:
+            record_follow_baseline(
+                connection,
+                user_id=user_id,
+                subject_kind=SUBJECT_SOURCE,
+                subject_id=f"{source_type}:{source_key}",
+                catch_up=catch_up,
+                followed_at=followed_at,
+                source_type=source_type,
+                source_key=source_key,
+            )
     ensure_source_sync_job(
         database,
         source_type=source_type,

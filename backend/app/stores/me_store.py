@@ -12,6 +12,7 @@ from app.errors import not_found, unprocessable
 from app.schemas.common import TopicType
 from app.schemas.me import MeBootstrap, Profile, Topic, TopicRecommendationItem, TopicRecommendationList
 from app.services.feed_projection import FeedProjector
+from app.services.follow_baseline import SUBJECT_TOPIC, record_follow_baseline
 from app.services.topic_recommendations import recommend_topics_for_user
 
 _MIN_TOPICS = 5
@@ -111,6 +112,7 @@ class MeStore:
         topic_type: str,
         *,
         reproject: bool = True,
+        catch_up: bool = False,
     ) -> Topic:
         cleaned = name.strip()
         if not cleaned:
@@ -138,6 +140,15 @@ class MeStore:
                 (topic_id, user_id, cleaned, topic_type, count, now),
             )
             row = connection.execute("SELECT * FROM topics WHERE id = ?", (topic_id,)).fetchone()
+            record_follow_baseline(
+                connection,
+                user_id=user_id,
+                subject_kind=SUBJECT_TOPIC,
+                subject_id=topic_id,
+                catch_up=catch_up,
+                followed_at=now,
+                topic_name=cleaned,
+            )
         if reproject:
             self._projector.reproject_user(user_id=user_id)
         return _topic_from_row(row)
@@ -261,12 +272,21 @@ class MeStore:
                 ).fetchone()
                 stored_name = catalog["name"] if catalog is not None else name
                 topic_type = catalog["type"] if catalog is not None else "technology"
+                topic_id = f"topic_{secrets.token_urlsafe(8)}"
                 connection.execute(
                     """
                     INSERT INTO topics (id, user_id, name, type, priority, sort_order, created_at)
                     VALUES (?, ?, ?, ?, 'normal', ?, ?)
                     """,
-                    (f"topic_{secrets.token_urlsafe(8)}", user_id, stored_name, topic_type, index, now),
+                    (topic_id, user_id, stored_name, topic_type, index, now),
+                )
+                record_follow_baseline(
+                    connection,
+                    user_id=user_id,
+                    subject_kind=SUBJECT_TOPIC,
+                    subject_id=topic_id,
+                    followed_at=now,
+                    topic_name=stored_name,
                 )
             next_state = "github_pending" if connect_github else "ready"
             connection.execute(

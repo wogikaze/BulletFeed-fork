@@ -16,6 +16,7 @@ class EventDetail(ApiModel):
 
 class FollowingRequest(ApiModel):
     following: bool
+    catch_up: bool = False
 
 
 class FollowingResponse(ApiModel):

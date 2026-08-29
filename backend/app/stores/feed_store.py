@@ -27,6 +27,7 @@ from app.services.feedback_signals import (
     resolve_write_family,
     types_for_family,
 )
+from app.services.follow_baseline import SUBJECT_EVENT, record_follow_baseline
 from app.services.knowledge_evidence import (
     KIND_ALREADY_KNEW,
     KIND_DELIVERED,
@@ -49,6 +50,7 @@ def _now_iso() -> str:
 
 
 def _encode_cursor(
+    knownness_rank: int,
     importance_rank: int,
     relation_rank: int,
     personalization_rank: int,
@@ -56,21 +58,28 @@ def _encode_cursor(
     item_id: str,
 ) -> str:
     raw = (
-        f"v3|{importance_rank}|{relation_rank}|{personalization_rank}|{updated_at}|{item_id}"
+        f"v4|{knownness_rank}|{importance_rank}|{relation_rank}|{personalization_rank}|{updated_at}|{item_id}"
     ).encode()
     return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
 
-def _decode_cursor(cursor: str) -> tuple[int, int, int, str, str]:
+def _decode_cursor(cursor: str) -> tuple[int, int, int, int, str, str]:
     padding = "=" * (-len(cursor) % 4)
     try:
         decoded = base64.urlsafe_b64decode(cursor + padding).decode()
-        version, importance_rank, relation_rank, personalization_rank, updated_at, item_id = decoded.split(
-            "|", 5
-        )
-        if version != "v3" or not updated_at or not item_id:
+        (
+            version,
+            knownness_rank,
+            importance_rank,
+            relation_rank,
+            personalization_rank,
+            updated_at,
+            item_id,
+        ) = decoded.split("|", 6)
+        if version != "v4" or not updated_at or not item_id:
             raise ValueError
         return (
+            int(knownness_rank),
             int(importance_rank),
             int(relation_rank),
             int(personalization_rank),
@@ -377,6 +386,11 @@ def _apply_feedback_derived_state(
 
     if family == FAMILY_FOLLOW:
         following = 0 if feedback_type == "undo" else 1
+        previous = connection.execute(
+            "SELECT following FROM event_follows WHERE user_id = ? AND event_id = ?",
+            (user_id, event_id),
+        ).fetchone()
+        was_following = bool(previous["following"]) if previous is not None else False
         connection.execute(
             """
             INSERT INTO event_follows (user_id, event_id, following)
@@ -385,6 +399,13 @@ def _apply_feedback_derived_state(
             """,
             (user_id, event_id, following),
         )
+        if following and not was_following:
+            record_follow_baseline(
+                connection,
+                user_id=user_id,
+                subject_kind=SUBJECT_EVENT,
+                subject_id=event_id,
+            )
         return
 
     if family == FAMILY_KNOWLEDGE:
@@ -441,7 +462,7 @@ class FeedStore:
         if limit < 1 or limit > 50:
             raise unprocessable("limit must be 1-50")
 
-        cursor_values: tuple[int, int, int, str, str] | None = None
+        cursor_values: tuple[int, int, int, int, str, str] | None = None
         if cursor:
             cursor_values = _decode_cursor(cursor)
 
@@ -468,7 +489,24 @@ class FeedStore:
                            WHEN 'direct' THEN 3
                            WHEN 'adjacent' THEN 2
                            ELSE 1
-                       END AS relation_rank
+                       END AS relation_rank,
+                       CASE
+                           WHEN EXISTS (
+                               SELECT 1 FROM user_knowledge_evidence e
+                               WHERE e.user_id = f.user_id
+                                 AND e.kind IN ('baseline', 'already_knew', 'learned_now')
+                                 AND e.claim_id IS NOT NULL
+                                 AND e.claim_id = claim_map.claim_id
+                           ) THEN 0
+                           WHEN EXISTS (
+                               SELECT 1 FROM user_knowledge_evidence e
+                               WHERE e.user_id = f.user_id
+                                 AND e.kind IN ('displayed', 'read')
+                                 AND e.claim_id IS NOT NULL
+                                 AND e.claim_id = claim_map.claim_id
+                           ) THEN 1
+                           ELSE 2
+                       END AS knownness_rank
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
                 LEFT JOIN delta_claim_map claim_map ON claim_map.delta_id = f.delta_id
@@ -509,35 +547,54 @@ class FeedStore:
 
             sql = f"SELECT * FROM ({inner_sql}) ranked"  # nosec B608
             if cursor_values is not None:
-                importance_rank, relation_rank, personalization_rank, updated_at, item_id = cursor_values
+                (
+                    knownness_rank,
+                    importance_rank,
+                    relation_rank,
+                    personalization_rank,
+                    updated_at,
+                    item_id,
+                ) = cursor_values
                 sql += """
-                    WHERE importance_rank < ?
-                       OR (importance_rank = ? AND relation_rank < ?)
+                    WHERE knownness_rank < ?
+                       OR (knownness_rank = ? AND importance_rank < ?)
                        OR (
-                           importance_rank = ? AND relation_rank = ?
-                           AND personalization_rank < ?
+                           knownness_rank = ? AND importance_rank = ?
+                           AND relation_rank < ?
                        )
                        OR (
-                           importance_rank = ? AND relation_rank = ?
-                           AND personalization_rank = ? AND updated_at < ?
+                           knownness_rank = ? AND importance_rank = ?
+                           AND relation_rank = ? AND personalization_rank < ?
                        )
                        OR (
-                           importance_rank = ? AND relation_rank = ?
-                           AND personalization_rank = ? AND updated_at = ? AND id < ?
+                           knownness_rank = ? AND importance_rank = ?
+                           AND relation_rank = ? AND personalization_rank = ?
+                           AND updated_at < ?
+                       )
+                       OR (
+                           knownness_rank = ? AND importance_rank = ?
+                           AND relation_rank = ? AND personalization_rank = ?
+                           AND updated_at = ? AND id < ?
                        )
                 """
                 params.extend(
                     [
+                        knownness_rank,
+                        knownness_rank,
                         importance_rank,
+                        knownness_rank,
                         importance_rank,
                         relation_rank,
+                        knownness_rank,
                         importance_rank,
                         relation_rank,
                         personalization_rank,
+                        knownness_rank,
                         importance_rank,
                         relation_rank,
                         personalization_rank,
                         updated_at,
+                        knownness_rank,
                         importance_rank,
                         relation_rank,
                         personalization_rank,
@@ -546,7 +603,7 @@ class FeedStore:
                     ]
                 )
             sql += """
-                ORDER BY importance_rank DESC, relation_rank DESC,
+                ORDER BY knownness_rank DESC, importance_rank DESC, relation_rank DESC,
                          personalization_rank DESC, updated_at DESC, id DESC
                 LIMIT ?
             """
@@ -611,6 +668,7 @@ class FeedStore:
             if len(rows) > limit and page_rows:
                 last = page_rows[-1]
                 next_cursor = _encode_cursor(
+                    last["knownness_rank"],
                     last["importance_rank"],
                     last["relation_rank"],
                     last["personalization_rank"],
