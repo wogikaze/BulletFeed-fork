@@ -1,0 +1,346 @@
+{
+  "manifest_version": "m1-personas-v01",
+  "label_source": "constructed",
+  "personas": [
+    {
+      "persona_id": "m1p_01",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
+      "topics": [
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_02",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "security",
+        "CVE"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_03",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "コンパイラ最適化"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_04",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "Rust",
+        "コンパイラ"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_05",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "Kubernetes"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_06",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "high",
+      "topics": [
+        "React",
+        "TypeScript"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_07",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "statuspage"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_08",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "データベース",
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_09",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_10",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "security",
+        "CVE"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_11",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "high",
+      "topics": [
+        "コンパイラ最適化"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_12",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "Rust",
+        "コンパイラ"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_13",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "Kubernetes"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_14",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "React",
+        "TypeScript"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_15",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "statuspage"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_16",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "high",
+      "topics": [
+        "データベース",
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_17",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_18",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "security",
+        "CVE"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_19",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "コンパイラ最適化"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_20",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "Rust",
+        "コンパイラ"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_21",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "high",
+      "topics": [
+        "Kubernetes"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_22",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "React",
+        "TypeScript"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_23",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "statuspage"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_24",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "データベース",
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_25",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "latency"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_26",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "high",
+      "topics": [
+        "security",
+        "CVE"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_27",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [
+        "コンパイラ最適化"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_28",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "topics": [
+        "Rust",
+        "コンパイラ"
+      ],
+      "expect_empty_reason": ""
+    },
+    {
+      "persona_id": "m1p_29",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "topics": [],
+      "expect_empty_reason": "no_topics_abstention"
+    },
+    {
+      "persona_id": "m1p_30",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
+      "topics": [],
+      "expect_empty_reason": "no_topics_abstention"
+    }
+  ]
+}
