@@ -171,7 +171,7 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
                 "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
             )
         ]
-        assert revisions == ["1", "2", "3", "4"]
+        assert revisions == ["1", "2", "3", "4", "5"]
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'"
         ).fetchone()
@@ -195,6 +195,9 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
+        ).fetchone() is None
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
@@ -238,7 +241,7 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4"}
+        assert revisions == {"1", "2", "3", "4", "5"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "source_key" in columns
         assert "repository_full_name" not in columns
@@ -267,7 +270,7 @@ def test_revision_3_adds_subscription_user_mapping(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4"}
+        assert revisions == {"1", "2", "3", "4", "5"}
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
@@ -310,7 +313,7 @@ def test_revision_4_adds_last_new_observation_at(tmp_path: Path) -> None:
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2", "3", "4"}
+        assert revisions == {"1", "2", "3", "4", "5"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "last_new_observation_at" in columns
         row = connection.execute(
@@ -326,3 +329,36 @@ def test_revision_4_adds_last_new_observation_at(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
+
+
+def test_revision_5_drops_app_sessions(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-app-sessions-drop.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '5'")
+        connection.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS app_sessions (
+                token_hash TEXT PRIMARY KEY,
+                github_user_id INTEGER NOT NULL,
+                expires_at INTEGER NOT NULL,
+                created_at INTEGER NOT NULL
+            );
+            INSERT INTO app_sessions (token_hash, github_user_id, expires_at, created_at)
+            VALUES ('legacy-hash', 123, 1, 1);
+            """
+        )
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
+        ).fetchone()
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == {"1", "2", "3", "4", "5"}
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_sessions'"
+        ).fetchone() is None

@@ -209,7 +209,6 @@ class Database:
         encrypted_app_access_token: str,
         refresh_token: str,
         encrypted_refresh_token: str,
-        app_session_expires_at: int,
         user_session_expires_at: int,
         refresh_expires_at: int,
     ) -> str:
@@ -253,14 +252,6 @@ class Database:
                     github_token_expires_at,
                     now,
                 ),
-            )
-            connection.execute("DELETE FROM app_sessions WHERE github_user_id = ?", (github_user_id,))
-            connection.execute(
-                """
-                INSERT INTO app_sessions (token_hash, github_user_id, expires_at, created_at)
-                VALUES (?, ?, ?, ?)
-                """,
-                (token_hash(app_access_token), github_user_id, app_session_expires_at, now),
             )
             connection.execute("DELETE FROM user_sessions WHERE user_id = ?", (canonical_user_id,))
             connection.execute(
@@ -374,26 +365,4 @@ class Database:
             "app_access_token": access_token,
             "refresh_token": refresh_token,
             "detail": row["detail"],
-        }
-
-    def get_session(self, app_access_token: str, cipher: TokenCipher) -> dict[str, Any] | None:
-        now = int(time.time())
-        with self._connect() as connection:
-            row = connection.execute(
-                """
-                SELECT c.github_user_id, c.login, c.avatar_url, c.github_token_encrypted,
-                       c.token_expires_at, s.expires_at AS session_expires_at
-                FROM app_sessions s
-                JOIN github_connections c ON c.github_user_id = s.github_user_id
-                WHERE s.token_hash = ? AND s.expires_at > ?
-                """,
-                (token_hash(app_access_token), now),
-            ).fetchone()
-        if row is None or (row["token_expires_at"] is not None and row["token_expires_at"] <= now):
-            return None
-        return {
-            "github_user_id": row["github_user_id"],
-            "login": row["login"],
-            "avatar_url": row["avatar_url"],
-            "github_token": cipher.decrypt(row["github_token_encrypted"]),
         }
