@@ -135,7 +135,12 @@ def visibility_for_state(state: str, confidence: str) -> VisibilityAction:
 
 
 def may_hide(*, state: str, confidence: str, importance_level: str | None = None) -> bool:
-    """Low-confidence evidence cannot silently suppress high-value unknown items."""
+    """Evidence-only hide check. The Known-05 composed guard is stricter.
+
+    Uncertain evidence may show or demote. It must never hide. Callers that
+    also have identity / revision / importance must use
+    ``app.services.false_suppression.may_hide``.
+    """
     del importance_level
     return state == STATE_KNOWN and confidence == CONFIDENCE_HIGH
 

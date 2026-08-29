@@ -14,6 +14,7 @@
 | ADR-0010 | Planned (Phase 3拡張時) | 検索エンドポイント設計 |
 | ADR-0011 | Accepted (Phase 1で記述) | 既存backend prototypeの移植後削除 |
 | [ADR-0012](0012-viewport-exposure-v1.md) | Accepted | 意味のあるビューポート露出方針 v1 (Known-03) |
+| [ADR-0013](0013-false-suppression-v1.md) | Accepted | 不確かな既知度に対する保守的な誤抑制ガード v1 (Known-05) |
 
 ## ADR様式
 
