@@ -175,13 +175,29 @@ def test_saving_github_repositories_returns_inferred_topics(
     auth_headers: dict[str, str],
     monkeypatch,
 ) -> None:
-    async def fake_infer(settings, full_name, token):
-        del settings, full_name, token
-        return ["Kotlin", "Android", "FastAPI"]
-
     from app.services import repository_topic_inference as inference
+    from app.services.inferred_priors import make_inferred_signal
 
-    monkeypatch.setattr(inference, "infer_repository_topics", fake_infer)
+    def _named(full_name: str, *topics: str):
+        return [
+            signal
+            for name in topics
+            if (
+                signal := make_inferred_signal(
+                    repository=full_name,
+                    signal_type="language",
+                    topic_name=name,
+                    observed_at="2026-08-29T00:00:00Z",
+                )
+            )
+            is not None
+        ]
+
+    async def fake_infer(settings, full_name, token):
+        del settings, token
+        return _named(full_name, "Kotlin", "Android", "FastAPI")
+
+    monkeypatch.setattr(inference, "infer_repository_prior_signals", fake_infer)
 
     listed = client.get(
         "/v1/me/integrations/github/repositories",
@@ -197,21 +213,21 @@ def test_saving_github_repositories_returns_inferred_topics(
     )
     assert updated.status_code == 200
     body = updated.json()
-    assert body["addedTopics"] == ["Kotlin", "Android", "FastAPI"]
+    assert set(body["addedTopics"]) == {"Kotlin", "Android", "FastAPI"}
     assert body["alreadyTrackedTopics"] == []
     assert body["inspectedRepositoryCount"] == 1
     assert body["failedRepositoryCount"] == 0
 
     topics = client.get("/v1/me/topics", headers=auth_headers)
-    assert {item["name"] for item in topics.json()["items"]} == {"Android", "FastAPI", "Kotlin"}
+    assert topics.json()["items"] == []
 
     client.post("/v1/me/topics", headers=auth_headers, json={"name": "Redis", "type": "technology"})
 
     async def fake_infer_with_overlap(settings, full_name, token):
-        del settings, full_name, token
-        return ["Kotlin", "Redis", "PostgreSQL"]
+        del settings, token
+        return _named(full_name, "Kotlin", "Redis", "PostgreSQL")
 
-    monkeypatch.setattr(inference, "infer_repository_topics", fake_infer_with_overlap)
+    monkeypatch.setattr(inference, "infer_repository_prior_signals", fake_infer_with_overlap)
     again = client.put(
         "/v1/me/integrations/github/repositories",
         headers=auth_headers,
@@ -219,7 +235,10 @@ def test_saving_github_repositories_returns_inferred_topics(
     )
     assert again.status_code == 200
     assert again.json()["addedTopics"] == ["PostgreSQL"]
-    assert again.json()["alreadyTrackedTopics"] == ["Kotlin", "Redis"]
+    assert set(again.json()["alreadyTrackedTopics"]) == {"Kotlin", "Redis"}
+
+    topics = client.get("/v1/me/topics", headers=auth_headers)
+    assert {item["name"] for item in topics.json()["items"]} == {"Redis"}
 
 
 def test_github_authorize_requires_config(client: TestClient, auth_headers: dict[str, str]) -> None:

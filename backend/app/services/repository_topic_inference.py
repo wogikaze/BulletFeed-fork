@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from urllib.parse import quote
 
 import httpx
-from fastapi import HTTPException
 
 from app.config import Settings
 from app.database import Database
@@ -17,6 +16,16 @@ from app.db.topic_catalog import canonical_topic
 from app.security import TokenCipher
 from app.services import github
 from app.services.http import require_json
+from app.services.inferred_priors import (
+    InferredInterestSignal,
+    SignalType,
+    load_inferred_signals,
+    make_inferred_signal,
+    persist_inferred_signals,
+    rebuild_inferred_priors,
+    selected_repository_names,
+    utc_now_iso,
+)
 from app.services.repository_sbom_topics import sbom_topic_signal_text
 from app.stores.me_store import MeStore
 
@@ -131,6 +140,27 @@ _PACKAGE_SIGNALS: tuple[tuple[str, str, int], ...] = (
     ("datadog", "Datadog", 24),
     ("cloudflare", "Cloudflare", 20),
     ("wrangler", "Cloudflare Workers", 30),
+    ("webpack", "webpack", 20),
+    ("eslint", "ESLint", 18),
+    ("prettier", "Prettier", 16),
+    ("jest", "Jest", 18),
+    ("vitest", "Vitest", 18),
+)
+
+_BUILD_TOOL_TOPICS = frozenset(
+    {
+        "gradle",
+        "maven",
+        "npm",
+        "pnpm",
+        "yarn",
+        "poetry",
+        "docker",
+        "github actions",
+        "terraform",
+        "vite",
+        "webpack",
+    }
 )
 
 
@@ -232,30 +262,175 @@ async def _repository_manifest_texts(
     return {path: text for item in fetched if item is not None for path, text in [item]}
 
 
+def _package_json_payload(text: str) -> dict[str, object] | None:
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _package_section_names(payload: dict[str, object], section: str) -> set[str]:
+    dependencies = payload.get(section)
+    if not isinstance(dependencies, dict):
+        return set()
+    return {str(name).casefold() for name in dependencies}
+
+
 def _package_tokens(path: str, text: str) -> set[str]:
     lowered_path = path.casefold()
     lowered = text.casefold()
     tokens = set(re.findall(r"[@a-z0-9_.+/-]{2,}", lowered))
     if lowered_path.endswith("package.json"):
-        try:
-            payload = json.loads(text)
-            if isinstance(payload, dict):
-                sections = (
-                    "dependencies",
-                    "devDependencies",
-                    "peerDependencies",
-                    "optionalDependencies",
-                )
-                for section in sections:
-                    dependencies = payload.get(section)
-                    if isinstance(dependencies, dict):
-                        tokens.update(str(name).casefold() for name in dependencies)
+        payload = _package_json_payload(text)
+        if payload is not None:
+            sections = (
+                "dependencies",
+                "devDependencies",
+                "peerDependencies",
+                "optionalDependencies",
+            )
+            for section in sections:
+                tokens.update(_package_section_names(payload, section))
+            package_manager = payload.get("packageManager")
+            if isinstance(package_manager, str):
+                tokens.add(package_manager.split("@", 1)[0].casefold())
+    return tokens
+
+
+def _emit_prior(
+    collected: list[InferredInterestSignal],
+    seen: set[tuple[str, str, str]],
+    *,
+    repository: str,
+    signal_type: SignalType,
+    raw_name: str,
+    observed_at: str,
+) -> None:
+    signal = make_inferred_signal(
+        repository=repository,
+        signal_type=signal_type,
+        topic_name=raw_name,
+        observed_at=observed_at,
+    )
+    if signal is None:
+        return
+    key = (signal.repository, signal.signal_type, signal.topic_name.casefold())
+    if key in seen:
+        return
+    seen.add(key)
+    collected.append(signal)
+
+
+def infer_prior_signals(
+    languages: dict[str, int],
+    github_topics: list[str],
+    manifests: dict[str, str],
+    *,
+    repository: str,
+    observed_at: str,
+) -> list[InferredInterestSignal]:
+    collected: list[InferredInterestSignal] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    def add(signal_type: SignalType, raw_name: str) -> None:
+        _emit_prior(
+            collected,
+            seen,
+            repository=repository,
+            signal_type=signal_type,
+            raw_name=raw_name,
+            observed_at=observed_at,
+        )
+
+    for language, _bytes in sorted(languages.items(), key=lambda item: item[1], reverse=True)[:6]:
+        add("language", language)
+
+    for topic in github_topics[:20]:
+        add("repository_topic", topic)
+
+    for path, text in manifests.items():
+        lowered_path = path.casefold()
+        lowered = text.casefold()
+        tokens = _package_tokens(path, text)
+        name = lowered_path.rsplit("/", 1)[-1]
+        runtime_names: set[str] = set()
+        dev_names: set[str] = set()
+        if name == "package.json":
+            add("language", "Node.js")
+            payload = _package_json_payload(text)
+            if payload is not None:
+                runtime_names = _package_section_names(payload, "dependencies")
+                runtime_names |= _package_section_names(payload, "peerDependencies")
+                runtime_names |= _package_section_names(payload, "optionalDependencies")
+                dev_names = _package_section_names(payload, "devDependencies")
                 package_manager = payload.get("packageManager")
                 if isinstance(package_manager, str):
-                    tokens.add(package_manager.split("@", 1)[0].casefold())
-        except json.JSONDecodeError:
-            pass
-    return tokens
+                    add("build_tool", package_manager.split("@", 1)[0])
+                elif "pnpm" in tokens:
+                    add("build_tool", "pnpm")
+                elif "yarn" in tokens:
+                    add("build_tool", "yarn")
+                else:
+                    add("build_tool", "npm")
+        if name in {"pyproject.toml", "poetry.lock"} or name.startswith("requirements"):
+            add("language", "Python")
+            if "poetry" in lowered or "tool.poetry" in lowered:
+                add("build_tool", "Poetry")
+            if name.startswith("requirements") and "dev" in name:
+                dev_names = set(tokens)
+        if name.startswith("build.gradle") or name.startswith("settings.gradle"):
+            add("build_tool", "Gradle")
+        if name == "cargo.toml":
+            add("language", "Rust")
+        if name == "go.mod":
+            add("language", "Go")
+        if name == "pom.xml":
+            add("language", "Java")
+            add("build_tool", "Maven")
+        if "dockerfile" in name or name.startswith("docker-compose") or name.startswith("compose."):
+            add("build_tool", "Docker")
+        if lowered_path.startswith(".github/workflows/"):
+            add("build_tool", "GitHub Actions")
+        if lowered_path.endswith(".tf"):
+            add("build_tool", "Terraform")
+
+        for needle, topic_name, _weight in _PACKAGE_SIGNALS:
+            normalized = needle.casefold()
+            in_runtime = any(normalized == pkg or pkg.startswith(f"{normalized}/") for pkg in runtime_names)
+            in_runtime = in_runtime or normalized in runtime_names
+            in_dev = any(normalized == pkg or pkg.startswith(f"{normalized}/") for pkg in dev_names)
+            in_dev = in_dev or normalized in dev_names
+            if in_runtime:
+                add("dependency", topic_name)
+                continue
+            if in_dev:
+                add("dev_dependency", topic_name)
+                continue
+            if normalized in tokens or normalized in lowered:
+                if topic_name.casefold() in _BUILD_TOOL_TOPICS:
+                    add("build_tool", topic_name)
+                elif path == "github-sbom" or name.endswith((".tf", ".mod", ".toml", ".xml")):
+                    add("dependency", topic_name)
+                elif name.startswith("requirements") and "dev" in name:
+                    add("dev_dependency", topic_name)
+                elif name != "package.json":
+                    add("dependency", topic_name)
+
+        if "postgres" in lowered or "postgresql" in lowered:
+            add("dependency", "PostgreSQL")
+        if "mysql" in lowered:
+            add("dependency", "MySQL")
+        if "redis" in lowered:
+            add("dependency", "Redis")
+        if "mongodb" in lowered or "mongo:" in lowered:
+            add("dependency", "MongoDB")
+        if "kubernetes" in lowered or "kubectl" in lowered:
+            add("dependency", "Kubernetes")
+        if "cloudflare/wrangler" in lowered or "wrangler" in tokens:
+            add("dependency", "Cloudflare Workers")
+
+    return collected
 
 
 def infer_topics_from_signals(
@@ -346,11 +521,13 @@ class RepositoryTopicSyncResult:
     failed_repository_count: int
 
 
-async def infer_repository_topics(
+async def infer_repository_prior_signals(
     settings: Settings,
     full_name: str,
     token: str,
-) -> list[str]:
+    *,
+    observed_at: str | None = None,
+) -> list[InferredInterestSignal]:
     owner, repository = full_name.split("/", 1)
     languages, topics, manifests, sbom_text = await asyncio.gather(
         github.get_repository_languages(settings, owner, repository, token),
@@ -365,7 +542,25 @@ async def infer_repository_topics(
     )
     if sbom_text:
         manifests = {**manifests, "github-sbom": sbom_text}
-    return infer_topics_from_signals(languages, topics, manifests)
+    return infer_prior_signals(
+        languages,
+        topics,
+        manifests,
+        repository=full_name,
+        observed_at=observed_at or utc_now_iso(),
+    )
+
+
+async def infer_repository_topics(
+    settings: Settings,
+    full_name: str,
+    token: str,
+) -> list[str]:
+    signals = await infer_repository_prior_signals(settings, full_name, token)
+    return [
+        prior.display_name
+        for prior in rebuild_inferred_priors("preview", signals).priors[:20]
+    ]
 
 
 async def sync_selected_repository_topics(
@@ -398,61 +593,60 @@ async def sync_selected_repository_topics(
                 (user_id, _MAX_REPOSITORIES),
             ).fetchall()
         ]
-    if token_row is None or not repositories:
+    if not repositories:
+        with database.connect() as connection:
+            persist_inferred_signals(connection, user_id, ())
+        return RepositoryTopicSyncResult([], [], 0, 0)
+    if token_row is None:
         return RepositoryTopicSyncResult([], [], 0, 0)
     token = cipher.decrypt(token_row["github_token_encrypted"])
 
     semaphore = asyncio.Semaphore(4)
 
-    async def inspect(full_name: str) -> tuple[list[str], bool]:
+    async def inspect(full_name: str) -> tuple[list[InferredInterestSignal], bool]:
         async with semaphore:
             try:
-                return await infer_repository_topics(settings, full_name, token), True
+                return await infer_repository_prior_signals(settings, full_name, token), True
             except Exception:
                 # Repository selection is authoritative even when one repository
                 # cannot be inspected (deleted repo, transient API failure, etc.).
                 return [], False
 
     inspected = await asyncio.gather(*(inspect(name) for name in repositories))
-    inferred_per_repository = [topics for topics, _ok in inspected]
-    failed_repository_count = sum(1 for _topics, ok in inspected if not ok)
+    inferred_signals = [signal for signals, _ok in inspected for signal in signals]
+    failed_repository_count = sum(1 for _signals, ok in inspected if not ok)
     inspected_repository_count = len(repositories) - failed_repository_count
-    aggregate: defaultdict[str, int] = defaultdict(int)
-    for inferred in inferred_per_repository:
-        for rank, name in enumerate(inferred):
-            aggregate[name] += max(1, 24 - rank)
-
     store = MeStore(database)
-    existing = {topic.name.casefold(): topic.name for topic in store.list_topics(user_id)}
+    existing_topics = {topic.name.casefold(): topic.name for topic in store.list_topics(user_id)}
+    with database.connect() as connection:
+        previous_inferred = {
+            prior.display_name.casefold()
+            for prior in rebuild_inferred_priors(
+                user_id,
+                load_inferred_signals(connection, user_id),
+            ).priors
+        }
+        selected = selected_repository_names(connection, user_id)
+        state = rebuild_inferred_priors(
+            user_id,
+            inferred_signals,
+            selected_repositories=selected,
+        )
+        persist_inferred_signals(connection, user_id, state.signals)
     added: list[str] = []
     already_tracked: list[str] = []
-    for name, _ in sorted(aggregate.items(), key=lambda item: (-item[1], item[0].casefold())):
-        canonical = canonical_topic(name)
-        if canonical is None:
-            continue
-        display_name, topic_type = canonical
-        existing_name = existing.get(display_name.casefold())
+    for prior in state.priors:
+        existing_name = existing_topics.get(prior.display_name.casefold())
         if existing_name is not None:
-            if existing_name not in already_tracked and display_name not in added:
+            if existing_name not in already_tracked:
                 already_tracked.append(existing_name)
             continue
-        if len(existing) >= 20:
+        if prior.display_name.casefold() in previous_inferred:
+            if prior.display_name not in already_tracked:
+                already_tracked.append(prior.display_name)
             continue
-        try:
-            # Reproject once after the whole inferred-topic batch. Reprojecting
-            # for every topic makes repository save exceed the mobile timeout.
-            store.add_topic(user_id, display_name, topic_type, reproject=False)
-        except HTTPException as error:
-            if error.status_code == 409:
-                existing[display_name.casefold()] = display_name
-                if display_name not in already_tracked:
-                    already_tracked.append(display_name)
-                continue
-            if error.status_code == 422:
-                continue
-            raise
-        existing[display_name.casefold()] = display_name
-        added.append(display_name)
+        if prior.display_name not in added:
+            added.append(prior.display_name)
     return RepositoryTopicSyncResult(
         added=added,
         already_tracked=already_tracked,

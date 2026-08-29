@@ -179,6 +179,9 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user_ranking_resets'"
         ).fetchone()
         assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'github_inferred_signals'"
+        ).fetchone()
+        assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'"
         ).fetchone()
         columns = {

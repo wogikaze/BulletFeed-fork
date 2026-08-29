@@ -12,7 +12,7 @@ from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "12")
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -341,6 +341,35 @@ def _apply_revision_10(connection: sqlite3.Connection) -> None:
     connection.executescript(KNOWLEDGE_EVIDENCE_SCHEMA)
 
 
+def _apply_revision_12(connection: sqlite3.Connection) -> None:
+    """GitHub-inferred interest signals. Does not replace explicit user interests.
+
+    Revision 8 is the source registry (#58). Revisions 9-10 are typed feedback
+    and knowledge evidence. Revision 11 is reserved; this branch keeps 12.
+    """
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS github_inferred_signals (
+            user_id TEXT NOT NULL,
+            repository TEXT NOT NULL,
+            signal_type TEXT NOT NULL,
+            topic_name TEXT NOT NULL,
+            weight REAL NOT NULL,
+            inference_version TEXT NOT NULL,
+            observed_at TEXT NOT NULL,
+            PRIMARY KEY (user_id, repository, signal_type, topic_name),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_github_inferred_signals_user
+        ON github_inferred_signals(user_id, repository)
+        """
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -352,4 +381,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "8": _apply_revision_8,
     "9": _apply_revision_9,
     "10": _apply_revision_10,
+    "12": _apply_revision_12,
 }
