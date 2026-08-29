@@ -234,6 +234,21 @@ def test_explicit_interest_outranks_inferred_overlap() -> None:
     assert both.score > 0
 
 
+def test_feedback_alone_does_not_create_adjacent_relation() -> None:
+    state = _state(
+        "feedback_only",
+        feedback=(("github_release ev_train_0", "important"),),
+    )
+    signal = _score(
+        state,
+        title="github_release ev_held_release",
+        source_type="github_release",
+        source_key="ev_held_release",
+    )
+    assert signal.level == "reference"
+    assert signal.matched_topics == ()
+
+
 def test_consume_concept_features_without_reparsing_prose() -> None:
     extraction = extract_event_concepts(
         {
@@ -414,8 +429,8 @@ def test_semantic_relation_does_not_ace_gold_via_hard_negatives() -> None:
     assert semantic.include_ambiguous.precision_at_k > 0
     assert semantic.include_ambiguous.recall_at_k > 0
     assert semantic.include_ambiguous.precision_at_k >= lexical.include_ambiguous.precision_at_k
+    assert semantic.include_ambiguous.precision_at_k < 0.80
     assert 0.0 <= fpr <= 1.0
-    assert semantic.include_ambiguous.ndcg_at_k < 0.99
 
 
 def test_blind_relevance_reports_precision_recall_and_false_positive_rate() -> None:

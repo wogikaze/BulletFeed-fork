@@ -157,7 +157,7 @@ def _semantic_relation(
     active = [
         concept
         for concept in interest_concepts_for_user(state)
-        if not concept.suppressed and concept.weight > 0
+        if not concept.suppressed and concept.weight > 0 and not _feedback_only(concept)
     ]
     if not active:
         return _reference_signal()
@@ -305,6 +305,12 @@ def _parent_for_neighbor(active: Sequence[InterestConcept], neighbor_id: str) ->
         if neighbor_id in concept.neighbors:
             return concept
     return None
+
+
+def _feedback_only(concept: InterestConcept) -> bool:
+    """Feedback is a ranking overlay; it must not create Relation adjacency by itself."""
+    positive = {signal.kind for signal in concept.sources if signal.polarity == "positive"}
+    return positive == {"positive_feedback"}
 
 
 def _display_for_match(concept: InterestConcept) -> str:
