@@ -554,6 +554,14 @@ def test_user_deletion_removes_personal_evidence_not_ledger(database) -> None:
             delta_id=delta_id,
             created_at=1,
         )
+        connection.execute(
+            """
+            INSERT INTO user_knowledge_signals (
+                id, user_id, feed_item_id, event_id, delta_id, claim_id, signal, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("uks_gone", "gone", None, event_id, delta_id, claim_id, "already_knew", 1),
+        )
         _append(
             connection,
             user_id="keeper",
@@ -576,8 +584,12 @@ def test_user_deletion_removes_personal_evidence_not_ledger(database) -> None:
         leftover_keeper = connection.execute(
             "SELECT COUNT(*) FROM user_knowledge_evidence WHERE user_id = 'keeper'"
         ).fetchone()[0]
+        leftover_signals = connection.execute(
+            "SELECT COUNT(*) FROM user_knowledge_signals WHERE user_id = 'gone'"
+        ).fetchone()[0]
         assert leftover_gone == 0
         assert leftover_keeper == 1
+        assert leftover_signals == 0
         assert connection.execute(
             "SELECT 1 FROM state_claims WHERE id = ?",
             (claim_id,),
