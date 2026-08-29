@@ -171,7 +171,7 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
                 "SELECT revision_id FROM schema_migrations ORDER BY revision_id"
             )
         ]
-        assert revisions == ["1", "2"]
+        assert revisions == ["1", "2", "3"]
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_migrations'"
         ).fetchone()
@@ -190,6 +190,9 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert "repository_full_name" not in job_columns
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscriptions'"
+        ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()
 
 
@@ -234,7 +237,7 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         revisions = {
             row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
         }
-        assert revisions == {"1", "2"}
+        assert revisions == {"1", "2", "3"}
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(source_sync_jobs)")}
         assert "source_key" in columns
         assert "repository_full_name" not in columns
@@ -247,4 +250,23 @@ def test_revision_2_migrates_existing_repository_jobs_to_source_key(tmp_path: Pa
         assert tuple(row) == ("github_release", "acme/widget", 100, 2)
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscriptions'"
+        ).fetchone()
+
+
+def test_revision_3_adds_subscription_user_mapping(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-subscription-users.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '3'")
+        connection.execute("DROP TABLE IF EXISTS source_sync_subscription_users")
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == {"1", "2", "3"}
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_sync_subscription_users'"
         ).fetchone()

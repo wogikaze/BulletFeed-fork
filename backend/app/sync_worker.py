@@ -17,8 +17,11 @@ from app.services import github
 from app.services.dependency_security_pipeline import crawl_sbom_security_events
 from app.services.event_access import revoke_repository_access
 from app.services.github_release_pipeline import crawl_github_release_events
+from app.services.json_feed_pipeline import crawl_json_feed_events
+from app.services.rss_pipeline import crawl_feed_events
 
 SOURCE_TYPES = ("github_release", "dependency_security")
+FEED_SOURCE_TYPES = ("rss_atom", "json_feed")
 
 
 def _insert_source_sync_job(
@@ -260,6 +263,9 @@ class WatchSyncWorker:
         return changed == 1
 
     async def _run_job(self, job: SyncJob, *, now: int) -> None:
+        if job.source_type in FEED_SOURCE_TYPES:
+            await self._run_feed_job(job, now=now)
+            return
         if job.source_type not in SOURCE_TYPES:
             return
         owner, separator, repository = job.source_key.partition("/")
@@ -296,6 +302,37 @@ class WatchSyncWorker:
             )
             return
         raise ValueError(f"unsupported source sync type: {job.source_type}")
+
+    async def _run_feed_job(self, job: SyncJob, *, now: int) -> None:
+        if not self._subscription_selected(job.source_type, job.source_key):
+            return
+        retrieved_at = datetime.fromtimestamp(now, tz=UTC).isoformat().replace("+00:00", "Z")
+        if job.source_type == "rss_atom":
+            await crawl_feed_events(
+                self._settings,
+                self._database,
+                url=job.source_key,
+                retrieved_at=retrieved_at,
+            )
+            return
+        await crawl_json_feed_events(
+            self._settings,
+            self._database,
+            url=job.source_key,
+            retrieved_at=retrieved_at,
+        )
+
+    def _subscription_selected(self, source_type: str, source_key: str) -> bool:
+        with self._database.connect() as connection:
+            row = connection.execute(
+                """
+                SELECT 1 FROM source_sync_subscriptions
+                WHERE source_type = ? AND source_key = ? AND selected = 1
+                LIMIT 1
+                """,
+                (source_type, source_key),
+            ).fetchone()
+        return row is not None
 
     async def _refresh_repository_authorizations(
         self,

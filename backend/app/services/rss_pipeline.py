@@ -10,6 +10,7 @@ from app.services.ledger_projection import LedgerProjector
 from app.services.rss import preview_feed
 from app.services.rss_source import normalize_feed_preview
 from app.services.source_ingestion import SourceIngestionPipeline
+from app.services.source_subscriptions import project_events_for_subscription_audience
 from app.services.timestamps import canonical_timestamp
 from app.stores.claim_ledger_store import ClaimLedgerStore
 
@@ -65,8 +66,16 @@ def ingest_feed_events(
         event_ids.append(claim.event_id)
         claim_ids.append(claim.claim_id)
 
+    unique_event_ids = tuple(dict.fromkeys(event_ids))
+    source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""
+    project_events_for_subscription_audience(
+        database,
+        source_type="rss_atom",
+        source_keys=(source_url,),
+        event_ids=unique_event_ids,
+    )
     return RssIngestResult(
-        event_ids=tuple(dict.fromkeys(event_ids)),
+        event_ids=unique_event_ids,
         claim_ids=tuple(claim_ids),
     )
 
@@ -79,4 +88,13 @@ async def crawl_feed_events(
     retrieved_at: str,
 ) -> RssIngestResult:
     preview = await preview_feed(settings, url)
-    return ingest_feed_events(database, preview=preview, retrieved_at=retrieved_at)
+    result = ingest_feed_events(database, preview=preview, retrieved_at=retrieved_at)
+    source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""
+    if url != source_url:
+        project_events_for_subscription_audience(
+            database,
+            source_type="rss_atom",
+            source_keys=(url,),
+            event_ids=result.event_ids,
+        )
+    return result
