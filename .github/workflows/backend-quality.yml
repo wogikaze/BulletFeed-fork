@@ -1,15 +1,14 @@
 name: Backend quality
 
 on:
-  pull_request:
   push:
-    branches: [main, completion-pr]
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: backend-quality-${{ github.event.pull_request.number || github.ref }}
+  group: backend-quality-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
