@@ -15,7 +15,25 @@ from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
 
-KNOWN_REVISIONS = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16")
+KNOWN_REVISIONS = (
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+)
 
 OAUTH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS oauth_flows (
@@ -426,6 +444,22 @@ def _apply_revision_16(connection: sqlite3.Connection) -> None:
     connection.executescript(SESSION_TELEMETRY_SCHEMA)
 
 
+def _apply_revision_17(connection: sqlite3.Connection) -> None:
+    """Persist Relation semantic score for production ranking.
+
+    Level remains the discrete axis. The continuous score is a versioned
+    feature so GET /feed and Gold candidates share the same contract.
+    Existing rows keep 0.0 / empty version until the next projection.
+    """
+    tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    if "feed_items" not in tables:
+        return
+    _add_column_if_missing(connection, "feed_items", "relation_score REAL NOT NULL DEFAULT 0.0")
+    _add_column_if_missing(
+        connection, "feed_items", "relation_feature_version TEXT NOT NULL DEFAULT ''"
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -443,4 +477,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "14": _apply_revision_14,
     "15": _apply_revision_15,
     "16": _apply_revision_16,
+    "17": _apply_revision_17,
 }

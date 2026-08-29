@@ -250,7 +250,8 @@ def _apply_adjustments(
             """
             UPDATE feed_items
             SET importance_level = ?, importance_reason = ?, importance_confidence = ?,
-                relation_level = ?, relation_reason = ?, matched_topics_json = ?,
+                relation_level = ?, relation_reason = ?, relation_score = ?,
+                relation_feature_version = ?, matched_topics_json = ?,
                 matched_repos_json = ?, personalization_rank = ?
             WHERE id = ? AND user_id = ?
             """,
@@ -260,6 +261,8 @@ def _apply_adjustments(
                 importance.confidence,
                 relation_level,
                 relation_reason,
+                relation.score,
+                relation.feature_version,
                 json.dumps(relation.matched_topics),
                 json.dumps(relation.matched_repositories),
                 personalization_rank,

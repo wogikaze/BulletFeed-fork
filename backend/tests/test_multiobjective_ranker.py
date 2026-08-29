@@ -70,6 +70,30 @@ def _impact(*, severity: str | None = None, incident: str | None = None, correct
     return {"version": "impact-signals-v1", "signals": signals}
 
 
+def test_same_relation_level_orders_by_semantic_score() -> None:
+    weak = _candidate(
+        item_id="weak",
+        relation_level="adjacent",
+        relation_score=0.21,
+        personalization_rank=200,
+        importance_level="medium",
+        redundancy_group="g-weak",
+    )
+    strong = _candidate(
+        item_id="strong",
+        relation_level="adjacent",
+        relation_score=0.84,
+        personalization_rank=200,
+        importance_level="medium",
+        redundancy_group="g-strong",
+    )
+    first = rank_candidates([weak, strong])
+    second = rank_candidates([strong, weak])
+    assert [row.item_id for row in first] == ["strong", "weak"]
+    assert [row.item_id for row in second] == ["strong", "weak"]
+    assert first[0].axes.relevance > first[1].axes.relevance
+
+
 def test_policy_version_is_reproducible() -> None:
     items = [
         _candidate(item_id="a", relation_level="direct", importance_level="low", redundancy_group="g1"),
