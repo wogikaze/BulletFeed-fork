@@ -81,3 +81,35 @@ def test_github_release_revisions_reach_watched_user_feed(tmp_path: Path) -> Non
         == [{"id": "42", "name": "acme/widget", "url": "https://github.com/acme/widget"}]
         for row in feed
     )
+
+
+def test_github_release_same_payload_reuses_observation_without_new_delta(tmp_path: Path) -> None:
+    database = Database(tmp_path / "test.db")
+    database.initialize()
+    release = _release("Initial notes.", "2026-08-20T10:01:00Z")
+
+    first = ingest_github_release_events(
+        database,
+        owner="acme",
+        repository="widget",
+        releases=[release],
+        retrieved_at="2026-08-20T10:02:00Z",
+    )
+    second = ingest_github_release_events(
+        database,
+        owner="acme",
+        repository="widget",
+        releases=[release],
+        retrieved_at="2026-08-20T10:03:00Z",
+    )
+
+    assert first.event_ids == second.event_ids
+    with database.connect() as connection:
+        observations = connection.execute("SELECT id FROM observations").fetchall()
+        deltas = connection.execute(
+            "SELECT id, type FROM deltas WHERE event_id = ? AND active = 1",
+            (first.event_ids[0],),
+        ).fetchall()
+
+    assert len(observations) == 1
+    assert [row["type"] for row in deltas] == ["new_fact"]

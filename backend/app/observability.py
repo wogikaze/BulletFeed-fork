@@ -19,6 +19,8 @@ _BLOCKED_KEYS = frozenset(
         "code_verifier",
         "github_token",
         "github_token_encrypted",
+        "github_webhook_secret",
+        "webhook_secret",
         "id_token",
         "lease_token",
         "password",

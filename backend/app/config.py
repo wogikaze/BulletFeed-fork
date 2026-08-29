@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     github_client_id: str = ""
     github_client_secret: SecretStr = SecretStr("")
+    github_webhook_secret: SecretStr = SecretStr("")
     github_callback_url: str = "http://127.0.0.1:8000/v1/auth/github/callback"
     token_encryption_key: SecretStr = SecretStr("")
     database_path: Path = Path("data/bulletfeed.db")

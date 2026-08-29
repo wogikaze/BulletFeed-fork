@@ -16,7 +16,7 @@ from app.dependencies import get_database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 from app.models import HealthResponse
 from app.observability import public_counters
-from app.routers import auth, events, feed, integrations, me, sessions
+from app.routers import auth, events, feed, integrations, me, sessions, webhooks
 
 
 @asynccontextmanager
@@ -55,6 +55,7 @@ app.include_router(events.router)
 app.include_router(me.router)
 app.include_router(integrations.router)
 app.include_router(auth.router)
+app.include_router(webhooks.router)
 if os.environ.get("BULLETFEED_ACCEPTANCE_HARNESS") == "1":
     from app.routers import acceptance_harness
 
