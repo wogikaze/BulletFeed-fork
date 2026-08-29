@@ -14,6 +14,8 @@ class SourceKind(StrEnum):
     STATUSPAGE = "statuspage"
     HACKER_NEWS_DISCOVERY = "hacker_news_discovery"
     GENERIC_WEB = "generic_web"
+    OFFICIAL_CHANGELOG = "official_changelog"
+    DOCUMENTATION = "documentation"
 
 
 class DiscoveryMethod(StrEnum):
@@ -56,6 +58,18 @@ MVP_SOURCE_POLICIES: dict[SourceKind, SourcePolicy] = {
         DiscoveryMethod.HTML,
         False,
         discovery_only=True,
+    ),
+    SourceKind.OFFICIAL_CHANGELOG: SourcePolicy(
+        SourceKind.OFFICIAL_CHANGELOG,
+        1,
+        DiscoveryMethod.STRUCTURED_HTML,
+        True,
+    ),
+    SourceKind.DOCUMENTATION: SourcePolicy(
+        SourceKind.DOCUMENTATION,
+        1,
+        DiscoveryMethod.STRUCTURED_HTML,
+        True,
     ),
 }
 

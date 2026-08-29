@@ -10,7 +10,7 @@
 | OSV | 公開API | 脆弱性ID、対象package/version、更新日時 | 不要な全文コピー |
 | 公式RSS / Atom | 配信者が公開するfeed | タイトル、URL、日時、最大500文字の配信要約 | 記事本文、画像、添付物 |
 | Statuspage | 公開Status API | incident ID、状態、更新時刻、根拠URL | 管理APIの秘密情報 |
-| 公式公開HTML | 運営allowlist上のHTTPS静的取得（不変スナップショット） | 生バイト、応答ヘッダ、取得日時、content hash、robots判定。Claim証拠化はしない | ログイン必須ページ、JS実行結果、任意URL、再配布、Observation化（#63まで） |
+| 公式公開HTML | 運営allowlist上のHTTPS静的取得（不変スナップショット） | 生バイト、応答ヘッダ、取得日時、content hash、robots判定。Observation（provenance付き）。Claim/Evidence は `official_changelog` / `documentation` のallowlist公式ページのみ | ログイン必須ページ、JS実行結果、任意URL、再配布、`generic_web` からの自動Claim化 |
 
 ## 必須ルール
 
@@ -22,6 +22,7 @@
 6. 各取得元の規約・レート制限・ライセンス変更を定期確認し、禁止または不明になった取得元を停止できるようにする。
 7. 削除依頼、連携解除、アカウント削除時に関連する非公開データとtokenを削除できるようにする。
 8. LLMの要約・影響推定は原文と区別し、推定であることと確信度を表示する。
+9. `generic_web` は discovery_only のまま自動的な事実にしない。Web差分は Observation と変更候補として残し、Claim/Evidence は catalog 上 allowlist された `official_changelog` / `documentation` に限る。`source_allows_claim_evidence` が拒否したら ingest は fail-closed する。
 
 ## セキュリティ境界
 

@@ -34,7 +34,7 @@ FeedbackType: important | not_relevant | follow | already_knew | learned_now | l
 EventPhase: investigating | identified | monitoring | resolved
 TimelineType: announced | state_changed | information_added | corrected | resolved
 SourceKind: statuspage | github_advisory | osv | github_release | github_sbom | rss_atom | json_feed | official_changelog | documentation
-  (`official_changelog` / `documentation` は `source_policies` と公開スキーマ上の kind。専用 ingest adapter は持たない)
+  (`official_changelog` / `documentation` は allowlist 公式HTMLの Observation/Claim ingest に使う。`generic_web` は discovery_only のまま Claim にしない)
 TopicType: technology | service | company
 TopicPriority: high | normal | low
 ```
