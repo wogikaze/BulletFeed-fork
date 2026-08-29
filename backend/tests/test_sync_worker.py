@@ -5,6 +5,8 @@ from app import sync_worker
 from app.config import Settings
 from app.database import Database
 from app.security import TokenCipher
+from app.services import statuspage_crawler
+from app.services.source_subscriptions import add_subscription_user
 from app.sync_worker import WatchSyncWorker
 
 
@@ -651,3 +653,190 @@ async def test_run_once_json_feed_http_is_mockable(tmp_path, monkeypatch) -> Non
         ).fetchone()["count"]
     assert len(rows) == 1
     assert feed_items >= 1
+
+
+def _statuspage_summary() -> dict:
+    return {
+        "incidents": [
+            {
+                "id": "inc_1",
+                "name": "API latency",
+                "impact": "major",
+                "created_at": "2026-08-22T00:00:00Z",
+                "shortlink": "https://stspg.io/inc_1",
+                "incident_updates": [
+                    {
+                        "id": "upd_1",
+                        "status": "investigating",
+                        "body": "Investigating elevated latency.",
+                        "created_at": "2026-08-22T00:00:00Z",
+                        "updated_at": "2026-08-22T00:00:00Z",
+                        "display_at": "2026-08-22T00:00:00Z",
+                    },
+                    {
+                        "id": "upd_2",
+                        "status": "identified",
+                        "body": "Database saturation identified.",
+                        "created_at": "2026-08-22T00:10:00Z",
+                        "updated_at": "2026-08-22T00:10:00Z",
+                        "display_at": "2026-08-22T00:10:00Z",
+                    },
+                ],
+            }
+        ]
+    }
+
+
+def _database_with_statuspage(tmp_path, *, subscribers: tuple[str, ...] = ("user_1",)):
+    database = Database(tmp_path / "statuspage-worker.db")
+    database.initialize()
+    with database.connect() as connection:
+        for user_id in subscribers:
+            connection.execute(
+                "INSERT INTO users (id, created_at) VALUES (?, 0)",
+                (user_id,),
+            )
+    for user_id in subscribers:
+        add_subscription_user(
+            database,
+            source_type="statuspage",
+            source_key="abcd1234",
+            user_id=user_id,
+        )
+    return database
+
+
+@pytest.mark.asyncio
+async def test_run_once_executes_due_statuspage_job_with_mocked_http(tmp_path, monkeypatch) -> None:
+    database = _database_with_statuspage(tmp_path)
+    settings = Settings(database_path=database.path)
+    fetched: list[str] = []
+
+    async def fake_summary(settings, page_id):
+        del settings
+        fetched.append(page_id)
+        return _statuspage_summary()
+
+    monkeypatch.setattr(statuspage_crawler.statuspage, "get_summary", fake_summary)
+    worker = WatchSyncWorker(settings, database, poll_interval_seconds=300, batch_size=10)
+
+    summary = await worker.run_once(now=10_000)
+
+    assert fetched == ["abcd1234"]
+    assert (summary.attempted, summary.succeeded, summary.failed) == (1, 1, 0)
+    with database.connect() as connection:
+        events = connection.execute("SELECT id, current_phase FROM events").fetchall()
+        feed_count = connection.execute(
+            "SELECT COUNT(*) AS count FROM feed_items WHERE user_id = 'user_1'"
+        ).fetchone()["count"]
+        jobs = connection.execute(
+            """
+            SELECT source_type FROM source_sync_jobs
+            WHERE source_type IN ('rss_atom', 'json_feed')
+            """
+        ).fetchall()
+    assert len(events) == 1
+    assert events[0]["current_phase"] == "identified"
+    assert feed_count >= 1
+    assert jobs == []
+
+
+@pytest.mark.asyncio
+async def test_statuspage_refetch_same_summary_does_not_increase_active_deltas(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    database = _database_with_statuspage(tmp_path)
+    settings = Settings(database_path=database.path)
+
+    async def fake_summary(settings, page_id):
+        del settings, page_id
+        return _statuspage_summary()
+
+    monkeypatch.setattr(statuspage_crawler.statuspage, "get_summary", fake_summary)
+    worker = WatchSyncWorker(settings, database, poll_interval_seconds=300, batch_size=10)
+
+    first = await worker.run_once(now=11_000)
+    with database.connect() as connection:
+        first_active = connection.execute(
+            "SELECT COUNT(*) AS count FROM deltas WHERE active = 1"
+        ).fetchone()["count"]
+    second = await worker.run_once(now=11_300)
+
+    assert first.succeeded == 1
+    assert second.succeeded == 1
+    assert first_active > 0
+    with database.connect() as connection:
+        second_active = connection.execute(
+            "SELECT COUNT(*) AS count FROM deltas WHERE active = 1"
+        ).fetchone()["count"]
+    assert second_active == first_active
+
+
+@pytest.mark.asyncio
+async def test_statuspage_projects_feed_only_for_mapped_subscribers(tmp_path, monkeypatch) -> None:
+    database = Database(tmp_path / "statuspage-audience.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute(
+            "INSERT INTO users (id, created_at) VALUES ('user_a', 0), ('user_b', 0)"
+        )
+    add_subscription_user(
+        database,
+        source_type="statuspage",
+        source_key="abcd1234",
+        user_id="user_a",
+    )
+    settings = Settings(database_path=database.path)
+
+    async def fake_summary(settings, page_id):
+        del settings, page_id
+        return _statuspage_summary()
+
+    monkeypatch.setattr(statuspage_crawler.statuspage, "get_summary", fake_summary)
+    await WatchSyncWorker(settings, database, batch_size=10).run_once(now=12_000)
+
+    with database.connect() as connection:
+        by_user = {
+            row["user_id"]: row["count"]
+            for row in connection.execute(
+                "SELECT user_id, COUNT(*) AS count FROM feed_items GROUP BY user_id"
+            ).fetchall()
+        }
+        exposures = connection.execute(
+            "SELECT COUNT(*) AS count FROM user_claim_exposures"
+        ).fetchone()["count"]
+    assert by_user.get("user_a", 0) >= 1
+    assert "user_b" not in by_user
+    assert exposures == 0
+
+
+def test_unsubscribed_statuspage_stops_after_lease_expiry(tmp_path) -> None:
+    database = _database_with_statuspage(tmp_path)
+    settings = Settings(database_path=database.path)
+    worker = WatchSyncWorker(settings, database, lease_seconds=120)
+
+    worker.refresh_jobs(now=13_000)
+    leased = worker.claim_due(now=13_000)
+    assert [(job.source_type, job.source_key) for job in leased] == [("statuspage", "abcd1234")]
+    _subscribe_source(database, "statuspage", "abcd1234", selected=0)
+
+    worker.refresh_jobs(now=13_001)
+    with database.connect() as connection:
+        count = connection.execute(
+            """
+            SELECT COUNT(*) AS count FROM source_sync_jobs
+            WHERE source_type = 'statuspage' AND source_key = 'abcd1234'
+            """
+        ).fetchone()["count"]
+    assert count == 1
+
+    worker.refresh_jobs(now=13_121)
+    with database.connect() as connection:
+        count = connection.execute(
+            """
+            SELECT COUNT(*) AS count FROM source_sync_jobs
+            WHERE source_type = 'statuspage' AND source_key = 'abcd1234'
+            """
+        ).fetchone()["count"]
+    assert count == 0
