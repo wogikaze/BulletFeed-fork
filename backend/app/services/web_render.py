@@ -1,4 +1,8 @@
-"""Bounded dynamic-Web rendering (#64 / Source-08).
+"""Bounded dynamic-Web rendering contract (#64 / Source-08).
+
+This module is the insert boundary for a future isolated renderer. It does
+not close #64: a real browser is not implemented here. Start a real renderer
+only when ``evaluate_real_renderer_gate`` says so, as an isolated service.
 
 Static HTTP remains the default. JavaScript rendering runs only when all of
 the following hold:

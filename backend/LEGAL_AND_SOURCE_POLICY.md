@@ -31,7 +31,7 @@
 - DNS解決後のprivate / loopback / link-local IPを拒否する。
 - HTTPSのみ、レスポンスサイズ・時間・Content-Type・リダイレクト回数を制限する。汎用Webスナップショットは一度書いたら変更しない。
 - HTMLはactive contentとして表示せず、プレーンテキスト化する。Android内WebViewでJavaScriptを実行しない。
-- 動的Webレンダはデフォルト無効。`BULLETFEED_DYNAMIC_WEB_ENABLED` と `dynamic_web` ホスト allowlist、ソース方針 `bounded_js_when_needed`、静的 #61 抽出不足が揃ったときだけ動く。時間・出力・サブリソース・メモリ上限と SSRF 検査をサブリソース／リダイレクトにも適用する。レンダ失敗は権威にしない。Cookie / ログインは対象外。
+- 動的Webレンダはデフォルト無効。`BULLETFEED_DYNAMIC_WEB_ENABLED` と `dynamic_web` ホスト allowlist、ソース方針 `bounded_js_when_needed`、静的 #61 抽出不足が揃ったときだけ動く。時間・出力・サブリソース・メモリ上限と SSRF 検査をサブリソース／リダイレクトにも適用する。レンダ失敗は権威にしない。Cookie / ログインは対象外。実ブラウザは `real_renderer_gate` の live 条件を満たすまで入れない。入れるときは isolated renderer service であり、通常 backend へ Playwright を直接足さない。Source-09 の `dynamic_web` gap は導入条件にしない。
 - GitHub Appは最小権限と選択リポジトリのみ。token・secretはサーバー側で暗号化する。
 - Webhook導入時は署名、配信IDの重複、timestamp、body sizeを検証する。
 

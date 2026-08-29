@@ -1,35 +1,64 @@
 # ADR-0021 上限付き動的 Web レンダリング v1
 
 状態: Accepted  
-版: `bounded-dynamic-web-v1`  
-Issue: #64 (Source-08)
+版: `bounded-dynamic-web-v1` / `real-renderer-gate-v1`  
+Issue: #64 (Source-08) — **open のまま。本 ADR の契約だけでは close しない**
 
 ## Context
 
-Source-09 の `dynamic_web` ケースは静的 HTTP だけでは本文を取れない（pilot/blind とも `static_coverage_gap_rate = 1.0`）。一方でブラウザ実行は SSRF・Cookie・供給鎖のリスクがある。
+Source-09 の `dynamic_web` は split ごとに JS 必須ケースを必ず含み、実装状態に関係なく `static_coverage_gap` を返す。`js_rendering_implemented=False` は固定で、ここで JS を有効扱いすると release gate 違反になる。
+
+したがって `dynamic_web gap=1.0` は「実在の重要 source を 100% 取りこぼしている」ではなく、静的取得では動的ページを扱えないことを可視化した人工 gap である。これを 0 にするために Playwright を入れるのは評価指標への過適合になる。
+
+一方、generic Web の `#60 → #61 → #62 → #63` の後に、将来の実ブラウザを差し込む境界が無いと、パイプラインへ直接 Playwright をねじ込むことになる。
+
+実ブラウザは HTTP client とは攻撃面が違う。Python の `getaddrinfo` 検査と Chromium の実 DNS は同一ではない（TOCTOU / DNS rebinding）。Service Worker は request interception を迂回しうる。Playwright 公式も untrusted site には別 user / seccomp を推奨する。
 
 ## Options
 
-1. 静的取得のまま JS 必須ページを捨てる。
-2. 本番デフォルトで Playwright を起動する。
-3. 静的取得を既定にし、方針＋必要性＋ホスト allowlist が揃ったときだけ上限付きレンダ経路を開く。実ブラウザは注入し、未設定なら fail-closed。
+1. 静的取得のまま、レンダ境界も定義しない。
+2. 通常 backend に Playwright を直接追加する。
+3. **A+:** 契約だけ先に固定し、フラグは OFF。実ブラウザは開始条件を満たしてから isolated service として入れる。
 
 ## Decision
 
-方針 3。
+方針 3（A+）。
+
+契約（#114）:
 
 - `fetch_web_snapshot` は静的 HTTP のまま。
-- `maybe_render_web_snapshot` が #61 正規化不足のときだけレンダする。
-- レンダスナップショットは `acquisition_mode=bounded_js_render` と `parent_http_snapshot_id` を持ち、HTTP 応答と区別する。
-- 待ち条件は `domcontentloaded` / `networkidle` / `selector`。任意 sleep は使わない。
-- Cookie / ログイン / 私的ブラウジングは対象外。
-- Android WebView の JavaScript は有効化しない。
-- Source-09 ベンチは静的ギャップ測定のまま。`js_rendering_implemented` を立てない。
+- `acquire_web_snapshot` / `maybe_render_web_snapshot` が、フラグ + host allowlist + `bounded_js_when_needed` + #61 不足のときだけ `RendererEngine` に入る。
+- 本番 default は `NullRenderer`。実ブラウザプロセスは起動しない。
+- HTTP と rendered snapshot の provenance を分離する。
+- `BULLETFEED_DYNAMIC_WEB_ENABLED` は false のまま。
+- Source-09 は静的ギャップ測定のまま。`js_rendering_implemented` を立てない。
+- Issue #64 は close しない。`Part of #64`。
+
+実レンダ開始条件（`real_renderer_gate.py`、live 観測のみ）:
+
+1. 追跡中の primary source が 5 件以上、継続的に JS renderer を必要とする  
+   （discovered → static fetch 成功 → #61 では意味内容なし → JS なら取得可能）
+2. または #72 important-unknown recall が JS-only source のために 5pt 以上失われる
+
+Source-09 の `dynamic_web` gap と synthetic Gold の JS ケースは条件に使わない。
+
+開始するときの実装は **B2: isolated renderer service**。通常 FastAPI / sync worker へ Playwright を直接足さない。
+
+```text
+sync worker → #60 HTTP snapshot → #61
+    | insufficient
+    v
+renderer queue → isolated Chromium container → rendered HTML only
+    v
+rendered snapshot → #61 → #62 → #63
+```
+
+最低限: 別 process/container、non-root + Chromium sandbox + seccomp、egress default deny、実接続 IP の private 拒否、`serviceWorkers: 'block'`、profile / cookie / storage / download なし、不要 API 無効、OS 側の時間・CPU・memory・request 上限、小さい concurrency、Playwright/Chromium pin、renderer 障害で static snapshot を壊さない。
 
 ## Consequences
 
-JS 必須の公式ページを、静的成功ページを無駄にレンダせず取得できる。本番で実ブラウザを載せるかは別のセキュリティ判断。
+フラグ OFF なら本番 attack surface はほぼ増えない。将来必要性が証明されたとき、既存の `RendererEngine` 境界に isolated service を足せる。#64 は実ブラウザ未実装のまま open。
 
 ## Rollback
 
-`BULLETFEED_DYNAMIC_WEB_ENABLED=false`（既定）に戻せば静的経路だけになる。
+`BULLETFEED_DYNAMIC_WEB_ENABLED=false`（既定）のままなら静的経路だけが動く。

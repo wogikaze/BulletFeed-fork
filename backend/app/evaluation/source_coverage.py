@@ -2,8 +2,9 @@
 
 Measures which authoritative source classes the current catalog and static
 acquisition path cover. Dynamic/JS-only pages stay ``static_coverage_gap``
-here even after #64: this benchmark does not call ``web_render`` and does
-not fetch the live network. Production rendering is opt-in and fail-closed.
+here even after the #64 contract: this benchmark does not call ``web_render``
+and does not fetch the live network. ``static_coverage_gap_rate`` is not a
+real-renderer start signal; see ``real_renderer_gate.py``.
 """
 
 from __future__ import annotations
