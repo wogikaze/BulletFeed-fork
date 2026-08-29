@@ -1,0 +1,65 @@
+{
+  "version": "bandit-waivers-v1",
+  "waivers": [
+    {
+      "filename": "backend/app/services/claim_slots.py",
+      "test_id": "B101",
+      "line_number": 356,
+      "reason": "Type-narrowing invariant after filtering both tuple elements non-null; removal can only fail closed with an exception, not bypass validation."
+    },
+    {
+      "filename": "backend/app/services/claim_slots.py",
+      "test_id": "B101",
+      "line_number": 381,
+      "reason": "Type-narrowing invariant after filtering both tuple elements non-null; removal can only fail closed with an exception, not bypass validation."
+    },
+    {
+      "filename": "backend/app/services/multiobjective_ranker.py",
+      "test_id": "B101",
+      "line_number": 410,
+      "reason": "Internal selection invariant inside a non-empty ranking loop; it does not guard authorization, validation, or trust boundaries."
+    },
+    {
+      "filename": "backend/app/services/offline_preference.py",
+      "test_id": "B101",
+      "line_number": 552,
+      "reason": "Module-level developer invariant over static constants; it is not a runtime security control."
+    },
+    {
+      "filename": "backend/app/services/offline_preference.py",
+      "test_id": "B101",
+      "line_number": 553,
+      "reason": "Module-level developer invariant over static constants; it is not a runtime security control."
+    },
+    {
+      "filename": "backend/app/services/rss.py",
+      "test_id": "B101",
+      "line_number": 32,
+      "reason": "Hostname non-null is already enforced by validate_url_shape before this type-narrowing assertion; URL safety does not rely on the assert."
+    },
+    {
+      "filename": "backend/app/services/source_registry.py",
+      "test_id": "B101",
+      "line_number": 523,
+      "reason": "Internal constructor/database-state invariant; None would fail closed before any database operation and is not an authorization control."
+    },
+    {
+      "filename": "backend/app/services/source_registry.py",
+      "test_id": "B101",
+      "line_number": 528,
+      "reason": "Internal constructor/database-state invariant; None would fail closed before any database operation and is not an authorization control."
+    },
+    {
+      "filename": "backend/app/services/url_safety.py",
+      "test_id": "B101",
+      "line_number": 80,
+      "reason": "Hostname non-null is enforced by validate_url_shape before this type-narrowing assertion; SSRF checks do not rely on the assert."
+    },
+    {
+      "filename": "backend/app/stores/feed_store.py",
+      "test_id": "B608",
+      "line_number": 367,
+      "reason": "The only interpolated SQL fragment is a generated comma-separated list of literal '?' placeholders; all user/data values remain sqlite bind parameters."
+    }
+  ]
+}
