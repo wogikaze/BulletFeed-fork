@@ -3,7 +3,11 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Any
+
+from app.services.event_concepts import RelationConceptFeatures
 
 
 @dataclass(frozen=True)
@@ -164,6 +168,24 @@ def _matched_profile_terms(
         if normalized_term and f" {normalized_term} " in normalized_text:
             matches.append(term)
     return tuple(dict.fromkeys(matches))
+
+
+def consume_concept_features(
+    features: RelationConceptFeatures | Mapping[str, Any],
+) -> tuple[str, ...]:
+    """Return match terms from Event concepts without reparsing raw Event prose.
+
+    This is a consumer helper for later semantic Relation work. It does not
+    change evaluate_relation scoring or reasons.
+    """
+    payload = features.to_snapshot() if isinstance(features, RelationConceptFeatures) else dict(features)
+    terms: list[str] = []
+    for key in ("canonical_names", "stable_ids", "concept_ids", "aliases"):
+        values = payload.get(key) or ()
+        for value in values:
+            if isinstance(value, str) and value.strip():
+                terms.append(value)
+    return tuple(dict.fromkeys(terms))
 
 
 def _normalize(value: str) -> str:

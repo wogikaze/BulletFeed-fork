@@ -1,0 +1,27 @@
+{
+  "dataset_id": "bulletfeed-event-concepts-v01",
+  "dataset_version": "event-concepts-v01",
+  "extractor_version": "event-concepts-v01",
+  "label_protocol_version": "event-concepts-gold-v01",
+  "rebuild": "deterministic",
+  "persistence": "rebuild_or_optional_snapshot",
+  "snapshot": "rebuild_snapshot.json",
+  "categories": [
+    "aliases",
+    "ambiguous_names",
+    "versioned_products",
+    "lexical_collisions",
+    "structured_override",
+    "multi_weighted"
+  ],
+  "concept_types": [
+    "product_service",
+    "language_runtime",
+    "framework_library_package",
+    "company_project",
+    "repository",
+    "vulnerability_advisory",
+    "api_protocol",
+    "feature_capability"
+  ]
+}
