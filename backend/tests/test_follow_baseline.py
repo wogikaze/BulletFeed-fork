@@ -1,7 +1,7 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
-from app.services.feedback_signals import assert_feedback_does_not_mutate_ledger, ledger_world_state
 from app.services.feed_projection import FeedProjector
+from app.services.feedback_signals import assert_feedback_does_not_mutate_ledger, ledger_world_state
 from app.services.follow_baseline import (
     SUBJECT_EVENT,
     SUBJECT_SOURCE,

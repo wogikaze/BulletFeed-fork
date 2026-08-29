@@ -26,7 +26,6 @@ from app.services.knowledge_evidence import (
     KIND_BASELINE,
     KIND_LEARNED_NOW,
     PROVENANCE_BASELINE,
-    STATE_KNOWN,
     STATE_PROBABLY_KNOWN,
     STATE_UNKNOWN,
     append_knowledge_evidence,
