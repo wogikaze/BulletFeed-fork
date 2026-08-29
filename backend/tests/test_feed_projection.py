@@ -193,7 +193,10 @@ def test_reproject_user_surfaces_source_changes_after_adding_topic(database):
 
     with database.connect() as connection:
         rows = connection.execute(
-            "SELECT relation_level, matched_topics_json FROM feed_items WHERE user_id = 'user_1' AND event_id = ?",
+            """
+            SELECT relation_level, matched_topics_json
+            FROM feed_items WHERE user_id = 'user_1' AND event_id = ?
+            """,
             (event_id,),
         ).fetchall()
     assert rows
@@ -251,7 +254,10 @@ def test_reproject_user_updates_relation_on_remaining_items(database):
     projector.project_event_for_user(user_id="user_1", event_id=event_id)
     with database.connect() as connection:
         before = connection.execute(
-            "SELECT relation_level, personalization_rank FROM feed_items WHERE user_id = 'user_1' AND event_id = ?",
+            """
+            SELECT relation_level, personalization_rank
+            FROM feed_items WHERE user_id = 'user_1' AND event_id = ?
+            """,
             (event_id,),
         ).fetchall()
     assert before
