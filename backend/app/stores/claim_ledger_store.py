@@ -9,6 +9,7 @@ from app.db.event_identity_schema import ensure_event_identity_schema
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.observability import record
 from app.services.event_coreference import CoreferenceInput, EventCoreferenceEngine
+from app.services.knowledge_identity import rebuild_knowledge_identities
 from app.services.semantic_delta import ClaimSnapshot, DeltaContext, judge_revision
 from app.services.source_catalog import source_allows_claim_evidence
 from app.services.source_dependence import evidence_dependence_key
@@ -163,6 +164,7 @@ class ClaimLedgerStore:
             ).fetchone()
             if row is None:
                 raise RuntimeError("claim relation rebuild failed")
+            self._attach_knowledge_identity(connection, claim_id=claim_id)
 
         claim = LedgerClaim(
             event_id=event_id,
@@ -254,6 +256,23 @@ class ClaimLedgerStore:
             ),
         )
         return evidence_id
+
+    @staticmethod
+    def _attach_knowledge_identity(connection: sqlite3.Connection, *, claim_id: str) -> None:
+        """Map the claim without failing the factual ledger write.
+
+        Uncertain identity stays split. A mapping error is recorded and left
+        for the versioned backfill; Observation/Claim rows stay as written.
+        """
+        try:
+            rebuild_knowledge_identities(connection)
+        except Exception as exc:
+            record(
+                "knowledge_identity",
+                claim_id=claim_id,
+                mapping="failed",
+                error_type=type(exc).__name__,
+            )
 
     def _rebuild_relations(self, connection: sqlite3.Connection, event_id: str, slot: str) -> None:
         claims = connection.execute(

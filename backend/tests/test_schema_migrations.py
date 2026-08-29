@@ -959,3 +959,62 @@ def test_revision_17_adds_relation_score_without_rewriting_feed_rows(tmp_path: P
         assert row["title"] == "Latency"
         assert row["relation_score"] == 0.0
         assert row["relation_feature_version"] == ""
+
+
+def test_revision_18_backfills_knowledge_maps_without_rewriting_claims(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-knowledge-backfill.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '18'")
+        connection.execute("DELETE FROM claim_knowledge_map")
+        connection.execute("DELETE FROM knowledge_identities")
+        connection.execute(
+            """
+            INSERT INTO observations (
+                id, source_type, source_key, source_observation_id,
+                payload_hash, payload_json, original_url, retrieved_at
+            ) VALUES (
+                'obs_bf', 'statuspage', 'abcd1234', 'inc_bf',
+                'hash', '{}', 'https://example.test', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO ledger_events (
+                id, source_type, source_key, source_event_id, title, created_at
+            ) VALUES (
+                'event_bf', 'statuspage', 'abcd1234', 'inc_bf', 'Legacy',
+                '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO state_claims (
+                id, event_id, observation_id, slot, value_text, detail_text,
+                valid_at, observed_at
+            ) VALUES (
+                'claim_bf', 'event_bf', 'obs_bf', 'status', 'investigating',
+                'Investigating elevated latency.',
+                '2026-08-22T00:00:00Z', '2026-08-22T00:00:00Z'
+            )
+            """
+        )
+
+    database.initialize()
+
+    with database.connect() as connection:
+        revisions = {
+            row[0] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+        assert revisions == set(KNOWN_REVISIONS)
+        claim = connection.execute(
+            "SELECT value_text FROM state_claims WHERE id = 'claim_bf'"
+        ).fetchone()
+        assert claim["value_text"] == "investigating"
+        mapped = connection.execute(
+            "SELECT claim_id, knowledge_id FROM claim_knowledge_map WHERE claim_id = 'claim_bf'"
+        ).fetchone()
+        assert mapped is not None
+        assert mapped["knowledge_id"]

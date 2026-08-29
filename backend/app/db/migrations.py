@@ -33,6 +33,7 @@ KNOWN_REVISIONS = (
     "15",
     "16",
     "17",
+    "18",
 )
 
 OAUTH_SCHEMA = """
@@ -460,6 +461,16 @@ def _apply_revision_17(connection: sqlite3.Connection) -> None:
     )
 
 
+def _apply_revision_18(connection: sqlite3.Connection) -> None:
+    """Backfill claim→knowledge maps. Does not rewrite Observation or Claim rows."""
+    tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    if "state_claims" not in tables or "claim_knowledge_map" not in tables:
+        return
+    from app.services.knowledge_identity import rebuild_knowledge_identities
+
+    rebuild_knowledge_identities(connection, created_at=int(time.time()))
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -478,4 +489,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "15": _apply_revision_15,
     "16": _apply_revision_16,
     "17": _apply_revision_17,
+    "18": _apply_revision_18,
 }
