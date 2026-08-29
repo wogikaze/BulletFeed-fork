@@ -1,3 +1,9 @@
+"""Internal source-preview router. Not mounted on app.main:app.
+
+Kept for unit tests that mount it on a separate FastAPI app. Accidentally
+including this router on the production app would expose preview fetches.
+"""
+
 import asyncio
 import re
 from collections.abc import Awaitable

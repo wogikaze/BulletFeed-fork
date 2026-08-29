@@ -15,6 +15,7 @@ from app.services.source_access_policy import (
 
 
 def _source_client(database: Database) -> TestClient:
+    # Preview router is not on app.main:app; tests mount it in isolation.
     source_app = FastAPI()
     source_app.include_router(sources.router)
     source_app.dependency_overrides[get_database] = lambda: database
