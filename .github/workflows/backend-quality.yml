@@ -55,6 +55,9 @@ jobs:
       - name: Eval-01 source-to-feed unknown recall gate
         run: python backend/scripts/run_e2e_unknown_recall.py --split pilot --check
 
+      - name: Eval-02 product release floors
+        run: python backend/scripts/run_product_release_gate.py --check
+
       - name: Run Ruff
         run: ruff check backend
 

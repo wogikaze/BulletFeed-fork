@@ -1,0 +1,17 @@
+{
+  "version": "product-release-floors-v1",
+  "reason": "Initial asymmetric floors after Eval-01. unknown-but-hidden and false merge are hard gates.",
+  "unknown_but_hidden": 0,
+  "false_merge_misses": 0,
+  "important_unknown_recall": 0.7,
+  "known_but_reshown_rate": 0.55,
+  "unknown_but_hidden_rate": 0.0,
+  "discovery_recall": 0.7,
+  "authoritative_source_precision": 0.7,
+  "cold_start": {
+    "important_unknown_recall": 0.5
+  },
+  "history_rich": {
+    "important_unknown_recall": 0.5
+  }
+}
