@@ -33,6 +33,8 @@ ALLOWED_WEB_CONTENT_TYPES = {
 }
 ROBOTS_MAX_BYTES = 64_000
 SNAPSHOT_ID_PREFIX = "snap_"
+ACQUISITION_STATIC_HTTP = "static_http"
+ACQUISITION_BOUNDED_JS = "bounded_js_render"
 
 
 class SnapshotImmutabilityError(ValueError):
@@ -62,10 +64,19 @@ class WebSnapshot:
     robots: RobotsDecision
     final_url: str
     not_modified: bool = False
+    acquisition_mode: str = ACQUISITION_STATIC_HTTP
+    parent_http_snapshot_id: str | None = None
+    renderer_id: str | None = None
+    wait_condition: str | None = None
+    render_reason: str | None = None
 
     @property
     def header_map(self) -> dict[str, str]:
         return {key: value for key, value in self.headers}
+
+    @property
+    def is_rendered(self) -> bool:
+        return self.acquisition_mode == ACQUISITION_BOUNDED_JS
 
 
 def content_hash_for(body: bytes) -> str:
@@ -77,15 +88,22 @@ def snapshot_id_for(
     canonical_url: str,
     content_hash: str,
     retrieved_at: str | None = None,
+    acquisition_mode: str = ACQUISITION_STATIC_HTTP,
 ) -> str:
     """Stable snapshot identity.
 
     Content-addressed per canonical URL so identical bytes do not fork a
     second version. ``retrieved_at`` is accepted for provenance callers and
     recorded on the snapshot, but it is not part of the identity.
+    Static HTTP ids stay ``url + hash`` so existing snapshots remain stable.
+    Rendered snapshots include ``acquisition_mode`` so they never collide
+    with the parent HTTP response.
     """
     del retrieved_at
-    material = f"{canonical_url}\n{content_hash}"
+    if acquisition_mode == ACQUISITION_STATIC_HTTP:
+        material = f"{canonical_url}\n{content_hash}"
+    else:
+        material = f"{canonical_url}\n{content_hash}\n{acquisition_mode}"
     return f"{SNAPSHOT_ID_PREFIX}{hashlib.sha256(material.encode()).hexdigest()}"
 
 
@@ -225,7 +243,12 @@ class SnapshotStore:
     def get_by_url_and_hash(self, canonical_url: str, content_hash: str) -> WebSnapshot | None:
         return self.get(snapshot_id_for(canonical_url=canonical_url, content_hash=content_hash))
 
-    def latest_for(self, canonical_url: str) -> WebSnapshot | None:
+    def latest_for(
+        self,
+        canonical_url: str,
+        *,
+        acquisition_mode: str | None = ACQUISITION_STATIC_HTTP,
+    ) -> WebSnapshot | None:
         matches: list[WebSnapshot] = []
         for meta_path in self.root.glob("snap_*/meta.json"):
             meta = json.loads(meta_path.read_text(encoding="utf-8"))
@@ -234,7 +257,10 @@ class SnapshotStore:
             body_path = meta_path.with_name("body.bin")
             if not body_path.is_file():
                 continue
-            matches.append(_snapshot_from_disk(meta, body_path.read_bytes()))
+            snapshot = _snapshot_from_disk(meta, body_path.read_bytes())
+            if acquisition_mode is not None and snapshot.acquisition_mode != acquisition_mode:
+                continue
+            matches.append(snapshot)
         if not matches:
             return None
         return max(matches, key=lambda item: (item.retrieved_at, item.snapshot_id))
@@ -263,7 +289,8 @@ async def fetch_web_snapshot(
     """Safely fetch an allowlisted public page and persist an immutable snapshot.
 
     Does not write Observations and does not treat HTML as Claim evidence.
-    JavaScript rendering is out of scope (#64).
+    This path is static HTTP only. Bounded JS rendering lives in
+    ``web_render.maybe_render_web_snapshot`` and is opt-in (#64).
     """
     if not settings.web_hosts:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Web fetching is disabled")
@@ -577,6 +604,11 @@ def _encode_meta(snapshot: WebSnapshot) -> str:
             "retrieved_at": snapshot.robots.retrieved_at,
         },
         "final_url": snapshot.final_url,
+        "acquisition_mode": snapshot.acquisition_mode,
+        "parent_http_snapshot_id": snapshot.parent_http_snapshot_id,
+        "renderer_id": snapshot.renderer_id,
+        "wait_condition": snapshot.wait_condition,
+        "render_reason": snapshot.render_reason,
     }
     return json.dumps(payload, sort_keys=True, indent=2, ensure_ascii=False) + "\n"
 
@@ -602,6 +634,11 @@ def _snapshot_from_disk(meta: dict[str, Any], body: bytes) -> WebSnapshot:
             retrieved_at=robots_raw.get("retrieved_at"),
         ),
         final_url=str(meta["final_url"]),
+        acquisition_mode=str(meta.get("acquisition_mode") or ACQUISITION_STATIC_HTTP),
+        parent_http_snapshot_id=meta.get("parent_http_snapshot_id"),
+        renderer_id=meta.get("renderer_id"),
+        wait_condition=meta.get("wait_condition"),
+        render_reason=meta.get("render_reason"),
     )
 
 
@@ -618,6 +655,11 @@ def _snapshots_equivalent(left: WebSnapshot, right: WebSnapshot) -> bool:
         and left.final_url == right.final_url
         and left.robots == right.robots
         and left.retrieved_at == right.retrieved_at
+        and left.acquisition_mode == right.acquisition_mode
+        and left.parent_http_snapshot_id == right.parent_http_snapshot_id
+        and left.renderer_id == right.renderer_id
+        and left.wait_condition == right.wait_condition
+        and left.render_reason == right.render_reason
     )
 
 

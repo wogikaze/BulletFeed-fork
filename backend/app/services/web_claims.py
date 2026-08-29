@@ -4,7 +4,7 @@ generic_web stays discovery-only. Observations always carry snapshot/section
 provenance. Claims are created only for allowlisted official_changelog /
 documentation pages that pass source_allows_claim_evidence. Existing
 ClaimLedgerStore / judge_revision / coreference remain the semantic authority.
-Does not render JavaScript (#64).
+Does not start a renderer (#64).
 """
 
 from __future__ import annotations

@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     request_timeout_seconds: float = 10.0
     max_response_bytes: int = 1_048_576
     session_telemetry_enabled: bool = True
+    dynamic_web_enabled: bool = False
+    dynamic_web_allowed_hosts: str = ""
+    dynamic_web_timeout_seconds: float = 8.0
+    dynamic_web_max_output_bytes: int = 1_048_576
+    dynamic_web_max_subresources: int = 8
+    dynamic_web_max_memory_mb: int = 128
 
     @property
     def cors_origins(self) -> list[str]:
@@ -39,6 +45,14 @@ class Settings(BaseSettings):
     def web_hosts(self) -> set[str]:
         return {
             item.strip().lower().rstrip(".") for item in self.web_allowed_hosts.split(",") if item.strip()
+        }
+
+    @property
+    def dynamic_web_hosts(self) -> set[str]:
+        return {
+            item.strip().lower().rstrip(".")
+            for item in self.dynamic_web_allowed_hosts.split(",")
+            if item.strip()
         }
 
     @property

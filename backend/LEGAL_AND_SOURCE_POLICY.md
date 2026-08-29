@@ -10,7 +10,7 @@
 | OSV | 公開API | 脆弱性ID、対象package/version、更新日時 | 不要な全文コピー |
 | 公式RSS / Atom | 配信者が公開するfeed | タイトル、URL、日時、最大500文字の配信要約 | 記事本文、画像、添付物 |
 | Statuspage | 公開Status API | incident ID、状態、更新時刻、根拠URL | 管理APIの秘密情報 |
-| 公式公開HTML | 運営allowlist上のHTTPS静的取得（不変スナップショット） | 生バイト、応答ヘッダ、取得日時、content hash、robots判定。Observation（provenance付き）。Claim/Evidence は `official_changelog` / `documentation` のallowlist公式ページのみ | ログイン必須ページ、JS実行結果、任意URL、再配布、`generic_web` からの自動Claim化 |
+| 公式公開HTML | 運営allowlist上のHTTPS静的取得（不変スナップショット）。静的抽出が不足し、かつソース方針が明示オプトインのときだけ上限付き動的レンダ（#64） | 生バイト、応答ヘッダ、取得日時、content hash、robots判定。レンダ時は HTTP 親スナップショット ID と `acquisition_mode`。Observation（provenance付き）。Claim/Evidence は `official_changelog` / `documentation` のallowlist公式ページのみ | ログイン必須ページ、Cookie、任意URL、再配布、`generic_web` からの自動Claim化。フラグ無効時の JS 実行結果 |
 
 ## 必須ルール
 
@@ -31,6 +31,7 @@
 - DNS解決後のprivate / loopback / link-local IPを拒否する。
 - HTTPSのみ、レスポンスサイズ・時間・Content-Type・リダイレクト回数を制限する。汎用Webスナップショットは一度書いたら変更しない。
 - HTMLはactive contentとして表示せず、プレーンテキスト化する。Android内WebViewでJavaScriptを実行しない。
+- 動的Webレンダはデフォルト無効。`BULLETFEED_DYNAMIC_WEB_ENABLED` と `dynamic_web` ホスト allowlist、ソース方針 `bounded_js_when_needed`、静的 #61 抽出不足が揃ったときだけ動く。時間・出力・サブリソース・メモリ上限と SSRF 検査をサブリソース／リダイレクトにも適用する。レンダ失敗は権威にしない。Cookie / ログインは対象外。実ブラウザは `real_renderer_gate` の live 条件を満たすまで入れない。入れるときは isolated renderer service であり、通常 backend へ Playwright を直接足さない。Source-09 の `dynamic_web` gap は導入条件にしない。
 - GitHub Appは最小権限と選択リポジトリのみ。token・secretはサーバー側で暗号化する。
 - Webhook導入時は署名、配信IDの重複、timestamp、body sizeを検証する。
 

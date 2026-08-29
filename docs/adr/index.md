@@ -22,6 +22,7 @@
 | [ADR-0018](0018-session-telemetry-v1.md) | Accepted | 実フィードセッション成果指標 v1 (Eval-04) |
 | [ADR-0019](0019-e2e-unknown-recall-v1.md) | Accepted | ソースからフィードまでの重要未知再現率 v1 (Eval-01) |
 | [ADR-0020](0020-product-release-gate-v1.md) | Accepted | 非対称プロダクト価値リリースゲート v1 (Eval-02) |
+| [ADR-0021](0021-bounded-dynamic-web-v1.md) | Accepted | 上限付き動的 Web レンダリング v1 (Source-08) |
 
 ## ADR様式
 

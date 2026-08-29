@@ -21,9 +21,10 @@ DOCUMENT_ID_PREFIX = "norm_"
 SECTION_ID_PREFIX = "sec_"
 BLOCK_ID_PREFIX = "blk_"
 
-# Structural extraction only. JavaScript rendering is out of scope (#64).
-# Change-candidate typing lives in web_changes.py (#62). This module never writes
-# Observations or Claims; generic_web remains discovery-only.
+# Structural extraction only. Bounded JS rendering lives in web_render.py (#64).
+# This module never executes JavaScript. Change-candidate typing lives in
+# web_changes.py (#62). This module never writes Observations or Claims;
+# generic_web remains discovery-only.
 
 SKIP_TAGS = frozenset(
     {
@@ -238,7 +239,7 @@ def normalize_web_snapshot(snapshot: WebSnapshot) -> NormalizedDocument:
     """Turn an immutable snapshot into a versioned normalized document.
 
     Never mutates ``snapshot.body`` or the snapshot store. Does not write
-    Observations or Claims and does not render JavaScript.
+    Observations or Claims. Accepts both static HTTP and rendered snapshots.
     """
     body = bytes(snapshot.body)
     document_id = document_id_for(snapshot.snapshot_id)
