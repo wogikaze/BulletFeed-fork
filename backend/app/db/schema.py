@@ -228,6 +228,27 @@ ON user_knowledge_evidence(user_id, claim_id, event_id, delta_id, created_at, id
 CREATE INDEX IF NOT EXISTS idx_user_knowledge_evidence_user
 ON user_knowledge_evidence(user_id, created_at, id);
 
+CREATE TABLE IF NOT EXISTS knowledge_identities (
+    id TEXT PRIMARY KEY,
+    fingerprint_json TEXT NOT NULL,
+    version TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS claim_knowledge_map (
+    claim_id TEXT PRIMARY KEY,
+    knowledge_id TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    confidence TEXT NOT NULL,
+    version TEXT NOT NULL,
+    decision TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY(knowledge_id) REFERENCES knowledge_identities(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_claim_knowledge_map_knowledge
+ON claim_knowledge_map(knowledge_id, claim_id);
+
 CREATE TABLE IF NOT EXISTS user_ranking_resets (
     user_id TEXT PRIMARY KEY,
     reset_at INTEGER NOT NULL,

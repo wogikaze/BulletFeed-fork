@@ -1,0 +1,247 @@
+{
+  "dataset_id": "bulletfeed-knowledge-identity-v0.1",
+  "version": "knowledge-identity-v1",
+  "notes": "Small identity fixtures only. Do not rewrite existing Gold labels.",
+  "pairs": [
+    {
+      "id": "paraphrase-limit",
+      "expected": "same_target",
+      "left": {
+        "source": "statuspage",
+        "slot": "limit",
+        "value": "increased",
+        "detail": "Limit increased to 1,000 requests per minute."
+      },
+      "right": {
+        "source": "rss_atom",
+        "slot": "limit",
+        "value": "increased",
+        "detail": "Limit was raised to one thousand requests/min."
+      }
+    },
+    {
+      "id": "cross-source-latency",
+      "expected": "same_target",
+      "left": {
+        "source": "statuspage",
+        "slot": "status",
+        "value": "investigating",
+        "detail": "Investigating elevated latency."
+      },
+      "right": {
+        "source": "json_feed",
+        "slot": "status",
+        "value": "investigating",
+        "detail": "We are investigating elevated latency."
+      }
+    },
+    {
+      "id": "date-format-restatement",
+      "expected": "same_target",
+      "left": {
+        "source": "documentation",
+        "slot": "policy_state",
+        "value": "retires",
+        "detail": "Retires July 30, 2026"
+      },
+      "right": {
+        "source": "rss_atom",
+        "slot": "policy_state",
+        "value": "retires",
+        "detail": "Retires 2026/07/30"
+      }
+    },
+    {
+      "id": "reordered-clauses",
+      "expected": "same_target",
+      "left": {
+        "source": "github_release",
+        "slot": "availability",
+        "value": "available",
+        "detail": "Japan rollout is available for enterprise users"
+      },
+      "right": {
+        "source": "json_feed",
+        "slot": "availability",
+        "value": "available",
+        "detail": "Enterprise users have Japan rollout available"
+      }
+    },
+    {
+      "id": "added-detail",
+      "expected": "different_target",
+      "left": {
+        "source": "github_release",
+        "slot": "release_state",
+        "value": "released",
+        "detail": "Widget v3 is available"
+      },
+      "right": {
+        "source": "github_release",
+        "slot": "release_state",
+        "value": "released",
+        "detail": "Widget v3 is available with migration notes"
+      }
+    },
+    {
+      "id": "numeric-change",
+      "expected": "different_target",
+      "left": {
+        "source": "documentation",
+        "slot": "limit",
+        "value": "limit 1000 requests/min",
+        "detail": ""
+      },
+      "right": {
+        "source": "documentation",
+        "slot": "limit",
+        "value": "limit 1200 requests/min",
+        "detail": ""
+      }
+    },
+    {
+      "id": "version-change",
+      "expected": "different_target",
+      "left": {
+        "source": "osv",
+        "slot": "vulnerability_state",
+        "value": "fixed",
+        "detail": "fixed in v2.1.0"
+      },
+      "right": {
+        "source": "osv",
+        "slot": "vulnerability_state",
+        "value": "fixed",
+        "detail": "fixed in v2.2.0"
+      }
+    },
+    {
+      "id": "negation-correction",
+      "expected": "different_target",
+      "left": {
+        "source": "documentation",
+        "slot": "compatibility_state",
+        "value": "supported",
+        "detail": "Python 3.10 is supported"
+      },
+      "right": {
+        "source": "documentation",
+        "slot": "compatibility_state",
+        "value": "unsupported",
+        "detail": "Python 3.10 is not supported"
+      }
+    },
+    {
+      "id": "date-change",
+      "expected": "different_target",
+      "left": {
+        "source": "documentation",
+        "slot": "policy_state",
+        "value": "retires",
+        "detail": "Retires July 30, 2026"
+      },
+      "right": {
+        "source": "documentation",
+        "slot": "policy_state",
+        "value": "retires",
+        "detail": "Retires August 1, 2026"
+      }
+    },
+    {
+      "id": "stable-id-hard-negative",
+      "expected": "different_target",
+      "left": {
+        "source": "osv",
+        "slot": "vulnerability_state",
+        "value": "affected",
+        "detail": "requests 2.0.0 is affected by GHSA-aaaa-bbbb-cccc."
+      },
+      "right": {
+        "source": "github_advisory",
+        "slot": "vulnerability_state",
+        "value": "affected",
+        "detail": "requests 2.0.0 is affected by GHSA-dddd-eeee-ffff."
+      }
+    },
+    {
+      "id": "lexical-overlap-widget-spark",
+      "expected": "not_same_target",
+      "left": {
+        "source": "rss_atom",
+        "slot": "lifecycle",
+        "value": "retired",
+        "detail": "Widget retired on 2026-07-30"
+      },
+      "right": {
+        "source": "json_feed",
+        "slot": "lifecycle",
+        "value": "retired",
+        "detail": "Spark retired on 2026-07-30"
+      }
+    },
+    {
+      "id": "lexical-overlap-api-cli",
+      "expected": "not_same_target",
+      "left": {
+        "source": "rss_atom",
+        "slot": "policy_state",
+        "value": "announced",
+        "detail": "Legacy API deprecation was announced."
+      },
+      "right": {
+        "source": "rss_atom",
+        "slot": "policy_state",
+        "value": "announced",
+        "detail": "Legacy CLI deprecation was announced."
+      }
+    },
+    {
+      "id": "slot-differs",
+      "expected": "different_target",
+      "left": {
+        "source": "statuspage",
+        "slot": "status",
+        "value": "investigating",
+        "detail": "Investigating elevated latency."
+      },
+      "right": {
+        "source": "statuspage",
+        "slot": "limit",
+        "value": "investigating",
+        "detail": "Investigating elevated latency."
+      }
+    },
+    {
+      "id": "one-sided-stable-id",
+      "expected": "uncertain",
+      "left": {
+        "source": "osv",
+        "slot": "vulnerability_state",
+        "value": "fixed",
+        "detail": "GHSA-aaaa-bbbb-cccc is patched"
+      },
+      "right": {
+        "source": "rss_atom",
+        "slot": "vulnerability_state",
+        "value": "fixed",
+        "detail": "the vulnerability is patched"
+      }
+    },
+    {
+      "id": "inconclusive-conflict",
+      "expected": "uncertain",
+      "left": {
+        "source": "statuspage",
+        "slot": "status",
+        "value": "issue",
+        "detail": "database latency issue"
+      },
+      "right": {
+        "source": "statuspage",
+        "slot": "status",
+        "value": "issue",
+        "detail": "database capacity issue"
+      }
+    }
+  ]
+}

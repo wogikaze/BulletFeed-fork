@@ -270,6 +270,7 @@ class EventIdentityRepairService:
         self._retire_event(source_event_id, target_event_id)
         self._projector.project_event(target_event_id)
         self._apply_visibility(target_event_id, visibility)
+        self._rebuild_knowledge_identities((*claim_ids, *self._event_claim_ids(target_event_id)))
         return EventRepairResult("merge", source_event_id, target_event_id, claim_ids)
 
     def _split(
@@ -357,6 +358,13 @@ class EventIdentityRepairService:
         self._projector.project_event(resolved_target)
         self._copy_follows(source_event_id, resolved_target)
         self._apply_visibility(resolved_target, visibility)
+        self._rebuild_knowledge_identities(
+            (
+                *unique_ids,
+                *self._event_claim_ids(source_event_id),
+                *self._event_claim_ids(resolved_target),
+            )
+        )
         return EventRepairResult("split", source_event_id, resolved_target, unique_ids)
 
     def _detach_claim_projections(
@@ -520,6 +528,23 @@ class EventIdentityRepairService:
                         """,
                         (event_id, user_id, expires_at),
                     )
+
+    def _event_claim_ids(self, event_id: str) -> tuple[str, ...]:
+        with self._database.connect() as connection:
+            rows = connection.execute(
+                "SELECT id FROM state_claims WHERE event_id = ? ORDER BY id",
+                (event_id,),
+            ).fetchall()
+        return tuple(str(row["id"]) for row in rows)
+
+    def _rebuild_knowledge_identities(self, claim_ids: tuple[str, ...]) -> None:
+        unique = tuple(sorted({claim_id for claim_id in claim_ids if claim_id}))
+        if not unique:
+            return
+        from app.services.knowledge_identity import rebuild_knowledge_identities
+
+        with self._database.connect() as connection:
+            rebuild_knowledge_identities(connection, claim_ids=unique)
 
     def _event_exists(self, event_id: str) -> bool:
         with self._database.connect() as connection:
