@@ -2,11 +2,30 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Sequence
 
 from app.database import Database
 from app.db.projection_schema import ensure_projection_schema
 from app.services.ranking import evaluate_importance
 from app.services.relation import evaluate_relation
+
+
+def project_event_for_audience(
+    database: Database,
+    *,
+    event_id: str,
+    user_ids: Sequence[str],
+) -> dict[str, list[str]]:
+    """Project one already-ingested Event onto an explicit user audience.
+
+    Callers resolve who is subscribed. This helper does not discover
+    subscribers and does not write user_claim_exposures.
+    """
+    projector = FeedProjector(database)
+    created: dict[str, list[str]] = {}
+    for user_id in dict.fromkeys(user_ids):
+        created[user_id] = projector.project_event_for_user(user_id=user_id, event_id=event_id)
+    return created
 
 
 class FeedProjector:

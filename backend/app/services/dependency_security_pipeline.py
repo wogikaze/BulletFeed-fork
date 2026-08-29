@@ -7,7 +7,7 @@ from typing import Any
 from app.config import Settings
 from app.database import Database
 from app.services.event_access import project_repository_event_access
-from app.services.feed_projection import FeedProjector
+from app.services.feed_projection import project_event_for_audience
 from app.services.github_sbom_source import fetch_github_sbom, normalize_github_sbom
 from app.services.ledger_projection import LedgerProjector
 from app.services.osv_batch import query_osv_batch
@@ -285,10 +285,9 @@ def _project_for_watchers(database: Database, *, repository_key: str, event_id: 
         repository_key=repository_key,
         event_id=event_id,
     )
-    feed = FeedProjector(database)
+    project_event_for_audience(database, event_id=event_id, user_ids=user_ids)
     security = SecurityProjector(database)
     for user_id in user_ids:
-        feed.project_event_for_user(user_id=user_id, event_id=event_id)
         security.project_event_for_user(user_id=user_id, event_id=event_id)
 
 
