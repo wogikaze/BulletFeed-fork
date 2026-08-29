@@ -1,0 +1,18 @@
+[
+  {
+    "adjudication_id": "adj-equivalence-001",
+    "item_id": "item-adjudicate-001",
+    "family": "semantic_equivalence",
+    "source_annotation_ids": ["ann-adjudicate-a", "ann-adjudicate-b"],
+    "source_dataset_version": "label-contract-v0.1",
+    "produced_dataset_version": "label-contract-v0.1.1",
+    "resolved_value": "equivalent",
+    "resolved_ambiguous": "none",
+    "adjudicator_id": "adjudicator-1",
+    "rationale": "Both texts restate the same Actions degraded-performance incident; the extra region mention is not a new fact.",
+    "protocol_version": "label-protocol-v1",
+    "adjudicated_at": "2026-08-29T12:00:00Z",
+    "provenance": "adjudicator=adjudicator-1; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "split": "pilot"
+  }
+]

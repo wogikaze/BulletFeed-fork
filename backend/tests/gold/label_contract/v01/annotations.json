@@ -1,0 +1,156 @@
+[
+  {
+    "annotation_id": "ann-agree-a",
+    "item_id": "item-agree-001",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-a; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:00:00Z",
+    "notes": "User watches vercel/next.js; official Next.js 15.1 release.",
+    "judgments": [
+      {"family": "relevance", "value": 3, "ambiguous": "none", "rationale": "Watched repository official release."},
+      {"family": "user_importance", "value": 3, "ambiguous": "none", "rationale": "Breaking changes affect current app."},
+      {"family": "knownness", "value": "new", "ambiguous": "none", "rationale": "Not in prior read set."},
+      {"family": "should_surface", "value": true, "ambiguous": "none", "rationale": "High relevance and importance, unseen."}
+    ]
+  },
+  {
+    "annotation_id": "ann-agree-b",
+    "item_id": "item-agree-001",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-b; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:05:00Z",
+    "notes": "",
+    "judgments": [
+      {"family": "relevance", "value": 3, "ambiguous": "none", "rationale": "Direct product the user tracks."},
+      {"family": "user_importance", "value": 3, "ambiguous": "none", "rationale": "Missed upgrade would break CI."},
+      {"family": "knownness", "value": "new", "ambiguous": "none", "rationale": "No prior exposure evidence."},
+      {"family": "should_surface", "value": true, "ambiguous": "none", "rationale": "Must appear in this session."}
+    ]
+  },
+  {
+    "annotation_id": "ann-disagree-a",
+    "item_id": "item-disagree-001",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-a; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:10:00Z",
+    "notes": "Vite release for a React-only profile.",
+    "judgments": [
+      {"family": "relevance", "value": 2, "ambiguous": "none", "rationale": "Adjacent frontend toolchain."},
+      {"family": "user_importance", "value": 1, "ambiguous": "none", "rationale": "Not on the critical path this week."},
+      {"family": "should_surface", "value": false, "ambiguous": "none", "rationale": "Useful later, not this session."}
+    ]
+  },
+  {
+    "annotation_id": "ann-disagree-b",
+    "item_id": "item-disagree-001",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-b; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:12:00Z",
+    "notes": "",
+    "judgments": [
+      {"family": "relevance", "value": 1, "ambiguous": "none", "rationale": "Same industry, not a tracked product."},
+      {"family": "user_importance", "value": 1, "ambiguous": "none", "rationale": "Optional awareness only."},
+      {"family": "should_surface", "value": false, "ambiguous": "none", "rationale": "Should not occupy the feed."}
+    ]
+  },
+  {
+    "annotation_id": "ann-ambiguous-a",
+    "item_id": "item-ambiguous-001",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-a; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:20:00Z",
+    "notes": "Title only; user repository watch list omitted.",
+    "judgments": [
+      {
+        "family": "relevance",
+        "value": null,
+        "ambiguous": "insufficient_context",
+        "rationale": "Cannot tell if the user tracks this repository."
+      }
+    ]
+  },
+  {
+    "annotation_id": "ann-ambiguous-b",
+    "item_id": "item-ambiguous-001",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-b; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:21:00Z",
+    "notes": "",
+    "judgments": [
+      {
+        "family": "relevance",
+        "value": 1,
+        "ambiguous": "ambiguous",
+        "rationale": "Title mentions Actions but the user profile is missing; tentative only."
+      }
+    ]
+  },
+  {
+    "annotation_id": "ann-adjudicate-a",
+    "item_id": "item-adjudicate-001",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-a; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:30:00Z",
+    "notes": "Statuspage vs JSON Feed restatement of the same incident.",
+    "judgments": [
+      {
+        "family": "semantic_equivalence",
+        "value": "equivalent",
+        "ambiguous": "none",
+        "rationale": "Same degraded-performance fact, different wording."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "NON_NOVEL",
+        "ambiguous": "none",
+        "rationale": "Restatement of a settled claim."
+      }
+    ]
+  },
+  {
+    "annotation_id": "ann-adjudicate-b",
+    "item_id": "item-adjudicate-001",
+    "annotator_id": "annotator-b",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "pilot",
+    "provenance": "annotator=annotator-b; protocol=label-protocol-v1; fixture=label-contract-v01",
+    "labeled_at": "2026-08-29T10:31:00Z",
+    "notes": "",
+    "judgments": [
+      {
+        "family": "semantic_equivalence",
+        "value": "not_equivalent",
+        "ambiguous": "none",
+        "rationale": "Feed adds a region list that Statuspage omitted."
+      },
+      {
+        "family": "novelty_revision",
+        "value": "DETAIL",
+        "ambiguous": "none",
+        "rationale": "Treated the region list as added detail."
+      }
+    ]
+  }
+]

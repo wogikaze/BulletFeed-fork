@@ -1,0 +1,19 @@
+[
+  {
+    "annotation_id": "ann-blind-a-001",
+    "item_id": "item-blind-001",
+    "annotator_id": "annotator-a",
+    "protocol_version": "label-protocol-v1",
+    "dataset_version": "label-contract-v0.1",
+    "split": "blind",
+    "provenance": "annotator=annotator-a; protocol=label-protocol-v1; fixture=label-contract-v01; split=blind",
+    "labeled_at": "2026-08-29T11:00:00Z",
+    "notes": "Holdout item. Production scoring must not import this path.",
+    "judgments": [
+      {"family": "relevance", "value": 3, "ambiguous": "none", "rationale": "User SBOM lists this package."},
+      {"family": "user_importance", "value": 3, "ambiguous": "none", "rationale": "RCE in a production dependency."},
+      {"family": "knownness", "value": "new", "ambiguous": "none", "rationale": "No prior knowledge evidence."},
+      {"family": "should_surface", "value": true, "ambiguous": "none", "rationale": "Safety-critical unseen advisory."}
+    ]
+  }
+]
