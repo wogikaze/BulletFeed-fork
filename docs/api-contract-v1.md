@@ -200,6 +200,40 @@ Behavior:
 応答: 接続状態 + `addedTopics` / `alreadyTrackedTopics`。監視repo保存時に技術テーマを同期する。  
 `DELETE /me/integrations/github` — 監視選択を消し接続を切る。フィード履歴は残す。
 
+### Source subscriptions
+
+認証必須。テナント分離。プレビュー用 `/v1/sources` とは別経路。任意 HTML は扱わない。
+
+`GET /me/sources` — 当該ユーザーの Statuspage / RSS / Atom / JSON Feed 購読。
+
+`POST /me/sources` `{ kind: statuspage | rss_atom | json_feed, url?, pageId? }`
+
+- `statuspage`: `pageId`（`[a-z0-9]{8,32}`）または `*.statuspage.io` URL
+- `rss_atom` / `json_feed`: HTTPS URL。`validate_feed_url` と `rss_allowed_hosts` で SSRF/allowlist を **保存・スケジュール前** に検証する
+- 正規化は source registry（`canonicalize_url` + `find_duplicate_endpoint`）。同一正規ソースの再追加は冪等（既存なら 200、新規なら 201）
+- 追加は `source_sync_subscriptions.selected=1` と `source_sync_jobs` を確定的に更新する
+- 応答は安全なメタデータと同期状態のみ。他ユーザーの `source_key` は返さない
+
+```json
+{
+  "id": "ep_…",
+  "kind": "rss_atom",
+  "canonicalUrl": "https://example.com/feed.xml",
+  "pageId": null,
+  "publisher": { "slug": "example.com", "displayName": "example.com" },
+  "status": {
+    "selected": true,
+    "state": "pending",
+    "lastSuccessAt": null,
+    "lastAttemptAt": null,
+    "failureCount": 0,
+    "nextRunAt": "2026-08-29T07:50:00Z"
+  }
+}
+```
+
+`DELETE /me/sources/{subscriptionId}` — 当該ユーザーの購読を外す。最終購読者なら `selected=0` にし、有効リース中でなければ `source_sync_jobs` を消す。Observation 履歴は消さない。他人の購読 ID は 404。
+
 ### Security / Notifications
 
 既存のまま残す。脆弱性は Event に統合しない。

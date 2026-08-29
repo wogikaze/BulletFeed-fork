@@ -16,7 +16,7 @@ from app.dependencies import get_database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 from app.models import HealthResponse
 from app.observability import public_counters
-from app.routers import auth, events, feed, integrations, me, sessions, webhooks
+from app.routers import auth, events, feed, integrations, me, sessions, source_subscriptions, webhooks
 
 
 @asynccontextmanager
@@ -53,6 +53,7 @@ app.include_router(sessions.router)
 app.include_router(feed.router)
 app.include_router(events.router)
 app.include_router(me.router)
+app.include_router(source_subscriptions.router)
 app.include_router(integrations.router)
 app.include_router(auth.router)
 app.include_router(webhooks.router)
