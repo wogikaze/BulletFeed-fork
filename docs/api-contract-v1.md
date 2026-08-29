@@ -254,6 +254,29 @@ Behavior:
 
 `DELETE /me/sources/{subscriptionId}` — 当該ユーザーの購読を外す。最終購読者なら `selected=0` にし、有効リース中でなければ `source_sync_jobs` を消す。Observation 履歴は消さない。他人の購読 ID は 404。
 
+
+### Source discovery
+
+認証必須。テナント分離。発見は evidence ではない。購読を自動作成しない。
+
+`GET /me/source-recommendations?limit=&includeIgnored=` 興味・トピックから権威あるソース候補を返す。
+
+- limit 1–40、既定 20。`includeIgnored` 既定 false
+- 並び: score desc, authorityConfidence desc, canonicalUrl
+- 応答: `{ version, items: SourceRecommendation[] }`
+- `version`: `source-discovery-v1`
+- 各 item: `id, endpointId, canonicalUrl, family, discoveryMethod, discoveryProvenance, verificationStatus, authorityStatus, authorityConfidence, evidenceEligible, discoveryOnly, reason, explanation, matchedConcepts, matchOrigin, matchKind, score, recommendationStatus, publisher`
+- `evidenceEligible` は常に false。発見レコードは Claim 根拠にしない
+- Hacker News など discovery-only は `discoveryOnly=true`。URL を提案しただけでは authoritative にしない
+- 正規化は source registry（#58）。同一エンドポイントは 1 件に畳む
+- verified な公式ソースを優先する
+- ledger / subscriptions / sync jobs を書き換えない
+
+`POST /me/source-recommendations/{candidateId}` `{ decision: approved | ignored }`
+
+- 承認/無視だけを記録する。`source_sync_subscriptions` も `source_sync_jobs` も作らない
+- 未知の候補は 404。他人の決定は見えない
+
 ### Security / Notifications
 
 既存のまま残す。脆弱性は Event に統合しない。
