@@ -83,12 +83,16 @@ class FamilyJudgment(_FrozenModel):
     @model_validator(mode="after")
     def validate_family_value(self) -> Self:
         if self.ambiguous is AmbiguousFlag.NONE and self.value is None:
-            raise ValueError(f"{self.family} requires a value unless marked ambiguous or insufficient_context")
+            raise ValueError(
+                f"{self.family} requires a value unless marked ambiguous or insufficient_context"
+            )
         if self.value is None:
             return self
         allowed = _FAMILY_ALLOWED_VALUES[self.family]
         if self.value not in allowed:
-            raise ValueError(f"invalid {self.family} value {self.value!r}; allowed={sorted(allowed, key=str)}")
+            raise ValueError(
+                f"invalid {self.family} value {self.value!r}; allowed={sorted(allowed, key=str)}"
+            )
         return self
 
     def is_forced_label(self) -> bool:
@@ -166,7 +170,9 @@ class AdjudicationRecord(_FrozenModel):
     @model_validator(mode="after")
     def validate_version_and_value(self) -> Self:
         if self.produced_dataset_version == self.source_dataset_version:
-            raise ValueError("adjudication must produce a new dataset_version rather than rewrite Gold in place")
+            raise ValueError(
+                "adjudication must produce a new dataset_version rather than rewrite Gold in place"
+            )
         if self.resolved_ambiguous is AmbiguousFlag.NONE and self.resolved_value is None:
             raise ValueError("resolved adjudication requires a value unless it remains ambiguous")
         if self.resolved_value is None:
@@ -276,7 +282,7 @@ def filter_unresolved_ambiguous(
             unresolved.append(record)
         else:
             scorable.append(record)
-    return AmbiguousFilterResult(tuple(scorable), tuple(unresolved))
+    return AmbiguousFilterResult(scorable=tuple(scorable), unresolved_ambiguous=tuple(unresolved))
 
 
 def apply_adjudication(
@@ -287,7 +293,9 @@ def apply_adjudication(
     sources = tuple(record.model_copy(deep=True) for record in records if record.annotation_id in source_ids)
     if len(sources) != len(source_ids):
         missing = source_ids - {record.annotation_id for record in sources}
-        raise ValueError(f"adjudication {adjudication.adjudication_id} missing source annotations: {sorted(missing)}")
+        raise ValueError(
+            f"adjudication {adjudication.adjudication_id} missing source annotations: {sorted(missing)}"
+        )
     mismatched = [record.annotation_id for record in sources if record.item_id != adjudication.item_id]
     if mismatched:
         raise ValueError(f"adjudication {adjudication.adjudication_id} item_id does not match {mismatched}")

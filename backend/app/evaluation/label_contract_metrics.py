@@ -143,7 +143,9 @@ def family_disagreement_rows(
         right_judgment = right.judgment_for(family)
         if left_judgment is None or right_judgment is None:
             continue
-        if left_judgment.ambiguous is not AmbiguousFlag.NONE or right_judgment.ambiguous is not AmbiguousFlag.NONE:
+        left_open = left_judgment.ambiguous is not AmbiguousFlag.NONE
+        right_open = right_judgment.ambiguous is not AmbiguousFlag.NONE
+        if left_open or right_open:
             continue
         if left_judgment.value == right_judgment.value:
             continue
