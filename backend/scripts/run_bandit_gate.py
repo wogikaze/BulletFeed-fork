@@ -42,7 +42,7 @@ def main() -> int:
         expected[key] = str(waiver["reason"])
 
     process = subprocess.run(
-        ["bandit", "-r", "backend/app", "-f", "json"],
+        [sys.executable, "-m", "bandit", "-r", "backend/app", "-f", "json"],
         cwd=ROOT,
         capture_output=True,
         text=True,
