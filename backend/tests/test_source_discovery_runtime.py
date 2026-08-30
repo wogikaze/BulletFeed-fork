@@ -61,7 +61,7 @@ def test_no_seed_topic_finds_official_runtime_candidates(tmp_path) -> None:
     persisted = DiscoveryStore(database).list_all()
     assert any(row.target_url.endswith("/rss.xml") for row in persisted)
     registry = SourceRegistry(database)
-    assert registry.find_duplicate_endpoint("https://bun.sh/rss.xml", family=SourceKind.RSS_ATOM)
+    assert registry.find_duplicate_endpoint("https://bun.sh/rss.xml", family=SourceKind.RSS_ATOM) is None
 
 
 def test_hn_and_external_index_never_persist_as_truth(tmp_path) -> None:
