@@ -25,6 +25,7 @@ def test_main_persists_passed_host_recovery_result(tmp_path: Path, monkeypatch) 
         "worker_restart": True,
         "session_persisted": True,
         "ready_after_restart": True,
+        "filesystem_fault_injection": True,
         "status": "passed",
         "residual_risks": [],
     }
