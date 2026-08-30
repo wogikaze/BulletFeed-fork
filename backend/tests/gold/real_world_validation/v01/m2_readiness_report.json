@@ -1,0 +1,166 @@
+{
+  "report_version": "m2-corpus-readiness-v1",
+  "dataset_version": "real-world-validation-v0.2",
+  "contract_version": "real-world-validation-contract-v1.2",
+  "frozen_main_sha": "ecdacc28237c399993518c8f161effb6295ef878",
+  "capacity": {
+    "event_count": 603,
+    "real_event_count": 600,
+    "authoritative_endpoint_count": 516,
+    "profile_count": 146,
+    "judgment_count": 10003,
+    "source_family_count": 6,
+    "persona_template_count": 24,
+    "meets_targets": true,
+    "missing": []
+  },
+  "coverage": {
+    "events": 603,
+    "real_events": 600,
+    "authoritative_endpoints": 516,
+    "contract_fixture_events": 3,
+    "discovery_sources": 0,
+    "profiles": 146,
+    "judgments": 10003,
+    "source_families": 6,
+    "information_types": 3,
+    "languages": 2,
+    "persona_templates": 24
+  },
+  "production_scoring": {
+    "splits": [
+      "dev",
+      "pilot"
+    ],
+    "blind_records_loaded": false
+  },
+  "splits": {
+    "pilot": {
+      "events": 264,
+      "real_events": 263,
+      "sources": 264,
+      "profiles": 68,
+      "judgments": 5001,
+      "source_families": [
+        "github_advisory",
+        "github_release",
+        "osv",
+        "package_registry"
+      ],
+      "languages": [
+        "en",
+        "mixed"
+      ],
+      "persona_templates": [
+        "ai_application_builder",
+        "android_app_developer",
+        "cloud_security_engineer",
+        "database_reliability_engineer",
+        "developer_experience_engineer",
+        "django_api_builder",
+        "edge_runtime_engineer",
+        "javascript_tooling_maintainer",
+        "kubernetes_platform_sre",
+        "ml_infrastructure_engineer",
+        "mobile_release_engineer",
+        "node_service_operator",
+        "observability_engineer",
+        "open_source_documentarian",
+        "package_release_manager",
+        "python_backend_developer",
+        "python_data_scientist",
+        "rust_compiler_contributor",
+        "rust_web_service_builder",
+        "security_conscious_oss_maintainer",
+        "self_hosting_enthusiast",
+        "student_learning_compilers",
+        "typescript_platform_engineer",
+        "web_frontend_engineer"
+      ]
+    },
+    "dev": {
+      "events": 335,
+      "real_events": 334,
+      "sources": 335,
+      "profiles": 63,
+      "judgments": 5001,
+      "source_families": [
+        "github_advisory",
+        "github_release",
+        "official_changelog",
+        "package_registry",
+        "rss_atom",
+        "statuspage"
+      ],
+      "languages": [
+        "en",
+        "mixed"
+      ],
+      "persona_templates": [
+        "ai_application_builder",
+        "android_app_developer",
+        "cloud_security_engineer",
+        "database_reliability_engineer",
+        "developer_experience_engineer",
+        "django_api_builder",
+        "edge_runtime_engineer",
+        "javascript_tooling_maintainer",
+        "kubernetes_platform_sre",
+        "ml_infrastructure_engineer",
+        "mobile_release_engineer",
+        "node_service_operator",
+        "observability_engineer",
+        "open_source_documentarian",
+        "package_release_manager",
+        "python_backend_developer",
+        "python_data_scientist",
+        "rust_compiler_contributor",
+        "rust_web_service_builder",
+        "security_conscious_oss_maintainer",
+        "self_hosting_enthusiast",
+        "student_learning_compilers",
+        "typescript_platform_engineer",
+        "web_frontend_engineer"
+      ]
+    },
+    "blind": {
+      "events": 4,
+      "real_events": 3,
+      "sources": 4,
+      "profiles": 15,
+      "judgments": 1,
+      "source_families": [
+        "github_advisory",
+        "github_release",
+        "osv"
+      ],
+      "languages": [
+        "en"
+      ],
+      "persona_templates": [
+        "android_app_developer",
+        "ml_infrastructure_engineer",
+        "python_backend_developer",
+        "rust_compiler_contributor",
+        "security_conscious_oss_maintainer",
+        "self_hosting_enthusiast",
+        "student_learning_compilers",
+        "web_frontend_engineer"
+      ]
+    }
+  },
+  "judgments": {
+    "label_source": "AI-silver",
+    "human_gold": false,
+    "by_stratum": {
+      "already_known": 49,
+      "clear_positive": 2241,
+      "semantic_adjacent": 5914,
+      "unrelated": 1798
+    }
+  },
+  "metrics": {
+    "status": "not_evaluated",
+    "note": "Production predictions, uncertainty, and stage attribution are M2-EVAL work."
+  }
+}
