@@ -2,7 +2,7 @@
   "report_version": "m2-corpus-readiness-v1",
   "dataset_version": "real-world-validation-v0.2",
   "contract_version": "real-world-validation-contract-v1.2",
-  "frozen_main_sha": "ecdacc28237c399993518c8f161effb6295ef878",
+  "frozen_main_sha": "cca8207d643b700877de1a6de0044d38aa0345fa",
   "capacity": {
     "event_count": 603,
     "real_event_count": 600,
