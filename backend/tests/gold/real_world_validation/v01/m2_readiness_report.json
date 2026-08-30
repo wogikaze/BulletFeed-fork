@@ -2,7 +2,7 @@
   "report_version": "m2-corpus-readiness-v1",
   "dataset_version": "real-world-validation-v0.2",
   "contract_version": "real-world-validation-contract-v1.2",
-  "frozen_main_sha": "4ac6a2cb95a1bf1288c02d991df18c21eba59bb2",
+  "frozen_main_sha": "10420077aadd18fca9fc32375ac96f34d5726917",
   "capacity": {
     "event_count": 1004,
     "real_event_count": 1001,
@@ -164,7 +164,2264 @@
     }
   },
   "metrics": {
-    "status": "not_evaluated",
-    "note": "Production predictions, uncertainty, and stage attribution are M2-EVAL work."
+    "metrics_version": "m2-production-scoring-v1",
+    "label_source": "AI-silver",
+    "human_gold": false,
+    "blind_records_loaded": false,
+    "production_ranking_contract": "app.evaluation.ranking_benchmark.rank_user_items",
+    "sample": {
+      "profile_count": 131,
+      "real_event_count": 998,
+      "judgment_count": 10000,
+      "persona_family_count": 24
+    },
+    "headline": {
+      "include_ambiguous": {
+        "at_5": {
+          "sample_count": 123,
+          "judgment_count": 10000,
+          "precision_at_5": 0.762602,
+          "recall_at_5": 0.39366,
+          "ndcg_at_5": 0.952248,
+          "redundancy_at_5": 0.0,
+          "important_unknown_recall_at_5": 0.510422,
+          "unknown_but_hidden_rate": 0.60634,
+          "known_but_reshown_rate": 0.130081
+        },
+        "at_10": {
+          "sample_count": 123,
+          "judgment_count": 10000,
+          "precision_at_10": 0.7,
+          "recall_at_10": 0.477592,
+          "ndcg_at_10": 0.932573,
+          "redundancy_at_10": 0.0,
+          "important_unknown_recall_at_10": 0.63656,
+          "unknown_but_hidden_rate": 0.522408,
+          "known_but_reshown_rate": 0.162602
+        }
+      },
+      "exclude_ambiguous": {
+        "at_5": {
+          "sample_count": 123,
+          "judgment_count": 10000,
+          "precision_at_5": 0.762602,
+          "recall_at_5": 0.39366,
+          "ndcg_at_5": 0.952248,
+          "redundancy_at_5": 0.0,
+          "important_unknown_recall_at_5": 0.510422,
+          "unknown_but_hidden_rate": 0.60634,
+          "known_but_reshown_rate": 0.130081
+        },
+        "at_10": {
+          "sample_count": 123,
+          "judgment_count": 10000,
+          "precision_at_10": 0.7,
+          "recall_at_10": 0.477592,
+          "ndcg_at_10": 0.932573,
+          "redundancy_at_10": 0.0,
+          "important_unknown_recall_at_10": 0.63656,
+          "unknown_but_hidden_rate": 0.522408,
+          "known_but_reshown_rate": 0.162602
+        }
+      }
+    },
+    "segments": {
+      "cohort": {
+        "cold_start": {
+          "at_5": {
+            "sample_count": 64,
+            "judgment_count": 5316,
+            "precision_at_5": 0.8125,
+            "recall_at_5": 0.369805,
+            "ndcg_at_5": 0.96875,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.478003,
+            "unknown_but_hidden_rate": 0.630195,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 64,
+            "judgment_count": 5316,
+            "precision_at_10": 0.735938,
+            "recall_at_10": 0.423542,
+            "ndcg_at_10": 0.9529,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.57178,
+            "unknown_but_hidden_rate": 0.576458,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "history_rich": {
+          "at_5": {
+            "sample_count": 59,
+            "judgment_count": 4684,
+            "precision_at_5": 0.708475,
+            "recall_at_5": 0.419536,
+            "ndcg_at_5": 0.934348,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.545589,
+            "unknown_but_hidden_rate": 0.580464,
+            "known_but_reshown_rate": 0.271186
+          },
+          "at_10": {
+            "sample_count": 59,
+            "judgment_count": 4684,
+            "precision_at_10": 0.661017,
+            "recall_at_10": 0.536223,
+            "ndcg_at_10": 0.910524,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.706829,
+            "unknown_but_hidden_rate": 0.463777,
+            "known_but_reshown_rate": 0.338983
+          }
+        }
+      },
+      "persona_family": {
+        "ai_application_builder": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 559,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.037015,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.099813,
+            "unknown_but_hidden_rate": 0.962985,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 559,
+            "precision_at_10": 1.0,
+            "recall_at_10": 0.07403,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.199627,
+            "unknown_but_hidden_rate": 0.92597,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "android_app_developer": {
+          "at_5": {
+            "sample_count": 9,
+            "judgment_count": 128,
+            "precision_at_5": 0.711111,
+            "recall_at_5": 0.686869,
+            "ndcg_at_5": 0.985422,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.686869,
+            "unknown_but_hidden_rate": 0.313131,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 9,
+            "judgment_count": 128,
+            "precision_at_10": 0.633333,
+            "recall_at_10": 0.939394,
+            "ndcg_at_10": 0.99054,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.939394,
+            "unknown_but_hidden_rate": 0.060606,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "cloud_security_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 200,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.229072,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.229072,
+            "unknown_but_hidden_rate": 0.770928,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 200,
+            "precision_at_10": 1.0,
+            "recall_at_10": 0.458145,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.458145,
+            "unknown_but_hidden_rate": 0.541855,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "database_reliability_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 38,
+            "precision_at_5": 0.5,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.5
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 38,
+            "precision_at_10": 0.25,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "developer_experience_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 321,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.374504,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.504202,
+            "unknown_but_hidden_rate": 0.625496,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 321,
+            "precision_at_10": 0.85,
+            "recall_at_10": 0.534722,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.794118,
+            "unknown_but_hidden_rate": 0.465278,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "django_api_builder": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 508,
+            "precision_at_5": 0.95,
+            "recall_at_5": 0.039674,
+            "ndcg_at_5": 0.91521,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.145833,
+            "unknown_but_hidden_rate": 0.960326,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 508,
+            "precision_at_10": 0.975,
+            "recall_at_10": 0.081242,
+            "ndcg_at_10": 0.944977,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.302083,
+            "unknown_but_hidden_rate": 0.918758,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "edge_runtime_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 612,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.03447,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.96553,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 612,
+            "precision_at_10": 0.75,
+            "recall_at_10": 0.05,
+            "ndcg_at_10": 0.837113,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.95,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "javascript_tooling_maintainer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 471,
+            "precision_at_5": 0.5,
+            "recall_at_5": 0.511364,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.511364,
+            "unknown_but_hidden_rate": 0.488636,
+            "known_but_reshown_rate": 0.5
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 471,
+            "precision_at_10": 0.5,
+            "recall_at_10": 0.522727,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.522727,
+            "unknown_but_hidden_rate": 0.477273,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "kubernetes_platform_sre": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 99,
+            "precision_at_5": 0.9,
+            "recall_at_5": 0.3,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.3,
+            "unknown_but_hidden_rate": 0.7,
+            "known_but_reshown_rate": 0.5
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 99,
+            "precision_at_10": 0.95,
+            "recall_at_10": 0.65,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.65,
+            "unknown_but_hidden_rate": 0.35,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "ml_infrastructure_engineer": {
+          "at_5": {
+            "sample_count": 6,
+            "judgment_count": 542,
+            "precision_at_5": 0.666667,
+            "recall_at_5": 0.361174,
+            "ndcg_at_5": 0.666667,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.429784,
+            "unknown_but_hidden_rate": 0.638826,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 6,
+            "judgment_count": 542,
+            "precision_at_10": 0.666667,
+            "recall_at_10": 0.389014,
+            "ndcg_at_10": 0.666667,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.526235,
+            "unknown_but_hidden_rate": 0.610986,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "mobile_release_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 66,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.643939,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.643939,
+            "unknown_but_hidden_rate": 0.356061,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 66,
+            "precision_at_10": 0.8,
+            "recall_at_10": 0.954545,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.954545,
+            "unknown_but_hidden_rate": 0.045455,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "node_service_operator": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 351,
+            "precision_at_5": 0.5,
+            "recall_at_5": 0.515338,
+            "ndcg_at_5": 0.907733,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.65625,
+            "unknown_but_hidden_rate": 0.484662,
+            "known_but_reshown_rate": 0.5
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 351,
+            "precision_at_10": 0.5,
+            "recall_at_10": 0.530676,
+            "ndcg_at_10": 0.907733,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.8125,
+            "unknown_but_hidden_rate": 0.469324,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "observability_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 110,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.264946,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.264946,
+            "unknown_but_hidden_rate": 0.735054,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 110,
+            "precision_at_10": 1.0,
+            "recall_at_10": 0.529891,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.529891,
+            "unknown_but_hidden_rate": 0.470109,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "open_source_documentarian": {
+          "at_5": {
+            "sample_count": 2,
+            "judgment_count": 33,
+            "precision_at_5": 0.2,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 1.0
+          },
+          "at_10": {
+            "sample_count": 2,
+            "judgment_count": 33,
+            "precision_at_10": 0.1,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 1.0
+          }
+        },
+        "package_release_manager": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 1120,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.018412,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.018412,
+            "unknown_but_hidden_rate": 0.981588,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 1120,
+            "precision_at_10": 1.0,
+            "recall_at_10": 0.036824,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.036824,
+            "unknown_but_hidden_rate": 0.963176,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "python_backend_developer": {
+          "at_5": {
+            "sample_count": 10,
+            "judgment_count": 1193,
+            "precision_at_5": 1.0,
+            "recall_at_5": 0.04361,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.158991,
+            "unknown_but_hidden_rate": 0.95639,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 10,
+            "judgment_count": 1193,
+            "precision_at_10": 1.0,
+            "recall_at_10": 0.08722,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.317982,
+            "unknown_but_hidden_rate": 0.91278,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "python_data_scientist": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 500,
+            "precision_at_5": 0.95,
+            "recall_at_5": 0.040568,
+            "ndcg_at_5": 0.91521,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.149443,
+            "unknown_but_hidden_rate": 0.959432,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 500,
+            "precision_at_10": 0.975,
+            "recall_at_10": 0.083059,
+            "ndcg_at_10": 0.944977,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.310249,
+            "unknown_but_hidden_rate": 0.916941,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "rust_compiler_contributor": {
+          "at_5": {
+            "sample_count": 8,
+            "judgment_count": 601,
+            "precision_at_5": 0.6,
+            "recall_at_5": 0.517986,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.517986,
+            "unknown_but_hidden_rate": 0.482014,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 8,
+            "judgment_count": 601,
+            "precision_at_10": 0.55,
+            "recall_at_10": 0.535971,
+            "ndcg_at_10": 0.975533,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.535971,
+            "unknown_but_hidden_rate": 0.464029,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "rust_web_service_builder": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 306,
+            "precision_at_5": 0.7,
+            "recall_at_5": 0.517986,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.613636,
+            "unknown_but_hidden_rate": 0.482014,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 306,
+            "precision_at_10": 0.6,
+            "recall_at_10": 0.535971,
+            "ndcg_at_10": 0.899695,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.613636,
+            "unknown_but_hidden_rate": 0.464029,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "security_conscious_oss_maintainer": {
+          "at_5": {
+            "sample_count": 8,
+            "judgment_count": 342,
+            "precision_at_5": 0.95,
+            "recall_at_5": 0.25386,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.25386,
+            "unknown_but_hidden_rate": 0.74614,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 8,
+            "judgment_count": 342,
+            "precision_at_10": 0.9125,
+            "recall_at_10": 0.382721,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.382721,
+            "unknown_but_hidden_rate": 0.617279,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "self_hosting_enthusiast": {
+          "at_5": {
+            "sample_count": 8,
+            "judgment_count": 59,
+            "precision_at_5": 0.15,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 0.75,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.25
+          },
+          "at_10": {
+            "sample_count": 8,
+            "judgment_count": 59,
+            "precision_at_10": 0.075,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 0.75,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.25
+          }
+        },
+        "student_learning_compilers": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 572,
+            "precision_at_5": 0.95,
+            "recall_at_5": 0.035985,
+            "ndcg_at_5": 0.91521,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.95,
+            "unknown_but_hidden_rate": 0.964015,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 572,
+            "precision_at_10": 0.5,
+            "recall_at_10": 0.037879,
+            "ndcg_at_10": 0.692649,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.962121,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "typescript_platform_engineer": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 371,
+            "precision_at_5": 0.5,
+            "recall_at_5": 0.514731,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.727273,
+            "unknown_but_hidden_rate": 0.485269,
+            "known_but_reshown_rate": 0.5
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 371,
+            "precision_at_10": 0.5,
+            "recall_at_10": 0.529462,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.954545,
+            "unknown_but_hidden_rate": 0.470538,
+            "known_but_reshown_rate": 0.5
+          }
+        },
+        "web_frontend_engineer": {
+          "at_5": {
+            "sample_count": 8,
+            "judgment_count": 898,
+            "precision_at_5": 0.7,
+            "recall_at_5": 0.393549,
+            "ndcg_at_5": 0.955536,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.625,
+            "unknown_but_hidden_rate": 0.606451,
+            "known_but_reshown_rate": 0.25
+          },
+          "at_10": {
+            "sample_count": 8,
+            "judgment_count": 898,
+            "precision_at_10": 0.6625,
+            "recall_at_10": 0.412098,
+            "ndcg_at_10": 0.884851,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.7,
+            "unknown_but_hidden_rate": 0.587902,
+            "known_but_reshown_rate": 0.25
+          }
+        }
+      },
+      "language": {
+        "en": {
+          "at_5": {
+            "sample_count": 119,
+            "judgment_count": 9372,
+            "precision_at_5": 0.731092,
+            "recall_at_5": 0.411568,
+            "ndcg_at_5": 0.950321,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.538206,
+            "unknown_but_hidden_rate": 0.588432,
+            "known_but_reshown_rate": 0.134454
+          },
+          "at_10": {
+            "sample_count": 119,
+            "judgment_count": 9372,
+            "precision_at_10": 0.669748,
+            "recall_at_10": 0.487973,
+            "ndcg_at_10": 0.930529,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.664174,
+            "unknown_but_hidden_rate": 0.512027,
+            "known_but_reshown_rate": 0.193277
+          }
+        },
+        "ja": {
+          "at_5": {
+            "sample_count": 95,
+            "judgment_count": 298,
+            "precision_at_5": 0.191579,
+            "recall_at_5": 0.96038,
+            "ndcg_at_5": 0.463158,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.96038,
+            "unknown_but_hidden_rate": 0.03962,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 95,
+            "judgment_count": 298,
+            "precision_at_10": 0.125263,
+            "recall_at_10": 0.981579,
+            "ndcg_at_10": 0.463158,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.981579,
+            "unknown_but_hidden_rate": 0.018421,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "mixed": {
+          "at_5": {
+            "sample_count": 62,
+            "judgment_count": 330,
+            "precision_at_5": 0.516129,
+            "recall_at_5": 0.837243,
+            "ndcg_at_5": 0.596774,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.934018,
+            "unknown_but_hidden_rate": 0.162757,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 62,
+            "judgment_count": 330,
+            "precision_at_10": 0.401613,
+            "recall_at_10": 0.963196,
+            "ndcg_at_10": 0.596096,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.964809,
+            "unknown_but_hidden_rate": 0.036804,
+            "known_but_reshown_rate": 0.0
+          }
+        }
+      },
+      "source_family": {
+        "github_advisory": {
+          "at_5": {
+            "sample_count": 1,
+            "judgment_count": 1,
+            "precision_at_5": 0.0,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 0.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 1,
+            "judgment_count": 1,
+            "precision_at_10": 0.0,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 0.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "github_release": {
+          "at_5": {
+            "sample_count": 59,
+            "judgment_count": 59,
+            "precision_at_5": 0.033898,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 0.983051,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.813559
+          },
+          "at_10": {
+            "sample_count": 59,
+            "judgment_count": 59,
+            "precision_at_10": 0.016949,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 0.983051,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.813559
+          }
+        },
+        "official_changelog": {
+          "at_5": {
+            "sample_count": 16,
+            "judgment_count": 16,
+            "precision_at_5": 0.1375,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 0.6875,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 16,
+            "judgment_count": 16,
+            "precision_at_10": 0.06875,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 0.6875,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "osv": {
+          "at_5": {
+            "sample_count": 3,
+            "judgment_count": 3,
+            "precision_at_5": 0.2,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 3,
+            "judgment_count": 3,
+            "precision_at_10": 0.1,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "package_registry": {
+          "at_5": {
+            "sample_count": 92,
+            "judgment_count": 7341,
+            "precision_at_5": 0.682609,
+            "recall_at_5": 0.3818,
+            "ndcg_at_5": 0.668674,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.723809,
+            "unknown_but_hidden_rate": 0.6182,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 92,
+            "judgment_count": 7341,
+            "precision_at_10": 0.636957,
+            "recall_at_10": 0.428191,
+            "ndcg_at_10": 0.644445,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.823689,
+            "unknown_but_hidden_rate": 0.571809,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "rss_atom": {
+          "at_5": {
+            "sample_count": 108,
+            "judgment_count": 1961,
+            "precision_at_5": 0.640741,
+            "recall_at_5": 0.635998,
+            "ndcg_at_5": 0.79806,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.635998,
+            "unknown_but_hidden_rate": 0.364002,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 108,
+            "judgment_count": 1961,
+            "precision_at_10": 0.553704,
+            "recall_at_10": 0.755126,
+            "ndcg_at_10": 0.800449,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.755126,
+            "unknown_but_hidden_rate": 0.244874,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "statuspage": {
+          "at_5": {
+            "sample_count": 17,
+            "judgment_count": 619,
+            "precision_at_5": 0.952941,
+            "recall_at_5": 0.227836,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.788235,
+            "unknown_but_hidden_rate": 0.772164,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 17,
+            "judgment_count": 619,
+            "precision_at_10": 0.917647,
+            "recall_at_10": 0.338026,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.811765,
+            "unknown_but_hidden_rate": 0.661974,
+            "known_but_reshown_rate": 0.0
+          }
+        }
+      },
+      "information_type": {
+        "incident": {
+          "at_5": {
+            "sample_count": 17,
+            "judgment_count": 619,
+            "precision_at_5": 0.952941,
+            "recall_at_5": 0.227836,
+            "ndcg_at_5": 1.0,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.788235,
+            "unknown_but_hidden_rate": 0.772164,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 17,
+            "judgment_count": 619,
+            "precision_at_10": 0.917647,
+            "recall_at_10": 0.338026,
+            "ndcg_at_10": 1.0,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.811765,
+            "unknown_but_hidden_rate": 0.661974,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "release": {
+          "at_5": {
+            "sample_count": 100,
+            "judgment_count": 7411,
+            "precision_at_5": 0.632,
+            "recall_at_5": 0.430676,
+            "ndcg_at_5": 0.88549,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.746233,
+            "unknown_but_hidden_rate": 0.569324,
+            "known_but_reshown_rate": 0.26
+          },
+          "at_10": {
+            "sample_count": 100,
+            "judgment_count": 7411,
+            "precision_at_10": 0.581,
+            "recall_at_10": 0.472722,
+            "ndcg_at_10": 0.865821,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.835614,
+            "unknown_but_hidden_rate": 0.527278,
+            "known_but_reshown_rate": 0.36
+          }
+        },
+        "roadmap_changelog": {
+          "at_5": {
+            "sample_count": 108,
+            "judgment_count": 1966,
+            "precision_at_5": 0.646296,
+            "recall_at_5": 0.635998,
+            "ndcg_at_5": 0.825838,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 0.635998,
+            "unknown_but_hidden_rate": 0.364002,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 108,
+            "judgment_count": 1966,
+            "precision_at_10": 0.556481,
+            "recall_at_10": 0.755126,
+            "ndcg_at_10": 0.828227,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 0.755126,
+            "unknown_but_hidden_rate": 0.244874,
+            "known_but_reshown_rate": 0.0
+          }
+        },
+        "security": {
+          "at_5": {
+            "sample_count": 4,
+            "judgment_count": 4,
+            "precision_at_5": 0.15,
+            "recall_at_5": 1.0,
+            "ndcg_at_5": 0.75,
+            "redundancy_at_5": 0.0,
+            "important_unknown_recall_at_5": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          },
+          "at_10": {
+            "sample_count": 4,
+            "judgment_count": 4,
+            "precision_at_10": 0.075,
+            "recall_at_10": 1.0,
+            "ndcg_at_10": 0.75,
+            "redundancy_at_10": 0.0,
+            "important_unknown_recall_at_10": 1.0,
+            "unknown_but_hidden_rate": 0.0,
+            "known_but_reshown_rate": 0.0
+          }
+        }
+      }
+    },
+    "uncertainty": {
+      "method": "persona-family-cluster-bootstrap-percentile",
+      "cluster_unit": "persona_family",
+      "replicates": 200,
+      "seed": 20260830,
+      "headline": {
+        "at_5": {
+          "status": "available",
+          "sample_count": 123,
+          "cluster_count": 24,
+          "ci95": {
+            "important_unknown_recall_at_5": [
+              0.387613,
+              0.625965
+            ],
+            "ndcg_at_5": [
+              0.901792,
+              0.9906
+            ],
+            "precision_at_5": [
+              0.642857,
+              0.861818
+            ],
+            "recall_at_5": [
+              0.275004,
+              0.545294
+            ],
+            "redundancy_at_5": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "at_10": {
+          "status": "available",
+          "sample_count": 123,
+          "cluster_count": 24,
+          "ci95": {
+            "important_unknown_recall_at_10": [
+              0.519106,
+              0.750881
+            ],
+            "ndcg_at_10": [
+              0.88595,
+              0.979016
+            ],
+            "precision_at_10": [
+              0.574576,
+              0.802632
+            ],
+            "recall_at_10": [
+              0.333799,
+              0.624622
+            ],
+            "redundancy_at_10": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "segments": {
+        "cohort": {
+          "cold_start": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 64,
+              "cluster_count": 23,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.30911,
+                  0.639746
+                ],
+                "ndcg_at_5": [
+                  0.919355,
+                  1.0
+                ],
+                "precision_at_5": [
+                  0.660274,
+                  0.939623
+                ],
+                "recall_at_5": [
+                  0.18677,
+                  0.55919
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 64,
+              "cluster_count": 23,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.402141,
+                  0.72711
+                ],
+                "ndcg_at_10": [
+                  0.904306,
+                  0.992124
+                ],
+                "precision_at_10": [
+                  0.562903,
+                  0.896154
+                ],
+                "recall_at_10": [
+                  0.25201,
+                  0.617989
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "history_rich": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 59,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.429545,
+                  0.703249
+                ],
+                "ndcg_at_5": [
+                  0.879695,
+                  0.98049
+                ],
+                "precision_at_5": [
+                  0.50625,
+                  0.853731
+                ],
+                "recall_at_5": [
+                  0.287662,
+                  0.614309
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 59,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.572307,
+                  0.826591
+                ],
+                "ndcg_at_10": [
+                  0.862487,
+                  0.965457
+                ],
+                "precision_at_10": [
+                  0.461818,
+                  0.810714
+                ],
+                "recall_at_10": [
+                  0.358187,
+                  0.724663
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          }
+        },
+        "persona_family": {
+          "ai_application_builder": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "android_app_developer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 9,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 9,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "cloud_security_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "database_reliability_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "developer_experience_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "django_api_builder": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "edge_runtime_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "javascript_tooling_maintainer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "kubernetes_platform_sre": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "ml_infrastructure_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 6,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 6,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "mobile_release_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "node_service_operator": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "observability_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "open_source_documentarian": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 2,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 2,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "package_release_manager": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "python_backend_developer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 10,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 10,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "python_data_scientist": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "rust_compiler_contributor": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "rust_web_service_builder": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "security_conscious_oss_maintainer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "self_hosting_enthusiast": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "student_learning_compilers": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "typescript_platform_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 4,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "web_frontend_engineer": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 8,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          }
+        },
+        "language": {
+          "en": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 119,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.427384,
+                  0.659241
+                ],
+                "ndcg_at_5": [
+                  0.895055,
+                  0.9906
+                ],
+                "precision_at_5": [
+                  0.586441,
+                  0.824113
+                ],
+                "recall_at_5": [
+                  0.297127,
+                  0.56462
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 119,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.554935,
+                  0.782596
+                ],
+                "ndcg_at_10": [
+                  0.882136,
+                  0.977237
+                ],
+                "precision_at_10": [
+                  0.52381,
+                  0.769298
+                ],
+                "recall_at_10": [
+                  0.349587,
+                  0.62925
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "ja": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 95,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.892738,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  0.294118,
+                  0.59596
+                ],
+                "precision_at_5": [
+                  0.097826,
+                  0.291667
+                ],
+                "recall_at_5": [
+                  0.892738,
+                  1.0
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 95,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.949438,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  0.294118,
+                  0.59596
+                ],
+                "precision_at_10": [
+                  0.05119,
+                  0.219101
+                ],
+                "recall_at_10": [
+                  0.949438,
+                  1.0
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "mixed": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 62,
+              "cluster_count": 23,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.85124,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  0.428571,
+                  0.71875
+                ],
+                "precision_at_5": [
+                  0.370909,
+                  0.627586
+                ],
+                "recall_at_5": [
+                  0.722874,
+                  0.933155
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 62,
+              "cluster_count": 23,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.912023,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  0.427821,
+                  0.718093
+                ],
+                "precision_at_10": [
+                  0.267742,
+                  0.558333
+                ],
+                "recall_at_10": [
+                  0.910411,
+                  1.0
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          }
+        },
+        "source_family": {
+          "github_advisory": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 1,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 1,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "github_release": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 59,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  0.941176,
+                  1.0
+                ],
+                "precision_at_5": [
+                  0.007692,
+                  0.058824
+                ],
+                "recall_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 59,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  0.941176,
+                  1.0
+                ],
+                "precision_at_10": [
+                  0.003846,
+                  0.029412
+                ],
+                "recall_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "official_changelog": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 16,
+              "cluster_count": 9,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  0.2,
+                  0.888889
+                ],
+                "precision_at_5": [
+                  0.04,
+                  0.177778
+                ],
+                "recall_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 16,
+              "cluster_count": 9,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  0.2,
+                  0.888889
+                ],
+                "precision_at_10": [
+                  0.02,
+                  0.088889
+                ],
+                "recall_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "osv": {
+            "at_5": {
+              "status": "not_available",
+              "sample_count": 3,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            },
+            "at_10": {
+              "status": "not_available",
+              "sample_count": 3,
+              "cluster_count": 1,
+              "reason": "at least two persona-family clusters are required"
+            }
+          },
+          "package_registry": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 92,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.596599,
+                  0.842122
+                ],
+                "ndcg_at_5": [
+                  0.498413,
+                  0.806094
+                ],
+                "precision_at_5": [
+                  0.502857,
+                  0.818824
+                ],
+                "recall_at_5": [
+                  0.251605,
+                  0.561621
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 92,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.688041,
+                  0.938639
+                ],
+                "ndcg_at_10": [
+                  0.477095,
+                  0.781786
+                ],
+                "precision_at_10": [
+                  0.463291,
+                  0.773737
+                ],
+                "recall_at_10": [
+                  0.288211,
+                  0.616277
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "rss_atom": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 108,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.508284,
+                  0.7729
+                ],
+                "ndcg_at_5": [
+                  0.652545,
+                  0.910032
+                ],
+                "precision_at_5": [
+                  0.503093,
+                  0.780769
+                ],
+                "recall_at_5": [
+                  0.508284,
+                  0.7729
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 108,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.637578,
+                  0.875476
+                ],
+                "ndcg_at_10": [
+                  0.656081,
+                  0.91436
+                ],
+                "precision_at_10": [
+                  0.416364,
+                  0.693496
+                ],
+                "recall_at_10": [
+                  0.637578,
+                  0.875476
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "statuspage": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 17,
+              "cluster_count": 7,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.470588,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "precision_at_5": [
+                  0.811765,
+                  1.0
+                ],
+                "recall_at_5": [
+                  0.112838,
+                  0.540649
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 17,
+              "cluster_count": 7,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.529412,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "precision_at_10": [
+                  0.670588,
+                  1.0
+                ],
+                "recall_at_10": [
+                  0.225677,
+                  0.610709
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          }
+        },
+        "information_type": {
+          "incident": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 17,
+              "cluster_count": 7,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.470588,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "precision_at_5": [
+                  0.811765,
+                  1.0
+                ],
+                "recall_at_5": [
+                  0.112838,
+                  0.540649
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 17,
+              "cluster_count": 7,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.529412,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "precision_at_10": [
+                  0.670588,
+                  1.0
+                ],
+                "recall_at_10": [
+                  0.225677,
+                  0.610709
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "release": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 100,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.641855,
+                  0.848425
+                ],
+                "ndcg_at_5": [
+                  0.796496,
+                  0.951088
+                ],
+                "precision_at_5": [
+                  0.479167,
+                  0.761905
+                ],
+                "recall_at_5": [
+                  0.293557,
+                  0.582546
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 100,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.729981,
+                  0.938639
+                ],
+                "ndcg_at_10": [
+                  0.779458,
+                  0.929266
+                ],
+                "precision_at_10": [
+                  0.427059,
+                  0.700893
+                ],
+                "recall_at_10": [
+                  0.337885,
+                  0.626741
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "roadmap_changelog": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 108,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  0.508284,
+                  0.7729
+                ],
+                "ndcg_at_5": [
+                  0.696208,
+                  0.928739
+                ],
+                "precision_at_5": [
+                  0.509278,
+                  0.78374
+                ],
+                "recall_at_5": [
+                  0.508284,
+                  0.7729
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 108,
+              "cluster_count": 24,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  0.637578,
+                  0.875476
+                ],
+                "ndcg_at_10": [
+                  0.698597,
+                  0.933503
+                ],
+                "precision_at_10": [
+                  0.419091,
+                  0.695935
+                ],
+                "recall_at_10": [
+                  0.637578,
+                  0.875476
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          },
+          "security": {
+            "at_5": {
+              "status": "available",
+              "sample_count": 4,
+              "cluster_count": 2,
+              "ci95": {
+                "important_unknown_recall_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "ndcg_at_5": [
+                  0.0,
+                  1.0
+                ],
+                "precision_at_5": [
+                  0.0,
+                  0.2
+                ],
+                "recall_at_5": [
+                  1.0,
+                  1.0
+                ],
+                "redundancy_at_5": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "at_10": {
+              "status": "available",
+              "sample_count": 4,
+              "cluster_count": 2,
+              "ci95": {
+                "important_unknown_recall_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "ndcg_at_10": [
+                  0.0,
+                  1.0
+                ],
+                "precision_at_10": [
+                  0.0,
+                  0.1
+                ],
+                "recall_at_10": [
+                  1.0,
+                  1.0
+                ],
+                "redundancy_at_10": [
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "stage_attribution": {
+      "status": "not_evaluated",
+      "note": "Production journey traces with earliest responsible stages are required; ranking metrics do not infer upstream acquisition or projection failures."
+    }
   }
 }

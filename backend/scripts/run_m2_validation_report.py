@@ -10,6 +10,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from app.evaluation.m2_validation_metrics import evaluate_m2_production_scoring
 from app.evaluation.real_world_validation import (
     CONTRACT_VERSION,
     DATASET_VERSION,
@@ -58,10 +59,7 @@ def build_report() -> dict[str, Any]:
                 "stratum",
             ),
         },
-        "metrics": {
-            "status": "not_evaluated",
-            "note": "Production predictions, uncertainty, and stage attribution are M2-EVAL work.",
-        },
+        "metrics": evaluate_m2_production_scoring(production),
     }
     for split in ("pilot", "dev", "blind"):
         scoped = corpus.for_split(split)
