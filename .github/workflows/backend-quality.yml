@@ -71,6 +71,9 @@ jobs:
       - name: M1 deterministic 30-persona qualification
         run: python backend/scripts/run_m1_qualification.py
 
+      - name: M1 production API 30-persona qualification
+        run: python backend/scripts/run_m1_api_qualification.py --output "$RUNNER_TEMP/m1-api-qualification.json"
+
       - name: M3 deterministic source qualification
         run: python backend/scripts/run_source_qualification.py --check
 

@@ -16,6 +16,7 @@ REPORT_VERSION = "m7-rc-evidence-v1"
 
 ARTIFACTS = {
     "m1": EVIDENCE_ROOT / "m1_personas" / "v01" / "deterministic_baseline.json",
+    "m1_api": EVIDENCE_ROOT / "m1_personas" / "v01" / "api_qualification.json",
     "m2": EVIDENCE_ROOT / "real_world_validation" / "v01" / "m2_readiness_report.json",
     "m3": EVIDENCE_ROOT / "source_qualification" / "v01" / "report.json",
     "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
@@ -74,6 +75,25 @@ def _m2_gate(report: dict[str, Any]) -> dict[str, Any]:
             "Ranking misses are attributed; acquisition/projection/evidence still require "
             "journey traces."
         ),
+    }
+
+
+def _m1_api_gate(report: dict[str, Any]) -> dict[str, Any]:
+    stage_failures = report.get("stage_failure_counts", {})
+    checks = {
+        "persona_count": report.get("persona_count", 0) >= 30,
+        "failed_personas": not report.get("failed_persona_ids"),
+        "unexpected_empty_feed": report.get("unexpected_empty_feed", 1) == 0,
+        "broken_evidence": report.get("broken_evidence", 1) == 0,
+        "tenant_leak": report.get("tenant_leak", 1) == 0,
+        "stage_failures": not any(stage_failures.values()),
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "execution_mode": report.get("mode", "unknown"),
+        "metrics": report.get("metrics", {}),
+        "note": "API state transitions pass; Android surface and worker scheduling remain separate gates.",
     }
 
 
@@ -154,7 +174,12 @@ def _m7_gate(report: dict[str, Any]) -> dict[str, Any]:
 def build_report() -> dict[str, Any]:
     loaded = {name: _load(path) for name, path in ARTIFACTS.items()}
     missions = {
-        "m1": {"artifact": _relative(ARTIFACTS["m1"]), **_m1_gate(loaded["m1"])},
+        "m1": {
+            "artifact": _relative(ARTIFACTS["m1"]),
+            "api_artifact": _relative(ARTIFACTS["m1_api"]),
+            **_m1_gate(loaded["m1"]),
+            "api_qualification": _m1_api_gate(loaded["m1_api"]),
+        },
         "m2": {"artifact": _relative(ARTIFACTS["m2"]), **_m2_gate(loaded["m2"])},
         "m3": {"artifact": _relative(ARTIFACTS["m3"]), **_m3_gate(loaded["m3"])},
         "m4": {
@@ -176,7 +201,7 @@ def build_report() -> dict[str, Any]:
         "blind_read": False,
         "missions": missions,
         "unmet_gate_items": [
-            "M1 real-backend Android journey for all 30 personas",
+            "M1 Android/worker-backed journey for all 30 personas",
             (
                 "M3 timeout/conditional-304/robots/source-identity qualification and "
                 "observed-failure remediation"
