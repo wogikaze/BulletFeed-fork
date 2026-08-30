@@ -183,7 +183,12 @@ def main() -> None:
     for split in ("pilot", "dev"):
         rows = _candidate_rows(split)
         selected[split] = _append_judgments(split, rows)
-        strata.update(row["stratum"] for row in rows[:selected[split]])
+        selected_rows = [
+            row
+            for row in _load(CORPUS / split / "judgments.json")
+            if str(row["provenance"]).startswith("AI-silver")
+        ]
+        strata.update(row["stratum"] for row in selected_rows)
     report = {
         "generator_version": "m2-ai-silver-metadata-rubric-v1",
         "label_source": "AI-silver",
