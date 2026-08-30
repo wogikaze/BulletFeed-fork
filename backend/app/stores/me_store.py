@@ -8,9 +8,9 @@ from datetime import UTC, datetime
 from fastapi import HTTPException, status
 
 from app.database import Database
+from app.db.topic_recommendation_schema import ensure_topic_recommendation_schema
 from app.errors import not_found, unprocessable
 from app.schemas.common import TopicType
-from app.db.topic_recommendation_schema import ensure_topic_recommendation_schema
 from app.schemas.me import (
     MeBootstrap,
     Profile,
