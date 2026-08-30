@@ -17,6 +17,9 @@ latency を記録する。redirect は追従せず、取得した response body 
 `source_qualification/v01/report.json` は recorded replay の証跡であり、
 `live_report.json` は実行時点の live qualification の証跡である。Top-5 failure remediation
 は failure dimension が観測されてから、別の regression/replay set で行う。
+recorded reportには source family別のendpoint数、fetch成功率、duplicate failure率、
+ETag/Last-Modified coverage、取得遅延の中央値、static/JS recovery countsを保存する。
+一回fetchだけのcorpusでは update detection を推定せず `not_recorded` と明示する。
 
 ## runtime verification metadata
 

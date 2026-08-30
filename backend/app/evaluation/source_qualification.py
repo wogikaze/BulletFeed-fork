@@ -7,6 +7,7 @@ import hashlib
 import json
 from collections import Counter
 from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -50,6 +51,7 @@ class SourceQualificationReport:
     replay_passed_count: int
     replay_failed_count: int
     source_family_counts: dict[str, int]
+    source_family_metrics: dict[str, dict[str, Any]]
     scenario_counts: dict[str, int]
     outcome_counts: dict[str, int]
     failure_dimensions: dict[str, int]
@@ -121,6 +123,7 @@ def evaluate_source_qualification(
     outcomes = Counter(case.outcome for case in replay_cases)
     scenarios = Counter(case.scenario for case in replay_cases)
     families = Counter(source.source_family for source in sources)
+    family_metrics = _source_family_metrics(sources, replay_cases)
     failures = Counter(
         case.scenario
         for case in replay_cases
@@ -134,6 +137,7 @@ def evaluate_source_qualification(
         replay_passed_count=outcomes["passed"],
         replay_failed_count=outcomes["failed"],
         source_family_counts=dict(sorted(families.items())),
+        source_family_metrics=family_metrics,
         scenario_counts=dict(sorted(scenarios.items())),
         outcome_counts=dict(sorted(outcomes.items())),
         failure_dimensions=dict(sorted(failures.items())),
@@ -188,6 +192,98 @@ def _case(source, *, scenario: str, outcome: ReplayOutcome, detail: str) -> Repl
         outcome=outcome,
         detail=detail,
     )
+
+
+def _source_family_metrics(
+    sources: tuple[Any, ...],
+    replay_cases: list[ReplayCase],
+) -> dict[str, dict[str, Any]]:
+    metrics: dict[str, dict[str, Any]] = {}
+    for family in sorted({source.source_family for source in sources}):
+        family_sources = [source for source in sources if source.source_family == family]
+        source_ids = {source.source_id for source in family_sources}
+        family_cases = [case for case in replay_cases if case.source_id in source_ids]
+        recorded = [
+            case for case in family_cases if case.scenario == "recorded_fetch"
+        ]
+        duplicate = [
+            case for case in family_cases if case.scenario == "duplicate_delivery"
+        ]
+        delays = [
+            delay
+            for source in family_sources
+            if (delay := _acquisition_delay_seconds(source)) is not None
+        ]
+        metrics[family] = {
+            "endpoint_count": len(family_sources),
+            "recorded_fetch_success_rate": _rate(
+                sum(case.outcome == "passed" for case in recorded),
+                len(recorded),
+            ),
+            "duplicate_delivery_failure_rate": _rate(
+                sum(case.outcome == "failed" for case in duplicate),
+                len(duplicate),
+            ),
+            "etag_coverage": _rate(
+                sum(bool(source.fetch.etag) for source in family_sources),
+                len(family_sources),
+            ),
+            "last_modified_coverage": _rate(
+                sum(bool(source.fetch.last_modified) for source in family_sources),
+                len(family_sources),
+            ),
+            "http_status_counts": dict(
+                sorted(
+                    Counter(int(source.fetch.http_status) for source in family_sources).items()
+                )
+            ),
+            "static_fetch_ok_count": sum(
+                source.static_fetch_ok for source in family_sources
+            ),
+            "static_normalize_insufficient_count": sum(
+                source.static_normalize_insufficient for source in family_sources
+            ),
+            "js_render_would_recover_count": sum(
+                source.js_render_would_recover for source in family_sources
+            ),
+            "acquisition_delay_seconds": {
+                "sample_count": len(delays),
+                "median": _median(delays),
+                "max": max(delays) if delays else None,
+            },
+            "update_detection": {
+                "status": "not_recorded",
+                "note": "The recorded corpus contains one fetch per event endpoint.",
+            },
+        }
+    return metrics
+
+
+def _acquisition_delay_seconds(source: Any) -> float | None:
+    try:
+        requested = _parse_datetime(source.fetch.requested_at)
+        collected = _parse_datetime(source.collected_at)
+    except (TypeError, ValueError):
+        return None
+    return round(max(0.0, (collected - requested).total_seconds()), 6)
+
+
+def _parse_datetime(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
+
+
+def _rate(numerator: int, denominator: int) -> float | None:
+    return round(numerator / denominator, 6) if denominator else None
+
+
+def _median(values: list[float]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[midpoint]
+    return round((ordered[midpoint - 1] + ordered[midpoint]) / 2, 6)
 
 
 def _json_fault_cases(source, body: bytes) -> tuple[ReplayCase, ...]:
