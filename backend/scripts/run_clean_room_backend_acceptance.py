@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 from cryptography.fernet import Fernet
-
 from run_process_recovery_drill import (
     _free_port,
     _request,
