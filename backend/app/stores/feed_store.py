@@ -47,6 +47,7 @@ from app.services.knowledge_evidence import (
 from app.services.knowledge_identity import (
     replay_knowledge_state_for_identity,
     resolve_claim_knowledge_id,
+    resolve_claim_knowledge_ids,
 )
 from app.services.multiobjective_ranker import (
     RANKING_POLICY_VERSION,
@@ -88,6 +89,7 @@ def _knownness_by_feed_item(
     *,
     user_id: str,
     rows: list[sqlite3.Row],
+    identity_map: dict | None = None,
 ) -> dict[str, tuple[str, str]]:
     evidence = list_knowledge_evidence(connection, user_id=user_id)
     by_claim: dict[str, list] = {}
@@ -95,12 +97,18 @@ def _knownness_by_feed_item(
         if row.claim_id:
             by_claim.setdefault(row.claim_id, []).append(row)
     states: dict[str, tuple[str, str]] = {}
+    mapped_by_claim = identity_map
+    if mapped_by_claim is None:
+        mapped_by_claim = resolve_claim_knowledge_ids(
+            connection,
+            [row["claim_id"] for row in rows if row["claim_id"]],
+        )
     for feed_row in rows:
         claim_id = feed_row["claim_id"]
         if not claim_id:
             states[feed_row["id"]] = (STATE_UNKNOWN, CONFIDENCE_NONE)
             continue
-        mapped = resolve_claim_knowledge_id(connection, claim_id)
+        mapped = mapped_by_claim.get(claim_id)
         if mapped is not None and mapped.decision in {"equivalent", "singleton"}:
             derived = replay_knowledge_state_for_identity(
                 connection,
@@ -226,10 +234,15 @@ def _source_candidate_from_feed_row(
 def _identity_for_claim(
     connection: sqlite3.Connection,
     claim_id: str | None,
+    identity_map: dict | None = None,
 ) -> tuple[str, str]:
     if not claim_id:
         return "uncertain", "none"
-    mapped = resolve_claim_knowledge_id(connection, claim_id)
+    mapped = (
+        identity_map.get(claim_id)
+        if identity_map is not None
+        else resolve_claim_knowledge_id(connection, claim_id)
+    )
     if mapped is None:
         return "uncertain", "none"
     if mapped.decision == "equivalent":
@@ -264,6 +277,7 @@ def _candidate_from_feed_row(
     user_id: str,
     row: sqlite3.Row,
     knownness: tuple[str, str],
+    identity_map: dict | None = None,
 ) -> RankerCandidate:
     topics = json.loads(row["matched_topics_json"] or "[]")
     topic_key = topics[0] if topics else row["event_id"]
@@ -281,7 +295,11 @@ def _candidate_from_feed_row(
         claim_detail=row["claim_detail"] if "claim_detail" in keys else "",
     )
     snapshot = ranking_impact_snapshot(record)
-    identity_label, identity_confidence = _identity_for_claim(connection, row["claim_id"])
+    identity_label, identity_confidence = _identity_for_claim(
+        connection,
+        row["claim_id"],
+        identity_map=identity_map,
+    )
     return RankerCandidate(
         item_id=row["id"],
         event_id=row["event_id"],
@@ -743,13 +761,23 @@ class FeedStore:
                 params.append(item_status)
 
             rows = list(connection.execute(inner_sql, params).fetchall())
-            knownness_by_item = _knownness_by_feed_item(connection, user_id=user_id, rows=rows)
+            identity_map = resolve_claim_knowledge_ids(
+                connection,
+                [row["claim_id"] for row in rows if row["claim_id"]],
+            )
+            knownness_by_item = _knownness_by_feed_item(
+                connection,
+                user_id=user_id,
+                rows=rows,
+                identity_map=identity_map,
+            )
             candidates = [
                 _candidate_from_feed_row(
                     connection,
                     user_id=user_id,
                     row=row,
                     knownness=knownness_by_item[row["id"]],
+                    identity_map=identity_map,
                 )
                 for row in rows
             ]
@@ -766,6 +794,7 @@ class FeedStore:
                 identity_label, identity_confidence = _identity_for_claim(
                     connection,
                     feed_row["claim_id"],
+                    identity_map=identity_map,
                 )
                 source_candidates.append(
                     _source_candidate_from_feed_row(

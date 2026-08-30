@@ -299,20 +299,7 @@ def ensure_claim_knowledge_mapping(
     )
 
 
-def resolve_claim_knowledge_id(
-    connection: sqlite3.Connection,
-    claim_id: str,
-) -> KnowledgeIdentityMapping | None:
-    row = connection.execute(
-        """
-        SELECT claim_id, knowledge_id, reason, confidence, version, decision
-        FROM claim_knowledge_map
-        WHERE claim_id = ?
-        """,
-        (claim_id,),
-    ).fetchone()
-    if row is None:
-        return None
+def _mapping_from_row(row: sqlite3.Row) -> KnowledgeIdentityMapping:
     return KnowledgeIdentityMapping(
         claim_id=str(row["claim_id"]),
         knowledge_id=str(row["knowledge_id"]),
@@ -321,6 +308,33 @@ def resolve_claim_knowledge_id(
         version=str(row["version"]),
         decision=str(row["decision"]),
     )
+
+
+def resolve_claim_knowledge_id(
+    connection: sqlite3.Connection,
+    claim_id: str,
+) -> KnowledgeIdentityMapping | None:
+    mapped = resolve_claim_knowledge_ids(connection, (claim_id,))
+    return mapped.get(claim_id)
+
+
+def resolve_claim_knowledge_ids(
+    connection: sqlite3.Connection,
+    claim_ids: Sequence[str],
+) -> dict[str, KnowledgeIdentityMapping]:
+    unique = tuple(dict.fromkeys(claim_id for claim_id in claim_ids if claim_id))
+    if not unique:
+        return {}
+    placeholders = ",".join("?" for _ in unique)
+    rows = connection.execute(
+        f"""
+        SELECT claim_id, knowledge_id, reason, confidence, version, decision
+        FROM claim_knowledge_map
+        WHERE claim_id IN ({placeholders})
+        """,  # noqa: S608  # nosec B608
+        unique,
+    ).fetchall()
+    return {str(row["claim_id"]): _mapping_from_row(row) for row in rows}
 
 
 def claims_for_knowledge_id(
@@ -598,5 +612,6 @@ __all__ = (
     "rebuild_knowledge_identities",
     "replay_knowledge_state_for_identity",
     "resolve_claim_knowledge_id",
+    "resolve_claim_knowledge_ids",
     "visibility_for_identity",
 )
