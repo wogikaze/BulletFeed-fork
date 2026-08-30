@@ -3,6 +3,11 @@
   "mode": "fresh_ephemeral_backend",
   "stages": [
     {
+      "stage": "schema_upgrade",
+      "ok": true,
+      "detail": "representative prior schema upgraded without losing persisted user state"
+    },
+    {
       "stage": "stack",
       "ok": true,
       "detail": "fresh database, API, and worker are ready"

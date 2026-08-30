@@ -11,10 +11,12 @@ python scripts/run_clean_room_backend_acceptance.py
 証跡を保存する場合は `--output tests/gold/clean_room/v01/backend_report.json` を付ける。
 report は token と ephemeral user ID を保存せず、各 stage の pass/fail だけを記録する。
 
-検証する順序は fresh stack/readiness、session、profile/topic onboarding、source
+検証する順序は representative schema upgrade、fresh stack/readiness、session、profile/topic onboarding、source
 discovery、activation、subscription、acceptance acquisition/projection、feed、
 Event evidence、meaningful exposure、feedback、subsequent feed である。worker/API
 process recovery と Android release build は M5/M4 の専用 gate で別途実行する。
+schema upgrade stage は別の一時DBで旧migration markerを再適用し、既存user stateが保持され、
+current `KNOWN_REVISIONS` へ到達することを確認する。
 
 Android の real-backend acceptance は `com.bulletfeed.app.RealBackendAcceptanceTest` を
 fresh ephemeral backendへ接続して実行する。結果は
