@@ -81,6 +81,5 @@
   "limitations": [
     "source acquisition uses the local acceptance seed fixture; live OAuth and real user enrollment are excluded"
   ],
-  "user_id": "usr_NZXqJ1lU_rF8n82Q",
   "status": "passed"
 }

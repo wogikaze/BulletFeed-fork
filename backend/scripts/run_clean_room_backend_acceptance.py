@@ -59,7 +59,9 @@ def _stage(
 
 
 def _emit(result: dict[str, Any], output: Path | None) -> None:
-    payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    public_result = dict(result)
+    public_result.pop("user_id", None)
+    payload = json.dumps(public_result, ensure_ascii=False, indent=2) + "\n"
     if output is not None:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(payload, encoding="utf-8")
