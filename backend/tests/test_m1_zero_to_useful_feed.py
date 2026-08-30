@@ -44,6 +44,7 @@ def test_qualification_attempts_all_constructed_personas(tmp_path: Path) -> None
     assert report["metrics"]["sample_count"] == 30
     assert report["metrics"]["surfaced_card_count"] == 28
     assert report["metrics"]["useful_proxy_at_5_total"] == 28
+    assert report["metrics"]["useful_proxy_at_10_total"] == 28
     assert report["metrics"]["segments"]["language"]["ja"]["sample_count"] == 11
     assert report["metrics"]["segments"]["cohort"]["cold_start"]["sample_count"] == 15
     assert all(

@@ -75,6 +75,7 @@ class PersonaReport:
     unsafe_suppression: bool
     stages: tuple[StageResult, ...]
     useful_proxy_at_5: int
+    useful_proxy_at_10: int
     cards_to_first_useful: int | None
 
     def as_dict(self) -> dict[str, Any]:
@@ -341,6 +342,7 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
     )
 
     useful = min(5, len(items))
+    useful_at_10 = min(10, len(items))
     cards_to_first = 1 if items else None
     earliest = next((stage.stage for stage in stages if not stage.ok), None)
     return PersonaReport(
@@ -357,6 +359,7 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
         unsafe_suppression=False,
         stages=tuple(stages),
         useful_proxy_at_5=useful,
+        useful_proxy_at_10=useful_at_10,
         cards_to_first_useful=cards_to_first,
     )
 
@@ -389,6 +392,12 @@ def run_qualification(
             "useful_proxy_at_5_total": sum(report.useful_proxy_at_5 for report in rows),
             "useful_proxy_at_5_mean": round(
                 sum(report.useful_proxy_at_5 for report in rows) / len(rows), 4
+            )
+            if rows
+            else None,
+            "useful_proxy_at_10_total": sum(report.useful_proxy_at_10 for report in rows),
+            "useful_proxy_at_10_mean": round(
+                sum(report.useful_proxy_at_10 for report in rows) / len(rows), 4
             )
             if rows
             else None,
