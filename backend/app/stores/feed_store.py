@@ -27,7 +27,11 @@ from app.services.feedback_signals import (
     types_for_family,
 )
 from app.services.follow_baseline import SUBJECT_EVENT, record_follow_baseline
-from app.services.impact_signals import extract_impact_signals, features_for_ranking
+from app.services.impact_features import (
+    build_impact_record,
+    parse_observation_payload,
+    ranking_impact_snapshot,
+)
 from app.services.knowledge_evidence import (
     CONFIDENCE_NONE,
     KIND_ALREADY_KNEW,
@@ -263,14 +267,20 @@ def _candidate_from_feed_row(
 ) -> RankerCandidate:
     topics = json.loads(row["matched_topics_json"] or "[]")
     topic_key = topics[0] if topics else row["event_id"]
-    record = {
-        "source_type": row["source_type"],
-        "source_key": row["source_key"],
-        "delta_type": row["delta_type"],
-        "title": row["title"],
-        "summary": row["event_summary"] or row["delta_summary"],
-    }
-    snapshot = features_for_ranking(extract_impact_signals(record))
+    keys = set(row.keys())
+    record = build_impact_record(
+        source_type=row["source_type"],
+        source_key=row["source_key"],
+        delta_type=row["delta_type"],
+        title=row["title"],
+        summary=row["event_summary"] or row["delta_summary"],
+        payload=parse_observation_payload(
+            row["observation_payload"] if "observation_payload" in keys else None
+        ),
+        claim_value=row["claim_value"] if "claim_value" in keys else "",
+        claim_detail=row["claim_detail"] if "claim_detail" in keys else "",
+    )
+    snapshot = ranking_impact_snapshot(record)
     identity_label, identity_confidence = _identity_for_claim(connection, row["claim_id"])
     return RankerCandidate(
         item_id=row["id"],
@@ -688,13 +698,15 @@ class FeedStore:
                        COALESCE(e.summary, '') AS event_summary,
                        COALESCE(sc.value_text, '') AS claim_value,
                        COALESCE(sc.detail_text, '') AS claim_detail,
-                       COALESCE(sc.slot, '') AS claim_slot
+                       COALESCE(sc.slot, '') AS claim_slot,
+                       obs.payload_json AS observation_payload
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
                 LEFT JOIN events e ON e.id = f.event_id
                 LEFT JOIN ledger_events le ON le.id = f.event_id
                 LEFT JOIN delta_claim_map claim_map ON claim_map.delta_id = f.delta_id
                 LEFT JOIN state_claims sc ON sc.id = claim_map.claim_id
+                LEFT JOIN observations obs ON obs.id = sc.observation_id
                 LEFT JOIN user_claim_exposures knownness
                     ON knownness.user_id = f.user_id
                    AND knownness.claim_id = claim_map.claim_id
