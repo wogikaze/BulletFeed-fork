@@ -192,6 +192,82 @@ class RealBackendAcceptanceTest {
             assertTrue(afterIgnore.items.none { it.id == hide.id })
         }
 
+    @Test
+    fun `knowledge bootstrap from current state suppresses known feed restatements`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val userId = sessionManager.userId!!
+
+            val seeded = seedStatuspage(baseUrl, userId)
+            assertTrue(seeded.eventIds.isNotEmpty())
+            val eventId = seeded.eventIds.first()
+
+            val before = repository.getFeedPage(cursor = null, limit = 20)
+            assertTrue(before.items.any { it.eventId == eventId })
+
+            val empty = repository.getKnowledgeBootstrap()
+            assertEquals(0, empty.explicitKnownFactCount)
+            assertEquals(0, empty.inferredFactCount)
+
+            val checkpoint = repository.recordKnowledgeCheckpoint(
+                subjectKind = BootstrapSubjectKind.EVENT,
+                subjectId = eventId,
+                catchUp = false,
+            )
+            assertEquals(false, checkpoint.catchUp)
+            assertTrue(checkpoint.knownFactCount > 0)
+
+            val catchUpOnly = repository.recordKnowledgeCheckpoint(
+                subjectKind = BootstrapSubjectKind.TOPIC,
+                subjectId = "React",
+                catchUp = true,
+            )
+            assertTrue(catchUpOnly.catchUp)
+            assertEquals(0, catchUpOnly.knownFactCount)
+
+            val summary = repository.getKnowledgeBootstrap()
+            assertTrue(summary.checkpoints.any { it.subjectKind == BootstrapSubjectKind.EVENT && !it.catchUp })
+            assertTrue(summary.checkpoints.any { it.catchUp && it.knownFactCount == 0 })
+            assertEquals(0, summary.inferredFactCount)
+            assertTrue(summary.evidence.none { it.kind.contains("claim_id", ignoreCase = true) })
+
+            val exposuresBefore = claimExposureCount(baseUrl, userId)
+            val knownness = bootstrapKnownness(baseUrl, userId, eventId)
+            assertTrue(
+                "bootstrap should mark current-state claims known: $knownness",
+                knownness.any { it.state == "known" },
+            )
+            assertTrue(
+                "low-confidence inferred bootstrap must not hard-hide: $knownness",
+                knownness.none { it.state == "probably_known" && it.action == "hide" },
+            )
+            assertEquals(
+                "GET /feed and bootstrap must not write delivery knownness",
+                exposuresBefore,
+                claimExposureCount(baseUrl, userId),
+            )
+
+            val after = repository.getFeedPage(cursor = null, limit = 20)
+            assertTrue(after.items.all { it.eventId.isNotBlank() })
+            if (knownness.any { it.state == "known" && it.action == "hide" }) {
+                assertTrue(
+                    "hard-hidden known restatements must leave the feed: before=${before.items.size} after=${after.items.size}",
+                    after.items.size < before.items.size,
+                )
+            }
+
+            repository.resetKnowledgeBootstrap()
+            val reset = repository.getKnowledgeBootstrap()
+            assertTrue(reset.checkpoints.isEmpty())
+            assertEquals(0, reset.explicitKnownFactCount)
+        }
+
     private suspend fun assertApiFailureIsProductionError(repository: RemoteBulletFeedRepository) {
         try {
             repository.getEventDetail("evt_missing_acceptance")
@@ -244,6 +320,20 @@ class RealBackendAcceptanceTest {
         return executeJson(request, AcceptanceExposureCount.serializer()).count
     }
 
+    private fun bootstrapKnownness(
+        baseUrl: String,
+        userId: String,
+        eventId: String,
+    ): List<AcceptanceKnownnessRow> {
+        val url = (baseUrl.trimEnd('/') + "/__acceptance__/bootstrap-knownness").toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("userId", userId)
+            .addQueryParameter("eventId", eventId)
+            .build()
+        val request = Request.Builder().url(url).get().build()
+        return executeJson(request, AcceptanceKnownnessResponse.serializer()).items
+    }
+
     private fun claimExposureCount(
         baseUrl: String,
         userId: String,
@@ -282,6 +372,18 @@ class RealBackendAcceptanceTest {
     @Serializable
     private data class AcceptanceExposureCount(
         val count: Int,
+    )
+
+    @Serializable
+    private data class AcceptanceKnownnessRow(
+        val claimId: String,
+        val state: String,
+        val action: String,
+    )
+
+    @Serializable
+    private data class AcceptanceKnownnessResponse(
+        val items: List<AcceptanceKnownnessRow>,
     )
 
     private companion object {

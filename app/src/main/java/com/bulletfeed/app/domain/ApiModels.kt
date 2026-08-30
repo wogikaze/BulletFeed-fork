@@ -244,6 +244,51 @@ data class SourceSubscription(
     val failureCount: Int = 0,
 )
 
+enum class BootstrapSubjectKind { EVENT, TOPIC, GLOBAL }
+
+data class KnowledgeBootstrapCheckpoint(
+    val subjectKind: BootstrapSubjectKind,
+    val subjectId: String,
+    val asOf: Long,
+    val catchUp: Boolean,
+    val knownFactCount: Int,
+)
+
+data class KnowledgeBootstrapEvidence(
+    val id: String,
+    val kind: String,
+    val provenance: String,
+    val confidence: String,
+    val sourceId: String,
+    val eventId: String? = null,
+    val createdAt: Long,
+)
+
+data class KnowledgeBootstrapSummary(
+    val version: String,
+    val explicitKnownFactCount: Int,
+    val inferredFactCount: Int,
+    val checkpoints: List<KnowledgeBootstrapCheckpoint> = emptyList(),
+    val evidence: List<KnowledgeBootstrapEvidence> = emptyList(),
+)
+
+data class KnowledgeBootstrapResult(
+    val version: String,
+    val subjectKind: BootstrapSubjectKind? = null,
+    val subjectId: String? = null,
+    val asOf: Long? = null,
+    val catchUp: Boolean = false,
+    val knownFactCount: Int = 0,
+    val sessionId: String? = null,
+)
+
+data class KnowledgeBootstrapPrompt(
+    val subjectKind: BootstrapSubjectKind,
+    val subjectId: String,
+    val title: String,
+    val currentStateSummary: String = "",
+)
+
 data class MeBootstrap(
     val onboardingCompleted: Boolean,
     val onboardingState: OnboardingState,

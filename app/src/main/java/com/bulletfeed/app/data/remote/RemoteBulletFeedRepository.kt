@@ -294,6 +294,31 @@ class RemoteMeRepository(
     override suspend fun removeSourceSubscription(subscriptionId: String) {
         api.deleteSourceSubscription(subscriptionId)
     }
+
+    override suspend fun getKnowledgeBootstrap(): KnowledgeBootstrapSummary =
+        api.getKnowledgeBootstrap().toDomain()
+
+    override suspend fun recordKnowledgeCheckpoint(
+        subjectKind: BootstrapSubjectKind,
+        subjectId: String,
+        catchUp: Boolean,
+        asOf: String?,
+    ): KnowledgeBootstrapResult =
+        api.putKnowledgeBootstrapCheckpoint(
+            KnowledgeBootstrapCheckpointRequestDto(
+                subjectKind = subjectKind.name.lowercase(),
+                subjectId = subjectId,
+                asOf = asOf,
+                catchUp = catchUp,
+            ),
+        ).toDomain()
+
+    override suspend fun recordExplicitKnowledgeClaims(claimIds: List<String>): KnowledgeBootstrapResult =
+        api.postKnowledgeBootstrapClaims(KnowledgeBootstrapClaimsRequestDto(claimIds)).toDomain()
+
+    override suspend fun resetKnowledgeBootstrap() {
+        api.deleteKnowledgeBootstrap()
+    }
 }
 
 class RemoteIntegrationRepository(

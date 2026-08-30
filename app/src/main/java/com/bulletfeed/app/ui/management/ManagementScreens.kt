@@ -558,6 +558,13 @@ fun SettingsScreen(
     subscriptionError: String? = null,
     onAddSubscription: (UserSourceKind, String, String) -> Unit = { _, _, _ -> },
     onRemoveSubscription: (String) -> Unit = {},
+    knowledgeBootstrap: KnowledgeBootstrapSummary = KnowledgeBootstrapSummary(
+        version = "",
+        explicitKnownFactCount = 0,
+        inferredFactCount = 0,
+    ),
+    isSavingKnowledgeBootstrap: Boolean = false,
+    onResetKnowledgeBootstrap: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -643,6 +650,12 @@ fun SettingsScreen(
                 onRemove = onRemoveSubscription,
             )
             Spacer(Modifier.height(28.dp))
+            KnowledgeBootstrapSection(
+                summary = knowledgeBootstrap,
+                isSaving = isSavingKnowledgeBootstrap,
+                onReset = onResetKnowledgeBootstrap,
+            )
+            Spacer(Modifier.height(28.dp))
             SourceRecommendationsSection(
                 recommendations = recommendations,
                 decidingRecommendationId = decidingRecommendationId,
@@ -650,6 +663,68 @@ fun SettingsScreen(
                 onIgnore = onIgnoreRecommendation,
             )
         }
+    }
+}
+
+@Composable
+private fun KnowledgeBootstrapSection(
+    summary: KnowledgeBootstrapSummary,
+    isSaving: Boolean,
+    onReset: () -> Unit,
+) {
+    Text("既存知識の登録", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "BulletFeed 外ですでに知っている現在状態を、Event / Topic の確認から登録できます。Claim ID を手入力する画面はありません。低信頼の推定（inferred）は非表示に使いません。",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color(0xFF655F69),
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "catch up は「これから追う」だけで、現在より前を既知にはしません。現在状態の確認は、その時点ですでに真だった事実だけを既知にします。",
+        style = MaterialTheme.typography.bodySmall,
+        color = Color(0xFF655F69),
+    )
+    Spacer(Modifier.height(12.dp))
+    InfoBlock("確認済みの現在状態", "${summary.explicitKnownFactCount} 件")
+    Spacer(Modifier.height(8.dp))
+    InfoBlock("推定（非表示には未使用）", "${summary.inferredFactCount} 件")
+    Spacer(Modifier.height(12.dp))
+    if (summary.checkpoints.isEmpty()) {
+        Text("まだ checkpoint はありません。Event 詳細または初回フォローで登録できます。", color = Color(0xFF655F69))
+    } else {
+        summary.checkpoints.forEach { item ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(
+                        when (item.subjectKind) {
+                            BootstrapSubjectKind.EVENT -> "Event の現在状態"
+                            BootstrapSubjectKind.TOPIC -> "Topic の現在状態"
+                            BootstrapSubjectKind.GLOBAL -> "全体"
+                        },
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(item.subjectId, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+                    Text(
+                        if (item.catchUp) {
+                            "catch up: 開始時刻のみ。過去は既知にしていません。"
+                        } else {
+                            "現在より前の真である事実 ${item.knownFactCount} 件を既知にしました。"
+                        },
+                    )
+                }
+            }
+        }
+    }
+    OutlinedButton(
+        onClick = onReset,
+        enabled = !isSaving && (summary.checkpoints.isNotEmpty() || summary.explicitKnownFactCount > 0),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    ) {
+        Text(if (isSaving) "リセット中" else "bootstrap だけをリセット")
     }
 }
 

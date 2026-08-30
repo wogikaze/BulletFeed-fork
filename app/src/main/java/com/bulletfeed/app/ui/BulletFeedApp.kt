@@ -18,7 +18,10 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -266,6 +269,8 @@ private fun ReadyApplication(
                     onBack = onClearEvent,
                     onFeedback = { feedback -> viewModel.updateEventFeedback(selectedEventId, feedback) },
                     onFollow = { viewModel.toggleFollowing(selectedEventId) },
+                    onMarkCurrentStateKnown = { catchUp -> viewModel.markEventCurrentStateKnown(selectedEventId, catchUp) },
+                    isSavingKnowledgeBootstrap = uiState.isSavingKnowledgeBootstrap,
                 )
                 uiState.isEventDetailLoading -> DetailLoadingScreen("Eventを読み込み中", onClearEvent)
                 else -> DetailErrorScreen(
@@ -365,9 +370,19 @@ private fun ReadyApplication(
             onIgnoreRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.IGNORED) },
             onAddSubscription = viewModel::addSourceSubscription,
             onRemoveSubscription = viewModel::removeSourceSubscription,
+            onResetKnowledgeBootstrap = viewModel::resetKnowledgeBootstrap,
             onRefresh = viewModel::refresh,
             onLoadMoreFeed = viewModel::loadMoreFeed,
             onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
+        )
+    }
+    uiState.knowledgeBootstrapPrompt?.let { prompt ->
+        KnowledgeBootstrapPromptDialog(
+            prompt = prompt,
+            isSaving = uiState.isSavingKnowledgeBootstrap,
+            onAlreadyKnew = viewModel::confirmKnowledgeAlreadyKnew,
+            onCatchUp = viewModel::confirmKnowledgeCatchUpOnly,
+            onDismiss = viewModel::dismissKnowledgeBootstrapPrompt,
         )
     }
     uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
@@ -399,6 +414,7 @@ private fun MainNavigation(
     onIgnoreRecommendation: (String) -> Unit,
     onAddSubscription: (UserSourceKind, String, String) -> Unit,
     onRemoveSubscription: (String) -> Unit,
+    onResetKnowledgeBootstrap: () -> Unit,
     onRefresh: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
@@ -494,6 +510,9 @@ private fun MainNavigation(
             subscriptionError = uiState.sourceSubscriptionError,
             onAddSubscription = onAddSubscription,
             onRemoveSubscription = onRemoveSubscription,
+            knowledgeBootstrap = uiState.knowledgeBootstrap,
+            isSavingKnowledgeBootstrap = uiState.isSavingKnowledgeBootstrap,
+            onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -633,6 +652,54 @@ private fun DetailErrorScreen(
     Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
     Button(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) { Text("再試行") }
     Button(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) { Text("戻る") }
+}
+
+@Composable
+private fun KnowledgeBootstrapPromptDialog(
+    prompt: KnowledgeBootstrapPrompt,
+    isSaving: Boolean,
+    onAlreadyKnew: () -> Unit,
+    onCatchUp: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val kindLabel =
+        when (prompt.subjectKind) {
+            BootstrapSubjectKind.EVENT -> "この Event"
+            BootstrapSubjectKind.TOPIC -> "この Topic"
+            BootstrapSubjectKind.GLOBAL -> "全体"
+        }
+    AlertDialog(
+        onDismissRequest = { if (!isSaving) onDismiss() },
+        title = { Text("すでに知っていますか") },
+        text = {
+            Column {
+                Text("$kindLabel「${prompt.title}」をフォローしました。")
+                if (prompt.currentStateSummary.isNotBlank()) {
+                    Text(
+                        "現在状態: ${prompt.currentStateSummary}",
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+                Text(
+                    "「すでに知っている」は、いま真である現在状態だけを既知にします。途中経過は既知にしません。",
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                Text(
+                    "「これから追う（catch up）」は開始時刻だけを残し、過去は既知にしません。",
+                    modifier = Modifier.padding(top = 6.dp),
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onAlreadyKnew, enabled = !isSaving) { Text("この現在状態は知っている") }
+        },
+        dismissButton = {
+            Column {
+                OutlinedButton(onClick = onCatchUp, enabled = !isSaving) { Text("これから追う") }
+                TextButton(onClick = onDismiss, enabled = !isSaving) { Text("あとで") }
+            }
+        },
+    )
 }
 
 @Composable

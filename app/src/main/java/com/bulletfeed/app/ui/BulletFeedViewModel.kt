@@ -70,6 +70,13 @@ data class BulletFeedUiState(
     val sourceSubscriptions: List<SourceSubscription> = emptyList(),
     val isSavingSourceSubscription: Boolean = false,
     val sourceSubscriptionError: String? = null,
+    val knowledgeBootstrap: KnowledgeBootstrapSummary = KnowledgeBootstrapSummary(
+        version = "",
+        explicitKnownFactCount = 0,
+        inferredFactCount = 0,
+    ),
+    val knowledgeBootstrapPrompt: KnowledgeBootstrapPrompt? = null,
+    val isSavingKnowledgeBootstrap: Boolean = false,
     val topicRecommendations: List<TopicRecommendation> = emptyList(),
     val topicRecommendationCohort: String = "",
     val isLoading: Boolean = true,
@@ -204,6 +211,17 @@ class BulletFeedViewModel(
                     softError = softError ?: error.toUserMessage()
                     TopicRecommendationPage("", emptyList(), emptyList(), "", "")
                 }
+                val bootstrap = if (ready) {
+                    try {
+                        repository.getKnowledgeBootstrap()
+                    } catch (error: Throwable) {
+                        if (error.isUnauthorized()) throw error
+                        softError = softError ?: error.toUserMessage()
+                        KnowledgeBootstrapSummary(version = "", explicitKnownFactCount = 0, inferredFactCount = 0)
+                    }
+                } else {
+                    KnowledgeBootstrapSummary(version = "", explicitKnownFactCount = 0, inferredFactCount = 0)
+                }
                 if (version != refreshVersion) return@launch
                 _uiState.update { current ->
                     current.copy(
@@ -216,6 +234,7 @@ class BulletFeedViewModel(
                         notifications = notifications,
                         sourceRecommendations = recommendations,
                         sourceSubscriptions = subscriptions,
+                        knowledgeBootstrap = bootstrap,
                         topicRecommendations = topicRecs.items,
                         topicRecommendationCohort = topicRecs.cohort,
                         githubConnection = githubConnection,
@@ -569,7 +588,22 @@ class BulletFeedViewModel(
         launchEventMutation(eventId) {
             val updatedDetail = repository.updateFollowingDetail(eventId, !currentFollowing)
             _uiState.update { current ->
-                if (current.eventDetailId == eventId) current.copy(eventDetail = updatedDetail) else current
+                val prompt =
+                    if (!currentFollowing) {
+                        KnowledgeBootstrapPrompt(
+                            subjectKind = BootstrapSubjectKind.EVENT,
+                            subjectId = eventId,
+                            title = updatedDetail.title,
+                            currentStateSummary = updatedDetail.currentState.summary,
+                        )
+                    } else {
+                        current.knowledgeBootstrapPrompt
+                    }
+                if (current.eventDetailId == eventId) {
+                    current.copy(eventDetail = updatedDetail, knowledgeBootstrapPrompt = prompt)
+                } else {
+                    current.copy(knowledgeBootstrapPrompt = prompt)
+                }
             }
             reloadFeedFromServer()
         }
@@ -1115,10 +1149,20 @@ class BulletFeedViewModel(
             showError(TOPIC_LIMIT_REACHED_MESSAGE)
             return@launchUpdate
         }
-        repository.addUserTopic(normalized, type)
+        val created = repository.addUserTopic(normalized, type)
         refreshTopicsFromServer()
         refreshTopicRecommendationsFromServer()
         refreshSourceRecommendationsFromServer()
+        _uiState.update {
+            it.copy(
+                knowledgeBootstrapPrompt = KnowledgeBootstrapPrompt(
+                    subjectKind = BootstrapSubjectKind.TOPIC,
+                    subjectId = created.name,
+                    title = created.name,
+                    currentStateSummary = "このトピックに関する、いま真である現在状態だけを対象にできます。",
+                ),
+            )
+        }
         reloadFeedFromServer()
     }
 
@@ -1239,6 +1283,76 @@ class BulletFeedViewModel(
 
     fun addRecommendedTopic(item: TopicRecommendation) {
         addTopic(item.name, item.type)
+    }
+
+    fun dismissKnowledgeBootstrapPrompt() {
+        _uiState.update { it.copy(knowledgeBootstrapPrompt = null) }
+    }
+
+    fun confirmKnowledgeAlreadyKnew() {
+        val prompt = _uiState.value.knowledgeBootstrapPrompt ?: return
+        recordKnowledgeCheckpoint(prompt, catchUp = false)
+    }
+
+    fun confirmKnowledgeCatchUpOnly() {
+        val prompt = _uiState.value.knowledgeBootstrapPrompt ?: return
+        recordKnowledgeCheckpoint(prompt, catchUp = true)
+    }
+
+    fun markEventCurrentStateKnown(eventId: String, catchUp: Boolean) {
+        val detail = _uiState.value.eventDetail.takeIf { _uiState.value.eventDetailId == eventId }
+        recordKnowledgeCheckpoint(
+            KnowledgeBootstrapPrompt(
+                subjectKind = BootstrapSubjectKind.EVENT,
+                subjectId = eventId,
+                title = detail?.title ?: eventId,
+                currentStateSummary = detail?.currentState?.summary.orEmpty(),
+            ),
+            catchUp = catchUp,
+        )
+    }
+
+    fun resetKnowledgeBootstrap() = launchUpdate {
+        _uiState.update { it.copy(isSavingKnowledgeBootstrap = true) }
+        try {
+            repository.resetKnowledgeBootstrap()
+            refreshKnowledgeBootstrapFromServer()
+            reloadFeedFromServer()
+            _uiState.update { it.copy(isSavingKnowledgeBootstrap = false) }
+        } catch (error: Throwable) {
+            _uiState.update { it.copy(isSavingKnowledgeBootstrap = false) }
+            throw error
+        }
+    }
+
+    private fun recordKnowledgeCheckpoint(
+        prompt: KnowledgeBootstrapPrompt,
+        catchUp: Boolean,
+    ) = launchUpdate {
+        _uiState.update { it.copy(isSavingKnowledgeBootstrap = true, errorMessage = null) }
+        try {
+            repository.recordKnowledgeCheckpoint(
+                subjectKind = prompt.subjectKind,
+                subjectId = prompt.subjectId,
+                catchUp = catchUp,
+            )
+            refreshKnowledgeBootstrapFromServer()
+            reloadFeedFromServer()
+            _uiState.update {
+                it.copy(
+                    isSavingKnowledgeBootstrap = false,
+                    knowledgeBootstrapPrompt = null,
+                )
+            }
+        } catch (error: Throwable) {
+            _uiState.update { it.copy(isSavingKnowledgeBootstrap = false) }
+            throw error
+        }
+    }
+
+    private suspend fun refreshKnowledgeBootstrapFromServer() {
+        val summary = repository.getKnowledgeBootstrap()
+        _uiState.update { it.copy(knowledgeBootstrap = summary) }
     }
 
     private suspend fun refreshTopicRecommendationsFromServer() {

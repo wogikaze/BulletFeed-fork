@@ -10,7 +10,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.database import Database
 from app.dependencies import get_database
 from app.schemas.common import ApiModel
+from app.services.false_suppression import decide_suppression
 from app.services.feed_projection import FeedProjector
+from app.services.knowledge_evidence import replay_knowledge_state
+from app.services.knowledge_identity import resolve_claim_knowledge_id
 from app.services.ledger_projection import LedgerProjector
 from app.services.statuspage_pipeline import StatuspagePipeline
 
@@ -28,6 +31,16 @@ class SeedResponse(ApiModel):
 
 class ExposureCountResponse(ApiModel):
     count: int
+
+
+class KnownnessRow(ApiModel):
+    claim_id: str
+    state: str
+    action: str
+
+
+class KnownnessInspectResponse(ApiModel):
+    items: list[KnownnessRow]
 
 
 def _statuspage_summary() -> dict:
@@ -137,3 +150,52 @@ def source_sync_job_count(
                 (user_id,),
             ).fetchone()
     return ExposureCountResponse(count=int(row["count"]) if row is not None else 0)
+
+
+@router.get("/__acceptance__/bootstrap-knownness", response_model=KnownnessInspectResponse)
+def bootstrap_knownness(
+    database: Annotated[Database, Depends(get_database)],
+    user_id: Annotated[str, Query(alias="userId")],
+    event_id: Annotated[str | None, Query(alias="eventId")] = None,
+) -> KnownnessInspectResponse:
+    _require_user(database, user_id)
+    with database.connect() as connection:
+        if event_id:
+            rows = connection.execute(
+                """
+                SELECT DISTINCT m.claim_id
+                FROM delta_claim_map m
+                JOIN state_claims c ON c.id = m.claim_id
+                WHERE c.event_id = ?
+                """,
+                (event_id,),
+            ).fetchall()
+        else:
+            rows = connection.execute(
+                """
+                SELECT DISTINCT m.claim_id
+                FROM feed_items f
+                JOIN delta_claim_map m ON m.delta_id = f.delta_id
+                WHERE f.user_id = ?
+                """,
+                (user_id,),
+            ).fetchall()
+        items = []
+        for row in rows:
+            claim_id = str(row["claim_id"])
+            derived = replay_knowledge_state(connection, user_id=user_id, claim_id=claim_id)
+            mapped = resolve_claim_knowledge_id(connection, claim_id)
+            if mapped is None:
+                identity_label, identity_confidence = "uncertain", "none"
+            elif mapped.decision == "equivalent":
+                identity_label, identity_confidence = "same_target", mapped.confidence
+            else:
+                identity_label, identity_confidence = "uncertain", mapped.confidence or "none"
+            action = decide_suppression(
+                knowledge_state=derived.state,
+                knowledge_confidence=derived.confidence,
+                identity_label=identity_label,
+                identity_confidence=identity_confidence,
+            ).action
+            items.append(KnownnessRow(claim_id=claim_id, state=derived.state, action=action))
+    return KnownnessInspectResponse(items=items)

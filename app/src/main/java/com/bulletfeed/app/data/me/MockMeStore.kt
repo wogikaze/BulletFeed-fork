@@ -155,4 +155,52 @@ class MockMeStore(
     override suspend fun removeSourceSubscription(subscriptionId: String) {
         state.sourceSubscriptions.removeAll { it.id == subscriptionId }
     }
+
+    override suspend fun getKnowledgeBootstrap(): KnowledgeBootstrapSummary = state.knowledgeBootstrap
+
+    override suspend fun recordKnowledgeCheckpoint(
+        subjectKind: BootstrapSubjectKind,
+        subjectId: String,
+        catchUp: Boolean,
+        asOf: String?,
+    ): KnowledgeBootstrapResult {
+        val checkpoint =
+            KnowledgeBootstrapCheckpoint(
+                subjectKind = subjectKind,
+                subjectId = subjectId,
+                asOf = System.currentTimeMillis() / 1000,
+                catchUp = catchUp,
+                knownFactCount = if (catchUp) 0 else 1,
+            )
+        val current = state.knowledgeBootstrap
+        state.knowledgeBootstrap =
+            current.copy(
+                checkpoints = current.checkpoints.filterNot {
+                    it.subjectKind == subjectKind && it.subjectId == subjectId
+                } + checkpoint,
+            )
+        return KnowledgeBootstrapResult(
+            version = current.version,
+            subjectKind = subjectKind,
+            subjectId = subjectId,
+            asOf = checkpoint.asOf,
+            catchUp = catchUp,
+            knownFactCount = checkpoint.knownFactCount,
+        )
+    }
+
+    override suspend fun recordExplicitKnowledgeClaims(claimIds: List<String>): KnowledgeBootstrapResult {
+        val current = state.knowledgeBootstrap
+        state.knowledgeBootstrap = current.copy(explicitKnownFactCount = current.explicitKnownFactCount + claimIds.size)
+        return KnowledgeBootstrapResult(version = current.version, knownFactCount = claimIds.size, sessionId = "kbs_mock")
+    }
+
+    override suspend fun resetKnowledgeBootstrap() {
+        state.knowledgeBootstrap =
+            KnowledgeBootstrapSummary(
+                version = "knowledge-bootstrap-v1",
+                explicitKnownFactCount = 0,
+                inferredFactCount = 0,
+            )
+    }
 }
