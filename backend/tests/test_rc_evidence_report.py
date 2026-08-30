@@ -16,4 +16,7 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m3"]["live_sample"]["evidence_checks"]["success_rate"] is True
     assert report["missions"]["m4"]["evidence_checks"]["acceptance_gradle"] is True
     assert report["missions"]["m5"]["evidence_checks"]["session_persisted"] is True
+    assert report["missions"]["m6"]["root_cause_analysis"]["evidence_checks"][
+        "responsible_paths_identified"
+    ] is True
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True

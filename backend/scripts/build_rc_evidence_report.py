@@ -23,6 +23,7 @@ ARTIFACTS = {
     "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
     "m5": EVIDENCE_ROOT / "recovery" / "v01" / "process_recovery_report.json",
     "m6": EVIDENCE_ROOT / "m6" / "v01" / "top3_selection.json",
+    "m6_root_cause": EVIDENCE_ROOT / "m6" / "v01" / "root_cause_report.json",
     "m7_backend": EVIDENCE_ROOT / "clean_room" / "v01" / "backend_report.json",
 }
 
@@ -158,6 +159,30 @@ def _m5_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m6_root_cause_gate(report: dict[str, Any]) -> dict[str, Any]:
+    clusters = report.get("clusters", [])
+    checks = {
+        "analysis_only": report.get("status") == "analysis_only",
+        "top3_analyzed": len(clusters) == 3,
+        "responsible_paths_identified": all(
+            bool(cluster.get("responsible_code_paths")) for cluster in clusters
+        ),
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "stage_attribution": report.get("stage_attribution"),
+        "root_cause_hypotheses": {
+            cluster.get("persona_family"): cluster.get("root_cause_hypothesis")
+            for cluster in clusters
+        },
+        "note": (
+            "Root-cause analysis is ranking-only; no production remediation or blind tuning "
+            "was performed."
+        ),
+    }
+
+
 def _m6_gate(report: dict[str, Any]) -> dict[str, Any]:
     clusters = report.get("clusters", [])
     checks = {
@@ -210,7 +235,12 @@ def build_report() -> dict[str, Any]:
             **_m4_gate(loaded["m4_android"]),
         },
         "m5": {"artifact": _relative(ARTIFACTS["m5"]), **_m5_gate(loaded["m5"])},
-        "m6": {"artifact": _relative(ARTIFACTS["m6"]), **_m6_gate(loaded["m6"])},
+        "m6": {
+            "artifact": _relative(ARTIFACTS["m6"]),
+            "root_cause_artifact": _relative(ARTIFACTS["m6_root_cause"]),
+            **_m6_gate(loaded["m6"]),
+            "root_cause_analysis": _m6_root_cause_gate(loaded["m6_root_cause"]),
+        },
         "m7": {
             "artifact": _relative(ARTIFACTS["m7_backend"]),
             **_m7_gate(loaded["m7_backend"]),
