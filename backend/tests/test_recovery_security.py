@@ -1,13 +1,23 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app.database import Database
 from app.db.migrations import KNOWN_REVISIONS
 from app.services.relation import RELATION_FEATURE_VERSION
 from app.services.statuspage_pipeline import StatuspagePipeline
+from app.services.web_snapshots import (
+    RobotsDecision,
+    SnapshotStore,
+    WebSnapshot,
+    content_hash_for,
+    referenced_snapshot_ids,
+    snapshot_id_for,
+)
 from app.stores.feed_store import FeedStore
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -113,6 +123,73 @@ def test_backup_and_snapshot_restore_preserve_identity(tmp_path: Path) -> None:
             item[0] for item in connection.execute("SELECT revision_id FROM schema_migrations")
         }
         assert revisions == set(KNOWN_REVISIONS)
+
+
+def test_database_restore_preserves_snapshot_gc_references(tmp_path: Path) -> None:
+    live = tmp_path / "snapshot-reference.db"
+    database = Database(live)
+    database.initialize()
+    snapshot_root = tmp_path / "snapshots"
+    store = SnapshotStore(snapshot_root)
+    body = b"<html>snapshot</html>"
+    canonical_url = "https://docs.example.com/changelog"
+    snapshot = WebSnapshot(
+        snapshot_id=snapshot_id_for(
+            canonical_url=canonical_url,
+            content_hash=content_hash_for(body),
+        ),
+        canonical_url=canonical_url,
+        retrieved_at="2025-01-01T00:00:00Z",
+        content_hash=content_hash_for(body),
+        status_code=200,
+        headers=(("content-type", "text/html"),),
+        body=body,
+        etag=None,
+        last_modified=None,
+        robots=RobotsDecision(
+            source_url=canonical_url,
+            robots_url=None,
+            allowed=True,
+            reason="test",
+            retrieved_at="2025-01-01T00:00:00Z",
+        ),
+        final_url=canonical_url,
+    )
+    store.put(snapshot)
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO observations (
+                id, source_type, source_key, source_observation_id,
+                payload_hash, payload_json, original_url, retrieved_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "obs_snapshot_restore",
+                "generic_web",
+                canonical_url,
+                "snapshot-restore",
+                "payload-hash",
+                json.dumps({"snapshot_id": snapshot.snapshot_id}),
+                canonical_url,
+                "2025-01-01T00:00:00Z",
+            ),
+        )
+
+    backup_path = backup_sqlite(live, tmp_path / "backups")
+    restored = tmp_path / "snapshot-reference-restored.db"
+    _restore_sqlite(backup_path, restored)
+    restored_db = Database(restored)
+    restored_db.initialize()
+
+    assert referenced_snapshot_ids(restored_db) == frozenset({snapshot.snapshot_id})
+    result = store.garbage_collect(
+        referenced_ids=referenced_snapshot_ids(restored_db),
+        retention_days=0,
+        now=datetime(2026, 8, 30, tzinfo=UTC),
+    )
+    assert result.retained_referenced_ids == (snapshot.snapshot_id,)
+    assert store.get(snapshot.snapshot_id) is not None
 
 
 def test_initialize_is_idempotent_across_restart(tmp_path: Path) -> None:
