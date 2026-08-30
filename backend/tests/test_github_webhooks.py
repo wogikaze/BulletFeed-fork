@@ -98,6 +98,13 @@ def _observation_rows(database) -> list:
         return connection.execute("SELECT * FROM observations ORDER BY id").fetchall()
 
 
+def _webhook_rows(database) -> list:
+    with database.connect() as connection:
+        return connection.execute(
+            "SELECT * FROM github_webhook_deliveries ORDER BY delivery_id"
+        ).fetchall()
+
+
 def test_missing_signature_is_rejected_without_observations(
     database,
     monkeypatch,
@@ -126,6 +133,7 @@ def test_invalid_signature_is_rejected_without_observations(
 
     with _webhook_client(database, monkeypatch) as client:
         response = client.post("/v1/webhooks/github", content=body, headers=headers)
+        health = client.get("/health/sources")
 
     assert response.status_code == 401
     assert _observation_rows(database) == []
@@ -133,6 +141,8 @@ def test_invalid_signature_is_rejected_without_observations(
     assert webhook_records[-1]["delivery_id"] == "11111111-1111-1111-1111-111111111111"
     assert webhook_records[-1]["signature_valid"] is False
     assert public_counters()["webhookSignatureFailures"] == 1
+    assert _webhook_rows(database)[0]["status"] == "rejected_invalid_signature"
+    assert health.json()["webhook"]["signatureFailures"] == 1
 
 
 def test_sha1_signature_is_rejected_without_observations(
@@ -176,6 +186,10 @@ def test_verified_release_webhook_ingests_once_on_duplicate_delivery(
     assert public_counters()["webhookAccepted"] == 2
     observations = _observation_rows(database)
     assert len(observations) == 1
+    deliveries = _webhook_rows(database)
+    assert len(deliveries) == 1
+    assert deliveries[0]["status"] == "ingested"
+    assert deliveries[0]["attempt_count"] == 2
     event_id = first.json()["eventIds"][0]
     with database.connect() as connection:
         deltas = connection.execute(
@@ -200,6 +214,7 @@ def test_push_webhook_is_not_stored_as_evidence(
 
     assert response.status_code == 200
     assert response.json()["ignored"] is True
+    assert _webhook_rows(database)[0]["status"] == "ignored"
     assert _observation_rows(database) == []
     with database.connect() as connection:
         evidence = connection.execute("SELECT * FROM claim_evidence").fetchall()
@@ -236,6 +251,7 @@ def test_polling_ingest_still_works_when_webhook_secret_is_missing(
             headers=_headers(body, event="release"),
         )
     assert webhook.status_code == 503
+    assert _webhook_rows(database)[0]["status"] == "rejected_secret_unconfigured"
     assert _observation_rows(database) == []
 
     result = ingest_github_release_events(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import UTC, datetime
 from typing import Annotated, Any
 
@@ -12,6 +13,7 @@ from app.dependencies import get_database
 from app.observability import record
 from app.services.github_release_pipeline import ingest_github_release_events
 from app.services.github_webhook import release_from_webhook_payload, verify_github_webhook_signature
+from app.services.github_webhook_delivery import record_webhook_delivery
 
 router = APIRouter(prefix="/v1/webhooks", tags=["webhooks"])
 MAX_DELIVERY_ID_LENGTH = 128
@@ -28,8 +30,17 @@ async def github_webhook(
 ) -> dict[str, Any]:
     event_name = (x_github_event or "").strip()
     delivery_id = (x_github_delivery or "").strip()[:MAX_DELIVERY_ID_LENGTH] or None
+    received_at = int(time.time())
     secret = settings.github_webhook_secret.get_secret_value()
     if not secret:
+        record_webhook_delivery(
+            database,
+            delivery_id=delivery_id,
+            event_name=event_name,
+            signature_valid=False,
+            status="rejected_secret_unconfigured",
+            received_at=received_at,
+        )
         record(
             "webhook",
             source_type="github_release",
@@ -48,6 +59,14 @@ async def github_webhook(
         body=body,
         signature_header=x_hub_signature_256,
     ):
+        record_webhook_delivery(
+            database,
+            delivery_id=delivery_id,
+            event_name=event_name,
+            signature_valid=False,
+            status="rejected_invalid_signature",
+            received_at=received_at,
+        )
         record(
             "webhook",
             source_type="github_release",
@@ -63,6 +82,14 @@ async def github_webhook(
         )
 
     if event_name != "release":
+        record_webhook_delivery(
+            database,
+            delivery_id=delivery_id,
+            event_name=event_name,
+            signature_valid=True,
+            status="ignored",
+            received_at=received_at,
+        )
         record(
             "webhook",
             source_type="github_release",
@@ -78,6 +105,14 @@ async def github_webhook(
     try:
         payload = json.loads(body)
     except json.JSONDecodeError as exc:
+        record_webhook_delivery(
+            database,
+            delivery_id=delivery_id,
+            event_name=event_name,
+            signature_valid=True,
+            status="rejected_invalid_json",
+            received_at=received_at,
+        )
         record(
             "webhook",
             source_type="github_release",
@@ -94,6 +129,14 @@ async def github_webhook(
 
     extracted = release_from_webhook_payload(payload)
     if extracted is None:
+        record_webhook_delivery(
+            database,
+            delivery_id=delivery_id,
+            event_name=event_name,
+            signature_valid=True,
+            status="rejected_incomplete_payload",
+            received_at=received_at,
+        )
         record(
             "webhook",
             source_type="github_release",
@@ -115,6 +158,15 @@ async def github_webhook(
         repository=repository,
         releases=[release],
         retrieved_at=retrieved_at,
+    )
+    record_webhook_delivery(
+        database,
+        delivery_id=delivery_id,
+        event_name=event_name,
+        signature_valid=True,
+        status="ingested",
+        event_count=len(result.event_ids),
+        received_at=received_at,
     )
     record(
         "webhook",
