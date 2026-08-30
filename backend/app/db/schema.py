@@ -152,6 +152,9 @@ CREATE TABLE IF NOT EXISTS feed_items (
     FOREIGN KEY(delta_id) REFERENCES deltas(id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_feed_items_user_dismissed
+    ON feed_items(user_id, dismissed);
+
 CREATE TABLE IF NOT EXISTS deliveries (
     id TEXT PRIMARY KEY,
     feed_item_id TEXT NOT NULL,
