@@ -18,7 +18,6 @@ from app.errors import http_exception_handler, unhandled_exception_handler, vali
 from app.models import HealthResponse
 from app.observability import public_counters
 from app.release_identity import release_identity
-from app.services.web_snapshots import SnapshotStore
 from app.routers import (
     auth,
     events,
@@ -32,6 +31,7 @@ from app.routers import (
     source_subscriptions,
     webhooks,
 )
+from app.services.web_snapshots import SnapshotStore
 
 
 @asynccontextmanager
