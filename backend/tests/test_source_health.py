@@ -182,6 +182,10 @@ def test_private_source_health_is_fail_closed_and_not_listed(
         "revision",
         "projection",
         "syncFailure",
+        "webhook",
+        "webhookAccepted",
+        "webhookIgnored",
+        "webhookSignatureFailures",
     }
     assert "acme/secret" not in sources.text
     assert "last_error" not in sources.text

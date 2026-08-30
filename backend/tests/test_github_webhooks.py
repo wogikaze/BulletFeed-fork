@@ -10,7 +10,7 @@ from app.config import get_settings
 from app.database import Database
 from app.dependencies import get_database
 from app.main import app
-from app.observability import reset, snapshot
+from app.observability import public_counters, reset, snapshot
 from app.services.github_release_pipeline import ingest_github_release_events
 
 WEBHOOK_SECRET = "webhook-test-secret"
@@ -120,6 +120,7 @@ def test_invalid_signature_is_rejected_without_observations(
     monkeypatch,
 ) -> None:
     body = json.dumps(_release_payload()).encode()
+    reset()
     headers = _headers(body, event="release")
     headers["X-Hub-Signature-256"] = "sha256=" + ("0" * 64)
 
@@ -128,6 +129,10 @@ def test_invalid_signature_is_rejected_without_observations(
 
     assert response.status_code == 401
     assert _observation_rows(database) == []
+    webhook_records = [row for row in snapshot() if row.get("event") == "webhook"]
+    assert webhook_records[-1]["delivery_id"] == "11111111-1111-1111-1111-111111111111"
+    assert webhook_records[-1]["signature_valid"] is False
+    assert public_counters()["webhookSignatureFailures"] == 1
 
 
 def test_sha1_signature_is_rejected_without_observations(
@@ -157,6 +162,7 @@ def test_verified_release_webhook_ingests_once_on_duplicate_delivery(
     monkeypatch,
 ) -> None:
     body = json.dumps(_release_payload(), separators=(",", ":")).encode()
+    reset()
     headers = _headers(body, event="release")
 
     with _webhook_client(database, monkeypatch) as client:
@@ -165,7 +171,9 @@ def test_verified_release_webhook_ingests_once_on_duplicate_delivery(
 
     assert first.status_code == 200
     assert second.status_code == 200
+    assert first.json()["deliveryId"] == "11111111-1111-1111-1111-111111111111"
     assert first.json()["eventIds"] == second.json()["eventIds"]
+    assert public_counters()["webhookAccepted"] == 2
     observations = _observation_rows(database)
     assert len(observations) == 1
     event_id = first.json()["eventIds"][0]
