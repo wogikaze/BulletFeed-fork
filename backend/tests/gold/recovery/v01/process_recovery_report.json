@@ -1,0 +1,10 @@
+{
+  "drill_version": "m5-process-recovery-v1",
+  "worker_restart": true,
+  "api_restart": true,
+  "session_persisted": true,
+  "residual_risks": [
+    "disk_full_and_partial_filesystem_write_require_host-specific drills"
+  ],
+  "status": "passed"
+}
