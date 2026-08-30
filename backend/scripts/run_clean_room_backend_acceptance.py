@@ -20,7 +20,31 @@ from run_process_recovery_drill import (
     _wait_for_status,
 )
 
+from app.database import Database
+from app.db.migrations import KNOWN_REVISIONS
+
 BACKEND = Path(__file__).resolve().parents[1]
+
+
+def _verify_representative_upgrade(path: Path) -> bool:
+    database = Database(path)
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute(
+            "INSERT INTO users (id, created_at) VALUES ('upgrade-survivor', 1)"
+        )
+        connection.execute(
+            "DELETE FROM schema_migrations WHERE revision_id IN ('17', '18')"
+        )
+    database.initialize()
+    with database.connect() as connection:
+        survivor = connection.execute(
+            "SELECT 1 FROM users WHERE id = 'upgrade-survivor'"
+        ).fetchone()
+        revisions = {
+            row["revision_id"] for row in connection.execute("SELECT revision_id FROM schema_migrations")
+        }
+    return survivor is not None and revisions == set(KNOWN_REVISIONS)
 
 
 def _json_request(
@@ -104,6 +128,13 @@ def main(argv: list[str] | None = None) -> int:
         ],
     }
     try:
+        upgrade_path = workdir / "data" / "representative-upgrade.db"
+        _stage(
+            stages,
+            "schema_upgrade",
+            ok=_verify_representative_upgrade(upgrade_path),
+            detail="representative prior schema upgraded without losing persisted user state",
+        )
         api = _start_api(env, port)
         base_url = f"http://127.0.0.1:{port}"
         _wait_for_status(f"{base_url}/health", 200, timeout_seconds=40, label="API health")

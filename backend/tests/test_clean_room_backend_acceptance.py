@@ -1,0 +1,12 @@
+import sys
+from pathlib import Path
+
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+from scripts.run_clean_room_backend_acceptance import _verify_representative_upgrade  # noqa: E402
+
+
+def test_representative_upgrade_preserves_state_and_reaches_current_head(tmp_path: Path) -> None:
+    assert _verify_representative_upgrade(tmp_path / "upgrade.db") is True
