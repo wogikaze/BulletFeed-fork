@@ -66,6 +66,8 @@ def list_my_source_recommendations(
     return SourceRecommendationList(
         version=result.version,
         items=[_public_item(item) for item in result.items],
+        runtime_hint_count=result.runtime_hint_count,
+        seed_fallback_used=result.seed_fallback_used,
     )
 
 

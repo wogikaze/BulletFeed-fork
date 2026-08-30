@@ -36,6 +36,8 @@ class SourceRecommendationItem(ApiModel):
 class SourceRecommendationList(ApiModel):
     version: str
     items: list[SourceRecommendationItem]
+    runtime_hint_count: int = 0
+    seed_fallback_used: bool = False
 
 
 class SourceRecommendationDecisionRequest(ApiModel):
