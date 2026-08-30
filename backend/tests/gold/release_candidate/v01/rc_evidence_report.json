@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "a421e9e71c5ac79d777ee5b4ff88b83a79378091",
+  "repository_sha": "dcce91201c07bbea4e0cfa79b5ecb25a1be61daa",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -162,6 +162,7 @@
     },
     "m5": {
       "artifact": "tests/gold/recovery/v01/process_recovery_report.json",
+      "host_artifact": "tests/gold/recovery/v01/host_recovery_report.json",
       "status": "partial",
       "evidence_checks": {
         "status": true,
@@ -171,7 +172,22 @@
       },
       "residual_risks": [
         "disk_full_and_partial_filesystem_write_require_host-specific drills"
-      ]
+      ],
+      "host_recovery": {
+        "status": "partial",
+        "evidence_checks": {
+          "status": true,
+          "api_restart": true,
+          "worker_restart": true,
+          "session_persisted": true,
+          "ready_after_restart": true
+        },
+        "repository_sha": "bd263b6ce7b6448d43e2353419380f171e0bb167",
+        "workflow_run_id": 33339639921,
+        "residual_risks": [
+          "disk-full and partial filesystem write require a host-specific fault drill"
+        ]
+      }
     },
     "m6": {
       "artifact": "tests/gold/m6/v01/top3_selection.json",
@@ -216,7 +232,7 @@
     "M1 Android journey and cross-surface breadth for all 30 personas",
     "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-    "M5 host-level disk-full and partial-write drill",
+    "M5 disk-full/partial filesystem fault injection",
     "M6 production Top-3 remediation followed by one-shot blind evaluation",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
   ],
