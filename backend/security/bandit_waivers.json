@@ -34,13 +34,13 @@
     {
       "filename": "backend/app/services/source_registry.py",
       "test_id": "B101",
-      "line_number": 523,
+      "line_number": 595,
       "reason": "Internal constructor/database-state invariant; None would fail closed before any database operation and is not an authorization control."
     },
     {
       "filename": "backend/app/services/source_registry.py",
       "test_id": "B101",
-      "line_number": 528,
+      "line_number": 600,
       "reason": "Internal constructor/database-state invariant; None would fail closed before any database operation and is not an authorization control."
     },
     {

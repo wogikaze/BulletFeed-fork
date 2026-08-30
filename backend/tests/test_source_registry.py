@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from app.database import Database
 from app.services.source_catalog import DiscoveryMethod, SourceKind, source_allows_claim_evidence
 from app.services.source_ingestion import NormalizedObservation, SourceIngestionPipeline
@@ -153,6 +155,64 @@ def test_register_endpoint_returns_existing_id_before_scheduling() -> None:
     assert first.discovery_method == DiscoveryMethod.FEED
     assert first.verification_status == VerificationStatus.VERIFIED
     assert first.authority_status == AuthorityStatus.AUTHORITATIVE
+
+
+def test_runtime_verification_metadata_round_trips_without_changing_identity(
+    tmp_path: Path,
+) -> None:
+    database = Database(tmp_path / "verification.db")
+    database.initialize()
+    registry = SourceRegistry(database, seed_mvp=False)
+    endpoint = registry.register_endpoint(
+        url="https://engineering.acme.example/feed.xml",
+        family="web_scrape",
+        created_at="2026-08-30T00:00:00Z",
+    )
+
+    verified = registry.record_verification(
+        endpoint.endpoint_id,
+        verification_status=VerificationStatus.VERIFIED,
+        verification_method="https_get_and_dns",
+        verification_reference="https://engineering.acme.example/feed.xml#verified",
+        verified_at="2026-08-30T01:00:00Z",
+        authority_status=AuthorityStatus.AUTHORITATIVE,
+        authority_method="publisher_registry",
+        authority_reference="https://engineering.acme.example/about",
+        authority_verified_at="2026-08-30T01:00:00Z",
+    )
+    reloaded = SourceRegistry(database, seed_mvp=False).get_endpoint(endpoint.endpoint_id)
+
+    assert reloaded is not None
+    assert verified.endpoint_id == endpoint.endpoint_id
+    assert verified.canonical_url == endpoint.canonical_url
+    assert reloaded.verification_status == VerificationStatus.VERIFIED
+    assert reloaded.verification_method == "https_get_and_dns"
+    assert reloaded.verification_reference.endswith("#verified")
+    assert reloaded.verified_at == "2026-08-30T01:00:00Z"
+    assert reloaded.authority_status == AuthorityStatus.AUTHORITATIVE
+    assert reloaded.authority_method == "publisher_registry"
+    assert reloaded.authority_reference.endswith("/about")
+    assert reloaded.authority_verified_at == "2026-08-30T01:00:00Z"
+
+
+def test_runtime_verification_requires_evidence_for_positive_status(tmp_path: Path) -> None:
+    database = Database(tmp_path / "verification-required.db")
+    database.initialize()
+    registry = SourceRegistry(database, seed_mvp=False)
+    endpoint = registry.register_endpoint(
+        url="https://engineering.acme.example/feed.xml",
+        family="web_scrape",
+    )
+
+    with pytest.raises(ValueError, match="method, reference, and verified_at"):
+        registry.record_verification(
+            endpoint.endpoint_id,
+            verification_status=VerificationStatus.VERIFIED,
+            verification_method=None,
+            verification_reference=None,
+            verified_at=None,
+            authority_status=AuthorityStatus.UNKNOWN,
+        )
 
 
 def test_redirect_preserves_lineage_without_rewriting_observations(tmp_path: Path) -> None:

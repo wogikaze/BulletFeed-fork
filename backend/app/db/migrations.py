@@ -34,6 +34,7 @@ KNOWN_REVISIONS = (
     "16",
     "17",
     "18",
+    "19",
 )
 
 OAUTH_SCHEMA = """
@@ -471,6 +472,19 @@ def _apply_revision_18(connection: sqlite3.Connection) -> None:
     rebuild_knowledge_identities(connection, created_at=int(time.time()))
 
 
+def _apply_revision_19(connection: sqlite3.Connection) -> None:
+    """Persist runtime verification evidence without changing endpoint identity."""
+    for definition in (
+        "verification_method TEXT",
+        "verification_reference TEXT",
+        "verified_at TEXT",
+        "authority_method TEXT",
+        "authority_reference TEXT",
+        "authority_verified_at TEXT",
+    ):
+        _add_column_if_missing(connection, "source_endpoints", definition)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -490,4 +504,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "16": _apply_revision_16,
     "17": _apply_revision_17,
     "18": _apply_revision_18,
+    "19": _apply_revision_19,
 }
