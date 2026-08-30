@@ -26,14 +26,20 @@ USER_AGENT = "BulletFeed/validation-collector (+https://github.com/wogikaze/Bull
 ALLOWED_HOSTS = frozenset(
     {
         "api.github.com",
+        "aws.amazon.com",
+        "blog.chromium.org",
         "blog.jetbrains.com",
         "blog.python.org",
         "blog.rust-lang.org",
+        "blogs.oracle.com",
+        "developer.apple.com",
+        "developers-jp.googleblog.com",
         "github.blog",
         "kubernetes.io",
         "pypi.org",
         "planetpython.org",
         "registry.npmjs.org",
+        "techblog.lycorp.co.jp",
         "crates.io",
     }
 )
@@ -175,6 +181,13 @@ RSS_FEEDS = (
     ("kotlin-blog", "https://blog.jetbrains.com/kotlin/feed/"),
     ("github-blog", "https://github.blog/feed/"),
     ("planet-python", "https://planetpython.org/rss20.xml"),
+    ("aws-japan-whats-new", "https://aws.amazon.com/jp/about-aws/whats-new/recent/feed/"),
+    ("aws-japan-security", "https://aws.amazon.com/jp/security/security-bulletins/rss/feed/"),
+    ("chromium-japanese", "https://blog.chromium.org/feeds/posts/default/-/Japanese?alt=rss"),
+    ("apple-japan-news", "https://developer.apple.com/jp/news/rss/news.rss"),
+    ("google-developers-jp", "https://developers-jp.googleblog.com/feeds/posts/default?alt=rss"),
+    ("jetbrains-japan", "https://blog.jetbrains.com/ja/feed/"),
+    ("lycorp-japan-engineering", "https://techblog.lycorp.co.jp/ja/feed/index.xml"),
 )
 
 
@@ -390,12 +403,12 @@ def _short_hash(value: str) -> str:
 
 def _language(body: bytes) -> str:
     text = body.decode("utf-8", errors="replace")
-    has_japanese = JAPANESE_RE.search(text) is not None
-    has_latin = re.search(r"[A-Za-z]", text) is not None
-    if has_japanese and has_latin:
-        return "mixed"
-    if has_japanese:
+    japanese_count = len(JAPANESE_RE.findall(text))
+    latin_count = len(re.findall(r"[A-Za-z]", text))
+    if japanese_count >= 3 and japanese_count >= latin_count * 0.25:
         return "ja"
+    if japanese_count:
+        return "mixed"
     return "en"
 
 
@@ -409,7 +422,11 @@ def _json_record(
     evidence = target.version if target.version in body_text else target.package
     if evidence not in body_text:
         raise ValueError(f"captured {target.fetch_url} has no stable evidence token")
-    language = _language(captured.body)
+    entry_text = " ".join(
+        str(entry.get(key) or "")
+        for key in ("title", "summary", "description", "content")
+    )
+    language = _language(entry_text.encode("utf-8"))
     artifact = f"artifacts/{source_id}/body.bin"
     source = {
         "source_id": source_id,
@@ -560,6 +577,10 @@ def _append_split(
     split: str,
     sources: list[dict[str, Any]],
     events: list[dict[str, Any]],
+    *,
+    reserved_source_ids: set[str] = frozenset(),
+    reserved_event_ids: set[str] = frozenset(),
+    reserved_urls: set[str] = frozenset(),
 ) -> int:
     split_dir = root / split
     source_path = split_dir / "sources.json"
@@ -573,7 +594,13 @@ def _append_split(
     accepted_sources: list[dict[str, Any]] = []
     accepted_events: list[dict[str, Any]] = []
     for source, event in zip(sources, events, strict=True):
-        if source["source_id"] in source_ids or event["event_id"] in event_ids:
+        if (
+            source["source_id"] in source_ids
+            or source["source_id"] in reserved_source_ids
+            or event["event_id"] in event_ids
+            or event["event_id"] in reserved_event_ids
+            or source["canonical_url"] in reserved_urls
+        ):
             continue
         source_ids.add(source["source_id"])
         event_ids.add(event["event_id"])
@@ -607,8 +634,11 @@ async def _collect(args: argparse.Namespace) -> tuple[list[dict[str, Any]], list
             "Accept": "application/json, application/rss+xml, application/atom+xml",
         },
     ) as client:
-        targets = await _discover_targets(client, semaphore)
-        targets = targets[: args.package_events]
+        targets = (
+            (await _discover_targets(client, semaphore))[: args.package_events]
+            if args.package_events
+            else ()
+        )
         captures = await asyncio.gather(
             *(_get(client, semaphore, target.fetch_url, max_bytes=2 * 1024 * 1024) for target in targets)
         )
@@ -666,7 +696,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--split-at", type=int, default=260)
     parser.add_argument("--concurrency", type=int, default=12)
     args = parser.parse_args(argv)
-    if args.package_events < 1 or args.rss_events < 1 or args.concurrency < 1:
+    if args.package_events < 0 or args.rss_events < 1 or args.concurrency < 1:
         raise ValueError("collection limits must be positive")
     args.output_root.mkdir(parents=True, exist_ok=True)
     sources, events = asyncio.run(_collect(args))
@@ -677,11 +707,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"captured {source['source_id']} split={source['split']} event={event['event_id']}")
     for split in ("pilot", "dev"):
         scoped = [(source, event) for source, event in paired if source["split"] == split]
+        other_split = "dev" if split == "pilot" else "pilot"
+        other_sources = _load_array(args.output_root / other_split / "sources.json")
+        other_events = _load_array(args.output_root / other_split / "events.json")
         split_counts[split] = _append_split(
             args.output_root,
             split,
             [row[0] for row in scoped],
             [row[1] for row in scoped],
+            reserved_source_ids={row["source_id"] for row in other_sources},
+            reserved_event_ids={row["event_id"] for row in other_events},
+            reserved_urls={row["canonical_url"] for row in other_sources},
         )
     print(
         json.dumps(

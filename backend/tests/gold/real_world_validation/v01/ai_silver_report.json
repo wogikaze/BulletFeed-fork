@@ -11,10 +11,10 @@
   },
   "selected_total": 10000,
   "strata": {
-    "already_known": 14,
-    "clear_positive": 557,
-    "semantic_adjacent": 1547,
-    "unrelated": 7882
+    "already_known": 12,
+    "clear_positive": 548,
+    "semantic_adjacent": 1050,
+    "unrelated": 8390
   },
   "independent_agreement": "not_collected"
 }
