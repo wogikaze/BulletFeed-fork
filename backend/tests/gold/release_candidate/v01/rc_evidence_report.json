@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "7bde152a7923206cadbdad6429c88f0f51ee0b0f",
+  "repository_sha": "05d90bbc2583ed656382f3703219d07c84c84a87",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -81,6 +81,7 @@
     },
     "m3": {
       "artifact": "tests/gold/source_qualification/v01/report.json",
+      "live_artifact": "tests/gold/source_qualification/v01/live_sample_200_report.json",
       "status": "partial",
       "evidence_checks": {
         "live_endpoint_floor": true,
@@ -110,14 +111,39 @@
         "reordered_payload": 605,
         "server_error_guard": 1,
         "ssrf_private_ip_guard": 1,
-        "unsupported_content_type_guard": 1
+        "unsupported_content_type_guard": 1,
+        "update_detection": 1
       },
       "limitations": [
         "This qualification replays recorded live HTTPS artifacts without live network access.",
         "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries without making external requests.",
         "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, HTTP status, and malformed-feed boundaries without making external requests.",
+        "A deterministic immutable-snapshot pair exercises update detection; per-source update rates remain not_recorded because the live corpus has one fetch per endpoint.",
         "Timeout, conditional-304, robots, and source-identity drills still require dedicated transport fixtures or host probes."
-      ]
+      ],
+      "live_sample": {
+        "status": "partial",
+        "evidence_checks": {
+          "endpoint_floor": true,
+          "success_rate": true,
+          "failure_dimensions_empty": true
+        },
+        "endpoint_count": 200,
+        "median_latency_ms": 3965.293,
+        "outcome_counts": {
+          "success": 200
+        },
+        "source_family_counts": {
+          "github_advisory": 2,
+          "github_release": 2,
+          "official_changelog": 2,
+          "osv": 1,
+          "package_registry": 91,
+          "rss_atom": 12,
+          "statuspage": 90
+        },
+        "note": "This is a recorded live sample; deterministic replay remains the CI qualification."
+      }
     },
     "m4": {
       "artifact": "tests/gold/android_acceptance/v01/acceptance_report.json",

@@ -19,6 +19,7 @@ ARTIFACTS = {
     "m1_api": EVIDENCE_ROOT / "m1_personas" / "v01" / "api_qualification.json",
     "m2": EVIDENCE_ROOT / "real_world_validation" / "v01" / "m2_readiness_report.json",
     "m3": EVIDENCE_ROOT / "source_qualification" / "v01" / "report.json",
+    "m3_live": EVIDENCE_ROOT / "source_qualification" / "v01" / "live_sample_200_report.json",
     "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
     "m5": EVIDENCE_ROOT / "recovery" / "v01" / "process_recovery_report.json",
     "m6": EVIDENCE_ROOT / "m6" / "v01" / "top3_selection.json",
@@ -126,6 +127,23 @@ def _m4_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m3_live_gate(report: dict[str, Any]) -> dict[str, Any]:
+    checks = {
+        "endpoint_floor": report.get("endpoint_count", 0) >= 200,
+        "success_rate": report.get("success_rate") == 1.0,
+        "failure_dimensions_empty": not report.get("failure_dimensions"),
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "endpoint_count": report.get("endpoint_count"),
+        "median_latency_ms": report.get("median_latency_ms"),
+        "outcome_counts": report.get("outcome_counts", {}),
+        "source_family_counts": report.get("source_family_counts", {}),
+        "note": "This is a recorded live sample; deterministic replay remains the CI qualification.",
+    }
+
+
 def _m5_gate(report: dict[str, Any]) -> dict[str, Any]:
     checks = {
         "status": report.get("status") == "passed",
@@ -181,7 +199,12 @@ def build_report() -> dict[str, Any]:
             "api_qualification": _m1_api_gate(loaded["m1_api"]),
         },
         "m2": {"artifact": _relative(ARTIFACTS["m2"]), **_m2_gate(loaded["m2"])},
-        "m3": {"artifact": _relative(ARTIFACTS["m3"]), **_m3_gate(loaded["m3"])},
+        "m3": {
+            "artifact": _relative(ARTIFACTS["m3"]),
+            "live_artifact": _relative(ARTIFACTS["m3_live"]),
+            **_m3_gate(loaded["m3"]),
+            "live_sample": _m3_live_gate(loaded["m3_live"]),
+        },
         "m4": {
             "artifact": _relative(ARTIFACTS["m4_android"]),
             **_m4_gate(loaded["m4_android"]),
