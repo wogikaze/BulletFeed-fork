@@ -5,16 +5,19 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import tempfile
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
+from unittest.mock import patch
 
 import feedparser
 import httpx
 from fastapi import HTTPException
 
+from app.config import Settings
 from app.evaluation.real_world_validation import (
     ValidationCorpus,
     load_real_world_validation_for_production_scoring,
@@ -24,17 +27,81 @@ from app.services.url_safety import reject_private_resolved_addresses, validate_
 from app.services.web_changes import extract_web_snapshot_changes
 from app.services.web_snapshots import (
     RobotsDecision,
+    SnapshotStore,
     WebSnapshot,
     _reject_unsafe_encoding,
     _require_allowed_content_type,
     content_hash_for,
+    fetch_web_snapshot,
     snapshot_id_for,
 )
 
 QUALIFICATION_VERSION = "m3-source-qualification-v1"
 TARGET_LIVE_ENDPOINTS = 200
 TARGET_REPLAY_CASES = 1_000
+QUALIFICATION_HOST = "example.com"
+QUALIFICATION_URL = f"https://{QUALIFICATION_HOST}/changelog"
+QUALIFICATION_PUBLIC_PEER = "93.184.216.34"
 ReplayOutcome = Literal["passed", "failed", "not_applicable"]
+
+
+class _QualificationNetworkStream:
+    def get_extra_info(self, name: str):
+        if name == "server_addr":
+            return (QUALIFICATION_PUBLIC_PEER, 443)
+        return None
+
+
+class _QualificationResponse:
+    def __init__(
+        self,
+        *,
+        status_code: int = 200,
+        headers: dict[str, str] | None = None,
+        body: bytes = b"<html>qualification</html>",
+    ) -> None:
+        self.status_code = status_code
+        self.headers = headers or {"content-type": "text/html"}
+        self.extensions = {"network_stream": _QualificationNetworkStream()}
+        self._body = body
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, traceback):
+        return False
+
+    async def aiter_raw(self):
+        yield self._body
+
+
+class _QualificationTimeoutResponse:
+    async def __aenter__(self):
+        raise httpx.TimeoutException("qualification timeout")
+
+    async def __aexit__(self, exc_type, exc, traceback):
+        return False
+
+
+class _QualificationClient:
+    def __init__(self, routes: dict[str, object]) -> None:
+        self._routes = {
+            url: list(response) if isinstance(response, list) else [response]
+            for url, response in routes.items()
+        }
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, traceback):
+        return False
+
+    def stream(self, method: str, url: str, **kwargs):
+        del method, kwargs
+        responses = self._routes.get(url)
+        if not responses:
+            raise AssertionError(f"unexpected qualification request: {url}")
+        return responses[0] if len(responses) == 1 else responses.pop(0)
 
 
 @dataclass(frozen=True)
@@ -127,6 +194,7 @@ def evaluate_source_qualification(
         )
         replay_cases.extend(_json_fault_cases(source, body))
     replay_cases.extend(_deterministic_fault_cases())
+    replay_cases.extend(_deterministic_transport_cases())
     replay_cases.append(_update_detection_case())
 
     outcomes = Counter(case.outcome for case in replay_cases)
@@ -160,8 +228,8 @@ def evaluate_source_qualification(
             "HTTP status, and malformed-feed boundaries without making external requests.",
             "A deterministic immutable-snapshot pair exercises update detection; per-source update "
             "rates remain not_recorded because the live corpus has one fetch per endpoint.",
-            "Timeout, conditional-304, robots, and source-identity drills still require dedicated "
-            "transport fixtures or host probes.",
+            "Timeout, conditional-304, robots, and source-identity scenarios use an isolated "
+            "transport fixture and never make external requests.",
         ),
     )
 
@@ -480,6 +548,126 @@ def _deterministic_fault_cases() -> tuple[ReplayCase, ...]:
         )
     )
     return tuple(cases)
+
+
+def _deterministic_transport_cases() -> tuple[ReplayCase, ...]:
+    timeout_result = _run_transport_fetch(
+        {QUALIFICATION_URL: _QualificationTimeoutResponse()},
+    )
+    timeout_passed = (
+        isinstance(timeout_result, HTTPException) and timeout_result.status_code == 504
+    )
+
+    previous = _qualification_snapshot(
+        canonical_url=QUALIFICATION_URL,
+        body=b"<html>unchanged</html>",
+        retrieved_at="2026-08-01T00:00:00Z",
+    )
+    conditional_result = _run_transport_fetch(
+        {
+            QUALIFICATION_URL: _QualificationResponse(
+                status_code=304,
+                headers={"etag": '"unchanged"'},
+                body=b"",
+            )
+        },
+        previous=previous,
+    )
+    conditional_passed = (
+        isinstance(conditional_result, WebSnapshot)
+        and conditional_result.not_modified
+        and conditional_result.snapshot_id == previous.snapshot_id
+        and conditional_result.body == previous.body
+    )
+
+    robots_result = _run_transport_fetch(
+        {
+            f"https://{QUALIFICATION_HOST}/robots.txt": _QualificationResponse(
+                headers={"content-type": "text/plain"},
+                body=b"User-agent: *\nDisallow: /\n",
+            )
+        },
+        check_robots=True,
+    )
+    robots_passed = isinstance(robots_result, HTTPException) and robots_result.status_code == 403
+
+    moved_url = f"https://{QUALIFICATION_HOST}/releases"
+    identity_result = _run_transport_fetch(
+        {
+            QUALIFICATION_URL: _QualificationResponse(
+                status_code=302,
+                headers={"location": moved_url},
+                body=b"",
+            ),
+            moved_url: _QualificationResponse(
+                headers={"content-type": "text/html"},
+                body=b"<html>moved source</html>",
+            ),
+        }
+    )
+    identity_passed = (
+        isinstance(identity_result, WebSnapshot)
+        and identity_result.canonical_url == QUALIFICATION_URL
+        and identity_result.final_url == moved_url
+    )
+
+    return (
+        _contract_case(
+            scenario="timeout_transport",
+            outcome="passed" if timeout_passed else "failed",
+            detail="a transport timeout maps to the bounded 504 gateway failure",
+        ),
+        _contract_case(
+            scenario="conditional_304",
+            outcome="passed" if conditional_passed else "failed",
+            detail="a conditional 304 reuses the immutable prior snapshot without a new version",
+        ),
+        _contract_case(
+            scenario="robots_disallow",
+            outcome="passed" if robots_passed else "failed",
+            detail="robots disallow prevents page acquisition before the page request",
+        ),
+        _contract_case(
+            scenario="source_identity_change",
+            outcome="passed" if identity_passed else "failed",
+            detail="a moved source preserves the requested identity and records the final URL",
+        ),
+    )
+
+
+def _run_transport_fetch(
+    routes: dict[str, object],
+    *,
+    previous: WebSnapshot | None = None,
+    check_robots: bool = False,
+) -> WebSnapshot | HTTPException:
+    with tempfile.TemporaryDirectory(prefix="bulletfeed-m3-transport-") as directory:
+        client = _QualificationClient(routes)
+        settings = Settings(
+            web_allowed_hosts=QUALIFICATION_HOST,
+            max_response_bytes=1_048_576,
+        )
+        with (
+            patch("app.services.web_snapshots.httpx.AsyncClient", return_value=client),
+            patch(
+                "app.services.url_safety.socket.getaddrinfo",
+                return_value=[(2, 1, 6, "", (QUALIFICATION_PUBLIC_PEER, 443))],
+            ),
+        ):
+            async def invoke() -> WebSnapshot:
+                return await fetch_web_snapshot(
+                    settings,
+                    QUALIFICATION_URL,
+                    store=SnapshotStore(Path(directory) / "snapshots"),
+                    previous=previous,
+                    check_robots=check_robots,
+                    retrieved_at="2026-08-30T00:00:00Z",
+                )
+
+            try:
+                return asyncio.run(invoke())
+            except HTTPException as exc:
+                return exc
 
 
 def _expect_http_error(
