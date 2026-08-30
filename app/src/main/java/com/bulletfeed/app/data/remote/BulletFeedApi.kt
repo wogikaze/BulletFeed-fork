@@ -98,6 +98,18 @@ interface BulletFeedApi {
         @Query("q") query: String,
     ): TopicListDto
 
+    @GET("v1/me/topic-recommendations")
+    suspend fun getTopicRecommendations(
+        @Query("includeFollowed") includeFollowed: Boolean = true,
+        @Query("limit") limit: Int = 10,
+    ): TopicRecommendationListDto
+
+    @POST("v1/me/topic-recommendations/{topicId}")
+    suspend fun ignoreTopicRecommendation(
+        @Path("topicId") topicId: String,
+        @Body body: TopicRecommendationDecisionDto,
+    ): TopicRecommendationListDto
+
     @PUT("v1/me/onboarding")
     suspend fun completeOnboarding(
         @Body body: OnboardingDto,
@@ -638,4 +650,38 @@ data class SourceSubscriptionCreateDto(
     val url: String? = null,
     val pageId: String? = null,
     val catchUp: Boolean = false,
+)
+
+@Serializable
+data class TopicRecommendationListDto(
+    val version: String,
+    val items: List<TopicRecommendationDto>,
+    val abstentions: List<TopicRecommendationAbstentionDto> = emptyList(),
+    val policyVersion: String,
+    val cohort: String,
+)
+
+@Serializable
+data class TopicRecommendationDto(
+    val id: String,
+    val name: String,
+    val type: String,
+    val score: Float,
+    val reason: String,
+    val provenance: String,
+    val alreadyFollowed: Boolean,
+    val confidence: String,
+    val sourceSignals: List<String> = emptyList(),
+)
+
+@Serializable
+data class TopicRecommendationAbstentionDto(
+    val name: String,
+    val reason: String,
+    val score: Float,
+)
+
+@Serializable
+data class TopicRecommendationDecisionDto(
+    val decision: String,
 )

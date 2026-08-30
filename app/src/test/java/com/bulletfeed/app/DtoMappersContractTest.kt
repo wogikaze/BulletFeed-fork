@@ -95,6 +95,33 @@ class DtoMappersContractTest {
     }
 
     @Test
+    fun `topic recommendation page maps cohort provenance and abstention`() {
+        val mapped = TopicRecommendationListDto(
+            version = "topic-recommendations-v1",
+            items = listOf(
+                TopicRecommendationDto(
+                    id = "kotlin",
+                    name = "Kotlin",
+                    type = "technology",
+                    score = 0.4f,
+                    reason = "catalog fallback",
+                    provenance = "inferred",
+                    alreadyFollowed = false,
+                    confidence = "medium",
+                ),
+            ),
+            abstentions = listOf(TopicRecommendationAbstentionDto("obscure", "low score", 0.01f)),
+            policyVersion = "cold-start-v1",
+            cohort = "empty_profile",
+        ).toDomain()
+
+        assertEquals("empty_profile", mapped.cohort)
+        assertEquals("inferred", mapped.items.single().provenance)
+        assertEquals("obscure", mapped.abstentions.single().name)
+        assertTrue(mapped.version.isNotBlank())
+    }
+
+    @Test
     fun `source recommendation maps discovery-only and never becomes evidence`() {
         val mapped = SourceRecommendationDto(
             id = "cand-1",

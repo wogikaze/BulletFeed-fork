@@ -70,11 +70,22 @@ class TopicRecommendationItem(ApiModel):
     source_signals: list[str]
 
 
+class TopicRecommendationAbstention(ApiModel):
+    name: str
+    reason: str
+    score: float
+
+
 class TopicRecommendationList(ApiModel):
     version: str
     items: list[TopicRecommendationItem]
+    abstentions: list[TopicRecommendationAbstention] = Field(default_factory=list)
     policy_version: str
     cohort: str
+
+
+class TopicRecommendationDecisionRequest(ApiModel):
+    decision: Literal["ignored"] = Field(min_length=1)
 
 
 class OnboardingRequest(ApiModel):

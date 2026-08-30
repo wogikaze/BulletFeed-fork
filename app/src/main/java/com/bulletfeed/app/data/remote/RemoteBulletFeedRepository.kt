@@ -228,6 +228,12 @@ class RemoteMeRepository(
     override suspend fun searchTopics(query: String): List<UserTopic> =
         api.searchTopics(query).items.map { it.toDomain() }
 
+    override suspend fun getTopicRecommendations(includeFollowed: Boolean): TopicRecommendationPage =
+        api.getTopicRecommendations(includeFollowed = includeFollowed).toDomain()
+
+    override suspend fun ignoreTopicRecommendation(topicId: String): TopicRecommendationPage =
+        api.ignoreTopicRecommendation(topicId, TopicRecommendationDecisionDto("ignored")).toDomain()
+
     override suspend fun completeOnboarding(
         profile: UserProfile,
         topics: List<String>,

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query, Response, status
 
 from app.database import Database
 from app.dependencies import get_database, require_user
+from app.errors import unprocessable
 from app.schemas.me import (
     MeBootstrap,
     OnboardingRequest,
@@ -14,6 +15,7 @@ from app.schemas.me import (
     TopicCreate,
     TopicList,
     TopicPatch,
+    TopicRecommendationDecisionRequest,
     TopicRecommendationList,
     TopicSearchResult,
 )
@@ -118,6 +120,18 @@ def list_topic_recommendations(
         limit=limit,
         include_followed=include_followed,
     )
+
+
+@router.post("/me/topic-recommendations/{topic_id}", response_model=TopicRecommendationList)
+def decide_topic_recommendation(
+    topic_id: str,
+    body: TopicRecommendationDecisionRequest,
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[MeStore, Depends(_store)],
+) -> TopicRecommendationList:
+    if body.decision != "ignored":
+        raise unprocessable("Unsupported topic recommendation decision")
+    return store.ignore_topic_recommendation(user["user_id"], topic_id)
 
 
 @router.put("/me/onboarding", response_model=OnboardingResponse)

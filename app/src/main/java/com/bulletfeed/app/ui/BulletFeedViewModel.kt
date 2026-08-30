@@ -68,6 +68,8 @@ data class BulletFeedUiState(
     val sourceSubscriptions: List<SourceSubscription> = emptyList(),
     val isSavingSourceSubscription: Boolean = false,
     val sourceSubscriptionError: String? = null,
+    val topicRecommendations: List<TopicRecommendation> = emptyList(),
+    val topicRecommendationCohort: String = "",
     val isLoading: Boolean = true,
     val sessionExpired: Boolean = false,
     val errorMessage: String? = null,
@@ -191,6 +193,13 @@ class BulletFeedViewModel(
                 } else {
                     emptyList()
                 }
+                val topicRecs = try {
+                    repository.getTopicRecommendations(includeFollowed = false)
+                } catch (error: Throwable) {
+                    if (error.isUnauthorized()) throw error
+                    softError = softError ?: error.toUserMessage()
+                    TopicRecommendationPage("", emptyList(), emptyList(), "", "")
+                }
                 if (version != refreshVersion) return@launch
                 _uiState.update { current ->
                     current.copy(
@@ -203,6 +212,8 @@ class BulletFeedViewModel(
                         notifications = notifications,
                         sourceRecommendations = recommendations,
                         sourceSubscriptions = subscriptions,
+                        topicRecommendations = topicRecs.items,
+                        topicRecommendationCohort = topicRecs.cohort,
                         githubConnection = githubConnection,
                         githubRepositories = if (githubConnection.credentialState == GithubCredentialState.REAUTHORIZATION_REQUIRED) {
                             emptyList()
@@ -1099,6 +1110,7 @@ class BulletFeedViewModel(
         }
         repository.addUserTopic(normalized, type)
         refreshTopicsFromServer()
+        refreshTopicRecommendationsFromServer()
         refreshSourceRecommendationsFromServer()
         reloadFeedFromServer()
     }
@@ -1106,6 +1118,7 @@ class BulletFeedViewModel(
     fun removeTopic(topicId: String) = launchUpdate {
         repository.removeUserTopic(topicId)
         refreshTopicsFromServer()
+        refreshTopicRecommendationsFromServer()
         refreshSourceRecommendationsFromServer()
         reloadFeedFromServer()
     }
@@ -1203,6 +1216,30 @@ class BulletFeedViewModel(
             it.copy(
                 topicItems = items,
                 topics = items.map { item -> item.name },
+            )
+        }
+    }
+
+    fun ignoreTopicRecommendation(topicId: String) = launchUpdate {
+        val page = repository.ignoreTopicRecommendation(topicId)
+        _uiState.update {
+            it.copy(
+                topicRecommendations = page.items.filter { item -> !item.alreadyFollowed },
+                topicRecommendationCohort = page.cohort,
+            )
+        }
+    }
+
+    fun addRecommendedTopic(item: TopicRecommendation) {
+        addTopic(item.name, item.type)
+    }
+
+    private suspend fun refreshTopicRecommendationsFromServer() {
+        val page = repository.getTopicRecommendations(includeFollowed = false)
+        _uiState.update {
+            it.copy(
+                topicRecommendations = page.items,
+                topicRecommendationCohort = page.cohort,
             )
         }
     }

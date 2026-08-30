@@ -71,6 +71,17 @@ interface MeRepository {
 
     suspend fun searchTopics(query: String): List<UserTopic>
 
+    suspend fun getTopicRecommendations(includeFollowed: Boolean = true): TopicRecommendationPage =
+        TopicRecommendationPage(
+            version = "",
+            items = emptyList(),
+            policyVersion = "",
+            cohort = "",
+        )
+
+    suspend fun ignoreTopicRecommendation(topicId: String): TopicRecommendationPage =
+        getTopicRecommendations()
+
     suspend fun completeOnboarding(
         profile: UserProfile,
         topics: List<String>,

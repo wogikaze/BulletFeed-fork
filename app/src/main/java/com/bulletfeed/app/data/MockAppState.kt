@@ -90,6 +90,29 @@ class MockAppState {
         )
 
     val sourceSubscriptions: MutableList<SourceSubscription> = mutableListOf()
+    val topicRecommendations: MutableList<TopicRecommendation> =
+        mutableListOf(
+            TopicRecommendation(
+                id = "rec_kotlin",
+                name = "Kotlin",
+                type = TopicType.TECHNOLOGY,
+                score = 0.4f,
+                reason = "catalog fallback",
+                provenance = "inferred",
+                alreadyFollowed = false,
+                confidence = "medium",
+            ),
+            TopicRecommendation(
+                id = "rec_android",
+                name = "Android",
+                type = TopicType.TECHNOLOGY,
+                score = 0.38f,
+                reason = "catalog fallback",
+                provenance = "inferred",
+                alreadyFollowed = false,
+                confidence = "medium",
+            ),
+        )
 
     fun topicNames(): List<String> = topics.map { it.name }
 }

@@ -67,6 +67,8 @@ fun OnboardingScreen(
     initialTopics: List<String>,
     isSaving: Boolean,
     onComplete: (UserProfile, List<String>, Boolean) -> Unit,
+    recommendedTopics: List<TopicRecommendation> = emptyList(),
+    onIgnoreRecommendation: (String) -> Unit = {},
 ) {
     var step by rememberSaveable { mutableIntStateOf(0) }
     var role by rememberSaveable { mutableStateOf(initialProfile.role.ifBlank { "Androidエンジニア" }) }
@@ -148,6 +150,8 @@ fun OnboardingScreen(
                             topics = topics,
                             customTopic = customTopic,
                             connectGithub = connectGithub,
+                            recommendedTopics = recommendedTopics,
+                            onIgnoreRecommendation = onIgnoreRecommendation,
                             onCustomTopicChange = { customTopic = it },
                             onToggle = { topic ->
                                 topics = if (topic in topics) topics - topic else topics + topic
@@ -345,6 +349,8 @@ private fun TopicsStep(
     topics: List<String>,
     customTopic: String,
     connectGithub: Boolean,
+    recommendedTopics: List<TopicRecommendation>,
+    onIgnoreRecommendation: (String) -> Unit,
     onCustomTopicChange: (String) -> Unit,
     onToggle: (String) -> Unit,
     onAddCustom: () -> Unit,
@@ -390,6 +396,30 @@ private fun TopicsStep(
                 },
             fontWeight = FontWeight.Bold,
         )
+    }
+    if (recommendedTopics.isNotEmpty()) {
+        SelectionLabel("おすすめ（推薦API）")
+        recommendedTopics.filter { it.name !in topics }.forEach { item ->
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Column(Modifier.padding(12.dp)) {
+                    Text(item.name, fontWeight = FontWeight.Bold)
+                    Text(item.reason, color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "出典: ${item.provenance} · 信頼度: ${item.confidence}",
+                        color = Color(0xFF655F69),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { onToggle(item.name) }) { Text("追加") }
+                        OutlinedButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
+                    }
+                }
+            }
+        }
     }
     SelectionLabel("スターター候補")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

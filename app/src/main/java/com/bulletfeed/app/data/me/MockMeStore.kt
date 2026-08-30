@@ -60,6 +60,23 @@ class MockMeStore(
     override suspend fun searchTopics(query: String): List<UserTopic> =
         state.topicCatalog.filter { it.name.contains(query, ignoreCase = true) }
 
+    override suspend fun getTopicRecommendations(includeFollowed: Boolean): TopicRecommendationPage {
+        val followed = state.topics.map { it.name.lowercase() }.toSet()
+        val items =
+            state.topicRecommendations.filter { includeFollowed || it.name.lowercase() !in followed }
+        return TopicRecommendationPage(
+            version = "topic-recommendations-v1",
+            items = items,
+            policyVersion = "cold-start-v1",
+            cohort = if (state.topics.isEmpty()) "empty_profile" else "topic_selected",
+        )
+    }
+
+    override suspend fun ignoreTopicRecommendation(topicId: String): TopicRecommendationPage {
+        state.topicRecommendations.removeAll { it.id == topicId }
+        return getTopicRecommendations()
+    }
+
     override suspend fun completeOnboarding(
         profile: UserProfile,
         topics: List<String>,

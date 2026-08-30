@@ -74,6 +74,9 @@ fun TopicsScreen(
     onRemoveTopic: (String) -> Unit,
     onPriorityChange: (String, TopicPriority) -> Unit,
     onReorderTopics: (List<String>) -> Unit,
+    recommendedTopics: List<TopicRecommendation> = emptyList(),
+    onAddRecommendation: (TopicRecommendation) -> Unit = {},
+    onIgnoreRecommendation: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var newTopic by rememberSaveable { mutableStateOf("") }
@@ -144,6 +147,42 @@ fun TopicsScreen(
                             onPriorityChange = onPriorityChange,
                             onRemoveTopic = onRemoveTopic,
                         )
+                    }
+                }
+            }
+            item {
+                Spacer(Modifier.height(18.dp))
+                Text("おすすめテーマ", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    "検索結果ではなく、興味・履歴から出した推薦です。",
+                    color = Color(0xFF655F69),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                if (recommendedTopics.isEmpty()) {
+                    Text("いま出せる推薦はありません。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 8.dp))
+                }
+            }
+            items(recommendedTopics, key = { "rec-${it.id}" }) { item ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text(item.name, fontWeight = FontWeight.Bold)
+                        Text(item.reason, color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            "出典: ${item.provenance} · 信頼度: ${item.confidence}",
+                            color = Color(0xFF655F69),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Row(Modifier.padding(top = 8.dp)) {
+                            Button(onClick = { onAddRecommendation(item) }, enabled = !topicLimitReached) {
+                                Text("追加")
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            TextButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
+                        }
                     }
                 }
             }
