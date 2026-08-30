@@ -77,6 +77,9 @@ jobs:
       - name: M7 clean-room backend acceptance
         run: python backend/scripts/run_clean_room_backend_acceptance.py --output "$RUNNER_TEMP/m7-clean-room-backend.json"
 
+      - name: M7 release-candidate evidence bundle
+        run: python backend/scripts/build_rc_evidence_report.py --check --output "$RUNNER_TEMP/rc-evidence-report.json"
+
       - name: M5 API and worker process recovery drill
         run: python backend/scripts/run_process_recovery_drill.py
 
