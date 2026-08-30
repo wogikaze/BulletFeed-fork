@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "75730e709d823745fafe9fdef2d9f870829cf3a5",
+  "repository_sha": "cb90a9493ab8503cf81312cd4b121e338e1825a2",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -180,12 +180,13 @@
           "api_restart": true,
           "worker_restart": true,
           "session_persisted": true,
-          "ready_after_restart": true
+          "ready_after_restart": true,
+          "filesystem_fault_injection": true
         },
-        "repository_sha": "bd263b6ce7b6448d43e2353419380f171e0bb167",
-        "workflow_run_id": 33339639921,
+        "repository_sha": "6bb1e9318ae79295b0d38f35f7d4a460df8eb2de",
+        "workflow_run_id": 33340564469,
         "residual_risks": [
-          "disk-full and partial filesystem write require a host-specific fault drill"
+          "persistent-volume disk-full still requires a host-specific fault drill"
         ]
       }
     },
@@ -232,7 +233,7 @@
     "M1 Android journey and cross-surface breadth for all 30 personas",
     "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-    "M5 disk-full/partial filesystem fault injection",
+    "M5 persistent-volume disk-full fault injection",
     "M6 production Top-3 remediation followed by one-shot blind evaluation",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
   ],
