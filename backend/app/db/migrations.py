@@ -14,6 +14,7 @@ from app.db.source_discovery_schema import SOURCE_DISCOVERY_SCHEMA
 from app.db.source_registry_schema import SOURCE_REGISTRY_SCHEMA
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.db.sync_schema import SYNC_SCHEMA
+from app.db.webhook_schema import WEBHOOK_SCHEMA
 
 KNOWN_REVISIONS = (
     "1",
@@ -35,6 +36,7 @@ KNOWN_REVISIONS = (
     "17",
     "18",
     "19",
+    "20",
 )
 
 OAUTH_SCHEMA = """
@@ -485,6 +487,11 @@ def _apply_revision_19(connection: sqlite3.Connection) -> None:
         _add_column_if_missing(connection, "source_endpoints", definition)
 
 
+def _apply_revision_20(connection: sqlite3.Connection) -> None:
+    """Persist webhook delivery status without storing payloads or secrets."""
+    connection.executescript(WEBHOOK_SCHEMA)
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -505,4 +512,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "17": _apply_revision_17,
     "18": _apply_revision_18,
     "19": _apply_revision_19,
+    "20": _apply_revision_20,
 }

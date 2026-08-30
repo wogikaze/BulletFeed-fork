@@ -31,6 +31,7 @@ from app.routers import (
     source_subscriptions,
     webhooks,
 )
+from app.services.github_webhook_delivery import summarize_webhook_health
 from app.services.web_snapshots import SnapshotStore
 
 
@@ -128,6 +129,7 @@ def readiness(
         "sourceSyncWorker": "ok",
         "sourceIngestion": ingestion.as_public_dict(),
         "snapshotStorage": _snapshot_storage(database),
+        "webhook": summarize_webhook_health(database).as_public_dict(),
         "release": release_identity(),
         "pipeline": public_counters(),
     }
@@ -142,5 +144,6 @@ def source_health(
         "workerHeartbeat": summary.worker_heartbeat,
         "sourceIngestion": summary.as_public_dict(),
         "snapshotStorage": _snapshot_storage(database),
+        "webhook": summarize_webhook_health(database).as_public_dict(),
         "pipeline": public_counters(),
     }

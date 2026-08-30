@@ -28,8 +28,10 @@ gh api --method POST repos/OWNER/REPOSITORY/hooks \
 
 `X-GitHub-Delivery` はsanitized observability recordへ保持し、`/health/sources` の
 `webhook` / `webhookAccepted` / `webhookIgnored` / `webhookSignatureFailures` countersで
-delivery状態を監視する。署名不正は401、secret未設定は503とし、release以外の署名済みeventは
-accepted-but-ignoredとして記録する。
+delivery状態を監視する。bounded delivery ID、event/status、first/last received time、
+attempt countだけを `github_webhook_deliveries` に保存し、payloadやsecretは保存しない。
+署名不正は401、secret未設定は503とし、release以外の署名済みeventは
+accepted-but-ignoredとして記録する。schema migration `20` はこの監査表を追加する。
 
 Polling ingestはfallbackとして残る。webhookとpollingが同じreleaseを届けても、
 Observationのsource identityとpayload hashによる既存idempotencyで重複Claimを作らない。

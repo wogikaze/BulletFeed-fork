@@ -220,6 +220,9 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_endpoint_lineage'"
         ).fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'github_webhook_deliveries'"
+        ).fetchone()
         source_endpoint_columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(source_endpoints)")
         }
