@@ -74,6 +74,19 @@ class DiscoveryStore:
             raise RuntimeError("discovery candidate upsert failed")
         return self._row(row)
 
+    def list_all(self, *, limit: int = 500) -> list[DiscoveryCandidate]:
+        capped = max(1, min(int(limit), 2000))
+        with self._database.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT * FROM discovery_candidates
+                ORDER BY last_seen_at DESC, target_url
+                LIMIT ?
+                """,
+                (capped,),
+            ).fetchall()
+        return [self._row(row) for row in rows]
+
     def list_for_discovery_url(self, discovery_url: str) -> list[DiscoveryCandidate]:
         with self._database.connect() as connection:
             rows = connection.execute(

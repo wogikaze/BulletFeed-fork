@@ -113,6 +113,8 @@ class SourceDiscoveryResult:
     interest_version: str
     interest_fingerprint: str
     items: tuple[SourceCandidate, ...]
+    runtime_hint_count: int = 0
+    seed_fallback_used: bool = False
 
 
 def source_candidate_allows_claim_evidence(_candidate: SourceCandidate | None = None) -> bool:
@@ -189,11 +191,13 @@ def discover_sources(
     hints: Sequence[DiscoveryHint] = (),
     hn_items: Sequence[Mapping[str, Any]] = (),
     include_ignored: bool = False,
+    include_curated_seeds: bool = True,
     limit: int = _DEFAULT_LIMIT,
 ) -> SourceDiscoveryResult:
     source_registry = registry or SourceRegistry()
+    seed_hints = _hints_from_seeds() if include_curated_seeds else ()
     merged_hints = (
-        *_hints_from_seeds(),
+        *seed_hints,
         *_hints_from_selected_repositories(state),
         *hints,
         *hints_from_hacker_news(hn_items, state),
@@ -312,16 +316,29 @@ def list_source_recommendations_for_user(
 ) -> SourceDiscoveryResult:
     ensure_source_discovery_schema(database)
     source_registry = registry or SourceRegistry(database)
+    from app.services.source_discovery_runtime import (
+        load_runtime_discovery_hints,
+        refresh_runtime_discovery_for_user,
+    )
+
+    refresh = refresh_runtime_discovery_for_user(database, user_id, registry=source_registry)
+    runtime_hints = load_runtime_discovery_hints(database)
+    merged_hints = (*hints, *runtime_hints)
     with database.connect() as connection:
-        return discover_sources_for_user(
+        result = discover_sources_for_user(
             connection,
             user_id,
             source_registry,
             include_ignored=include_ignored,
             limit=limit,
-            hints=hints,
+            hints=merged_hints,
             hn_items=hn_items,
         )
+    return replace(
+        result,
+        runtime_hint_count=len(runtime_hints),
+        seed_fallback_used=refresh.seed_fallback_used,
+    )
 
 
 def recommendation_can_subscribe(item: SourceCandidate) -> bool:

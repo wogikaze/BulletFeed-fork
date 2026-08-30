@@ -10,6 +10,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.services.source_discovery import SourceCandidate, SourceDiscoveryResult, discover_sources_for_topics
+from app.services.source_discovery_runtime import default_runtime_collector
 from app.services.source_registry import SourceRegistry, canonicalize_url
 
 DATASET_VERSION = "source-discovery-v0.1"
@@ -50,6 +51,8 @@ class SourceDiscoveryReport:
     mean_precision: float
     mean_recall: float
     cases: tuple[CaseScore, ...]
+    seed_mean_recall: float = 0.0
+    no_seed_mean_recall: float = 0.0
 
 
 def load_source_discovery_gold(path: Path) -> SourceDiscoveryGold:
@@ -100,9 +103,30 @@ def evaluate_source_discovery(
         scores.append(score_case(case, result))
     mean_precision = sum(item.precision for item in scores) / len(scores) if scores else 0.0
     mean_recall = sum(item.recall for item in scores) / len(scores) if scores else 0.0
+    seed_recalls: list[float] = []
+    no_seed_recalls: list[float] = []
+    for case in gold.cases:
+        seed_result = discover_sources_for_topics(
+            case.topics,
+            source_registry,
+            limit=case.limit,
+            include_curated_seeds=True,
+        )
+        runtime_hints = default_runtime_collector(case.topics)
+        no_seed_result = discover_sources_for_topics(
+            case.topics,
+            source_registry,
+            limit=case.limit,
+            include_curated_seeds=False,
+            hints=runtime_hints,
+        )
+        seed_recalls.append(score_case(case, seed_result).recall)
+        no_seed_recalls.append(score_case(case, no_seed_result).recall)
     return SourceDiscoveryReport(
         version=gold.version,
         mean_precision=mean_precision,
         mean_recall=mean_recall,
         cases=tuple(scores),
+        seed_mean_recall=sum(seed_recalls) / len(seed_recalls) if seed_recalls else 0.0,
+        no_seed_mean_recall=sum(no_seed_recalls) / len(no_seed_recalls) if no_seed_recalls else 0.0,
     )
