@@ -25,16 +25,17 @@ _PERSONAS = {
 
 def test_constructed_profiles_meet_b2_slices() -> None:
     corpus = load_real_world_validation(_V01)
-    assert len(corpus.profiles) == 50
+    assert len(corpus.profiles) >= 96
     assert all(profile.constructed_profile for profile in corpus.profiles)
     cohorts = Counter(profile.cohort for profile in corpus.profiles)
-    assert cohorts["cold_start"] == 25
-    assert cohorts["history_rich"] == 25
+    assert cohorts["cold_start"] >= 25
+    assert cohorts["history_rich"] >= 25
     splits = Counter(profile.split for profile in corpus.profiles)
-    assert splits["pilot"] == 20
-    assert splits["dev"] == 15
+    assert splits["pilot"] >= 20
+    assert splits["dev"] >= 15
     assert splits["blind"] == 15
-    assert _PERSONAS == {profile.persona_template for profile in corpus.profiles}
+    assert _PERSONAS <= {profile.persona_template for profile in corpus.profiles}
+    assert len(persona_template_counts(corpus)) >= 24
     assert persona_template_counts(corpus)
     assert corpus.manifest.persona_independence_note == PERSONA_INDEPENDENCE_NOTE
     assert {profile.language_focus for profile in corpus.profiles} == {"en", "ja", "mixed"}

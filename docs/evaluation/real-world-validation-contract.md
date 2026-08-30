@@ -1,11 +1,11 @@
-# 実世界 validation corpus 契約（#117 Phase 0 / integrity v1.1）
+# 実世界 validation corpus 契約（#117 Phase 0 / expansion v1.2）
 
-版: `real-world-validation-contract-v1.1`  
+版: `real-world-validation-contract-v1.2`
 データセット: `real-world-validation-v0.2`  
 実装: `backend/app/evaluation/real_world_validation.py`  
 データ: `backend/tests/gold/real_world_validation/v01/`
 
-後続 PR はこの契約へデータを足す。独自 schema を作らない。Phase 0 では production algorithm を変えない。F1–F5 収集と B3 labeling は、この integrity 契約が main に入るまで再開しない。
+後続 PR はこの契約へデータを足す。独自 schema を作らない。corpus expansion でも production algorithm は変えない。取得 artifact と label provenance を分離して保存する。
 
 ## 必須 source フィールド
 
@@ -29,7 +29,7 @@
 
 ## real event
 
-`record_kind=event_update` かつ `is_real_event=true` だけを real event として数える。Status history、changelog index、RSS/feed endpoint、living documentation ページ自体は event ではない。個別の release / advisory / incident / dated post だけを event にする。契約 fixture は `contract_fixture` であり real event に含めない。件数が 21 未満でよい。
+`record_kind=event_update` かつ `is_real_event=true` だけを real event として数える。Status history、changelog index、RSS/feed endpoint、living documentation ページ自体は event ではない。個別の release / advisory / incident / dated post だけを event にする。契約 fixture は `contract_fixture` であり real event に含めない。
 
 ## 時刻
 
@@ -41,10 +41,10 @@ canonical URL、同一 event、同一 update の mirror group、profile ID、red
 
 ## 容量目標（後続 PR）
 
-100 real events / 50 constructed profiles / 2,000 judgments / 6 source families。いまは未達でよい。
+500 real events / 120 authoritative fetch endpoints / 96 constructed profiles / 24 persona families / 10,000 AI-silver judgments / 6 source families。Japanese event は 100 件を目標とし、未達なら coverage gap として報告する。
 
-50 constructed profile は初期 fixture としては残す。ただし persona template は 8 家族に偏っている。将来「n=50」とは扱わず、bootstrap は persona family の cluster を検討する。
+constructed profile の variation は persona family cluster として扱い、profile 数を独立な n とみなさない。package registry / RSS artifact は `source_family` と fetch provenance を明示する。
 
 ## CI
 
-通常 PR CI は契約検証 + 漏洩 + 小さな回帰だけ。full corpus は scheduled/manual。
+通常 PR CI は契約検証、split 漏洩、artifact hash、M2 deterministic qualification を実行する。live network の追加収集は manual の collection tool で行い、取得後の corpus は通常 CI で再検証する。

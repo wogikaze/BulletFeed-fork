@@ -381,5 +381,1383 @@
     "prior_feedback": [
       "constructed:python_backend_developer:prior"
     ]
+  },
+  {
+    "profile_id": "prf_m2_d_python_backend_developer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "python_backend_developer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "FastAPI",
+      "pydantic",
+      "uvicorn",
+      "starlette"
+    ],
+    "followed_products": [
+      "FastAPI"
+    ],
+    "selected_repositories": [
+      "fastapi/fastapi"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:python_backend_developer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_python_backend_developer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "python_backend_developer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "FastAPI",
+      "pydantic",
+      "uvicorn",
+      "starlette"
+    ],
+    "followed_products": [
+      "FastAPI"
+    ],
+    "selected_repositories": [
+      "fastapi/fastapi"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:python_backend_developer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_web_frontend_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "web_frontend_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "TypeScript",
+      "React",
+      "react-dom",
+      "vite",
+      "webpack"
+    ],
+    "followed_products": [
+      "React"
+    ],
+    "selected_repositories": [
+      "facebook/react"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:web_frontend_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_web_frontend_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "web_frontend_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "TypeScript",
+      "React",
+      "react-dom",
+      "vite",
+      "webpack"
+    ],
+    "followed_products": [
+      "React"
+    ],
+    "selected_repositories": [
+      "facebook/react"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:web_frontend_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_security_conscious_oss_maintainer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "security_conscious_oss_maintainer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "security",
+      "CVE",
+      "cryptography",
+      "bcrypt",
+      "bandit"
+    ],
+    "followed_products": [
+      "OSV"
+    ],
+    "selected_repositories": [
+      "google/osv-scanner"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:security_conscious_oss_maintainer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_security_conscious_oss_maintainer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "security_conscious_oss_maintainer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "security",
+      "CVE",
+      "cryptography",
+      "bcrypt",
+      "bandit"
+    ],
+    "followed_products": [
+      "OSV"
+    ],
+    "selected_repositories": [
+      "google/osv-scanner"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:security_conscious_oss_maintainer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_ml_infrastructure_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "ml_infrastructure_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "PyTorch",
+      "numpy",
+      "pandas",
+      "transformers"
+    ],
+    "followed_products": [
+      "PyTorch"
+    ],
+    "selected_repositories": [
+      "pytorch/pytorch"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:ml_infrastructure_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_ml_infrastructure_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "ml_infrastructure_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "PyTorch",
+      "numpy",
+      "pandas",
+      "transformers"
+    ],
+    "followed_products": [
+      "PyTorch"
+    ],
+    "selected_repositories": [
+      "pytorch/pytorch"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:ml_infrastructure_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_student_learning_compilers_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "student_learning_compilers",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "LLVM",
+      "WebAssembly",
+      "wasm-bindgen",
+      "compiler"
+    ],
+    "followed_products": [
+      "LLVM"
+    ],
+    "selected_repositories": [
+      "llvm/llvm-project"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:student_learning_compilers:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_student_learning_compilers_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "student_learning_compilers",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "LLVM",
+      "WebAssembly",
+      "wasm-bindgen",
+      "compiler"
+    ],
+    "followed_products": [
+      "LLVM"
+    ],
+    "selected_repositories": [
+      "llvm/llvm-project"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:student_learning_compilers:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_self_hosting_enthusiast_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "self_hosting_enthusiast",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "Linux",
+      "containers",
+      "docker",
+      "nginx",
+      "caddy"
+    ],
+    "followed_products": [
+      "Caddy"
+    ],
+    "selected_repositories": [
+      "caddyserver/caddy"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:self_hosting_enthusiast:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_self_hosting_enthusiast_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "self_hosting_enthusiast",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "Linux",
+      "containers",
+      "docker",
+      "nginx",
+      "caddy"
+    ],
+    "followed_products": [
+      "Caddy"
+    ],
+    "selected_repositories": [
+      "caddyserver/caddy"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:self_hosting_enthusiast:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_rust_compiler_contributor_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "rust_compiler_contributor",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Rust",
+      "LLVM",
+      "serde",
+      "cargo",
+      "rustls"
+    ],
+    "followed_products": [
+      "Rust"
+    ],
+    "selected_repositories": [
+      "rust-lang/rust"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:rust_compiler_contributor:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_rust_compiler_contributor_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "rust_compiler_contributor",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Rust",
+      "LLVM",
+      "serde",
+      "cargo",
+      "rustls"
+    ],
+    "followed_products": [
+      "Rust"
+    ],
+    "selected_repositories": [
+      "rust-lang/rust"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:rust_compiler_contributor:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_android_app_developer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "android_app_developer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Android",
+      "Kotlin",
+      "gradle"
+    ],
+    "followed_products": [
+      "Android"
+    ],
+    "selected_repositories": [
+      "android/kotlin"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:android_app_developer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_android_app_developer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "android_app_developer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Android",
+      "Kotlin",
+      "gradle"
+    ],
+    "followed_products": [
+      "Android"
+    ],
+    "selected_repositories": [
+      "android/kotlin"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:android_app_developer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_javascript_tooling_maintainer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "javascript_tooling_maintainer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "JavaScript",
+      "npm",
+      "eslint",
+      "prettier",
+      "vitest"
+    ],
+    "followed_products": [
+      "npm"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:javascript_tooling_maintainer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_javascript_tooling_maintainer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "javascript_tooling_maintainer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "JavaScript",
+      "npm",
+      "eslint",
+      "prettier",
+      "vitest"
+    ],
+    "followed_products": [
+      "npm"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:javascript_tooling_maintainer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_typescript_platform_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "typescript_platform_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "TypeScript",
+      "Node.js",
+      "typescript",
+      "hono"
+    ],
+    "followed_products": [
+      "TypeScript"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:typescript_platform_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_typescript_platform_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "typescript_platform_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "TypeScript",
+      "Node.js",
+      "typescript",
+      "hono"
+    ],
+    "followed_products": [
+      "TypeScript"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:typescript_platform_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_node_service_operator_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "node_service_operator",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Node.js",
+      "Express",
+      "express",
+      "fastify",
+      "koa"
+    ],
+    "followed_products": [
+      "Express"
+    ],
+    "selected_repositories": [
+      "expressjs/express"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:node_service_operator:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_node_service_operator_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "node_service_operator",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Node.js",
+      "Express",
+      "express",
+      "fastify",
+      "koa"
+    ],
+    "followed_products": [
+      "Express"
+    ],
+    "selected_repositories": [
+      "expressjs/express"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:node_service_operator:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_python_data_scientist_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "python_data_scientist",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "pandas",
+      "numpy",
+      "scipy"
+    ],
+    "followed_products": [
+      "pandas"
+    ],
+    "selected_repositories": [
+      "pandas-dev/pandas"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:python_data_scientist:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_python_data_scientist_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "python_data_scientist",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "pandas",
+      "numpy",
+      "scipy"
+    ],
+    "followed_products": [
+      "pandas"
+    ],
+    "selected_repositories": [
+      "pandas-dev/pandas"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:python_data_scientist:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_django_api_builder_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "django_api_builder",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Django",
+      "Python",
+      "django",
+      "sqlalchemy"
+    ],
+    "followed_products": [
+      "Django"
+    ],
+    "selected_repositories": [
+      "django/django"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:django_api_builder:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_django_api_builder_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "django_api_builder",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Django",
+      "Python",
+      "django",
+      "sqlalchemy"
+    ],
+    "followed_products": [
+      "Django"
+    ],
+    "selected_repositories": [
+      "django/django"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:django_api_builder:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_rust_web_service_builder_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "rust_web_service_builder",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "Rust",
+      "HTTP",
+      "tokio",
+      "reqwest",
+      "axum"
+    ],
+    "followed_products": [
+      "Tokio"
+    ],
+    "selected_repositories": [
+      "tokio-rs/tokio"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:rust_web_service_builder:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_rust_web_service_builder_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "rust_web_service_builder",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "Rust",
+      "HTTP",
+      "tokio",
+      "reqwest",
+      "axum"
+    ],
+    "followed_products": [
+      "Tokio"
+    ],
+    "selected_repositories": [
+      "tokio-rs/tokio"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:rust_web_service_builder:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_kubernetes_platform_sre_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "kubernetes_platform_sre",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Kubernetes",
+      "Go",
+      "kubernetes",
+      "helm"
+    ],
+    "followed_products": [
+      "Kubernetes"
+    ],
+    "selected_repositories": [
+      "kubernetes/kubernetes"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:kubernetes_platform_sre:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_kubernetes_platform_sre_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "kubernetes_platform_sre",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Kubernetes",
+      "Go",
+      "kubernetes",
+      "helm"
+    ],
+    "followed_products": [
+      "Kubernetes"
+    ],
+    "selected_repositories": [
+      "kubernetes/kubernetes"
+    ],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:kubernetes_platform_sre:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_cloud_security_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "cloud_security_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "security",
+      "AWS",
+      "boto3",
+      "botocore"
+    ],
+    "followed_products": [
+      "AWS"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:cloud_security_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_cloud_security_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "cloud_security_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "security",
+      "AWS",
+      "boto3",
+      "botocore"
+    ],
+    "followed_products": [
+      "AWS"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:cloud_security_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_database_reliability_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "database_reliability_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "PostgreSQL",
+      "SQL",
+      "sqlx",
+      "diesel"
+    ],
+    "followed_products": [
+      "PostgreSQL"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:database_reliability_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_database_reliability_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "database_reliability_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "PostgreSQL",
+      "SQL",
+      "sqlx",
+      "diesel"
+    ],
+    "followed_products": [
+      "PostgreSQL"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:database_reliability_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_observability_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "observability_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "OpenTelemetry",
+      "Kubernetes",
+      "tracing",
+      "prometheus"
+    ],
+    "followed_products": [
+      "OpenTelemetry"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:observability_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_observability_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "observability_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "OpenTelemetry",
+      "Kubernetes",
+      "tracing",
+      "prometheus"
+    ],
+    "followed_products": [
+      "OpenTelemetry"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "high",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:observability_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_mobile_release_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "mobile_release_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Android",
+      "Kotlin",
+      "react-native",
+      "expo"
+    ],
+    "followed_products": [
+      "Android"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:mobile_release_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_mobile_release_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "mobile_release_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Android",
+      "Kotlin",
+      "react-native",
+      "expo"
+    ],
+    "followed_products": [
+      "Android"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:mobile_release_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_open_source_documentarian_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "open_source_documentarian",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "documentation",
+      "Markdown",
+      "docusaurus",
+      "vitepress"
+    ],
+    "followed_products": [
+      "Docs"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:open_source_documentarian:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_open_source_documentarian_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "open_source_documentarian",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "documentation",
+      "Markdown",
+      "docusaurus",
+      "vitepress"
+    ],
+    "followed_products": [
+      "Docs"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:open_source_documentarian:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_package_release_manager_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "package_release_manager",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "packages",
+      "releases",
+      "PyPI",
+      "npm",
+      "crates.io"
+    ],
+    "followed_products": [
+      "PyPI"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:package_release_manager:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_package_release_manager_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "package_release_manager",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "packages",
+      "releases",
+      "PyPI",
+      "npm",
+      "crates.io"
+    ],
+    "followed_products": [
+      "PyPI"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:package_release_manager:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_developer_experience_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "developer_experience_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "CLI",
+      "Rust",
+      "Cargo",
+      "clap",
+      "click"
+    ],
+    "followed_products": [
+      "Cargo"
+    ],
+    "selected_repositories": [
+      "rust-lang/cargo"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:developer_experience_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_developer_experience_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "developer_experience_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "CLI",
+      "Rust",
+      "Cargo",
+      "clap",
+      "click"
+    ],
+    "followed_products": [
+      "Cargo"
+    ],
+    "selected_repositories": [
+      "rust-lang/cargo"
+    ],
+    "security_sensitivity": "low",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:developer_experience_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_edge_runtime_engineer_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "edge_runtime_engineer",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "JavaScript",
+      "WebAssembly",
+      "Cloudflare Workers",
+      "hono"
+    ],
+    "followed_products": [
+      "Cloudflare Workers"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:edge_runtime_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_edge_runtime_engineer_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "edge_runtime_engineer",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "niche",
+    "explicit_interests": [
+      "JavaScript",
+      "WebAssembly",
+      "Cloudflare Workers",
+      "hono"
+    ],
+    "followed_products": [
+      "Cloudflare Workers"
+    ],
+    "selected_repositories": [],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:edge_runtime_engineer:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_ai_application_builder_02",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "ai_application_builder",
+    "language_focus": "mixed",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "AI",
+      "Transformers",
+      "torch",
+      "huggingface"
+    ],
+    "followed_products": [
+      "Transformers"
+    ],
+    "selected_repositories": [
+      "huggingface/transformers"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:ai_application_builder:prior"
+    ]
+  },
+  {
+    "profile_id": "prf_m2_d_ai_application_builder_03",
+    "split": "dev",
+    "constructed_profile": true,
+    "cohort": "history_rich",
+    "persona_template": "ai_application_builder",
+    "language_focus": "en",
+    "interest_breadth": "broad",
+    "ecosystem": "popular",
+    "explicit_interests": [
+      "Python",
+      "AI",
+      "Transformers",
+      "torch",
+      "huggingface"
+    ],
+    "followed_products": [
+      "Transformers"
+    ],
+    "selected_repositories": [
+      "huggingface/transformers"
+    ],
+    "security_sensitivity": "medium",
+    "known_before_event_ids": [
+      "evt_rw_d_go123"
+    ],
+    "prior_feedback": [
+      "constructed:ai_application_builder:prior"
+    ]
   }
 ]

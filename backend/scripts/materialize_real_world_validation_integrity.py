@@ -888,7 +888,7 @@ def materialize(*, refetch: bool) -> None:
     manifest = {
         "dataset_id": "bulletfeed-real-world-validation-v0.2",
         "dataset_version": "real-world-validation-v0.2",
-        "contract_version": "real-world-validation-contract-v1.1",
+        "contract_version": "real-world-validation-contract-v1.2",
         "label_protocol_version": "label-protocol-v1",
         "required_source_fields": [
             "source_id",
@@ -908,10 +908,12 @@ def materialize(*, refetch: bool) -> None:
             "normalized_evidence",
         ],
         "targets": {
-            "min_events": 100,
-            "min_profiles": 50,
-            "min_judgments": 2000,
+            "min_events": 500,
+            "min_profiles": 96,
+            "min_judgments": 10000,
             "min_source_families": 6,
+            "min_authoritative_endpoints": 120,
+            "min_persona_families": 24,
         },
         "splits": ["pilot", "dev", "blind"],
         "leakage_checks": [
@@ -932,13 +934,12 @@ def materialize(*, refetch: bool) -> None:
             "split_index": "{split}/index.json",
         },
         "production_behavior_changed": False,
-        "phase": "corpus-integrity",
+        "phase": "corpus-expansion",
         "note": (
-            "Integrity rewrite of #118–#121. Blind labels are physical files. "
-            "content_hash binds to saved fetch artifacts. Only individual "
-            "release/advisory/dated-post records count as real events. "
-            "Index/history/feed/documentation pages were removed from event count. "
-            "F-batch collection and B3 labeling stay paused until this lands."
+            "Bootstrap-only materializer for the v1.2 corpus contract. Blind labels "
+            "are physical files and content_hash binds to saved fetch artifacts. "
+            "Use collect_real_world_validation_batch.py and the versioned label "
+            "generator for the expanded corpus."
         ),
         "persona_independence_note": PERSONA_INDEPENDENCE_NOTE,
     }

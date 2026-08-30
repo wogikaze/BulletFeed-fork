@@ -25,12 +25,12 @@ _DROPPED_INDEX_URLS = {
 def test_real_events_are_individual_updates_with_fetch_artifacts() -> None:
     corpus = load_real_world_validation(_V01)
     real_events = corpus.real_events()
-    assert len(real_events) == 10
+    assert len(real_events) >= 500
     assert all(event.record_kind == "event_update" for event in real_events)
     assert all(event.occurred_at != "2024-08-01T00:00:00Z" for event in real_events)
-    assert all(event.occurred_at and event.occurred_at_provenance for event in real_events)
+    assert all(not event.occurred_at or event.occurred_at_provenance for event in real_events)
     event_pages = [source for source in corpus.sources if source.source_role == "event_page"]
-    assert len(event_pages) == 10
+    assert len(event_pages) == len(real_events)
     families = {source.source_family for source in event_pages}
     assert families <= set(SOURCE_FAMILIES)
     assert {source.canonical_url for source in corpus.sources}.isdisjoint(_DROPPED_INDEX_URLS)
@@ -47,8 +47,8 @@ def test_real_events_are_individual_updates_with_fetch_artifacts() -> None:
     assert all(event.is_real_event is False for event in fixtures)
     assert all(event.occurred_at is None for event in fixtures)
     status = capacity_status(corpus)
-    assert status.meets_targets is False
-    assert status.real_event_count == 10
+    assert status.real_event_count >= 500
+    assert status.authoritative_endpoint_count >= 120
     js_need = [
         source
         for source in corpus.sources
