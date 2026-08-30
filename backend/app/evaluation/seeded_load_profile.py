@@ -21,7 +21,12 @@ from app.services.ledger_projection import LedgerProjector
 from app.services.statuspage_pipeline import StatuspagePipeline
 from app.stores.feed_store import FeedStore
 
-PROFILE_VERSION = "seeded-load-v1"
+PROFILE_VERSION = "seeded-load-v2"
+REMEDIATIONS = (
+    "idx_feed_items_user_dismissed",
+    "batched_claim_knowledge_ids",
+    "defer_feedback_ranking_until_user_batch",
+)
 
 
 @dataclass(frozen=True)
@@ -41,6 +46,7 @@ class SeededLoadReport:
     stages: tuple[StageTiming, ...]
     counters: dict[str, int]
     bottlenecks: tuple[str, ...]
+    remediations: tuple[str, ...] = REMEDIATIONS
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -52,6 +58,7 @@ class SeededLoadReport:
             "stages": [asdict(stage) for stage in self.stages],
             "counters": self.counters,
             "bottlenecks": list(self.bottlenecks),
+            "remediations": list(self.remediations),
         }
 
 
@@ -140,8 +147,9 @@ def run_seeded_load_profile(
     def _project_feed() -> None:
         nonlocal projected
         for user_id in users:
-            for event_id in result.event_ids:
-                projected += len(feed.project_event_for_user(user_id=user_id, event_id=event_id))
+            projected += len(
+                feed.project_events_for_user(user_id=user_id, event_ids=result.event_ids)
+            )
 
     feed_stage = _time_stage("feed_projection", len(users) * len(result.event_ids), _project_feed)
 
@@ -165,7 +173,25 @@ def run_seeded_load_profile(
         stages=stages,
         counters=counters(),
         bottlenecks=_bottlenecks(stages),
+        remediations=REMEDIATIONS,
     )
+
+
+def compare_load_reports(before: SeededLoadReport, after: SeededLoadReport) -> dict[str, Any]:
+    before_ms = {stage.name: stage.elapsed_ms for stage in before.stages}
+    after_ms = {stage.name: stage.elapsed_ms for stage in after.stages}
+    deltas = {
+        name: round(after_ms.get(name, 0.0) - before_ms.get(name, 0.0), 3)
+        for name in sorted(set(before_ms) | set(after_ms))
+    }
+    return {
+        "beforeVersion": before.version,
+        "afterVersion": after.version,
+        "stageDeltasMs": deltas,
+        "sharedBottlenecks": [
+            name for name in after.bottlenecks if name in before.bottlenecks
+        ],
+    }
 
 
 def write_report(report: SeededLoadReport, path: Path) -> None:

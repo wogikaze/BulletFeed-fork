@@ -127,9 +127,9 @@ def _record_projected_events(monkeypatch, projector: FeedProjector) -> list[str]
     seen: list[str] = []
     original = projector.project_event_for_user
 
-    def _wrapped(*, user_id: str, event_id: str):
+    def _wrapped(*, user_id: str, event_id: str, **kwargs):
         seen.append(event_id)
-        return original(user_id=user_id, event_id=event_id)
+        return original(user_id=user_id, event_id=event_id, **kwargs)
 
     monkeypatch.setattr(projector, "project_event_for_user", _wrapped)
     return seen
@@ -322,3 +322,33 @@ def test_reproject_user_dismisses_unmatched_reference_when_follow_empty(database
         ).fetchall()
     assert all(row["relation_level"] == "reference" for row in undismissed)
     assert all(row["dismissed"] == 0 for row in undismissed)
+
+
+def test_project_events_for_user_rebuilds_ranking_once(database, monkeypatch):
+    result = StatuspagePipeline(database).ingest_summary(
+        page_id="abcd1234",
+        summary=_summary(),
+        retrieved_at="2026-08-22T00:11:00Z",
+    )
+    event_id = result.event_ids[0]
+    LedgerProjector(database).project_event(event_id)
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_1', 0)")
+
+    calls = {"n": 0}
+
+    def fake_rank(connection, *, user_id: str) -> int:
+        calls["n"] += 1
+        return 0
+
+    monkeypatch.setattr(
+        "app.services.feed_projection.apply_feedback_ranking",
+        fake_rank,
+    )
+    projector = FeedProjector(database)
+    created = projector.project_events_for_user(
+        user_id="user_1",
+        event_ids=(event_id, event_id),
+    )
+    assert created
+    assert calls["n"] == 1

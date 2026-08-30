@@ -39,7 +39,13 @@ class FeedProjector:
         self._database = database
         ensure_projection_schema(database)
 
-    def project_event_for_user(self, *, user_id: str, event_id: str) -> list[str]:
+    def project_event_for_user(
+        self,
+        *,
+        user_id: str,
+        event_id: str,
+        apply_user_ranking: bool = True,
+    ) -> list[str]:
         created: list[str] = []
         with self._database.connect() as connection:
             event = connection.execute("SELECT * FROM events WHERE id = ?", (event_id,)).fetchone()
@@ -136,7 +142,8 @@ class FeedProjector:
                     ),
                 )
                 created.append(feed_item_id)
-            apply_feedback_ranking(connection, user_id=user_id)
+            if apply_user_ranking:
+                apply_feedback_ranking(connection, user_id=user_id)
         record(
             "projection",
             layer="feed",
@@ -144,6 +151,21 @@ class FeedProjector:
             user_id=user_id,
             feed_item_count=len(created),
         )
+        return created
+
+    def project_events_for_user(self, *, user_id: str, event_ids: Sequence[str]) -> list[str]:
+        """Project many events, then rebuild feedback ranking once."""
+        created: list[str] = []
+        for event_id in event_ids:
+            created.extend(
+                self.project_event_for_user(
+                    user_id=user_id,
+                    event_id=event_id,
+                    apply_user_ranking=False,
+                )
+            )
+        with self._database.connect() as connection:
+            apply_feedback_ranking(connection, user_id=user_id)
         return created
 
     def reproject_user(self, *, user_id: str) -> int:
@@ -155,7 +177,11 @@ class FeedProjector:
         with self._database.connect() as connection:
             event_ids = self._candidate_event_ids(connection, user_id=user_id)
         for event_id in event_ids:
-            self.project_event_for_user(user_id=user_id, event_id=event_id)
+            self.project_event_for_user(
+                user_id=user_id,
+                event_id=event_id,
+                apply_user_ranking=False,
+            )
 
         updated = 0
         with self._database.connect() as connection:
