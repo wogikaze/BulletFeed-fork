@@ -350,7 +350,8 @@ def test_get_feed_still_does_not_mark_known_for_shared_identity(database) -> Non
     items, _ = FeedStore(database).list_feed(
         "learner", relation=None, item_status=None, cursor=None, limit=50
     )
-    assert len(items) >= 2
+    assert len(items) == 1
+    assert items[0].additional_sources
     with database.connect() as connection:
         states = {
             row["claim_id"]: row["state"]

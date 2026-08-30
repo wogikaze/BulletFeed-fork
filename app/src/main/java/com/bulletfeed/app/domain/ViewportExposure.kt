@@ -1,14 +1,14 @@
 package com.bulletfeed.app
 
 /**
- * Meaningful viewport display policy (Known-03 / viewport-exposure-v1).
+ * Meaningful viewport display policy (Known-03 / viewport-exposure-v2).
  *
  * Any pixel in the viewport is not enough to record knowledge evidence.
- * New clients send [dwellMs] and [visibleRatio]. Missing metrics stay
- * displayed on the backend for existing clients.
+ * This client always sends [dwellMs] and [visibleRatio]. Missing or
+ * partial metrics must not become displayed.
  */
 object ViewportExposurePolicy {
-    const val VERSION = "viewport-exposure-v1"
+    const val VERSION = "viewport-exposure-v2"
     const val MIN_DWELL_MS = 1000L
     const val MIN_VISIBLE_RATIO = 0.50f
 
@@ -18,9 +18,9 @@ object ViewportExposurePolicy {
         detailOpened: Boolean = false,
     ): Boolean {
         if (detailOpened) return true
-        if (dwellMs == null && visibleRatio == null) return true
-        if (dwellMs != null && dwellMs < MIN_DWELL_MS) return false
-        if (visibleRatio != null && visibleRatio < MIN_VISIBLE_RATIO) return false
+        if (dwellMs == null || visibleRatio == null) return false
+        if (dwellMs < MIN_DWELL_MS) return false
+        if (visibleRatio < MIN_VISIBLE_RATIO) return false
         return true
     }
 }

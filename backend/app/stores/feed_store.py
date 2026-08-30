@@ -15,6 +15,7 @@ from app.db.knownness import (
 from app.errors import not_found, unprocessable
 from app.schemas.common import Delta, Importance, MatchedRepository, Relation, SourceEvidence
 from app.schemas.feed import PublicFeedItem
+from app.services.cross_source_suppress import SourceCandidate, project_candidates
 from app.services.feedback_signals import (
     FAMILY_FOLLOW,
     FAMILY_KNOWLEDGE,
@@ -112,9 +113,110 @@ def _revision_class_from_delta(delta_type: str | None) -> str:
     normalized = (delta_type or "").strip().casefold()
     if normalized == "correction":
         return "CORRECTION"
-    if normalized in {"unresolved_conflict", "conflict"}:
+    if normalized in {"unresolved_conflict", "conflict", "unresolved_contradiction"}:
         return "UNRESOLVED_CONTRADICTION"
+    if normalized == "detail":
+        return "DETAIL"
+    if normalized == "state_update":
+        return "STATE_UPDATE"
     return ""
+
+
+def _dependence_key(*, source_type: str, source_key: str, title: str) -> str:
+    token = (source_key or title or "").strip()
+    upper = token.upper()
+    if source_type in {"github_advisory", "osv"} or upper.startswith(("GHSA-", "OSV-")):
+        return f"advisory:{upper}"
+    if source_type and source_key:
+        return f"{source_type}:{source_key.casefold()}"
+    return f"candidate:{source_type}:{token.casefold()}"
+
+
+def _source_kind(raw: str) -> str:
+    kind = (raw or "").strip()
+    if kind in {
+        "statuspage",
+        "github_advisory",
+        "osv",
+        "github_release",
+        "github_sbom",
+        "rss_atom",
+        "json_feed",
+        "official_changelog",
+        "documentation",
+    }:
+        return kind
+    return "documentation"
+
+
+def _first_sources_by_event(
+    connection: sqlite3.Connection,
+    event_ids: list[str],
+) -> dict[str, sqlite3.Row]:
+    if not event_ids:
+        return {}
+    placeholders = ",".join("?" for _ in event_ids)
+    rows = connection.execute(
+        f"""
+        SELECT event_id, publisher, kind, title, url, published_at, retrieved_at, evidence
+        FROM event_sources
+        WHERE event_id IN ({placeholders})
+        ORDER BY published_at, id
+        """,  # nosec B608
+        event_ids,
+    ).fetchall()
+    first: dict[str, sqlite3.Row] = {}
+    for row in rows:
+        first.setdefault(row["event_id"], row)
+    return first
+
+
+def _source_candidate_from_feed_row(
+    row: sqlite3.Row,
+    *,
+    knownness: tuple[str, str],
+    identity_label: str,
+    identity_confidence: str,
+    source: sqlite3.Row | None,
+) -> SourceCandidate:
+    keys = set(row.keys())
+    source_type = row["source_type"] if "source_type" in keys else "unknown"
+    source_key = row["source_key"] if "source_key" in keys else ""
+    value = row["claim_value"] if "claim_value" in keys else ""
+    detail = row["claim_detail"] if "claim_detail" in keys else ""
+    slot = row["claim_slot"] if "claim_slot" in keys else ""
+    publisher = source["publisher"] if source is not None else (source_key or source_type)
+    kind = _source_kind(source["kind"] if source is not None else source_type)
+    title = source["title"] if source is not None else row["title"]
+    url = source["url"] if source is not None else ""
+    published_at = source["published_at"] if source is not None else row["updated_at"]
+    retrieved_at = source["retrieved_at"] if source is not None else row["updated_at"]
+    evidence = source["evidence"] if source is not None else (detail or row["title"])
+    return SourceCandidate(
+        candidate_id=row["id"],
+        source_id=f"{source_type}:{source_key}" if source_key else row["id"],
+        publisher=publisher,
+        kind=kind,
+        title=title,
+        url=url,
+        published_at=published_at,
+        retrieved_at=retrieved_at,
+        evidence=evidence,
+        value=value or "",
+        detail=detail or "",
+        slot=slot or "",
+        revision_class=_revision_class_from_delta(row["delta_type"]) or None,
+        dependence_key=_dependence_key(
+            source_type=source_type,
+            source_key=source_key,
+            title=title,
+        ),
+        knowledge_state=knownness[0],
+        knowledge_confidence=knownness[1],
+        importance_level=row["importance_level"],
+        identity_label=identity_label,
+        identity_confidence=identity_confidence,
+    )
 
 
 def _identity_for_claim(
@@ -196,6 +298,7 @@ def _row_to_item(
     delivery_id: str,
     following: bool,
     sources: list[SourceEvidence],
+    additional_sources: list[SourceEvidence] | None = None,
 ) -> PublicFeedItem:
     return PublicFeedItem(
         id=row["id"],
@@ -227,7 +330,7 @@ def _row_to_item(
         updated_at=row["updated_at"],
         delivery_id=delivery_id,
         sources=sources,
-        additional_sources=[],
+        additional_sources=list(additional_sources or []),
     )
 
 
@@ -582,12 +685,16 @@ class FeedStore:
                        claim_map.claim_id AS claim_id,
                        COALESCE(le.source_type, 'unknown') AS source_type,
                        COALESCE(le.source_key, '') AS source_key,
-                       COALESCE(e.summary, '') AS event_summary
+                       COALESCE(e.summary, '') AS event_summary,
+                       COALESCE(sc.value_text, '') AS claim_value,
+                       COALESCE(sc.detail_text, '') AS claim_detail,
+                       COALESCE(sc.slot, '') AS claim_slot
                 FROM feed_items f
                 JOIN deltas d ON d.id = f.delta_id
                 LEFT JOIN events e ON e.id = f.event_id
                 LEFT JOIN ledger_events le ON le.id = f.event_id
                 LEFT JOIN delta_claim_map claim_map ON claim_map.delta_id = f.delta_id
+                LEFT JOIN state_claims sc ON sc.id = claim_map.claim_id
                 LEFT JOIN user_claim_exposures knownness
                     ON knownness.user_id = f.user_id
                    AND knownness.claim_id = claim_map.claim_id
@@ -635,6 +742,49 @@ class FeedStore:
                 for row in rows
             ]
             ranked = [item for item in rank_candidates(candidates) if not item.hidden]
+            rows_by_id = {row["id"]: row for row in rows}
+            ranked_rows = [rows_by_id[item.item_id] for item in ranked]
+            first_sources = _first_sources_by_event(
+                connection,
+                list(dict.fromkeys(row["event_id"] for row in ranked_rows)),
+            )
+            source_candidates = []
+            for item in ranked:
+                feed_row = rows_by_id[item.item_id]
+                identity_label, identity_confidence = _identity_for_claim(
+                    connection,
+                    feed_row["claim_id"],
+                )
+                source_candidates.append(
+                    _source_candidate_from_feed_row(
+                        feed_row,
+                        knownness=knownness_by_item[item.item_id],
+                        identity_label=identity_label,
+                        identity_confidence=identity_confidence,
+                        source=first_sources.get(feed_row["event_id"]),
+                    )
+                )
+            projection = project_candidates(source_candidates)
+            additional_by_id = {
+                card.displayed_id: list(card.provenance())
+                for card in projection.cards
+                if card.action != "hide"
+            }
+            surfacing = {"CORRECTION", "DETAIL", "STATE_UPDATE", "UNRESOLVED_CONTRADICTION"}
+            restored_ids: set[str] = set()
+            for card in projection.cards:
+                displayed = rows_by_id.get(card.displayed_id)
+                displayed_revision = _revision_class_from_delta(
+                    displayed["delta_type"] if displayed is not None else None
+                )
+                if displayed_revision not in surfacing:
+                    continue
+                restored_ids.update(source.candidate_id for source in card.additional_sources)
+                additional_by_id[card.displayed_id] = []
+            collapsed_ids = (
+                set(projection.additional_source_ids) | set(projection.hidden_ids)
+            ) - restored_ids
+            ranked = [item for item in ranked if item.item_id not in collapsed_ids]
             try:
                 page, next_cursor = paginate_ranked(
                     ranked,
@@ -696,8 +846,31 @@ class FeedStore:
                         delivery_id,
                         follows.get(row["event_id"], False),
                         sources_by_event.get(row["event_id"], []),
+                        additional_by_id.get(row["id"], []),
                     )
                 )
+            page_ids = {row["id"] for row in page_rows}
+            for card in projection.cards:
+                if card.displayed_id not in page_ids:
+                    continue
+                for source in card.additional_sources:
+                    extra = rows_by_id.get(source.candidate_id)
+                    if extra is None or extra["claim_id"] is None:
+                        continue
+                    extra_delivery = f"dlv_{secrets.token_urlsafe(10)}"
+                    connection.execute(
+                        "INSERT INTO deliveries (id, feed_item_id, user_id, created_at) VALUES (?, ?, ?, ?)",
+                        (extra_delivery, extra["id"], user_id, created_at),
+                    )
+                    _upsert_delivered(
+                        connection,
+                        user_id=user_id,
+                        claim_id=extra["claim_id"],
+                        delivery_id=extra_delivery,
+                        delivered_at=created_at,
+                        event_id=extra["event_id"],
+                        delta_id=extra["delta_id"],
+                    )
 
             return items, next_cursor
 
