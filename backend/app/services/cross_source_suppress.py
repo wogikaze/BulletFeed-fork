@@ -72,6 +72,7 @@ class SourceCandidate:
     identity_label: str | None = None
     identity_confidence: str | None = None
     equivalence_label: str | None = None
+    event_id: str | None = None
 
     def dependence(self) -> str:
         return self.dependence_key or f"candidate:{self.candidate_id}"
@@ -148,6 +149,24 @@ def resolve_identity(
     right: SourceCandidate,
 ) -> KnowledgeIdentityDecision:
     """Use #50 knowledge identity. Supplied labels are fallbacks only."""
+    # Same registered source with distinct events are different incidents.
+    # Cross-source restatements (different source_id) still use identity compare.
+    if (
+        left.event_id
+        and right.event_id
+        and left.event_id != right.event_id
+        and left.source_id
+        and left.source_id == right.source_id
+    ):
+        return KnowledgeIdentityDecision(
+            "different_target",
+            "same source with distinct event ids",
+            "high",
+            KNOWLEDGE_IDENTITY_VERSION,
+            "event-left",
+            "event-right",
+            None,
+        )
     if left.value or right.value or left.detail or right.detail:
         return compare_knowledge_identity(
             left.value,
@@ -202,6 +221,9 @@ def resolve_revision(
     if identity.label == "same_target" and identity_may_hide(identity):
         return "NON_NOVEL"
     if identity.label == "uncertain":
+        return None
+    if identity.label == "different_target":
+        # Distinct facts never collapse; skip expensive semantic revision judging.
         return None
     decision = judge_revision(
         ClaimSnapshot(canonical.value, canonical.detail, canonical.published_at),

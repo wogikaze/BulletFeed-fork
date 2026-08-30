@@ -25,6 +25,8 @@ def test_seeded_load_profile_records_stages_and_bottlenecks(tmp_path: Path) -> N
     assert {"statuspage_ingest", "feed_list", "feed_projection"} <= names
     assert len(report.bottlenecks) <= 3
     assert "defer_feedback_ranking_until_user_batch" in REMEDIATIONS
+    assert "incremental_knowledge_identity_attach" in REMEDIATIONS
+    assert "skip_revision_judge_on_different_target" in REMEDIATIONS
     assert report.remediations == REMEDIATIONS
     assert all(stage.elapsed_ms >= 0 for stage in report.stages)
     compared = compare_load_reports(report, report)

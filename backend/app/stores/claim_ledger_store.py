@@ -9,7 +9,7 @@ from app.db.event_identity_schema import ensure_event_identity_schema
 from app.db.state_ledger_schema import STATE_LEDGER_SCHEMA
 from app.observability import record
 from app.services.event_coreference import CoreferenceInput, EventCoreferenceEngine
-from app.services.knowledge_identity import rebuild_knowledge_identities
+from app.services.knowledge_identity import attach_knowledge_identity_for_claim
 from app.services.semantic_delta import ClaimSnapshot, DeltaContext, judge_revision
 from app.services.source_catalog import source_allows_claim_evidence
 from app.services.source_dependence import evidence_dependence_key
@@ -265,7 +265,7 @@ class ClaimLedgerStore:
         for the versioned backfill; Observation/Claim rows stay as written.
         """
         try:
-            rebuild_knowledge_identities(connection)
+            attach_knowledge_identity_for_claim(connection, claim_id=claim_id)
         except Exception as exc:
             record(
                 "knowledge_identity",

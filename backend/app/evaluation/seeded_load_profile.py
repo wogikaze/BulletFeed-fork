@@ -21,11 +21,15 @@ from app.services.ledger_projection import LedgerProjector
 from app.services.statuspage_pipeline import StatuspagePipeline
 from app.stores.feed_store import FeedStore
 
-PROFILE_VERSION = "seeded-load-v2"
+PROFILE_VERSION = "seeded-load-v3"
 REMEDIATIONS = (
     "idx_feed_items_user_dismissed",
     "batched_claim_knowledge_ids",
     "defer_feedback_ranking_until_user_batch",
+    "incremental_knowledge_identity_attach",
+    "canonicalize_text_lru_cache",
+    "same_source_distinct_event_short_circuit",
+    "skip_revision_judge_on_different_target",
 )
 
 

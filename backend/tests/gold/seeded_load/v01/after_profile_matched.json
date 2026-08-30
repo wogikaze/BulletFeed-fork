@@ -1,0 +1,52 @@
+{
+  "bottlenecks": [
+    "statuspage_ingest",
+    "feed_projection",
+    "ledger_projection"
+  ],
+  "counters": {
+    "observation": 36,
+    "projection": 72,
+    "revision": 36
+  },
+  "incidentCount": 12,
+  "projectedItemCount": 72,
+  "remediations": [
+    "idx_feed_items_user_dismissed",
+    "batched_claim_knowledge_ids",
+    "defer_feedback_ranking_until_user_batch",
+    "incremental_knowledge_identity_attach",
+    "canonicalize_text_lru_cache",
+    "same_source_distinct_event_short_circuit"
+  ],
+  "stages": [
+    {
+      "elapsed_ms": 1725.906,
+      "items": 36,
+      "name": "statuspage_ingest"
+    },
+    {
+      "elapsed_ms": 177.427,
+      "items": 12,
+      "name": "ledger_projection"
+    },
+    {
+      "elapsed_ms": 521.907,
+      "items": 24,
+      "name": "feed_projection"
+    },
+    {
+      "elapsed_ms": 93.945,
+      "items": 2,
+      "name": "feed_list"
+    },
+    {
+      "elapsed_ms": 13.929,
+      "items": 1,
+      "name": "worker_heartbeat"
+    }
+  ],
+  "updatesPerIncident": 3,
+  "userCount": 2,
+  "version": "seeded-load-v3"
+}

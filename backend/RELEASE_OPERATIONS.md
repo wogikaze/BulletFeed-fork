@@ -6,11 +6,17 @@ The release stack is intentionally a single-host MVP: the API and source-sync wo
 
 Automated in-process smoke is `python scripts/run_release_smoke.py` from `backend/` (fresh DB → health/ready → session → seeded load profile → feed → reopen). Do not treat a green script as the whole #169 gate: keep the saved load profile, top-3 bottleneck remediations, and before/after timings with the release notes.
 
-Current remediations recorded by `seeded-load-v2`:
+Current remediations recorded by seeded-load-v3:
 
-- `idx_feed_items_user_dismissed`
-- `batched_claim_knowledge_ids`
-- `defer_feedback_ranking_until_user_batch`
+- idx_feed_items_user_dismissed
+- atched_claim_knowledge_ids
+- defer_feedback_ranking_until_user_batch
+- incremental_knowledge_identity_attach
+- canonicalize_text_lru_cache
+- same_source_distinct_event_short_circuit
+- skip_revision_judge_on_different_target
+
+Before/after timings for the matched 12-incident corpus are under 	ests/gold/seeded_load/v01/. Regenerate with python scripts/run_seeded_load_profile.py.
 
 ## One-command start
 

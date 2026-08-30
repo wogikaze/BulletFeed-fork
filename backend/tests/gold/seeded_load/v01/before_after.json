@@ -1,0 +1,20 @@
+{
+  "afterVersion": "seeded-load-v3",
+  "beforeVersion": "seeded-load-v2",
+  "remediationsAdded": [
+    "incremental_knowledge_identity_attach",
+    "canonicalize_text_lru_cache",
+    "same_source_distinct_event_short_circuit"
+  ],
+  "sharedBottlenecks": [
+    "statuspage_ingest",
+    "feed_projection"
+  ],
+  "stageDeltasMs": {
+    "feed_list": -6426.843,
+    "feed_projection": -581.591,
+    "ledger_projection": -123.714,
+    "statuspage_ingest": -19436.203,
+    "worker_heartbeat": -3.819
+  }
+}

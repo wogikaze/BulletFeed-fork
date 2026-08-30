@@ -584,7 +584,7 @@ def test_knowledge_mapping_failure_does_not_drop_claim(database, monkeypatch) ->
         raise RuntimeError("forced mapping failure")
 
     monkeypatch.setattr(
-        "app.stores.claim_ledger_store.rebuild_knowledge_identities",
+        "app.stores.claim_ledger_store.attach_knowledge_identity_for_claim",
         _boom,
     )
     claim = _ingest_claim(
