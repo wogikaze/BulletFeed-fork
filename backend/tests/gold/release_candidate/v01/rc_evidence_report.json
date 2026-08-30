@@ -28,7 +28,7 @@
           "tenant_leak": true,
           "stage_failures": true
         },
-        "execution_mode": "fresh_api_testclient_database_per_persona",
+        "execution_mode": "fresh_api_testclient_database_per_persona_worker_backed",
         "metrics": {
           "sample_count": 30,
           "surfaced_card_count": 56,
@@ -40,7 +40,7 @@
             "max": 1
           }
         },
-        "note": "API state transitions pass; Android surface and worker scheduling remain separate gates."
+        "note": "API state transitions and deterministic worker orchestration pass; Android surface breadth and live source transport remain separate gates."
       }
     },
     "m2": {
@@ -209,8 +209,8 @@
     }
   },
   "unmet_gate_items": [
-    "M1 Android/worker-backed journey for all 30 personas",
-    "M3 timeout/conditional-304/robots/source-identity qualification and observed-failure remediation",
+    "M1 Android journey and cross-surface breadth for all 30 personas",
+    "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
     "M5 host-level disk-full and partial-write drill",
     "M6 production Top-3 remediation followed by one-shot blind evaluation",
