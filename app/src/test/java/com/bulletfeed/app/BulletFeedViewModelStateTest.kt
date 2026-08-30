@@ -83,7 +83,7 @@ class BulletFeedViewModelStateTest {
 
     private fun httpError(code: Int): HttpException =
         HttpException(
-            Response.error(
+            Response.error<Any>(
                 code,
                 "".toResponseBody("text/plain".toMediaType()),
             ),
