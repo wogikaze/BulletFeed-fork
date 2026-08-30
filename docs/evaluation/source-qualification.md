@@ -24,7 +24,11 @@ latency を記録する。redirect は追従せず、取得した response body 
 は failure dimension が観測されてから、別の regression/replay set で行う。
 recorded reportには source family別のendpoint数、fetch成功率、duplicate failure率、
 ETag/Last-Modified coverage、取得遅延の中央値、static/JS recovery countsを保存する。
-一回fetchだけのcorpusでは update detection を推定せず `not_recorded` と明示する。
+記録済み3,820 replayに加え、外部通信なしの決定的transport fixtureで timeout、
+conditional 304、robots disallow、redirect後のsource identity changeを各1件再生する。
+一回fetchだけのcorpusでは per-source update rate を推定せず `not_recorded` と明示するが、
+別snapshot pairによる update detection contract は `scenario_counts.update_detection=1` として
+検証する。
 
 ## runtime verification metadata
 
