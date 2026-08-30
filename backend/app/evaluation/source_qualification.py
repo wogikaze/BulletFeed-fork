@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from collections import Counter
@@ -9,10 +10,17 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Literal
 
+import feedparser
+import httpx
+from fastapi import HTTPException
+
 from app.evaluation.real_world_validation import (
     ValidationCorpus,
     load_real_world_validation_for_production_scoring,
 )
+from app.services.http import require_json
+from app.services.url_safety import reject_private_resolved_addresses, validate_public_url, validate_url_shape
+from app.services.web_snapshots import _reject_unsafe_encoding, _require_allowed_content_type
 
 QUALIFICATION_VERSION = "m3-source-qualification-v1"
 TARGET_LIVE_ENDPOINTS = 200
@@ -108,6 +116,7 @@ def evaluate_source_qualification(
             )
         )
         replay_cases.extend(_json_fault_cases(source, body))
+    replay_cases.extend(_deterministic_fault_cases())
 
     outcomes = Counter(case.outcome for case in replay_cases)
     scenarios = Counter(case.scenario for case in replay_cases)
@@ -134,8 +143,10 @@ def evaluate_source_qualification(
             "This qualification replays recorded live HTTPS artifacts without live network access.",
             "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries "
             "without making external requests.",
-            "Redirect, timeout, rate-limit, malformed-input, oversize, and SSRF fault drills "
-            "require dedicated deterministic fixtures or host probes.",
+            "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, "
+            "HTTP status, and malformed-feed boundaries without making external requests.",
+            "Timeout, conditional-304, robots, and source-identity drills still require dedicated "
+            "transport fixtures or host probes.",
         ),
     )
 
@@ -222,4 +233,132 @@ def _json_fault_cases(source, body: bytes) -> tuple[ReplayCase, ...]:
             outcome="passed" if len(b"x") * (1_048_576 + 1) > 1_048_576 else "failed",
             detail="payloads over the 1 MiB acquisition boundary are rejected",
         ),
+    )
+
+
+def _deterministic_fault_cases() -> tuple[ReplayCase, ...]:
+    cases = [
+        _expect_http_error(
+            scenario="redirect_private_guard",
+            callback=lambda: validate_public_url(
+                "https://127.0.0.1/redirect-target",
+                {"authoritative.example"},
+                source_name="M3 redirect",
+            ),
+            expected_status=403,
+            detail="redirect targets outside the public allowlist are rejected before fetch",
+        ),
+        _expect_http_error(
+            scenario="ssrf_private_ip_guard",
+            callback=lambda: reject_private_resolved_addresses(
+                [(2, 1, 6, "", ("127.0.0.1", 443))],
+                source_name="M3 SSRF",
+            ),
+            expected_status=403,
+            detail="private resolved peers are rejected at the DNS safety boundary",
+        ),
+        _expect_http_error(
+            scenario="credential_url_guard",
+            callback=lambda: validate_url_shape(
+                "https://user:password@authoritative.example/update",
+                source_name="M3 URL",
+            ),
+            expected_status=422,
+            detail="URLs containing credentials are rejected before acquisition",
+        ),
+        _expect_http_error(
+            scenario="compressed_response_guard",
+            callback=lambda: _reject_unsafe_encoding({"content-encoding": "gzip"}),
+            expected_status=415,
+            detail="compressed responses are rejected because byte limits are identity-encoded",
+        ),
+        _expect_http_error(
+            scenario="unsupported_content_type_guard",
+            callback=lambda: _require_allowed_content_type(
+                {"content-type": "application/octet-stream"}
+            ),
+            expected_status=415,
+            detail="content types outside the bounded acquisition contract are rejected",
+        ),
+        _expect_async_http_error(
+            scenario="rate_limit_guard",
+            response=httpx.Response(
+                429,
+                headers={"retry-after": "30"},
+                json={"message": "rate limit exceeded"},
+            ),
+            expected_status=429,
+            detail="429 responses map to retryable rate-limit failures",
+        ),
+        _expect_async_http_error(
+            scenario="server_error_guard",
+            response=httpx.Response(503, json={"message": "upstream unavailable"}),
+            expected_status=502,
+            detail="upstream 5xx responses map to a gateway failure",
+        ),
+        _expect_async_http_error(
+            scenario="malformed_json_guard",
+            response=httpx.Response(200, content=b'{"items":'),
+            expected_status=502,
+            detail="successful responses with malformed JSON are rejected",
+        ),
+    ]
+    malformed_xml = feedparser.parse(b"<rss><channel><title>")
+    cases.append(
+        _contract_case(
+            scenario="malformed_xml_guard",
+            outcome=(
+                "passed"
+                if malformed_xml.bozo and not malformed_xml.entries
+                else "failed"
+            ),
+            detail="malformed RSS/XML without entries is rejected by the parser boundary",
+        )
+    )
+    return tuple(cases)
+
+
+def _expect_http_error(
+    *,
+    scenario: str,
+    callback,
+    expected_status: int,
+    detail: str,
+) -> ReplayCase:
+    try:
+        callback()
+    except HTTPException as exc:
+        outcome: ReplayOutcome = "passed" if exc.status_code == expected_status else "failed"
+    else:
+        outcome = "failed"
+    return _contract_case(scenario=scenario, outcome=outcome, detail=detail)
+
+
+def _expect_async_http_error(
+    *,
+    scenario: str,
+    response: httpx.Response,
+    expected_status: int,
+    detail: str,
+) -> ReplayCase:
+    async def invoke() -> None:
+        await require_json(response, "M3 qualification")
+
+    try:
+        asyncio.run(invoke())
+    except HTTPException as exc:
+        outcome: ReplayOutcome = "passed" if exc.status_code == expected_status else "failed"
+    else:
+        outcome = "failed"
+    return _contract_case(scenario=scenario, outcome=outcome, detail=detail)
+
+
+def _contract_case(*, scenario: str, outcome: ReplayOutcome, detail: str) -> ReplayCase:
+    return ReplayCase(
+        case_id=f"m3_contract:{scenario}",
+        source_id="m3_contract",
+        source_family="qualification_contract",
+        scenario=scenario,
+        outcome=outcome,
+        detail=detail,
     )
