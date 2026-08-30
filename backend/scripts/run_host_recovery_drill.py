@@ -113,19 +113,33 @@ def _run_compose(project: str, compose_file: Path, *arguments: str) -> None:
 
 
 def _run_filesystem_fault_probe(project: str, compose_file: Path) -> None:
-    _run_compose(
-        project,
-        compose_file,
-        "run",
-        "--rm",
-        "--no-deps",
-        "--mount",
-        "type=tmpfs,destination=/tmp,tmpfs-size=65536,tmpfs-mode=1777",
-        "api",
-        "python",
-        "-c",
-        STORAGE_FAULT_PROBE,
+    images = _compose(project, compose_file, "images", "-q", "api")
+    if images.returncode != 0:
+        raise RuntimeError("docker compose could not resolve the built API image")
+    image = next((line.strip() for line in images.stdout.splitlines() if line.strip()), None)
+    if image is None:
+        raise RuntimeError("docker compose returned no built API image")
+    completed = subprocess.run(  # noqa: S603
+        (
+            _docker_executable(),
+            "run",
+            "--rm",
+            "--mount",
+            "type=tmpfs,destination=/tmp,tmpfs-size=65536,tmpfs-mode=1777",
+            image,
+            "python",
+            "-c",
+            STORAGE_FAULT_PROBE,
+        ),
+        cwd=BACKEND,
+        capture_output=True,
+        text=True,
+        check=False,
     )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip().splitlines()
+        suffix = detail[-1][:300] if detail else "no diagnostic output"
+        raise RuntimeError(f"isolated ENOSPC probe failed: {suffix}")
 
 
 def _render_compose(path: Path, *, env_file: Path, port: int) -> None:
