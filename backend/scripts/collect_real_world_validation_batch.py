@@ -422,11 +422,7 @@ def _json_record(
     evidence = target.version if target.version in body_text else target.package
     if evidence not in body_text:
         raise ValueError(f"captured {target.fetch_url} has no stable evidence token")
-    entry_text = " ".join(
-        str(entry.get(key) or "")
-        for key in ("title", "summary", "description", "content")
-    )
-    language = _language(entry_text.encode("utf-8"))
+    language = _language(captured.body)
     artifact = f"artifacts/{source_id}/body.bin"
     source = {
         "source_id": source_id,
@@ -506,7 +502,11 @@ def _rss_record(
             microsecond=0
         ).isoformat().replace("+00:00", "Z")
         provenance = "rss.published" if entry.get("published_parsed") else "rss.updated"
-    language = _language(captured.body)
+    entry_text = " ".join(
+        str(entry.get(key) or "")
+        for key in ("title", "summary", "description", "content")
+    )
+    language = _language(entry_text.encode("utf-8"))
     artifact = f"artifacts/{source_id}/body.bin"
     source = {
         "source_id": source_id,
