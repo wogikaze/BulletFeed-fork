@@ -66,6 +66,12 @@ jobs:
       - name: M1 deterministic 30-persona qualification
         run: python backend/scripts/run_m1_qualification.py
 
+      - name: M3 deterministic source qualification
+        run: python backend/scripts/run_source_qualification.py --check
+
+      - name: M7 clean-room backend acceptance
+        run: python backend/scripts/run_clean_room_backend_acceptance.py --output "$RUNNER_TEMP/m7-clean-room-backend.json"
+
       - name: M5 API and worker process recovery drill
         run: python backend/scripts/run_process_recovery_drill.py
 
