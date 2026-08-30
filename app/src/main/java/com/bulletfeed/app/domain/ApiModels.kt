@@ -239,7 +239,7 @@ data class SourceRecommendation(
 
 enum class SourceSubscriptionState { PENDING, OK, FAILING }
 
-enum class UserSourceKind { STATUSPAGE, RSS_ATOM, JSON_FEED }
+enum class UserSourceKind { STATUSPAGE, RSS_ATOM, JSON_FEED, GENERIC_WEB }
 
 data class SourceSubscription(
     val id: String,

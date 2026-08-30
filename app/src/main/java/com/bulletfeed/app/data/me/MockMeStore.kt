@@ -137,6 +137,7 @@ class MockMeStore(
                 }
                 UserSourceKind.RSS_ATOM,
                 UserSourceKind.JSON_FEED,
+                UserSourceKind.GENERIC_WEB,
                 -> url?.trim().orEmpty().ifBlank { "https://example.com/feed.xml" }
             }
         if (canonical == "https://invalid.example/feed") {

@@ -744,7 +744,7 @@ private fun SourceSubscriptionsSection(
     Text("購読中の情報源", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(8.dp))
     Text(
-        "Statuspage / RSS / JSON Feed を追加できます。失敗中の購読は状態を確認してください。",
+        "Statuspage / RSS / JSON Feed / Web を追加できます。失敗中の購読は状態を確認してください。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
@@ -797,7 +797,15 @@ private fun SourceSubscriptionsSection(
     OutlinedTextField(
         value = url,
         onValueChange = { url = it },
-        label = { Text(if (selectedKind == UserSourceKind.STATUSPAGE) "または Statuspage URL" else "フィード URL") },
+        label = {
+            Text(
+                when (selectedKind) {
+                    UserSourceKind.STATUSPAGE -> "または Statuspage URL"
+                    UserSourceKind.GENERIC_WEB -> "Web URL"
+                    else -> "フィード URL"
+                },
+            )
+        },
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
         singleLine = true,
     )
@@ -934,6 +942,7 @@ private fun UserSourceKind.label(): String =
         UserSourceKind.STATUSPAGE -> "Statuspage"
         UserSourceKind.RSS_ATOM -> "RSS"
         UserSourceKind.JSON_FEED -> "JSON Feed"
+        UserSourceKind.GENERIC_WEB -> "Web"
     }
 
 private fun SourceRecommendation.familyLabel(): String =

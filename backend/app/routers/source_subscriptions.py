@@ -32,7 +32,7 @@ def _public_subscription(item: UserSourceSubscription) -> SourceSubscription:
             slug=item.publisher_slug,
             display_name=item.publisher_display_name,
         )
-    if item.kind not in {"statuspage", "rss_atom", "json_feed"}:
+    if item.kind not in {"statuspage", "rss_atom", "json_feed", "generic_web"}:
         raise RuntimeError(f"unsupported user source kind: {item.kind}")
     if item.state not in {"pending", "ok", "failing"}:
         raise RuntimeError(f"unsupported subscription state: {item.state}")

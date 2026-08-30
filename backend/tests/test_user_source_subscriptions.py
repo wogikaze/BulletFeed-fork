@@ -217,6 +217,28 @@ def test_add_rss_and_json_feed_subscriptions(
     assert kinds == {"rss_atom", "json_feed"}
 
 
+def test_generic_web_subscription_round_trips_through_api(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("BULLETFEED_WEB_ALLOWED_HOSTS", "docs.example.com")
+    get_settings.cache_clear()
+    url = "https://docs.example.com/changelog"
+    with _public_dns():
+        created = client.post(
+            "/v1/me/sources",
+            headers=auth_headers,
+            json={"kind": "generic_web", "url": url},
+        )
+    assert created.status_code == 201
+    assert created.json()["kind"] == "generic_web"
+    assert created.json()["canonicalUrl"] == url
+    listed = client.get("/v1/me/sources", headers=auth_headers)
+    assert listed.status_code == 200
+    assert [item["kind"] for item in listed.json()["items"]] == ["generic_web"]
+
+
 def test_remove_and_readd_reschedules_without_deleting_observations(
     client: TestClient,
     database: Database,
