@@ -22,6 +22,7 @@ ARTIFACTS = {
     "m3_live": EVIDENCE_ROOT / "source_qualification" / "v01" / "live_sample_200_report.json",
     "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
     "m5": EVIDENCE_ROOT / "recovery" / "v01" / "process_recovery_report.json",
+    "m5_host": EVIDENCE_ROOT / "recovery" / "v01" / "host_recovery_report.json",
     "m6": EVIDENCE_ROOT / "m6" / "v01" / "top3_selection.json",
     "m6_root_cause": EVIDENCE_ROOT / "m6" / "v01" / "root_cause_report.json",
     "m7_backend": EVIDENCE_ROOT / "clean_room" / "v01" / "backend_report.json",
@@ -162,6 +163,24 @@ def _m5_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m5_host_gate(report: dict[str, Any]) -> dict[str, Any]:
+    checks = {
+        "status": report.get("status") == "passed",
+        "api_restart": report.get("api_restart") is True,
+        "worker_restart": report.get("worker_restart") is True,
+        "session_persisted": report.get("session_persisted") is True,
+        "ready_after_restart": report.get("ready_after_restart") is True,
+        "filesystem_fault_injection": report.get("filesystem_fault_injection") is True,
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "repository_sha": report.get("repository_sha"),
+        "workflow_run_id": report.get("workflow_run_id"),
+        "residual_risks": report.get("residual_risks", []),
+    }
+
+
 def _m6_root_cause_gate(report: dict[str, Any]) -> dict[str, Any]:
     clusters = report.get("clusters", [])
     checks = {
@@ -237,7 +256,12 @@ def build_report() -> dict[str, Any]:
             "artifact": _relative(ARTIFACTS["m4_android"]),
             **_m4_gate(loaded["m4_android"]),
         },
-        "m5": {"artifact": _relative(ARTIFACTS["m5"]), **_m5_gate(loaded["m5"])},
+        "m5": {
+            "artifact": _relative(ARTIFACTS["m5"]),
+            "host_artifact": _relative(ARTIFACTS["m5_host"]),
+            **_m5_gate(loaded["m5"]),
+            "host_recovery": _m5_host_gate(loaded["m5_host"]),
+        },
         "m6": {
             "artifact": _relative(ARTIFACTS["m6"]),
             "root_cause_artifact": _relative(ARTIFACTS["m6_root_cause"]),
@@ -260,7 +284,7 @@ def build_report() -> dict[str, Any]:
             "M1 Android journey and cross-surface breadth for all 30 personas",
             "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
             "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-            "M5 host-level disk-full and partial-write drill",
+            "M5 persistent-volume disk-full fault injection",
             "M6 production Top-3 remediation followed by one-shot blind evaluation",
             "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
         ],

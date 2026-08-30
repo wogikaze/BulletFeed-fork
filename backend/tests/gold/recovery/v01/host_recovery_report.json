@@ -1,0 +1,15 @@
+{
+  "drill_version": "m5-host-recovery-v1",
+  "repository_sha": "6bb1e9318ae79295b0d38f35f7d4a460df8eb2de",
+  "workflow_run_id": 33340564469,
+  "runtime": "docker-compose",
+  "api_restart": true,
+  "worker_restart": true,
+  "session_persisted": true,
+  "ready_after_restart": true,
+  "filesystem_fault_injection": true,
+  "status": "passed",
+  "residual_risks": [
+    "persistent-volume disk-full still requires a host-specific fault drill"
+  ]
+}
