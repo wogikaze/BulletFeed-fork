@@ -78,6 +78,12 @@ class Endpoint:
     authority_status: str
     created_at: str
     previous_endpoint_id: str | None = None
+    verification_method: str | None = None
+    verification_reference: str | None = None
+    verified_at: str | None = None
+    authority_method: str | None = None
+    authority_reference: str | None = None
+    authority_verified_at: str | None = None
 
     @property
     def redirect_of(self) -> str | None:
@@ -315,6 +321,12 @@ class SourceRegistry:
         discovery_method: str | DiscoveryMethod | None = None,
         verification_status: str | VerificationStatus | None = None,
         authority_status: str | AuthorityStatus | None = None,
+        verification_method: str | None = None,
+        verification_reference: str | None = None,
+        verified_at: str | None = None,
+        authority_method: str | None = None,
+        authority_reference: str | None = None,
+        authority_verified_at: str | None = None,
         created_at: str | None = None,
     ) -> Endpoint:
         """Register an endpoint or return the existing row for the same identity."""
@@ -341,6 +353,12 @@ class SourceRegistry:
             or _default_verification_status(policy),
             authority_status=_enum_value(authority_status) or _default_authority_status(policy),
             created_at=created_at or _utc_now(),
+            verification_method=verification_method,
+            verification_reference=verification_reference,
+            verified_at=verified_at,
+            authority_method=authority_method,
+            authority_reference=authority_reference,
+            authority_verified_at=authority_verified_at,
         )
         self._store_endpoint(endpoint)
         self._persist_endpoint(endpoint)
@@ -420,6 +438,60 @@ class SourceRegistry:
             self._lineage.append(lineage)
             self._persist_lineage(lineage)
         return current
+
+    def record_verification(
+        self,
+        endpoint_id: str,
+        *,
+        verification_status: str | VerificationStatus,
+        verification_method: str | None,
+        verification_reference: str | None,
+        verified_at: str | None,
+        authority_status: str | AuthorityStatus,
+        authority_method: str | None = None,
+        authority_reference: str | None = None,
+        authority_verified_at: str | None = None,
+    ) -> Endpoint:
+        """Record runtime verification evidence without changing endpoint identity."""
+        endpoint = self.get_endpoint(endpoint_id)
+        if endpoint is None:
+            raise ValueError(f"unknown endpoint_id: {endpoint_id}")
+        resolved_verification = _enum_value(verification_status)
+        resolved_authority = _enum_value(authority_status)
+        if resolved_verification not in {
+            VerificationStatus.UNVERIFIED.value,
+            VerificationStatus.VERIFIED.value,
+            VerificationStatus.DISCOVERY_ONLY.value,
+        }:
+            raise ValueError(f"unknown verification status: {resolved_verification}")
+        if resolved_authority not in {
+            AuthorityStatus.UNKNOWN.value,
+            AuthorityStatus.AUTHORITATIVE.value,
+            AuthorityStatus.NON_AUTHORITATIVE.value,
+        }:
+            raise ValueError(f"unknown authority status: {resolved_authority}")
+        if resolved_verification == VerificationStatus.VERIFIED.value and not all(
+            (verification_method, verification_reference, verified_at)
+        ):
+            raise ValueError("verified endpoints require method, reference, and verified_at")
+        if resolved_authority == AuthorityStatus.AUTHORITATIVE.value and not all(
+            (authority_method, authority_reference, authority_verified_at)
+        ):
+            raise ValueError("authoritative endpoints require method, reference, and verified_at")
+        updated = replace(
+            endpoint,
+            verification_status=resolved_verification,
+            verification_method=verification_method,
+            verification_reference=verification_reference,
+            verified_at=verified_at,
+            authority_status=resolved_authority,
+            authority_method=authority_method,
+            authority_reference=authority_reference,
+            authority_verified_at=authority_verified_at,
+        )
+        self._store_endpoint(updated)
+        self._persist_endpoint(updated)
+        return updated
 
     def get_publisher(self, publisher_id: str) -> Publisher | None:
         return self._publishers.get(publisher_id)
@@ -548,6 +620,8 @@ class SourceRegistry:
                 """
                 SELECT endpoint_id, publisher_id, family, canonical_url, registered_url,
                        discovery_method, verification_status, authority_status,
+                       verification_method, verification_reference, verified_at,
+                       authority_method, authority_reference, authority_verified_at,
                        previous_endpoint_id, created_at
                 FROM source_endpoints
                 ORDER BY endpoint_id
@@ -562,8 +636,14 @@ class SourceRegistry:
                     discovery_method=row["discovery_method"],
                     verification_status=row["verification_status"],
                     authority_status=row["authority_status"],
-                    created_at=row["created_at"],
+                    verification_method=row["verification_method"],
+                    verification_reference=row["verification_reference"],
+                    verified_at=row["verified_at"],
+                    authority_method=row["authority_method"],
+                    authority_reference=row["authority_reference"],
+                    authority_verified_at=row["authority_verified_at"],
                     previous_endpoint_id=row["previous_endpoint_id"],
+                    created_at=row["created_at"],
                 )
                 self._store_endpoint(endpoint)
             for row in connection.execute(
@@ -613,9 +693,19 @@ class SourceRegistry:
                 INSERT INTO source_endpoints (
                     endpoint_id, publisher_id, family, canonical_url, registered_url,
                     discovery_method, verification_status, authority_status,
+                    verification_method, verification_reference, verified_at,
+                    authority_method, authority_reference, authority_verified_at,
                     previous_endpoint_id, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(endpoint_id) DO UPDATE SET
+                    verification_status = excluded.verification_status,
+                    verification_method = excluded.verification_method,
+                    verification_reference = excluded.verification_reference,
+                    verified_at = excluded.verified_at,
+                    authority_status = excluded.authority_status,
+                    authority_method = excluded.authority_method,
+                    authority_reference = excluded.authority_reference,
+                    authority_verified_at = excluded.authority_verified_at,
                     previous_endpoint_id = excluded.previous_endpoint_id
                 """,
                 (
@@ -627,6 +717,12 @@ class SourceRegistry:
                     endpoint.discovery_method,
                     endpoint.verification_status,
                     endpoint.authority_status,
+                    endpoint.verification_method,
+                    endpoint.verification_reference,
+                    endpoint.verified_at,
+                    endpoint.authority_method,
+                    endpoint.authority_reference,
+                    endpoint.authority_verified_at,
                     endpoint.previous_endpoint_id,
                     endpoint.created_at,
                 ),

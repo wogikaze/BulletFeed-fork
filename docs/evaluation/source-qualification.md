@@ -17,3 +17,14 @@ latency を記録する。redirect は追従せず、取得した response body 
 `source_qualification/v01/report.json` は recorded replay の証跡であり、
 `live_report.json` は実行時点の live qualification の証跡である。Top-5 failure remediation
 は failure dimension が観測されてから、別の regression/replay set で行う。
+
+## runtime verification metadata
+
+`SourceRegistry.record_verification` は endpoint ID/URL/lineage を変更せず、
+`verification_method` / `verification_reference` / `verified_at` と
+`authority_method` / `authority_reference` / `authority_verified_at` を runtime 根拠として
+記録する。`verified` または `authoritative` へ遷移する場合は対応する method・reference・
+timestamp が必須で、未検証の静的 seed 時刻を verification evidence として扱わない。
+
+schema migration `19` は既存 registry の identity と redirect lineage を維持したまま
+metadata columns を追加する。

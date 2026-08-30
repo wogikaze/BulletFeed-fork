@@ -220,6 +220,17 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
         assert connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'source_endpoint_lineage'"
         ).fetchone()
+        source_endpoint_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(source_endpoints)")
+        }
+        assert {
+            "verification_method",
+            "verification_reference",
+            "verified_at",
+            "authority_method",
+            "authority_reference",
+            "authority_verified_at",
+        } <= source_endpoint_columns
         feedback_columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(feedback)")
         }
@@ -282,6 +293,49 @@ def test_initialize_records_baseline_revision(tmp_path: Path) -> None:
             row["name"] for row in connection.execute("PRAGMA table_info(feed_items)")
         }
         assert {"relation_score", "relation_feature_version"} <= feed_item_columns
+
+
+def test_revision_19_adds_source_verification_metadata(tmp_path: Path) -> None:
+    database = Database(tmp_path / "pre-verification-metadata.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE revision_id = '19'")
+        connection.execute("DROP TABLE source_endpoint_lineage")
+        connection.execute("DROP TABLE source_endpoints")
+        connection.execute(
+            """
+            CREATE TABLE source_endpoints (
+                endpoint_id TEXT PRIMARY KEY,
+                publisher_id TEXT NOT NULL,
+                family TEXT NOT NULL,
+                canonical_url TEXT NOT NULL,
+                registered_url TEXT NOT NULL,
+                discovery_method TEXT NOT NULL,
+                verification_status TEXT NOT NULL,
+                authority_status TEXT NOT NULL,
+                previous_endpoint_id TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+
+    database.initialize()
+
+    with database.connect() as connection:
+        columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(source_endpoints)")
+        }
+        assert {
+            "verification_method",
+            "verification_reference",
+            "verified_at",
+            "authority_method",
+            "authority_reference",
+            "authority_verified_at",
+        } <= columns
+        assert connection.execute(
+            "SELECT revision_id FROM schema_migrations WHERE revision_id = '19'"
+        ).fetchone()
 
 
 LEGACY_SOURCE_SYNC_JOBS = """
