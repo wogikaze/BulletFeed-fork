@@ -333,12 +333,33 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
             user_id,
             [{"delivery_id": items[0].delivery_id, "displayed_at": "2026-08-22T00:12:00Z"}],
         )
+        store.mark_read(user_id, items[0].id)
         store.save_feedback(user_id, items[0].id, "important")
-    stages.append(StageResult("feedback", True, "applied if cards existed", {}))
-
-    later, _ = store.list_feed(user_id, relation=None, item_status=None, cursor=None, limit=20)
     stages.append(
-        StageResult("subsequent_feed", True, "relisted", {"surfaced": len(later)})
+        StageResult(
+            "feedback",
+            True,
+            "exposure, read, and feedback applied if cards existed",
+            {"read": bool(items), "feedback": bool(items)},
+        )
+    )
+
+    later, _ = store.list_feed(
+        user_id,
+        relation=None,
+        item_status="unread",
+        cursor=None,
+        limit=20,
+    )
+    later_ids = {row.id for row in later}
+    removed_read_card = bool(items) and all(item.id not in later_ids for item in items)
+    stages.append(
+        StageResult(
+            "subsequent_feed",
+            not items or removed_read_card,
+            "read card removed from unread feed" if items else "no cards",
+            {"surfaced": len(later), "removed_read_card": removed_read_card},
+        )
     )
 
     useful = min(5, len(items))

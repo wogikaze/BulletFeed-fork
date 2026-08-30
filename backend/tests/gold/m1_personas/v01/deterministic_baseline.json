@@ -263,15 +263,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -369,15 +373,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -475,15 +483,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -581,15 +593,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -687,15 +703,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -793,15 +813,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -899,15 +923,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1004,15 +1032,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1110,15 +1142,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1216,15 +1252,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1322,15 +1362,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1428,15 +1472,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1534,15 +1582,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1640,15 +1692,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1746,15 +1802,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1851,15 +1911,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -1957,15 +2021,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2063,15 +2131,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2169,15 +2241,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2275,15 +2351,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2381,15 +2461,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2487,15 +2571,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2593,15 +2681,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2698,15 +2790,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2804,15 +2900,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -2910,15 +3010,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -3016,15 +3120,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -3122,15 +3230,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": true,
+            "feedback": true
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "read card removed from unread feed",
           "metrics": {
-            "surfaced": 1
+            "surfaced": 0,
+            "removed_read_card": true
           }
         }
       ],
@@ -3225,15 +3337,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": false,
+            "feedback": false
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "no cards",
           "metrics": {
-            "surfaced": 0
+            "surfaced": 0,
+            "removed_read_card": false
           }
         }
       ],
@@ -3328,15 +3444,19 @@
         {
           "stage": "feedback",
           "ok": true,
-          "detail": "applied if cards existed",
-          "metrics": {}
+          "detail": "exposure, read, and feedback applied if cards existed",
+          "metrics": {
+            "read": false,
+            "feedback": false
+          }
         },
         {
           "stage": "subsequent_feed",
           "ok": true,
-          "detail": "relisted",
+          "detail": "no cards",
           "metrics": {
-            "surfaced": 0
+            "surfaced": 0,
+            "removed_read_card": false
           }
         }
       ],

@@ -51,6 +51,13 @@ def test_qualification_attempts_all_constructed_personas(tmp_path: Path) -> None
         {"discovery", "activation"} <= {stage["stage"] for stage in row["stages"]}
         for row in report["reports"]
     )
+    assert all(
+        next(stage for stage in row["stages"] if stage["stage"] == "subsequent_feed")["metrics"][
+            "removed_read_card"
+        ]
+        for row in report["reports"]
+        if not row["intended_empty_feed"]
+    )
     intended = [
         row
         for row in report["reports"]
