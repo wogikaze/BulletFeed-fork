@@ -60,6 +60,9 @@ class RealBackendAcceptanceTest {
             assertNotEquals(first.deliveryId, secondPage.items.single().deliveryId)
             assertEquals(0, claimExposureCount(baseUrl, userId))
 
+            val telemetry = repository.startFeedSession()
+            assertTrue(telemetry.id.startsWith("fs_"))
+
             repository.recordExposures(
                 listOf(
                     FeedExposure(
@@ -71,6 +74,16 @@ class RealBackendAcceptanceTest {
                 ),
             )
             assertTrue(claimExposureCount(baseUrl, userId) > 0)
+
+            repository.sendFeedFeedback(first.id, FeedFeedbackType.LEARNED_NOW)
+            val metrics = repository.getFeedSessionMetrics()
+            assertTrue(metrics.sessionCount >= 1)
+            assertTrue(metrics.displayedCount >= 1)
+            val ended = repository.endFeedSession(telemetry.id)
+            assertEquals(telemetry.id, ended.id)
+            val again = repository.endFeedSession(telemetry.id)
+            assertEquals(telemetry.id, again.id)
+            assertEquals(metrics.sessionCount, repository.getFeedSessionMetrics().sessionCount)
 
             assertApiFailureIsProductionError(repository)
             assertNetworkFailureIsProductionError()

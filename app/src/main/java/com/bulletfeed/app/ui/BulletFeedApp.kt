@@ -70,9 +70,14 @@ fun BulletFeedApp(
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.refresh()
-            while (true) {
-                delay(60_000)
-                viewModel.refresh()
+            viewModel.startFeedTelemetrySession()
+            try {
+                while (true) {
+                    delay(60_000)
+                    viewModel.refresh()
+                }
+            } finally {
+                viewModel.endFeedTelemetrySession()
             }
         }
     }

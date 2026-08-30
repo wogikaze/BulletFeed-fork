@@ -31,6 +31,8 @@ class MockAppState {
     var alerts: MutableList<VulnerabilityAlert> = SecurityDemoData.alerts.toMutableList()
     var notifications: MutableList<AppNotification> = NotificationDemoData.notifications.toMutableList()
     val exposures: MutableList<FeedExposure> = mutableListOf()
+    var activeFeedSessionId: String? = null
+    var feedSessionStarts: Int = 0
     val topicCatalog: List<UserTopic> =
         listOf(
             "Kotlin",
