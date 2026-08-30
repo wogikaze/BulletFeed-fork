@@ -46,6 +46,7 @@ def _public_item(item: SourceCandidate) -> SourceRecommendationItem:
         match_kind=item.match_kind,
         score=item.score,
         recommendation_status=item.recommendation_status,
+        actionability=item.actionability,
         publisher=publisher,
     )
 

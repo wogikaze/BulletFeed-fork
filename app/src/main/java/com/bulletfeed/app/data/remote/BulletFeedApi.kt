@@ -632,6 +632,7 @@ data class SourceRecommendationDto(
     val matchKind: String,
     val score: Float,
     val recommendationStatus: String,
+    val actionability: String = "unsupported",
     val publisher: SourcePublisherDto? = null,
 )
 

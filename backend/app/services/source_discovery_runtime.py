@@ -196,8 +196,11 @@ def load_runtime_discovery_hints(database: Database) -> tuple[DiscoveryHint, ...
     store = DiscoveryStore(database)
     hints: list[DiscoveryHint] = []
     for candidate in store.list_all():
-        provenance = _METHOD_TO_PROVENANCE.get(candidate.discovery_method)
-        if provenance is None or provenance == DiscoveryProvenance.EXTERNAL_INDEX.value:
+        provenance = _METHOD_TO_PROVENANCE.get(
+            candidate.discovery_method,
+            candidate.discovery_method,
+        )
+        if provenance == DiscoveryProvenance.EXTERNAL_INDEX.value:
             continue
         metadata = candidate.metadata
         concept_ids = metadata.get("concept_ids")
