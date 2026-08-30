@@ -268,18 +268,21 @@ def test_approve_supported_family_creates_subscription_and_sync_job(database, mo
     items = list_source_recommendations_for_user(database, "user_a").items
     rss = next(item for item in items if item.family == SourceKind.RSS_ATOM.value)
     docs = next(item for item in items if item.family == SourceKind.GENERIC_WEB.value)
+    assert rss.actionability == "subscribe"
+    assert docs.actionability == "subscribe"
     record_source_recommendation_decision(
         database,
         user_id="user_a",
         candidate_id=rss.candidate_id,
         decision="approved",
     )
-    record_source_recommendation_decision(
-        database,
-        user_id="user_a",
-        candidate_id=docs.candidate_id,
-        decision="approved",
-    )
+    with pytest.raises(ValueError, match="Web fetching is disabled"):
+        record_source_recommendation_decision(
+            database,
+            user_id="user_a",
+            candidate_id=docs.candidate_id,
+            decision="approved",
+        )
     record_source_recommendation_decision(
         database,
         user_id="user_a",

@@ -200,6 +200,8 @@ enum class SourceRecommendationStatus { PENDING, APPROVED, IGNORED }
 
 enum class SourceRecommendationDecision { APPROVED, IGNORED }
 
+enum class SourceActionability { SUBSCRIBE, SELECT_REPOSITORY, DISCOVERY_ONLY, UNSUPPORTED }
+
 data class SourcePublisher(
     val slug: String,
     val displayName: String,
@@ -224,8 +226,16 @@ data class SourceRecommendation(
     val matchKind: String,
     val score: Float,
     val recommendationStatus: SourceRecommendationStatus,
+    val actionability: SourceActionability = SourceActionability.UNSUPPORTED,
     val publisher: SourcePublisher? = null,
-)
+) {
+    fun canApprove(): Boolean =
+        recommendationStatus == SourceRecommendationStatus.PENDING &&
+            (
+                actionability == SourceActionability.SUBSCRIBE ||
+                    actionability == SourceActionability.SELECT_REPOSITORY
+            )
+}
 
 enum class SourceSubscriptionState { PENDING, OK, FAILING }
 

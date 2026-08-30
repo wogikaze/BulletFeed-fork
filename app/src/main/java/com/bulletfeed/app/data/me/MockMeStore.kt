@@ -108,6 +108,10 @@ class MockMeStore(
     ): SourceRecommendation {
         val index = state.sourceRecommendations.indexOfFirst { it.id == candidateId }
         require(index >= 0) { "unknown recommendation" }
+        val current = state.sourceRecommendations[index]
+        require(decision != SourceRecommendationDecision.APPROVED || current.canApprove()) {
+            "recommendation cannot be approved"
+        }
         val status =
             when (decision) {
                 SourceRecommendationDecision.APPROVED -> SourceRecommendationStatus.APPROVED

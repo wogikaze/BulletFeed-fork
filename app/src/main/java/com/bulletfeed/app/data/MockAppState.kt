@@ -73,6 +73,7 @@ class MockAppState {
                 matchKind = "direct",
                 score = 0.88f,
                 recommendationStatus = SourceRecommendationStatus.PENDING,
+                actionability = SourceActionability.SUBSCRIBE,
                 publisher = SourcePublisher("react", "React"),
             ),
             SourceRecommendation(
@@ -94,6 +95,7 @@ class MockAppState {
                 matchKind = "neighbor",
                 score = 0.31f,
                 recommendationStatus = SourceRecommendationStatus.PENDING,
+                actionability = SourceActionability.DISCOVERY_ONLY,
             ),
         )
 

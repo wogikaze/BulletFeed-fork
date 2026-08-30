@@ -16,6 +16,10 @@ from urllib.parse import urlparse
 
 from app.database import Database
 from app.db.source_discovery_schema import ensure_source_discovery_schema
+from app.services.source_actionability import (
+    actionability_allows_approve,
+    resolve_source_actionability,
+)
 from app.services.source_catalog import (
     SourceKind,
     get_source_policy,
@@ -103,6 +107,7 @@ class SourceCandidate:
     match_kind: MatchKind
     score: float
     recommendation_status: RecommendationStatus
+    actionability: str
 
 
 @dataclass(frozen=True)
@@ -342,10 +347,12 @@ def list_source_recommendations_for_user(
 
 
 def recommendation_can_subscribe(item: SourceCandidate) -> bool:
-    """Supported user-fetch families only. Discovery-only never becomes a sync source."""
-    from app.services.source_subscriptions import USER_SOURCE_TYPES
-
-    return (not item.discovery_only) and item.family in USER_SOURCE_TYPES
+    """Watchable families only. HN / unsupported families never become a sync source."""
+    return resolve_source_actionability(
+        family=item.family,
+        discovery_provenance=item.discovery_provenance,
+        discovery_only=item.discovery_only,
+    ) == "subscribe"
 
 
 def record_source_recommendation_decision(
@@ -372,6 +379,8 @@ def record_source_recommendation_decision(
     if chosen is None:
         raise KeyError(candidate_id)
     normalized = _normalize_decision(decision)
+    if normalized == "approved" and not actionability_allows_approve(chosen.actionability):
+        raise ValueError("This recommendation cannot be approved")
     if normalized == "approved" and recommendation_can_subscribe(chosen):
         try:
             add_user_source_subscription(
@@ -499,6 +508,11 @@ def _candidate_from_hint(
         match_kind=match_kind,
         score=score,
         recommendation_status="pending",
+        actionability=resolve_source_actionability(
+            family=endpoint.family,
+            discovery_provenance=hint.provenance,
+            discovery_only=discovery_only,
+        ),
     )
 
 
@@ -672,6 +686,11 @@ def _merge_candidates(left: SourceCandidate, right: SourceCandidate) -> SourceCa
         discovery_provenance=provenances[0],
         evidence_eligible=False,
         discovery_only=preferred.discovery_only and other.discovery_only,
+        actionability=resolve_source_actionability(
+            family=preferred.family,
+            discovery_provenance=provenances[0],
+            discovery_only=preferred.discovery_only and other.discovery_only,
+        ),
     )
 
 

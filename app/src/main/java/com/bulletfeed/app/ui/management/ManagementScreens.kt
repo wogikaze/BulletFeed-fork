@@ -877,6 +877,7 @@ private fun SourceRecommendationCard(
             Text("出典: ${item.discoveryProvenance}")
             Text("権威: ${item.authorityStatus}（信頼度 ${"%.2f".format(item.authorityConfidence)}）")
             Text("状態: ${item.recommendationStatus.label()}")
+            Text("操作: ${item.actionability.label()}")
             if (item.discoveryOnly) {
                 Spacer(Modifier.height(8.dp))
                 Text(
@@ -888,18 +889,20 @@ private fun SourceRecommendationCard(
             if (item.recommendationStatus == SourceRecommendationStatus.PENDING) {
                 Spacer(Modifier.height(12.dp))
                 Row {
-                    Button(
-                        onClick = onApprove,
-                        enabled = enabled,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        if (deciding) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                            Spacer(Modifier.width(8.dp))
+                    if (item.canApprove()) {
+                        Button(
+                            onClick = onApprove,
+                            enabled = enabled,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            if (deciding) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            Text(item.approveLabel())
                         }
-                        Text("承認")
+                        Spacer(Modifier.width(8.dp))
                     }
-                    Spacer(Modifier.width(8.dp))
                     OutlinedButton(
                         onClick = onIgnore,
                         enabled = enabled,
@@ -949,6 +952,20 @@ private fun SourceRecommendationStatus.label(): String =
         SourceRecommendationStatus.PENDING -> "未決定"
         SourceRecommendationStatus.APPROVED -> "承認済み"
         SourceRecommendationStatus.IGNORED -> "無視"
+    }
+
+private fun SourceActionability.label(): String =
+    when (this) {
+        SourceActionability.SUBSCRIBE -> "購読できる"
+        SourceActionability.SELECT_REPOSITORY -> "リポジトリ選択へ"
+        SourceActionability.DISCOVERY_ONLY -> "発見のみ（承認不可）"
+        SourceActionability.UNSUPPORTED -> "未接続（承認不可）"
+    }
+
+private fun SourceRecommendation.approveLabel(): String =
+    when (actionability) {
+        SourceActionability.SELECT_REPOSITORY -> "リポジトリ候補として記録"
+        else -> "購読する"
     }
 
 private fun TopicType.label(): String =

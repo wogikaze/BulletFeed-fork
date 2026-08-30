@@ -30,6 +30,7 @@ class SourceRecommendationItem(ApiModel):
     match_kind: SourceMatchKind
     score: float
     recommendation_status: SourceRecommendationStatus
+    actionability: str
     publisher: SourceSubscriptionPublisher | None = None
 
 

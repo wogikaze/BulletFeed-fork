@@ -255,6 +255,7 @@ fun SourceRecommendationDto.toDomain(): SourceRecommendation =
         matchKind = matchKind,
         score = score,
         recommendationStatus = SourceRecommendationStatus.valueOf(recommendationStatus.uppercase()),
+        actionability = SourceActionability.valueOf(actionability.uppercase()),
         publisher = publisher?.toDomain(),
     )
 

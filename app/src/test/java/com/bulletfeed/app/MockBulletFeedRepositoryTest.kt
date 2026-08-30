@@ -77,11 +77,12 @@ class MockBulletFeedRepositoryTest {
             assertTrue(pending.any { it.discoveryOnly })
             assertTrue(pending.none { it.evidenceEligible })
 
-            val official = pending.first { !it.discoveryOnly }
+            val official = pending.first { it.canApprove() }
             val approved = repository.decideSourceRecommendation(official.id, SourceRecommendationDecision.APPROVED)
             assertEquals(SourceRecommendationStatus.APPROVED, approved.recommendationStatus)
 
-            val discovery = pending.first { it.discoveryOnly }
+            val discovery = pending.first { it.actionability == SourceActionability.DISCOVERY_ONLY }
+            assertTrue(!discovery.canApprove())
             repository.decideSourceRecommendation(discovery.id, SourceRecommendationDecision.IGNORED)
             val visible = repository.getSourceRecommendations()
             assertTrue(visible.none { it.id == discovery.id })
