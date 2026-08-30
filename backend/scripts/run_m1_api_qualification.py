@@ -8,6 +8,7 @@ import json
 import os
 import tempfile
 import time
+from contextlib import nullcontext
 from pathlib import Path
 from statistics import median
 from typing import Any
@@ -19,6 +20,8 @@ from app.config import get_settings
 from app.database import Database
 from app.evaluation.m1_zero_to_useful import M1Persona, built_in_personas
 from app.routers.acceptance_harness import _statuspage_summary
+from app.services.json_feed_pipeline import ingest_json_feed_events
+from app.services.rss_pipeline import ingest_feed_events
 from app.sync_worker import WatchSyncWorker
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -276,18 +279,27 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
             ok=status == 200 and bool(subscriptions.get("items")),
             detail=f"HTTP {status}; subscriptions={len(subscriptions.get('items', []))}",
         )
-        status, worker_subscription = _call(
-            client,
-            "/v1/me/sources",
-            method="POST",
-            payload={"kind": "statuspage", "pageId": "abcd1234"},
-            access_token=auth,
+        subscription_items = subscriptions.get("items", [])
+        worker_subscription = next(
+            (
+                item
+                for item in subscription_items
+                if isinstance(item, dict)
+                and item.get("kind") in {"rss_atom", "json_feed", "statuspage"}
+            ),
+            {},
+        )
+        worker_kind = str(worker_subscription.get("kind", ""))
+        worker_key = (
+            str(worker_subscription.get("pageId"))
+            if worker_kind == "statuspage"
+            else str(worker_subscription.get("canonicalUrl", ""))
         )
         _stage(
             stages,
             "worker_subscription",
-            ok=status in {200, 201} and worker_subscription.get("kind") == "statuspage",
-            detail=f"HTTP {status}; kind={worker_subscription.get('kind')}",
+            ok=worker_kind in {"rss_atom", "json_feed", "statuspage"} and bool(worker_key),
+            detail=f"kind={worker_kind}; source_configured={bool(worker_key)}",
         )
         worker = WatchSyncWorker(
             get_settings(),
@@ -301,28 +313,99 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
                 """
                 UPDATE source_sync_jobs
                 SET next_run_at = ?, lease_until = 0, lease_token = NULL
-                WHERE NOT (source_type = 'statuspage' AND source_key = 'abcd1234')
+                WHERE NOT (source_type = ? AND source_key = ?)
                 """,
-                (worker_now + 3_600,),
+                (worker_now + 3_600, worker_kind, worker_key),
             )
             connection.execute(
                 """
                 UPDATE source_sync_jobs
                 SET next_run_at = ?, lease_until = 0, lease_token = NULL
-                WHERE source_type = 'statuspage' AND source_key = 'abcd1234'
+                WHERE source_type = ? AND source_key = ?
                 """,
-                (worker_now,),
+                (worker_now, worker_kind, worker_key),
             )
 
         async def fixture_statuspage_summary(settings, page_id: str) -> dict[str, Any]:
             del settings, page_id
             return _statuspage_summary()
 
-        with patch("app.services.statuspage.get_summary", new=fixture_statuspage_summary):
+        async def fixture_feed_events(settings, database, *, url: str, retrieved_at: str):
+            del settings
+            return ingest_feed_events(
+                database,
+                preview={
+                    "source_url": url,
+                    "items": [
+                        {
+                            "link": f"{url.rstrip('/')}/{persona.persona_id}/1",
+                            "title": f"{persona.topics[0]} acceptance release",
+                            "summary": "Deterministic worker acquisition fixture.",
+                            "published": "2026-08-30T00:00:00Z",
+                        },
+                        {
+                            "link": f"{url.rstrip('/')}/{persona.persona_id}/2",
+                            "title": f"{persona.topics[0]} acceptance follow-up",
+                            "summary": "Deterministic worker acquisition follow-up.",
+                            "published": "2026-08-30T00:01:00Z",
+                        },
+                    ],
+                },
+                retrieved_at=retrieved_at,
+            )
+
+        async def fixture_json_feed_events(settings, database, *, url: str, retrieved_at: str):
+            del settings
+            return ingest_json_feed_events(
+                database,
+                feed={
+                    "version": "https://jsonfeed.org/version/1",
+                    "title": "M1 deterministic worker fixture",
+                    "items": [
+                        {
+                            "id": f"{persona.persona_id}-1",
+                            "url": f"{url.rstrip('/')}/{persona.persona_id}/1",
+                            "title": f"{persona.topics[0]} acceptance release",
+                            "content_text": "Deterministic worker acquisition fixture.",
+                            "date_published": "2026-08-30T00:00:00Z",
+                        },
+                        {
+                            "id": f"{persona.persona_id}-2",
+                            "url": f"{url.rstrip('/')}/{persona.persona_id}/2",
+                            "title": f"{persona.topics[0]} acceptance follow-up",
+                            "content_text": "Deterministic worker acquisition follow-up.",
+                            "date_published": "2026-08-30T00:01:00Z",
+                        },
+                    ],
+                },
+                feed_url=url,
+                retrieved_at=retrieved_at,
+            )
+
+        if worker_kind == "rss_atom":
+            transport_patch = patch(
+                "app.sync_worker.crawl_feed_events",
+                new=fixture_feed_events,
+            )
+        elif worker_kind == "json_feed":
+            transport_patch = patch(
+                "app.sync_worker.crawl_json_feed_events",
+                new=fixture_json_feed_events,
+            )
+        elif worker_kind == "statuspage":
+            transport_patch = patch(
+                "app.services.statuspage.get_summary",
+                new=fixture_statuspage_summary,
+            )
+        else:
+            transport_patch = nullcontext()
+
+        with transport_patch:
             worker_result = asyncio.run(worker.run_once(now=worker_now))
         with database.connect() as connection:
             observation_count = connection.execute(
-                "SELECT COUNT(*) AS count FROM observations WHERE source_type = 'statuspage'"
+                "SELECT COUNT(*) AS count FROM observations WHERE source_type = ?",
+                (worker_kind,),
             ).fetchone()["count"]
         _stage(
             stages,
@@ -334,11 +417,12 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
                 and observation_count > 0
             ),
             detail=(
-                f"worker attempted={worker_result.attempted}; "
+                f"worker kind={worker_kind}; attempted={worker_result.attempted}; "
                 f"succeeded={worker_result.succeeded}; failed={worker_result.failed}; "
                 f"observations={observation_count}"
             ),
             metrics={
+                "worker_source_kind": worker_kind,
                 "worker_attempted": worker_result.attempted,
                 "worker_succeeded": worker_result.succeeded,
                 "worker_failed": worker_result.failed,

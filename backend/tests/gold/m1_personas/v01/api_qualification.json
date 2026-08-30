@@ -103,14 +103,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -126,7 +127,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -232,14 +233,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -255,7 +257,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -361,14 +363,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -384,7 +387,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -490,14 +493,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -513,7 +517,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -619,14 +623,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -642,7 +647,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -748,14 +753,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -771,7 +777,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -877,14 +883,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -900,7 +907,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1006,14 +1013,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1029,7 +1037,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1135,14 +1143,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1158,7 +1167,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1264,14 +1273,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1287,7 +1297,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1393,14 +1403,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1416,7 +1427,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1522,14 +1533,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1545,7 +1557,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1651,14 +1663,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1674,7 +1687,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1780,14 +1793,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1803,7 +1817,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -1909,14 +1923,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -1932,7 +1947,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2038,14 +2053,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2061,7 +2077,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2167,14 +2183,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2190,7 +2207,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2296,14 +2313,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2319,7 +2337,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2425,14 +2443,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2448,7 +2467,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2554,14 +2573,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2577,7 +2597,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2683,14 +2703,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2706,7 +2727,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2812,14 +2833,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2835,7 +2857,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -2941,14 +2963,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -2964,7 +2987,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -3070,14 +3093,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -3093,7 +3117,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -3199,14 +3223,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -3222,7 +3247,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -3328,14 +3353,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -3351,7 +3377,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -3457,14 +3483,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -3480,7 +3507,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
@@ -3586,14 +3613,15 @@
         {
           "stage": "worker_subscription",
           "ok": true,
-          "detail": "HTTP 201; kind=statuspage",
+          "detail": "kind=rss_atom; source_configured=True",
           "metrics": {}
         },
         {
           "stage": "acquisition",
           "ok": true,
-          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "detail": "worker kind=rss_atom; attempted=1; succeeded=1; failed=0; observations=2",
           "metrics": {
+            "worker_source_kind": "rss_atom",
             "worker_attempted": 1,
             "worker_succeeded": 1,
             "worker_failed": 0,
@@ -3609,7 +3637,7 @@
         {
           "stage": "evidence",
           "ok": true,
-          "detail": "HTTP 200; sources=2",
+          "detail": "HTTP 200; sources=1",
           "metrics": {}
         },
         {
