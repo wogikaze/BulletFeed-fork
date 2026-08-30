@@ -118,9 +118,9 @@ def test_adding_topic_reprojects_matching_source_not_unrelated_event(
     seen: list[str] = []
     original = FeedProjector.project_event_for_user
 
-    def _wrapped(self, *, user_id: str, event_id: str):
+    def _wrapped(self, *, user_id: str, event_id: str, **kwargs):
         seen.append(event_id)
-        return original(self, user_id=user_id, event_id=event_id)
+        return original(self, user_id=user_id, event_id=event_id, **kwargs)
 
     monkeypatch.setattr(FeedProjector, "project_event_for_user", _wrapped)
 

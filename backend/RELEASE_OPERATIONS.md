@@ -2,6 +2,16 @@
 
 The release stack is intentionally a single-host MVP: the API and source-sync worker are separate processes, but both mount the same durable SQLite volume. Public TLS terminates in an owned reverse proxy/load balancer in front of `127.0.0.1:8000`; the Android release build must point only at that HTTPS origin.
 
+## Versioned release smoke checklist (`release-checklist-v1`)
+
+Automated in-process smoke is `python scripts/run_release_smoke.py` from `backend/` (fresh DB → health/ready → session → seeded load profile → feed → reopen). Do not treat a green script as the whole #169 gate: keep the saved load profile, top-3 bottleneck remediations, and before/after timings with the release notes.
+
+Current remediations recorded by `seeded-load-v2`:
+
+- `idx_feed_items_user_dismissed`
+- `batched_claim_knowledge_ids`
+- `defer_feedback_ranking_until_user_batch`
+
 ## One-command start
 
 From a clean host that has only this repository, Docker, and a filled `.env.release` (copy `.env.release.example`; never commit secrets):
