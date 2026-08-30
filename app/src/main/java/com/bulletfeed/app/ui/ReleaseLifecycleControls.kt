@@ -85,6 +85,10 @@ fun SettingsScreen(
     isDeletingAccount: Boolean,
     onSaveProfile: (UserProfile) -> Unit,
     onDeleteAccount: () -> Unit,
+    recommendations: List<SourceRecommendation> = emptyList(),
+    decidingRecommendationId: String? = null,
+    onApproveRecommendation: (String) -> Unit = {},
+    onIgnoreRecommendation: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -93,6 +97,10 @@ fun SettingsScreen(
             profile = profile,
             isSaving = isSaving,
             onSaveProfile = onSaveProfile,
+            recommendations = recommendations,
+            decidingRecommendationId = decidingRecommendationId,
+            onApproveRecommendation = onApproveRecommendation,
+            onIgnoreRecommendation = onIgnoreRecommendation,
             modifier = Modifier.weight(1f),
         )
         OutlinedButton(

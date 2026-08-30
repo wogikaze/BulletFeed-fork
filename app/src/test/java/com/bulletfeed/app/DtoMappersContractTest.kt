@@ -95,6 +95,39 @@ class DtoMappersContractTest {
     }
 
     @Test
+    fun `source recommendation maps discovery-only and never becomes evidence`() {
+        val mapped = SourceRecommendationDto(
+            id = "cand-1",
+            endpointId = "ep-1",
+            canonicalUrl = "https://news.ycombinator.com/item?id=1",
+            family = "hacker_news_discovery",
+            discoveryMethod = "external_index",
+            discoveryProvenance = "external_index",
+            verificationStatus = "unverified",
+            authorityStatus = "aggregator",
+            authorityConfidence = 0.2f,
+            evidenceEligible = false,
+            discoveryOnly = true,
+            reason = "discussion index",
+            explanation = "discovery only",
+            matchedConcepts = listOf("react"),
+            matchOrigin = "inferred",
+            matchKind = "neighbor",
+            score = 0.31f,
+            recommendationStatus = "pending",
+            publisher = SourcePublisherDto("hn", "Hacker News"),
+        ).toDomain()
+
+        assertEquals("cand-1", mapped.id)
+        assertTrue(mapped.discoveryOnly)
+        assertEquals(false, mapped.evidenceEligible)
+        assertEquals(SourceRecommendationStatus.PENDING, mapped.recommendationStatus)
+        assertEquals("Hacker News", mapped.publisher?.displayName)
+        assertEquals("approved", SourceRecommendationDecision.APPROVED.name.lowercase())
+        assertEquals("ignored", SourceRecommendationDecision.IGNORED.name.lowercase())
+    }
+
+    @Test
     fun `feed feedback types serialize to api snake case and keep ranking aliases`() {
         val expected = mapOf(
             FeedFeedbackType.IMPORTANT to "important",

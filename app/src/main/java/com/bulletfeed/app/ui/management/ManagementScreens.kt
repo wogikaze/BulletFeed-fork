@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -508,6 +510,10 @@ fun SettingsScreen(
     profile: UserProfile,
     isSaving: Boolean,
     onSaveProfile: (UserProfile) -> Unit,
+    recommendations: List<SourceRecommendation> = emptyList(),
+    decidingRecommendationId: String? = null,
+    onApproveRecommendation: (String) -> Unit = {},
+    onIgnoreRecommendation: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -516,7 +522,12 @@ fun SettingsScreen(
     var region by rememberSaveable(profile.region) { mutableStateOf(profile.region) }
 
     Scaffold(topBar = { TopAppBar(title = { Text("設定") }) }) { padding ->
-        Column(modifier.padding(padding).padding(20.dp)) {
+        Column(
+            modifier
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+        ) {
             Text("あなたの情報", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
             if (!editing) {
@@ -579,9 +590,128 @@ fun SettingsScreen(
                     Text("キャンセル")
                 }
             }
+            Spacer(Modifier.height(28.dp))
+            SourceRecommendationsSection(
+                recommendations = recommendations,
+                decidingRecommendationId = decidingRecommendationId,
+                onApprove = onApproveRecommendation,
+                onIgnore = onIgnoreRecommendation,
+            )
         }
     }
 }
+
+@Composable
+private fun SourceRecommendationsSection(
+    recommendations: List<SourceRecommendation>,
+    decidingRecommendationId: String?,
+    onApprove: (String) -> Unit,
+    onIgnore: (String) -> Unit,
+) {
+    Text("情報源の候補", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "興味・テーマから見つけた候補です。承認すると購読できる系統だけが同期されます。",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color(0xFF655F69),
+    )
+    Spacer(Modifier.height(12.dp))
+    if (recommendations.isEmpty()) {
+        Text("いま表示できる候補はありません。テーマを追加すると候補が増えます。", color = Color(0xFF655F69))
+        return
+    }
+    recommendations.forEach { item ->
+        SourceRecommendationCard(
+            item = item,
+            deciding = decidingRecommendationId == item.id,
+            enabled = decidingRecommendationId == null,
+            onApprove = { onApprove(item.id) },
+            onIgnore = { onIgnore(item.id) },
+        )
+        Spacer(Modifier.height(10.dp))
+    }
+}
+
+@Composable
+private fun SourceRecommendationCard(
+    item: SourceRecommendation,
+    deciding: Boolean,
+    enabled: Boolean,
+    onApprove: () -> Unit,
+    onIgnore: () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                item.publisher?.displayName ?: item.canonicalUrl,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(item.canonicalUrl, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+            Spacer(Modifier.height(8.dp))
+            Text(item.reason, fontWeight = FontWeight.Medium)
+            if (item.explanation.isNotBlank() && item.explanation != item.reason) {
+                Text(item.explanation, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF655F69))
+            }
+            Spacer(Modifier.height(8.dp))
+            Text("系統: ${item.familyLabel()}")
+            Text("出典: ${item.discoveryProvenance}")
+            Text("権威: ${item.authorityStatus}（信頼度 ${"%.2f".format(item.authorityConfidence)}）")
+            Text("状態: ${item.recommendationStatus.label()}")
+            if (item.discoveryOnly) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "情報発見用です。事実の根拠（truth source）には使いません。",
+                    color = Color(0xFFA6231C),
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+            if (item.recommendationStatus == SourceRecommendationStatus.PENDING) {
+                Spacer(Modifier.height(12.dp))
+                Row {
+                    Button(
+                        onClick = onApprove,
+                        enabled = enabled,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        if (deciding) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        Text("承認")
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedButton(
+                        onClick = onIgnore,
+                        enabled = enabled,
+                        modifier = Modifier.weight(1f),
+                    ) { Text("無視") }
+                }
+            }
+        }
+    }
+}
+
+private fun SourceRecommendation.familyLabel(): String =
+    when (family) {
+        "rss_atom" -> "RSS / Atom"
+        "json_feed" -> "JSON Feed"
+        "statuspage" -> "Statuspage"
+        "github_release" -> "GitHub Releases"
+        "generic_web" -> "Web"
+        "hacker_news_discovery" -> "Hacker News（発見用）"
+        else -> family
+    }
+
+private fun SourceRecommendationStatus.label(): String =
+    when (this) {
+        SourceRecommendationStatus.PENDING -> "未決定"
+        SourceRecommendationStatus.APPROVED -> "承認済み"
+        SourceRecommendationStatus.IGNORED -> "無視"
+    }
 
 private fun TopicType.label(): String =
     when (this) {

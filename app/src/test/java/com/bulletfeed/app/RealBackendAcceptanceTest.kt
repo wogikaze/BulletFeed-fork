@@ -64,6 +64,8 @@ class RealBackendAcceptanceTest {
                     FeedExposure(
                         deliveryId = first.deliveryId,
                         displayedAt = "2026-08-22T00:12:00Z",
+                        dwellMs = 1_500,
+                        visibleRatio = 0.8f,
                     ),
                 ),
             )
@@ -71,6 +73,40 @@ class RealBackendAcceptanceTest {
 
             assertApiFailureIsProductionError(repository)
             assertNetworkFailureIsProductionError()
+        }
+
+    @Test
+    fun `source recommendations list and decision reach subscription path`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+
+            repository.initialize()
+            repository.addUserTopic("React", TopicType.TECHNOLOGY)
+
+            val listed = repository.getSourceRecommendations()
+            assertTrue(listed.isNotEmpty())
+            assertTrue(listed.all { !it.evidenceEligible })
+            assertTrue(listed.any { it.reason.isNotBlank() })
+            assertTrue(listed.any { it.discoveryProvenance.isNotBlank() })
+            assertTrue(listed.any { it.family.isNotBlank() })
+            assertTrue(listed.any { it.authorityStatus.isNotBlank() })
+            assertTrue(listed.filter { it.discoveryOnly }.all { !it.evidenceEligible })
+
+            val rss = listed.first { it.family == "rss_atom" && !it.discoveryOnly }
+            val approved = repository.decideSourceRecommendation(rss.id, SourceRecommendationDecision.APPROVED)
+            assertEquals(SourceRecommendationStatus.APPROVED, approved.recommendationStatus)
+            val subscriptions = repository.getSourceSubscriptions()
+            assertTrue(subscriptions.any { it.canonicalUrl == rss.canonicalUrl && it.kind == "rss_atom" })
+
+            val pending = repository.getSourceRecommendations().first { it.recommendationStatus == SourceRecommendationStatus.PENDING }
+            val ignored = repository.decideSourceRecommendation(pending.id, SourceRecommendationDecision.IGNORED)
+            assertEquals(SourceRecommendationStatus.IGNORED, ignored.recommendationStatus)
+            assertTrue(repository.getSourceRecommendations().none { it.id == pending.id })
         }
 
     private suspend fun assertApiFailureIsProductionError(repository: RemoteBulletFeedRepository) {

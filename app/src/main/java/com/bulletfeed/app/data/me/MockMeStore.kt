@@ -81,4 +81,25 @@ class MockMeStore(
             topics = state.topicNames(),
         )
     }
+
+    override suspend fun getSourceRecommendations(includeIgnored: Boolean): List<SourceRecommendation> =
+        state.sourceRecommendations.filter { includeIgnored || it.recommendationStatus != SourceRecommendationStatus.IGNORED }
+
+    override suspend fun decideSourceRecommendation(
+        candidateId: String,
+        decision: SourceRecommendationDecision,
+    ): SourceRecommendation {
+        val index = state.sourceRecommendations.indexOfFirst { it.id == candidateId }
+        require(index >= 0) { "unknown recommendation" }
+        val status =
+            when (decision) {
+                SourceRecommendationDecision.APPROVED -> SourceRecommendationStatus.APPROVED
+                SourceRecommendationDecision.IGNORED -> SourceRecommendationStatus.IGNORED
+            }
+        val updated = state.sourceRecommendations[index].copy(recommendationStatus = status)
+        state.sourceRecommendations[index] = updated
+        return updated
+    }
+
+    override suspend fun getSourceSubscriptions(): List<SourceSubscription> = emptyList()
 }

@@ -76,6 +76,16 @@ interface MeRepository {
         topics: List<String>,
         connectGithub: Boolean,
     ): OnboardingSnapshot
+
+    suspend fun getSourceRecommendations(includeIgnored: Boolean = false): List<SourceRecommendation> =
+        emptyList()
+
+    suspend fun decideSourceRecommendation(
+        candidateId: String,
+        decision: SourceRecommendationDecision,
+    ): SourceRecommendation
+
+    suspend fun getSourceSubscriptions(): List<SourceSubscription> = emptyList()
 }
 
 interface IntegrationRepository {

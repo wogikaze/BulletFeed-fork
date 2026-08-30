@@ -352,6 +352,8 @@ private fun ReadyApplication(
             onReorderTopics = viewModel::reorderTopics,
             onSaveProfile = viewModel::saveProfile,
             onDeleteAccount = viewModel::deleteAccount,
+            onApproveRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.APPROVED) },
+            onIgnoreRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.IGNORED) },
             onRefresh = viewModel::refresh,
             onLoadMoreFeed = viewModel::loadMoreFeed,
             onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
@@ -380,6 +382,8 @@ private fun MainNavigation(
     onReorderTopics: (List<String>) -> Unit,
     onSaveProfile: (UserProfile) -> Unit,
     onDeleteAccount: () -> Unit,
+    onApproveRecommendation: (String) -> Unit,
+    onIgnoreRecommendation: (String) -> Unit,
     onRefresh: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
@@ -463,6 +467,10 @@ private fun MainNavigation(
             isDeletingAccount = uiState.isDeletingAccount,
             onSaveProfile = onSaveProfile,
             onDeleteAccount = onDeleteAccount,
+            recommendations = uiState.sourceRecommendations,
+            decidingRecommendationId = uiState.decidingRecommendationId,
+            onApproveRecommendation = onApproveRecommendation,
+            onIgnoreRecommendation = onIgnoreRecommendation,
             modifier = Modifier.padding(innerPadding),
         )
     }

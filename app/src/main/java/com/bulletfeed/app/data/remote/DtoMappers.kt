@@ -196,6 +196,34 @@ fun SecurityAlertDto.toDomain(): VulnerabilityAlert =
         dependencyTypeRaw = packageInfo.dependencyType,
     )
 
+fun SourceRecommendationDto.toDomain(): SourceRecommendation =
+    SourceRecommendation(
+        id = id,
+        endpointId = endpointId,
+        canonicalUrl = canonicalUrl,
+        family = family,
+        discoveryMethod = discoveryMethod,
+        discoveryProvenance = discoveryProvenance,
+        verificationStatus = verificationStatus,
+        authorityStatus = authorityStatus,
+        authorityConfidence = authorityConfidence,
+        evidenceEligible = evidenceEligible,
+        discoveryOnly = discoveryOnly,
+        reason = reason,
+        explanation = explanation,
+        matchedConcepts = matchedConcepts,
+        matchOrigin = matchOrigin,
+        matchKind = matchKind,
+        score = score,
+        recommendationStatus = SourceRecommendationStatus.valueOf(recommendationStatus.uppercase()),
+        publisher = publisher?.toDomain(),
+    )
+
+fun SourcePublisherDto.toDomain(): SourcePublisher = SourcePublisher(slug = slug, displayName = displayName)
+
+fun SourceSubscriptionDto.toDomain(): SourceSubscription =
+    SourceSubscription(id = id, kind = kind, canonicalUrl = canonicalUrl)
+
 fun NotificationDto.toDomain(): AppNotification =
     AppNotification(
         id = id,
