@@ -4,8 +4,9 @@ import hashlib
 import json
 import os
 import secrets
+from collections.abc import Collection
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlparse
@@ -78,6 +79,44 @@ class WebSnapshot:
     @property
     def is_rendered(self) -> bool:
         return self.acquisition_mode == ACQUISITION_BOUNDED_JS
+
+
+@dataclass(frozen=True)
+class SnapshotStorageStats:
+    snapshot_count: int
+    body_bytes: int
+    metadata_bytes: int
+    total_bytes: int
+    temporary_directory_count: int
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "snapshot_count": self.snapshot_count,
+            "body_bytes": self.body_bytes,
+            "metadata_bytes": self.metadata_bytes,
+            "total_bytes": self.total_bytes,
+            "temporary_directory_count": self.temporary_directory_count,
+        }
+
+
+@dataclass(frozen=True)
+class SnapshotGcResult:
+    scanned_count: int
+    deleted_ids: tuple[str, ...]
+    retained_referenced_ids: tuple[str, ...]
+    temporary_directories_removed: int
+    bytes_before: int
+    bytes_after: int
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "scanned_count": self.scanned_count,
+            "deleted_ids": list(self.deleted_ids),
+            "retained_referenced_ids": list(self.retained_referenced_ids),
+            "temporary_directories_removed": self.temporary_directories_removed,
+            "bytes_before": self.bytes_before,
+            "bytes_after": self.bytes_after,
+        }
 
 
 def content_hash_for(body: bytes) -> str:
@@ -274,6 +313,136 @@ class SnapshotStore:
                 if path.is_dir() and path.name.startswith("snap_")
             )
         )
+
+    def storage_stats(self) -> SnapshotStorageStats:
+        entries = self._snapshot_entries()
+        temporary_count = sum(
+            1
+            for path in self.root.iterdir()
+            if path.is_dir() and path.name.startswith(".tmp-")
+        )
+        return SnapshotStorageStats(
+            snapshot_count=len(entries),
+            body_bytes=sum(body.stat().st_size for _, _, body, _, _ in entries),
+            metadata_bytes=sum(meta.stat().st_size for _, _, _, meta, _ in entries),
+            total_bytes=sum(size for _, _, _, _, size in entries),
+            temporary_directory_count=temporary_count,
+        )
+
+    def garbage_collect(
+        self,
+        *,
+        referenced_ids: Collection[str] = (),
+        retention_days: int = 30,
+        max_bytes: int | None = None,
+        now: datetime | None = None,
+        temporary_ttl_seconds: int = 3_600,
+    ) -> SnapshotGcResult:
+        if retention_days < 0:
+            raise ValueError("snapshot retention_days must be non-negative")
+        if max_bytes is not None and max_bytes < 0:
+            raise ValueError("snapshot max_bytes must be non-negative")
+        if temporary_ttl_seconds < 0:
+            raise ValueError("temporary_ttl_seconds must be non-negative")
+        current = now or datetime.now(UTC)
+        cutoff = current - timedelta(days=retention_days)
+        references = {str(snapshot_id) for snapshot_id in referenced_ids}
+        entries = self._snapshot_entries()
+        bytes_before = sum(size for _, _, _, _, size in entries)
+        bytes_after = bytes_before
+        deleted: list[str] = []
+        retained_references: list[str] = []
+        for directory, metadata, _, _, size in sorted(
+            entries,
+            key=lambda item: (_snapshot_datetime(item[1].get("retrieved_at")), item[0].name),
+        ):
+            retrieved_at = _snapshot_datetime(metadata.get("retrieved_at"))
+            expired = retrieved_at < cutoff
+            over_capacity = max_bytes is not None and bytes_after > max_bytes
+            if not expired and not over_capacity:
+                continue
+            if directory.name in references:
+                retained_references.append(directory.name)
+                continue
+            _rmtree(directory)
+            deleted.append(directory.name)
+            bytes_after -= size
+
+        temporary_removed = 0
+        temporary_cutoff = current.timestamp() - temporary_ttl_seconds
+        for path in self.root.iterdir():
+            if not path.is_dir() or not path.name.startswith(".tmp-"):
+                continue
+            try:
+                stale = path.stat().st_mtime <= temporary_cutoff
+            except OSError:
+                continue
+            if stale:
+                _rmtree(path)
+                temporary_removed += 1
+        return SnapshotGcResult(
+            scanned_count=len(entries),
+            deleted_ids=tuple(sorted(deleted)),
+            retained_referenced_ids=tuple(sorted(retained_references)),
+            temporary_directories_removed=temporary_removed,
+            bytes_before=bytes_before,
+            bytes_after=bytes_after,
+        )
+
+    def _snapshot_entries(self) -> list[tuple[Path, dict[str, Any], Path, Path, int]]:
+        entries: list[tuple[Path, dict[str, Any], Path, Path, int]] = []
+        for directory in self.root.iterdir():
+            if not directory.is_dir() or not directory.name.startswith(SNAPSHOT_ID_PREFIX):
+                continue
+            body_path = directory / "body.bin"
+            meta_path = directory / "meta.json"
+            if not body_path.is_file() or not meta_path.is_file():
+                continue
+            try:
+                metadata = json.loads(meta_path.read_text(encoding="utf-8"))
+                size = body_path.stat().st_size + meta_path.stat().st_size
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(metadata, dict):
+                continue
+            entries.append((directory, metadata, body_path, meta_path, size))
+        return entries
+
+
+def referenced_snapshot_ids(database: Database) -> frozenset[str]:
+    """Return snapshot IDs still referenced by immutable Web observations."""
+    with database.connect() as connection:
+        rows = connection.execute(
+            """
+            SELECT payload_json
+            FROM observations
+            WHERE source_type = ?
+            """,
+            (WEB_SNAPSHOT_SOURCE_TYPE,),
+        ).fetchall()
+    referenced: set[str] = set()
+
+    def collect(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if (
+                    isinstance(key, str)
+                    and key.endswith("snapshot_id")
+                    and isinstance(item, str)
+                    and item.startswith(SNAPSHOT_ID_PREFIX)
+                ):
+                    referenced.add(item)
+                collect(item)
+        elif isinstance(value, list):
+            for item in value:
+                collect(item)
+
+    for row in rows:
+        try:
+            collect(json.loads(row["payload_json"]))
+        except (TypeError, json.JSONDecodeError):
+            continue
+    return frozenset(referenced)
 
 
 async def fetch_web_snapshot(
@@ -674,6 +843,16 @@ def _rmtree(path: Path) -> None:
     for child in path.iterdir():
         _rmtree(child)
     path.rmdir()
+
+
+def _snapshot_datetime(value: object) -> datetime:
+    if not isinstance(value, str) or not value.strip():
+        return datetime.max.replace(tzinfo=UTC)
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return datetime.max.replace(tzinfo=UTC)
+    return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=UTC)
 
 
 def _utc_now() -> str:
