@@ -7,8 +7,8 @@ Labels remain AI-silver evaluation data; this module never rewrites them.
 
 from __future__ import annotations
 
+import hashlib
 import math
-import random
 import re
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
@@ -648,14 +648,14 @@ def _bootstrap_for_rows(
             "cluster_count": len(clusters),
             "reason": "at least two persona-family clusters are required",
         }
-    rng = random.Random(seed)  # noqa: S311 - deterministic evaluation resampling, not security
     cluster_names = tuple(sorted(clusters))
     values: dict[str, list[float]] = defaultdict(list)
-    for _ in range(replicates):
+    for replicate in range(replicates):
         sampled = [
             row
+            for draw in range(len(cluster_names))
             for cluster_name in (
-                rng.choice(cluster_names) for _ in range(len(cluster_names))
+                cluster_names[_bootstrap_index(seed, replicate, draw, len(cluster_names))],
             )
             for row in clusters[cluster_name]
         ]
@@ -675,6 +675,12 @@ def _bootstrap_for_rows(
             for key, samples in sorted(values.items())
         },
     }
+
+
+def _bootstrap_index(seed: int, replicate: int, draw: int, cluster_count: int) -> int:
+    material = f"{seed}:{replicate}:{draw}".encode()
+    digest = hashlib.sha256(material).digest()
+    return int.from_bytes(digest[:8], "big") % cluster_count
 
 
 def _mean(values: Sequence[float] | Any) -> float:
