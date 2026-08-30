@@ -1,6 +1,7 @@
 import os
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -17,6 +18,7 @@ from app.errors import http_exception_handler, unhandled_exception_handler, vali
 from app.models import HealthResponse
 from app.observability import public_counters
 from app.release_identity import release_identity
+from app.services.web_snapshots import SnapshotStore
 from app.routers import (
     auth,
     events,
@@ -89,6 +91,19 @@ def health_identity() -> dict[str, object]:
     return {"status": "ok", "release": release_identity()}
 
 
+def _snapshot_storage(database: Database) -> dict[str, int]:
+    root = Path(database.path).resolve().parent / "web_snapshots"
+    if not root.is_dir():
+        return {
+            "snapshot_count": 0,
+            "body_bytes": 0,
+            "metadata_bytes": 0,
+            "total_bytes": 0,
+            "temporary_directory_count": 0,
+        }
+    return SnapshotStore(root).storage_stats().as_dict()
+
+
 @app.get("/health/ready", tags=["system"])
 def readiness(
     database: Annotated[Database, Depends(get_database)],
@@ -112,6 +127,7 @@ def readiness(
         "database": "ok",
         "sourceSyncWorker": "ok",
         "sourceIngestion": ingestion.as_public_dict(),
+        "snapshotStorage": _snapshot_storage(database),
         "release": release_identity(),
         "pipeline": public_counters(),
     }
@@ -125,5 +141,6 @@ def source_health(
     return {
         "workerHeartbeat": summary.worker_heartbeat,
         "sourceIngestion": summary.as_public_dict(),
+        "snapshotStorage": _snapshot_storage(database),
         "pipeline": public_counters(),
     }
