@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from app.config import get_settings
 from app.database import Database
 from app.db.topic_catalog import install_topic_catalog
 from app.evaluation.source_discovery_gold import (
@@ -256,6 +257,58 @@ def test_approve_ignore_does_not_auto_subscribe(tmp_path: Path) -> None:
     assert _count(database, "source_sync_jobs") == before_jobs
     assert _count(database, "observations") == 0
     assert _count(database, "state_claims") == 0
+
+
+def test_approve_supported_family_creates_subscription_and_sync_job(database, monkeypatch) -> None:
+    monkeypatch.setenv("BULLETFEED_RSS_ALLOWED_HOSTS", "react.dev")
+    get_settings.cache_clear()
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        _seed_user(connection, "user_a", topics=(("React", "high"),))
+    items = list_source_recommendations_for_user(database, "user_a").items
+    rss = next(item for item in items if item.family == SourceKind.RSS_ATOM.value)
+    docs = next(item for item in items if item.family == SourceKind.GENERIC_WEB.value)
+    record_source_recommendation_decision(
+        database,
+        user_id="user_a",
+        candidate_id=rss.candidate_id,
+        decision="approved",
+    )
+    record_source_recommendation_decision(
+        database,
+        user_id="user_a",
+        candidate_id=docs.candidate_id,
+        decision="approved",
+    )
+    record_source_recommendation_decision(
+        database,
+        user_id="user_a",
+        candidate_id=rss.candidate_id,
+        decision="approved",
+    )
+    assert _count(database, "source_sync_subscriptions") == 1
+    assert _count(database, "source_sync_jobs") == 1
+    with database.connect() as connection:
+        users = connection.execute(
+            "SELECT user_id FROM source_sync_subscription_users"
+        ).fetchall()
+    assert [row["user_id"] for row in users] == ["user_a"]
+
+
+def test_ignore_and_discovery_only_do_not_create_sync_jobs(database) -> None:
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        _seed_user(connection, "user_a", topics=(("React", "high"),))
+    items = list_source_recommendations_for_user(database, "user_a").items
+    ignored = record_source_recommendation_decision(
+        database,
+        user_id="user_a",
+        candidate_id=items[0].candidate_id,
+        decision="ignored",
+    )
+    assert ignored.recommendation_status == "ignored"
+    assert _count(database, "source_sync_subscriptions") == 0
+    assert _count(database, "source_sync_jobs") == 0
 
 
 def test_api_lists_and_decides_without_subscribing(

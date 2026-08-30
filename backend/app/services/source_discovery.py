@@ -324,6 +324,13 @@ def list_source_recommendations_for_user(
         )
 
 
+def recommendation_can_subscribe(item: SourceCandidate) -> bool:
+    """Supported user-fetch families only. Discovery-only never becomes a sync source."""
+    from app.services.source_subscriptions import USER_SOURCE_TYPES
+
+    return (not item.discovery_only) and item.family in USER_SOURCE_TYPES
+
+
 def record_source_recommendation_decision(
     database: Database,
     *,
@@ -331,7 +338,12 @@ def record_source_recommendation_decision(
     candidate_id: str,
     decision: str,
 ) -> SourceCandidate:
-    """Record approve/ignore. Does not create a subscription or sync job."""
+    """Record approve/ignore. Supported families subscribe atomically on approve."""
+    from fastapi import HTTPException
+
+    from app.config import get_settings
+    from app.services.source_subscriptions import add_user_source_subscription
+
     ensure_source_discovery_schema(database)
     result = list_source_recommendations_for_user(
         database,
@@ -339,9 +351,22 @@ def record_source_recommendation_decision(
         include_ignored=True,
         limit=_MAX_LIMIT,
     )
-    if not any(item.candidate_id == candidate_id for item in result.items):
+    chosen = next((item for item in result.items if item.candidate_id == candidate_id), None)
+    if chosen is None:
         raise KeyError(candidate_id)
-    save_discovery_decision(database, user_id=user_id, candidate_id=candidate_id, decision=decision)
+    normalized = _normalize_decision(decision)
+    if normalized == "approved" and recommendation_can_subscribe(chosen):
+        try:
+            add_user_source_subscription(
+                database,
+                get_settings(),
+                user_id=user_id,
+                kind=chosen.family,
+                url=chosen.canonical_url,
+            )
+        except HTTPException as exc:
+            raise ValueError(str(exc.detail)) from exc
+    save_discovery_decision(database, user_id=user_id, candidate_id=candidate_id, decision=normalized)
     updated = list_source_recommendations_for_user(
         database,
         user_id,
