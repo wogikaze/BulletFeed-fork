@@ -2,7 +2,7 @@
   "report_version": "m2-corpus-readiness-v1",
   "dataset_version": "real-world-validation-v0.2",
   "contract_version": "real-world-validation-contract-v1.2",
-  "frozen_main_sha": "10420077aadd18fca9fc32375ac96f34d5726917",
+  "frozen_main_sha": "0c433504f88420f16c82f65bfce620b2ed1f6bf9",
   "capacity": {
     "event_count": 1004,
     "real_event_count": 1001,
@@ -2419,9 +2419,448 @@
         }
       }
     },
+    "failure_taxonomy": {
+      "status": "available",
+      "covered_stage": "ranking",
+      "failure_counts": {
+        "important_unknown_missed": 3297,
+        "known_but_reshown": 20,
+        "unknown_but_hidden": 5025
+      },
+      "by_dimension": {
+        "important_unknown_missed": {
+          "persona_family": {
+            "ai_application_builder": 174,
+            "android_app_developer": 6,
+            "cloud_security_engineer": 122,
+            "developer_experience_engineer": 14,
+            "django_api_builder": 105,
+            "javascript_tooling_maintainer": 420,
+            "kubernetes_platform_sre": 32,
+            "ml_infrastructure_engineer": 110,
+            "mobile_release_engineer": 2,
+            "node_service_operator": 12,
+            "observability_engineer": 38,
+            "package_release_manager": 1064,
+            "python_backend_developer": 272,
+            "python_data_scientist": 111,
+            "rust_compiler_contributor": 516,
+            "rust_web_service_builder": 34,
+            "security_conscious_oss_maintainer": 229,
+            "typescript_platform_engineer": 2,
+            "web_frontend_engineer": 34
+          },
+          "cohort": {
+            "cold_start": 2164,
+            "history_rich": 1133
+          },
+          "language": {
+            "en": 3093,
+            "ja": 88,
+            "mixed": 116
+          },
+          "source_family": {
+            "github_release": 2,
+            "package_registry": 2110,
+            "rss_atom": 1025,
+            "statuspage": 160
+          },
+          "information_type": {
+            "incident": 160,
+            "release": 2112,
+            "roadmap_changelog": 1025
+          }
+        },
+        "unknown_but_hidden": {
+          "persona_family": {
+            "ai_application_builder": 328,
+            "developer_experience_engineer": 254,
+            "django_api_builder": 341,
+            "edge_runtime_engineer": 556,
+            "ml_infrastructure_engineer": 332,
+            "node_service_operator": 294,
+            "python_backend_developer": 786,
+            "python_data_scientist": 325,
+            "rust_web_service_builder": 224,
+            "student_learning_compilers": 508,
+            "typescript_platform_engineer": 318,
+            "web_frontend_engineer": 759
+          },
+          "cohort": {
+            "cold_start": 2636,
+            "history_rich": 2389
+          },
+          "language": {
+            "en": 4889,
+            "mixed": 136
+          },
+          "source_family": {
+            "package_registry": 4612,
+            "statuspage": 413
+          },
+          "information_type": {
+            "incident": 413,
+            "release": 4612
+          }
+        },
+        "known_but_reshown": {
+          "persona_family": {
+            "database_reliability_engineer": 2,
+            "edge_runtime_engineer": 2,
+            "javascript_tooling_maintainer": 2,
+            "kubernetes_platform_sre": 2,
+            "node_service_operator": 2,
+            "open_source_documentarian": 2,
+            "self_hosting_enthusiast": 2,
+            "student_learning_compilers": 2,
+            "typescript_platform_engineer": 2,
+            "web_frontend_engineer": 2
+          },
+          "cohort": {
+            "history_rich": 20
+          },
+          "language": {
+            "en": 20
+          },
+          "source_family": {
+            "github_release": 20
+          },
+          "information_type": {
+            "release": 20
+          }
+        }
+      },
+      "representative_clusters": [
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "language",
+          "value": "en",
+          "count": 4889
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "information_type",
+          "value": "release",
+          "count": 4612
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "source_family",
+          "value": "package_registry",
+          "count": 4612
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "language",
+          "value": "en",
+          "count": 3093
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "cohort",
+          "value": "cold_start",
+          "count": 2636
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "cohort",
+          "value": "history_rich",
+          "count": 2389
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "cohort",
+          "value": "cold_start",
+          "count": 2164
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "information_type",
+          "value": "release",
+          "count": 2112
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "source_family",
+          "value": "package_registry",
+          "count": 2110
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "cohort",
+          "value": "history_rich",
+          "count": 1133
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "package_release_manager",
+          "count": 1064
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "information_type",
+          "value": "roadmap_changelog",
+          "count": 1025
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "source_family",
+          "value": "rss_atom",
+          "count": 1025
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "python_backend_developer",
+          "count": 786
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "web_frontend_engineer",
+          "count": 759
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "edge_runtime_engineer",
+          "count": 556
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "rust_compiler_contributor",
+          "count": 516
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "student_learning_compilers",
+          "count": 508
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "javascript_tooling_maintainer",
+          "count": 420
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "information_type",
+          "value": "incident",
+          "count": 413
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "source_family",
+          "value": "statuspage",
+          "count": 413
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "django_api_builder",
+          "count": 341
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "ml_infrastructure_engineer",
+          "count": 332
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "ai_application_builder",
+          "count": 328
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "python_data_scientist",
+          "count": 325
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "typescript_platform_engineer",
+          "count": 318
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "node_service_operator",
+          "count": 294
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "python_backend_developer",
+          "count": 272
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "developer_experience_engineer",
+          "count": 254
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "security_conscious_oss_maintainer",
+          "count": 229
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "persona_family",
+          "value": "rust_web_service_builder",
+          "count": 224
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "ai_application_builder",
+          "count": 174
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "information_type",
+          "value": "incident",
+          "count": 160
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "source_family",
+          "value": "statuspage",
+          "count": 160
+        },
+        {
+          "failure": "unknown_but_hidden",
+          "dimension": "language",
+          "value": "mixed",
+          "count": 136
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "cloud_security_engineer",
+          "count": 122
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "language",
+          "value": "mixed",
+          "count": 116
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "python_data_scientist",
+          "count": 111
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "ml_infrastructure_engineer",
+          "count": 110
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "django_api_builder",
+          "count": 105
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "language",
+          "value": "ja",
+          "count": 88
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "observability_engineer",
+          "count": 38
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "rust_web_service_builder",
+          "count": 34
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "web_frontend_engineer",
+          "count": 34
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "kubernetes_platform_sre",
+          "count": 32
+        },
+        {
+          "failure": "known_but_reshown",
+          "dimension": "cohort",
+          "value": "history_rich",
+          "count": 20
+        },
+        {
+          "failure": "known_but_reshown",
+          "dimension": "information_type",
+          "value": "release",
+          "count": 20
+        },
+        {
+          "failure": "known_but_reshown",
+          "dimension": "language",
+          "value": "en",
+          "count": 20
+        },
+        {
+          "failure": "known_but_reshown",
+          "dimension": "source_family",
+          "value": "github_release",
+          "count": 20
+        },
+        {
+          "failure": "important_unknown_missed",
+          "dimension": "persona_family",
+          "value": "developer_experience_engineer",
+          "count": 14
+        }
+      ],
+      "representative_cluster_minimum": 20,
+      "stage_attribution": {
+        "status": "partial",
+        "earliest_stage_for_recorded_failures": "ranking",
+        "failure_count": 8342,
+        "by_stage": {
+          "ranking": 8342
+        },
+        "uncovered_stages": [
+          "acquisition",
+          "projection",
+          "evidence"
+        ],
+        "note": "These are misses in the production ranking replay. Acquisition, projection, and evidence failures require full journey traces and are not inferred here."
+      }
+    },
     "stage_attribution": {
-      "status": "not_evaluated",
-      "note": "Production journey traces with earliest responsible stages are required; ranking metrics do not infer upstream acquisition or projection failures."
+      "status": "partial",
+      "earliest_stage_for_recorded_failures": "ranking",
+      "failure_count": 8342,
+      "by_stage": {
+        "ranking": 8342
+      },
+      "uncovered_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "note": "These are misses in the production ranking replay. Acquisition, projection, and evidence failures require full journey traces and are not inferred here."
     }
   }
 }

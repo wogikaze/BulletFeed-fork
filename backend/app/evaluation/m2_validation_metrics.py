@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 import random
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -183,6 +183,7 @@ def evaluate_m2_production_scoring(
         ),
     }
     segments = _segment_metrics(adapted, predicted, metadata, known_before)
+    failure_taxonomy = _failure_taxonomy(adapted, predicted, metadata, known_before)
     uncertainty = {
         "method": "persona-family-cluster-bootstrap-percentile",
         "cluster_unit": "persona_family",
@@ -232,13 +233,8 @@ def evaluate_m2_production_scoring(
         "headline": headline,
         "segments": segments,
         "uncertainty": uncertainty,
-        "stage_attribution": {
-            "status": "not_evaluated",
-            "note": (
-                "Production journey traces with earliest responsible stages are required; "
-                "ranking metrics do not infer upstream acquisition or projection failures."
-            ),
-        },
+        "failure_taxonomy": failure_taxonomy,
+        "stage_attribution": failure_taxonomy["stage_attribution"],
     }
 
 
@@ -397,6 +393,96 @@ def _metric_rows(
             )
         )
     return rows
+
+
+def _failure_taxonomy(
+    corpus: PersonalizationGoldCorpus,
+    predicted: Mapping[str, Sequence[str]],
+    metadata: Mapping[str, _ItemMetadata],
+    known_before: Mapping[tuple[str, str], bool],
+) -> dict[str, Any]:
+    categories = (
+        "important_unknown_missed",
+        "unknown_but_hidden",
+        "known_but_reshown",
+    )
+    dimension_names = ("persona_family", "cohort", "language", "source_family", "information_type")
+    by_dimension: dict[str, dict[str, Counter[str]]] = {
+        category: {dimension: Counter() for dimension in dimension_names}
+        for category in categories
+    }
+    failure_counts: Counter[str] = Counter()
+    representative: list[dict[str, Any]] = []
+    for user in corpus.users:
+        ranked = set(predicted.get(user.user_id, ())[:10])
+        for judgment in corpus.judgments_for_user(user.user_id):
+            is_known = known_before.get((user.user_id, judgment.item_id), False)
+            if judgment.should_surface and not is_known and judgment.item_id not in ranked:
+                category = (
+                    "important_unknown_missed"
+                    if judgment.importance_to_user >= IMPORTANT_MIN
+                    else "unknown_but_hidden"
+                )
+            elif is_known and judgment.item_id in ranked:
+                category = "known_but_reshown"
+            else:
+                continue
+            failure_counts[category] += 1
+            item = metadata[judgment.item_id]
+            values = {
+                "persona_family": user.profile.occupation,
+                "cohort": user.kind,
+                "language": item.language,
+                "source_family": item.source_family,
+                "information_type": item.information_type,
+            }
+            for dimension, value in values.items():
+                by_dimension[category][dimension][value] += 1
+
+    for category in categories:
+        for dimension in dimension_names:
+            for value, count in by_dimension[category][dimension].items():
+                representative.append(
+                    {
+                        "failure": category,
+                        "dimension": dimension,
+                        "value": value,
+                        "count": count,
+                    }
+                )
+    representative.sort(
+        key=lambda row: (-int(row["count"]), row["failure"], row["dimension"], row["value"])
+    )
+    stage_counts = {
+        "ranking": failure_counts["important_unknown_missed"]
+        + failure_counts["unknown_but_hidden"]
+        + failure_counts["known_but_reshown"]
+    }
+    return {
+        "status": "available",
+        "covered_stage": "ranking",
+        "failure_counts": dict(sorted(failure_counts.items())),
+        "by_dimension": {
+            category: {
+                dimension: dict(sorted(counts.items()))
+                for dimension, counts in dimensions.items()
+            }
+            for category, dimensions in by_dimension.items()
+        },
+        "representative_clusters": representative[:50],
+        "representative_cluster_minimum": 20,
+        "stage_attribution": {
+            "status": "partial",
+            "earliest_stage_for_recorded_failures": "ranking",
+            "failure_count": stage_counts["ranking"],
+            "by_stage": stage_counts,
+            "uncovered_stages": ["acquisition", "projection", "evidence"],
+            "note": (
+                "These are misses in the production ranking replay. Acquisition, projection, "
+                "and evidence failures require full journey traces and are not inferred here."
+            ),
+        },
+    }
 
 
 def _metric_bundle(

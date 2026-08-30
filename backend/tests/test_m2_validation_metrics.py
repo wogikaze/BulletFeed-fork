@@ -109,6 +109,8 @@ def test_m2_production_metrics_use_shared_ranker_without_blind_records() -> None
     assert report["headline"]["include_ambiguous"]["at_5"]["precision_at_5"] == 0.2
     assert report["headline"]["include_ambiguous"]["at_10"]["precision_at_10"] == 0.1
     assert report["uncertainty"]["headline"]["at_10"]["status"] == "not_available"
+    assert report["failure_taxonomy"]["covered_stage"] == "ranking"
+    assert report["stage_attribution"]["status"] == "partial"
 
 
 def test_m2_production_metrics_reject_blind_input() -> None:
