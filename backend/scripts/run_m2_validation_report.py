@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 from collections import Counter
 from dataclasses import asdict
@@ -23,13 +24,16 @@ CORPUS = Path(__file__).resolve().parents[1] / "tests" / "gold" / "real_world_va
 
 
 def _git_sha() -> str | None:
+    git = shutil.which("git")
+    if git is None:
+        return None
     try:
         return (
             subprocess.check_output(
-                ["git", "rev-parse", "HEAD"],
+                [git, "rev-parse", "HEAD"],
                 cwd=Path(__file__).resolve().parents[2],
                 text=True,
-            )  # noqa: S603, S607
+            )  # noqa: S603
             .strip()
         )
     except (OSError, subprocess.CalledProcessError):
