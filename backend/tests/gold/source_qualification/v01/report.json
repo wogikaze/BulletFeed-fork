@@ -2,8 +2,8 @@
   "qualification_version": "m3-source-qualification-v1",
   "live_endpoint_count": 619,
   "unique_artifact_count": 619,
-  "replay_case_count": 3811,
-  "replay_passed_count": 3811,
+  "replay_case_count": 3820,
+  "replay_passed_count": 3820,
   "replay_failed_count": 0,
   "source_family_counts": {
     "github_advisory": 2,
@@ -15,14 +15,23 @@
     "statuspage": 100
   },
   "scenario_counts": {
+    "compressed_response_guard": 1,
+    "credential_url_guard": 1,
     "duplicate_delivery": 998,
+    "malformed_json_guard": 1,
     "malformed_payload": 605,
+    "malformed_xml_guard": 1,
     "oversize_guard": 605,
+    "rate_limit_guard": 1,
     "recorded_fetch": 998,
-    "reordered_payload": 605
+    "redirect_private_guard": 1,
+    "reordered_payload": 605,
+    "server_error_guard": 1,
+    "ssrf_private_ip_guard": 1,
+    "unsupported_content_type_guard": 1
   },
   "outcome_counts": {
-    "passed": 3811
+    "passed": 3820
   },
   "failure_dimensions": {},
   "source_inventory": [
@@ -41493,11 +41502,84 @@
       "scenario": "duplicate_delivery",
       "outcome": "passed",
       "detail": "replaying the captured bytes preserves the observation identity"
+    },
+    {
+      "case_id": "m3_contract:redirect_private_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "redirect_private_guard",
+      "outcome": "passed",
+      "detail": "redirect targets outside the public allowlist are rejected before fetch"
+    },
+    {
+      "case_id": "m3_contract:ssrf_private_ip_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "ssrf_private_ip_guard",
+      "outcome": "passed",
+      "detail": "private resolved peers are rejected at the DNS safety boundary"
+    },
+    {
+      "case_id": "m3_contract:credential_url_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "credential_url_guard",
+      "outcome": "passed",
+      "detail": "URLs containing credentials are rejected before acquisition"
+    },
+    {
+      "case_id": "m3_contract:compressed_response_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "compressed_response_guard",
+      "outcome": "passed",
+      "detail": "compressed responses are rejected because byte limits are identity-encoded"
+    },
+    {
+      "case_id": "m3_contract:unsupported_content_type_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "unsupported_content_type_guard",
+      "outcome": "passed",
+      "detail": "content types outside the bounded acquisition contract are rejected"
+    },
+    {
+      "case_id": "m3_contract:rate_limit_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "rate_limit_guard",
+      "outcome": "passed",
+      "detail": "429 responses map to retryable rate-limit failures"
+    },
+    {
+      "case_id": "m3_contract:server_error_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "server_error_guard",
+      "outcome": "passed",
+      "detail": "upstream 5xx responses map to a gateway failure"
+    },
+    {
+      "case_id": "m3_contract:malformed_json_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "malformed_json_guard",
+      "outcome": "passed",
+      "detail": "successful responses with malformed JSON are rejected"
+    },
+    {
+      "case_id": "m3_contract:malformed_xml_guard",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "malformed_xml_guard",
+      "outcome": "passed",
+      "detail": "malformed RSS/XML without entries is rejected by the parser boundary"
     }
   ],
   "limitations": [
     "This qualification replays recorded live HTTPS artifacts without live network access.",
     "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries without making external requests.",
-    "Redirect, timeout, rate-limit, malformed-input, oversize, and SSRF fault drills require dedicated deterministic fixtures or host probes."
+    "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, HTTP status, and malformed-feed boundaries without making external requests.",
+    "Timeout, conditional-304, robots, and source-identity drills still require dedicated transport fixtures or host probes."
   ]
 }

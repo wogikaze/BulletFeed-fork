@@ -21,6 +21,11 @@ def test_recorded_live_artifacts_have_replay_identity() -> None:
     assert report.scenario_counts["reordered_payload"] > 0
     assert report.scenario_counts["malformed_payload"] > 0
     assert report.scenario_counts["oversize_guard"] > 0
+    assert report.scenario_counts["redirect_private_guard"] > 0
+    assert report.scenario_counts["ssrf_private_ip_guard"] > 0
+    assert report.scenario_counts["rate_limit_guard"] > 0
+    assert report.scenario_counts["server_error_guard"] > 0
+    assert report.scenario_counts["malformed_xml_guard"] > 0
 
 
 def test_qualification_floors_are_explicit() -> None:
