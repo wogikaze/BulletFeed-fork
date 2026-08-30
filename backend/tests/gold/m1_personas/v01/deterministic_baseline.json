@@ -22,9 +22,143 @@
     "feedback": 0,
     "subsequent_feed": 0
   },
+  "metrics": {
+    "sample_count": 30,
+    "discovery_candidate_count": 100,
+    "surfaced_card_count": 28,
+    "useful_proxy_at_5_total": 28,
+    "useful_proxy_at_5_mean": 0.9333,
+    "cards_to_first_useful": {
+      "sample_count": 28,
+      "median": 1,
+      "max": 1
+    },
+    "segments": {
+      "cohort": {
+        "cold_start": {
+          "sample_count": 15,
+          "discovery_candidate_count": 42,
+          "surfaced_card_count": 14,
+          "useful_proxy_at_5_total": 14,
+          "useful_proxy_at_5_mean": 0.9333,
+          "cards_to_first_useful": {
+            "sample_count": 14,
+            "median": 1,
+            "max": 1
+          }
+        },
+        "history_rich": {
+          "sample_count": 15,
+          "discovery_candidate_count": 58,
+          "surfaced_card_count": 14,
+          "useful_proxy_at_5_total": 14,
+          "useful_proxy_at_5_mean": 0.9333,
+          "cards_to_first_useful": {
+            "sample_count": 14,
+            "median": 1,
+            "max": 1
+          }
+        }
+      },
+      "language": {
+        "en": {
+          "sample_count": 10,
+          "discovery_candidate_count": 32,
+          "surfaced_card_count": 9,
+          "useful_proxy_at_5_total": 9,
+          "useful_proxy_at_5_mean": 0.9,
+          "cards_to_first_useful": {
+            "sample_count": 9,
+            "median": 1,
+            "max": 1
+          }
+        },
+        "ja": {
+          "sample_count": 11,
+          "discovery_candidate_count": 37,
+          "surfaced_card_count": 10,
+          "useful_proxy_at_5_total": 10,
+          "useful_proxy_at_5_mean": 0.9091,
+          "cards_to_first_useful": {
+            "sample_count": 10,
+            "median": 1,
+            "max": 1
+          }
+        },
+        "mixed": {
+          "sample_count": 9,
+          "discovery_candidate_count": 31,
+          "surfaced_card_count": 9,
+          "useful_proxy_at_5_total": 9,
+          "useful_proxy_at_5_mean": 1.0,
+          "cards_to_first_useful": {
+            "sample_count": 9,
+            "median": 1,
+            "max": 1
+          }
+        }
+      },
+      "breadth": {
+        "broad": {
+          "sample_count": 18,
+          "discovery_candidate_count": 66,
+          "surfaced_card_count": 18,
+          "useful_proxy_at_5_total": 18,
+          "useful_proxy_at_5_mean": 1.0,
+          "cards_to_first_useful": {
+            "sample_count": 18,
+            "median": 1,
+            "max": 1
+          }
+        },
+        "narrow": {
+          "sample_count": 12,
+          "discovery_candidate_count": 34,
+          "surfaced_card_count": 10,
+          "useful_proxy_at_5_total": 10,
+          "useful_proxy_at_5_mean": 0.8333,
+          "cards_to_first_useful": {
+            "sample_count": 10,
+            "median": 1,
+            "max": 1
+          }
+        }
+      },
+      "security": {
+        "high": {
+          "sample_count": 7,
+          "discovery_candidate_count": 21,
+          "surfaced_card_count": 6,
+          "useful_proxy_at_5_total": 6,
+          "useful_proxy_at_5_mean": 0.8571,
+          "cards_to_first_useful": {
+            "sample_count": 6,
+            "median": 1,
+            "max": 1
+          }
+        },
+        "low": {
+          "sample_count": 23,
+          "discovery_candidate_count": 79,
+          "surfaced_card_count": 22,
+          "useful_proxy_at_5_total": 22,
+          "useful_proxy_at_5_mean": 0.9565,
+          "cards_to_first_useful": {
+            "sample_count": 22,
+            "median": 1,
+            "max": 1
+          }
+        }
+      }
+    }
+  },
   "reports": [
     {
       "persona_id": "m1p_01",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -126,6 +260,10 @@
     },
     {
       "persona_id": "m1p_02",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -227,6 +365,10 @@
     },
     {
       "persona_id": "m1p_03",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -328,6 +470,10 @@
     },
     {
       "persona_id": "m1p_04",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -429,6 +575,10 @@
     },
     {
       "persona_id": "m1p_05",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -530,6 +680,10 @@
     },
     {
       "persona_id": "m1p_06",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -631,6 +785,10 @@
     },
     {
       "persona_id": "m1p_07",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -732,6 +890,10 @@
     },
     {
       "persona_id": "m1p_08",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -832,6 +994,10 @@
     },
     {
       "persona_id": "m1p_09",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -933,6 +1099,10 @@
     },
     {
       "persona_id": "m1p_10",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1034,6 +1204,10 @@
     },
     {
       "persona_id": "m1p_11",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "broad",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1135,6 +1309,10 @@
     },
     {
       "persona_id": "m1p_12",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1236,6 +1414,10 @@
     },
     {
       "persona_id": "m1p_13",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1337,6 +1519,10 @@
     },
     {
       "persona_id": "m1p_14",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1438,6 +1624,10 @@
     },
     {
       "persona_id": "m1p_15",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1539,6 +1729,10 @@
     },
     {
       "persona_id": "m1p_16",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1639,6 +1833,10 @@
     },
     {
       "persona_id": "m1p_17",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1740,6 +1938,10 @@
     },
     {
       "persona_id": "m1p_18",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1841,6 +2043,10 @@
     },
     {
       "persona_id": "m1p_19",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -1942,6 +2148,10 @@
     },
     {
       "persona_id": "m1p_20",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2043,6 +2253,10 @@
     },
     {
       "persona_id": "m1p_21",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2144,6 +2358,10 @@
     },
     {
       "persona_id": "m1p_22",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2245,6 +2463,10 @@
     },
     {
       "persona_id": "m1p_23",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2346,6 +2568,10 @@
     },
     {
       "persona_id": "m1p_24",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2446,6 +2672,10 @@
     },
     {
       "persona_id": "m1p_25",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2547,6 +2777,10 @@
     },
     {
       "persona_id": "m1p_26",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2648,6 +2882,10 @@
     },
     {
       "persona_id": "m1p_27",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2749,6 +2987,10 @@
     },
     {
       "persona_id": "m1p_28",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": false,
@@ -2850,6 +3092,10 @@
     },
     {
       "persona_id": "m1p_29",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": true,
@@ -2948,6 +3194,10 @@
     },
     {
       "persona_id": "m1p_30",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
       "earliest_failure": null,
       "unexpected_empty_feed": false,
       "intended_empty_feed": true,

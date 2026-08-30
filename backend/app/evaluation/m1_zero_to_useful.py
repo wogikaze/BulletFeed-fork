@@ -63,6 +63,10 @@ class StageResult:
 @dataclass(frozen=True)
 class PersonaReport:
     persona_id: str
+    cohort: Cohort
+    language: Language
+    breadth: Breadth
+    security: Security
     earliest_failure: str | None
     unexpected_empty_feed: bool
     intended_empty_feed: bool
@@ -341,6 +345,10 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
     earliest = next((stage.stage for stage in stages if not stage.ok), None)
     return PersonaReport(
         persona_id=persona.persona_id,
+        cohort=persona.cohort,
+        language=persona.language,
+        breadth=persona.breadth,
+        security=persona.security,
         earliest_failure=earliest,
         unexpected_empty_feed=unexpected_empty,
         intended_empty_feed=intended_empty and not items,
@@ -359,6 +367,50 @@ def run_qualification(
 ) -> dict[str, Any]:
     selected = tuple(personas or built_in_personas())
     reports = [run_persona_journey(database_factory(), persona) for persona in selected]
+
+    def stage_metric(report: PersonaReport, stage_name: str, metric_name: str) -> int:
+        for stage in report.stages:
+            if stage.stage == stage_name:
+                return int(stage.metrics.get(metric_name, 0))
+        return 0
+
+    def summarize(rows: Sequence[PersonaReport]) -> dict[str, Any]:
+        first_useful = sorted(
+            report.cards_to_first_useful
+            for report in rows
+            if report.cards_to_first_useful is not None
+        )
+        return {
+            "sample_count": len(rows),
+            "discovery_candidate_count": sum(
+                stage_metric(report, "discovery", "candidate_count") for report in rows
+            ),
+            "surfaced_card_count": sum(stage_metric(report, "feed", "surfaced") for report in rows),
+            "useful_proxy_at_5_total": sum(report.useful_proxy_at_5 for report in rows),
+            "useful_proxy_at_5_mean": round(
+                sum(report.useful_proxy_at_5 for report in rows) / len(rows), 4
+            )
+            if rows
+            else None,
+            "cards_to_first_useful": {
+                "sample_count": len(first_useful),
+                "median": (
+                    first_useful[len(first_useful) // 2]
+                    if first_useful
+                    else None
+                ),
+                "max": max(first_useful) if first_useful else None,
+            },
+        }
+
+    segments: dict[str, dict[str, dict[str, Any]]] = {}
+    for dimension in ("cohort", "language", "breadth", "security"):
+        segments[dimension] = {}
+        for value in sorted({getattr(report, dimension) for report in reports}):
+            segments[dimension][value] = summarize(
+                [report for report in reports if getattr(report, dimension) == value]
+            )
+
     failures = [report.persona_id for report in reports if report.earliest_failure]
     stage_failure_counts = {
         stage: sum(
@@ -381,5 +433,9 @@ def run_qualification(
         "tenant_leak": sum(1 for report in reports if report.tenant_leak),
         "unsafe_suppression": sum(1 for report in reports if report.unsafe_suppression),
         "stage_failure_counts": stage_failure_counts,
+        "metrics": {
+            **summarize(reports),
+            "segments": segments,
+        },
         "reports": [report.as_dict() for report in reports],
     }
