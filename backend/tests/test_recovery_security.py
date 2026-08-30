@@ -7,6 +7,7 @@ from pathlib import Path
 from app.database import Database
 from app.db.migrations import KNOWN_REVISIONS
 from app.services.relation import RELATION_FEATURE_VERSION
+from app.services.statuspage_pipeline import StatuspagePipeline
 from app.stores.feed_store import FeedStore
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -16,6 +17,67 @@ if str(SCRIPTS) not in sys.path:
 
 from backup_database import backup_sqlite  # noqa: E402
 from record_db_snapshot import database_sha256, record_snapshot  # noqa: E402
+
+
+def _statuspage_summary() -> dict:
+    return {
+        "incidents": [
+            {
+                "id": "inc_lineage",
+                "name": "API latency",
+                "impact": "major",
+                "created_at": "2026-08-22T00:00:00Z",
+                "shortlink": "https://stspg.io/inc_lineage",
+                "incident_updates": [
+                    {
+                        "id": "upd_lineage_1",
+                        "status": "investigating",
+                        "body": "Investigating elevated latency.",
+                        "display_at": "2026-08-22T00:00:00Z",
+                        "updated_at": "2026-08-22T00:00:00Z",
+                    }
+                ],
+            }
+        ]
+    }
+
+
+def _restore_sqlite(backup_path: Path, restored: Path) -> None:
+    source = sqlite3.connect(backup_path)
+    destination = sqlite3.connect(restored)
+    try:
+        with destination:
+            source.backup(destination)
+    finally:
+        destination.close()
+        source.close()
+
+
+def _lineage(database: Database) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    with database.connect() as connection:
+        observations = tuple(
+            row[0]
+            for row in connection.execute(
+                "SELECT id FROM observations ORDER BY id"
+            ).fetchall()
+        )
+        claims = tuple(
+            row[0]
+            for row in connection.execute(
+                "SELECT id FROM state_claims ORDER BY id"
+            ).fetchall()
+        )
+        evidence = tuple(
+            f"{row[0]}|{row[1]}"
+            for row in connection.execute(
+                """
+                SELECT claim_id, observation_id
+                FROM claim_evidence
+                ORDER BY claim_id, observation_id
+                """
+            ).fetchall()
+        )
+    return observations, claims, evidence
 
 
 def test_backup_and_snapshot_restore_preserve_identity(tmp_path: Path) -> None:
@@ -124,3 +186,52 @@ def test_feed_list_does_not_cross_tenants(database) -> None:
     )
     assert [item.id for item in alice] == ["fi_a"]
     assert bob == []
+
+
+def test_backup_restore_reproduces_observation_claim_lineage(tmp_path: Path) -> None:
+    live = tmp_path / "lineage.db"
+    database = Database(live)
+    database.initialize()
+    StatuspagePipeline(database).ingest_summary(
+        page_id="abcd1234",
+        summary=_statuspage_summary(),
+        retrieved_at="2026-08-22T00:01:00Z",
+    )
+    before = _lineage(database)
+    assert before[0]
+    assert before[1]
+    assert before[2]
+
+    backup_path = backup_sqlite(live, tmp_path / "backups")
+    restored = tmp_path / "lineage-restored.db"
+    _restore_sqlite(backup_path, restored)
+    restored_db = Database(restored)
+    restored_db.initialize()
+    assert _lineage(restored_db) == before
+    StatuspagePipeline(restored_db).ingest_summary(
+        page_id="abcd1234",
+        summary=_statuspage_summary(),
+        retrieved_at="2026-08-22T00:02:00Z",
+    )
+    assert _lineage(restored_db) == before
+
+
+def test_duplicate_delivery_does_not_rewrite_observation_or_claim_ids(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "dup.db"
+    database = Database(path)
+    database.initialize()
+    pipeline = StatuspagePipeline(database)
+    pipeline.ingest_summary(
+        page_id="abcd1234",
+        summary=_statuspage_summary(),
+        retrieved_at="2026-08-22T00:01:00Z",
+    )
+    first = _lineage(database)
+    pipeline.ingest_summary(
+        page_id="abcd1234",
+        summary=_statuspage_summary(),
+        retrieved_at="2026-08-22T00:03:00Z",
+    )
+    assert _lineage(database) == first
