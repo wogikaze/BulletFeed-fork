@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "7f2b61ad9d51f97f3b177c769f97188de1dfe31e",
+  "repository_sha": "93eff24645cb54b1c5bfb02633dfcf7fde624f46",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -171,12 +171,28 @@
     },
     "m6": {
       "artifact": "tests/gold/m6/v01/top3_selection.json",
+      "root_cause_artifact": "tests/gold/m6/v01/root_cause_report.json",
       "status": "partial",
       "evidence_checks": {
         "top3_selected": true,
         "representative_case_floor": true
       },
-      "note": "Selection is complete; production remediation and blind one-shot evaluation are not."
+      "note": "Selection is complete; production remediation and blind one-shot evaluation are not.",
+      "root_cause_analysis": {
+        "status": "partial",
+        "evidence_checks": {
+          "analysis_only": true,
+          "top3_analyzed": true,
+          "responsible_paths_identified": true
+        },
+        "stage_attribution": "ranking",
+        "root_cause_hypotheses": {
+          "package_release_manager": "semantic_identity_gap: the production relation path does not recognize the profile's package/product identity in these cases",
+          "rust_compiler_contributor": "semantic_identity_gap: the production relation path does not recognize the profile's package/product identity in these cases",
+          "javascript_tooling_maintainer": "ranking_priority_or_capacity: the cases receive a non-reference relation signal but remain outside the top-10 ordering"
+        },
+        "note": "Root-cause analysis is ranking-only; no production remediation or blind tuning was performed."
+      }
     },
     "m7": {
       "artifact": "tests/gold/clean_room/v01/backend_report.json",

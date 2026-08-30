@@ -20,6 +20,13 @@ Current selection:
 各群について20件を `top3_selection.json` に保存し、profile/event/source family/language、
 ranking position、rationale、earliest stage (`ranking`) を保持する。
 
+`python backend/scripts/build_m6_root_cause_report.py
+--output backend/tests/gold/m6/v01/root_cause_report.json` は、代表caseを同じproduction
+ranking pathへ再投入し、relation level / importance / personalization rank / rank positionを
+比較する。現在は `package_release_manager` と `rust_compiler_contributor` に semantic identity
+gap、`javascript_tooling_maintainer` に ranking priority/capacity signal を記録している。
+これは原因候補と責任コードパスを固定する分析であり、production fixの適用結果ではない。
+
 ## Boundary
 
 この選定は M6 の dev/adversarial remediation input であり、production algorithm を変更した
