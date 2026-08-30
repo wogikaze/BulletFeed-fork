@@ -2,29 +2,29 @@
   "report_version": "m2-corpus-readiness-v1",
   "dataset_version": "real-world-validation-v0.2",
   "contract_version": "real-world-validation-contract-v1.2",
-  "frozen_main_sha": "cca8207d643b700877de1a6de0044d38aa0345fa",
+  "frozen_main_sha": "4ac6a2cb95a1bf1288c02d991df18c21eba59bb2",
   "capacity": {
-    "event_count": 603,
-    "real_event_count": 600,
-    "authoritative_endpoint_count": 516,
+    "event_count": 1004,
+    "real_event_count": 1001,
+    "authoritative_endpoint_count": 622,
     "profile_count": 146,
     "judgment_count": 10003,
-    "source_family_count": 6,
+    "source_family_count": 7,
     "persona_template_count": 24,
     "meets_targets": true,
     "missing": []
   },
   "coverage": {
-    "events": 603,
-    "real_events": 600,
-    "authoritative_endpoints": 516,
+    "events": 1004,
+    "real_events": 1001,
+    "authoritative_endpoints": 622,
     "contract_fixture_events": 3,
     "discovery_sources": 0,
     "profiles": 146,
     "judgments": 10003,
-    "source_families": 6,
-    "information_types": 3,
-    "languages": 2,
+    "source_families": 7,
+    "information_types": 4,
+    "languages": 3,
     "persona_templates": 24
   },
   "production_scoring": {
@@ -36,19 +36,22 @@
   },
   "splits": {
     "pilot": {
-      "events": 264,
-      "real_events": 263,
-      "sources": 264,
+      "events": 600,
+      "real_events": 599,
+      "sources": 600,
       "profiles": 68,
       "judgments": 5001,
       "source_families": [
         "github_advisory",
         "github_release",
         "osv",
-        "package_registry"
+        "package_registry",
+        "rss_atom",
+        "statuspage"
       ],
       "languages": [
         "en",
+        "ja",
         "mixed"
       ],
       "persona_templates": [
@@ -79,9 +82,9 @@
       ]
     },
     "dev": {
-      "events": 335,
-      "real_events": 334,
-      "sources": 335,
+      "events": 400,
+      "real_events": 399,
+      "sources": 400,
       "profiles": 63,
       "judgments": 5001,
       "source_families": [
@@ -94,6 +97,7 @@
       ],
       "languages": [
         "en",
+        "ja",
         "mixed"
       ],
       "persona_templates": [
@@ -154,9 +158,9 @@
     "human_gold": false,
     "by_stratum": {
       "already_known": 49,
-      "clear_positive": 2241,
-      "semantic_adjacent": 5914,
-      "unrelated": 1798
+      "clear_positive": 3597,
+      "semantic_adjacent": 5587,
+      "unrelated": 769
     }
   },
   "metrics": {
