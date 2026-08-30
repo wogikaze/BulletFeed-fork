@@ -3,9 +3,9 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections.abc import Mapping
-from functools import lru_cache
 from dataclasses import dataclass
 from datetime import datetime
+from functools import lru_cache
 from typing import Literal
 
 from app.services.multilingual_normalize import prepare_for_english_canonicalize
