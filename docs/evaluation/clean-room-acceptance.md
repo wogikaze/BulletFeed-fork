@@ -8,6 +8,9 @@ cd backend
 python scripts/run_clean_room_backend_acceptance.py
 ```
 
+証跡を保存する場合は `--output tests/gold/clean_room/v01/backend_report.json` を付ける。
+report は token を保存せず、user ID と各 stage の pass/fail だけを記録する。
+
 検証する順序は fresh stack/readiness、session、profile/topic onboarding、source
 discovery、activation、subscription、acceptance acquisition/projection、feed、
 Event evidence、meaningful exposure、feedback、subsequent feed である。worker/API

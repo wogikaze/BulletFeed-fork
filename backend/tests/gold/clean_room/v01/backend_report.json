@@ -1,0 +1,81 @@
+{
+  "acceptance_version": "m7-clean-room-backend-v1",
+  "mode": "fresh_ephemeral_backend",
+  "stages": [
+    {
+      "stage": "stack",
+      "ok": true,
+      "detail": "fresh database, API, and worker are ready"
+    },
+    {
+      "stage": "session",
+      "ok": true,
+      "detail": "anonymous session persisted"
+    },
+    {
+      "stage": "onboarding_profile",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "stage": "interest",
+      "ok": true,
+      "detail": "HTTP 201"
+    },
+    {
+      "stage": "onboarding_ready",
+      "ok": true,
+      "detail": "HTTP 200; state=ready"
+    },
+    {
+      "stage": "discovery",
+      "ok": true,
+      "detail": "HTTP 200; candidates=4"
+    },
+    {
+      "stage": "activation",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "stage": "subscription",
+      "ok": true,
+      "detail": "HTTP 200; subscriptions=1"
+    },
+    {
+      "stage": "acquisition_projection",
+      "ok": true,
+      "detail": "HTTP 200; events=1"
+    },
+    {
+      "stage": "feed",
+      "ok": true,
+      "detail": "HTTP 200; cards=2"
+    },
+    {
+      "stage": "evidence",
+      "ok": true,
+      "detail": "HTTP 200; sources=2"
+    },
+    {
+      "stage": "exposure",
+      "ok": true,
+      "detail": "HTTP 200; accepted=1"
+    },
+    {
+      "stage": "feedback",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "stage": "subsequent_feed",
+      "ok": true,
+      "detail": "HTTP 200; cards=2"
+    }
+  ],
+  "limitations": [
+    "source acquisition uses the local acceptance seed fixture; live OAuth and real user enrollment are excluded"
+  ],
+  "user_id": "usr_rf_P5XGu7fL-WzMV",
+  "status": "passed"
+}
