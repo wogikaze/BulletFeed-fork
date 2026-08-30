@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
@@ -76,9 +77,29 @@ def build_report() -> dict[str, Any]:
     return report
 
 
+def _check_report(report: dict[str, Any]) -> tuple[str, ...]:
+    violations: list[str] = []
+    capacity = report["capacity"]
+    if not capacity["meets_targets"]:
+        violations.extend(str(item) for item in capacity["missing"])
+    if not report["frozen_main_sha"]:
+        violations.append("frozen_main_sha is missing")
+    metrics = report["metrics"]
+    if metrics["blind_records_loaded"]:
+        violations.append("production metrics loaded blind records")
+    if metrics["sample"]["judgment_count"] < 10_000:
+        violations.append("production metrics have fewer than 10,000 judgments")
+    if metrics["uncertainty"]["headline"]["at_10"]["status"] != "available":
+        violations.append("headline at_10 uncertainty is unavailable")
+    if metrics["failure_taxonomy"]["status"] != "available":
+        violations.append("failure taxonomy is unavailable")
+    return tuple(violations)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
     report = build_report()
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
@@ -86,6 +107,13 @@ def main(argv: list[str] | None = None) -> int:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(payload, encoding="utf-8")
     print(payload, end="")
+    if not args.check:
+        return 0
+    violations = _check_report(report)
+    if violations:
+        print("M2 validation report gate failed:", file=sys.stderr)
+        print("\n".join(f"- {item}" for item in violations), file=sys.stderr)
+        return 1
     return 0
 
 
