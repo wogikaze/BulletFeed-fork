@@ -1,15 +1,12 @@
-"""Meaningful viewport display policy (Known-03 / viewport-exposure-v1).
+"""Meaningful viewport display policy (Known-03 / viewport-exposure-v2).
 
 A card that merely intersects the viewport is not knowledge evidence.
 KIND_DISPLAYED is recorded only when this policy passes.
 
-Compatibility: if a client omits both dwell_ms and visible_ratio, the
-exposure is treated as displayed so existing clients keep working.
-New clients send dwell_ms + visible_ratio. The backend still enforces
-the thresholds so a brief or tiny visibility cannot become displayed.
-
-detail_opened is an explicit user action (open Event detail) and counts
-as meaningful even when dwell/ratio are below threshold.
+v1 treated omitted dwell_ms+visible_ratio as displayed for old clients.
+Current Android always sends both metrics. v2 ends that window: missing
+or partial metrics stay delivered. detail_opened remains an explicit
+action and still counts as meaningful.
 
 This module does not implement follow baseline (#52) and does not hide
 uncertain knownness.
@@ -17,9 +14,10 @@ uncertain knownness.
 
 from typing import Final
 
-POLICY_VERSION: Final = "viewport-exposure-v1"
+POLICY_VERSION: Final = "viewport-exposure-v2"
 MIN_DWELL_MS: Final = 1000
 MIN_VISIBLE_RATIO: Final = 0.50
+CLIENT_CAPABILITY: Final = "android-sends-dwell-and-visible-ratio"
 
 
 def is_meaningful_display(
@@ -30,15 +28,15 @@ def is_meaningful_display(
 ) -> bool:
     """Return True when an exposure may become KIND_DISPLAYED.
 
-    Missing metrics → displayed (backward compatible).
-    Provided metrics must each meet the v1 threshold.
+    Missing or partial metrics stay delivered. Provided metrics must
+    each meet the v2 threshold. detail_opened is an explicit action.
     """
     if detail_opened:
         return True
-    if dwell_ms is None and visible_ratio is None:
-        return True
-    if dwell_ms is not None and dwell_ms < MIN_DWELL_MS:
+    if dwell_ms is None or visible_ratio is None:
         return False
-    if visible_ratio is not None and visible_ratio < MIN_VISIBLE_RATIO:
+    if dwell_ms < MIN_DWELL_MS:
+        return False
+    if visible_ratio < MIN_VISIBLE_RATIO:
         return False
     return True

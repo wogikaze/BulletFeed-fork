@@ -135,14 +135,18 @@ def test_exposure_request_accepts_optional_metrics() -> None:
 
 
 def test_policy_version_and_thresholds_are_documented() -> None:
-    assert POLICY_VERSION == "viewport-exposure-v1"
+    assert POLICY_VERSION == "viewport-exposure-v2"
     assert MIN_DWELL_MS == 1000
     assert MIN_VISIBLE_RATIO == 0.50
 
 
-def test_missing_metrics_count_as_displayed_for_compat() -> None:
-    assert is_meaningful_display() is True
-    assert is_meaningful_display(dwell_ms=None, visible_ratio=None) is True
+def test_missing_or_partial_metrics_are_not_displayed() -> None:
+    assert is_meaningful_display() is False
+    assert is_meaningful_display(dwell_ms=None, visible_ratio=None) is False
+    assert is_meaningful_display(dwell_ms=2_000, visible_ratio=None) is False
+    assert is_meaningful_display(dwell_ms=None, visible_ratio=1.0) is False
+    assert is_meaningful_display(dwell_ms=0, visible_ratio=0.0) is False
+    assert is_meaningful_display(dwell_ms=None, visible_ratio=None, detail_opened=True)
 
 
 def test_too_brief_or_tiny_visibility_is_not_meaningful() -> None:
@@ -169,7 +173,7 @@ def test_get_feed_does_not_mark_displayed(database) -> None:
     assert _exposure_row(database, delivered[0].delivery_id) is None
 
 
-def test_compat_exposure_without_metrics_records_displayed(database) -> None:
+def test_exposure_without_metrics_stays_delivered(database) -> None:
     _item_id, _event_id, _delta_id, claim_id = _project_claim(database)
     store = FeedStore(database)
     delivered, _ = store.list_feed(
@@ -179,18 +183,10 @@ def test_compat_exposure_without_metrics_records_displayed(database) -> None:
         "learner",
         [{"delivery_id": delivered[0].delivery_id, "displayed_at": "2026-08-22T00:02:00Z"}],
     )
-    assert accepted == 1
-    assert _knownness(database, "learner", claim_id) == "displayed"
-    assert KIND_DISPLAYED in _evidence_kinds(database, "learner", claim_id)
-    row = _exposure_row(database, delivered[0].delivery_id)
-    assert row["policy_version"] == POLICY_VERSION
-    assert row["dwell_ms"] is None
-    assert row["visible_ratio"] is None
-    replay = store.record_exposures(
-        "learner",
-        [{"delivery_id": delivered[0].delivery_id, "displayed_at": "2026-08-22T00:03:00Z"}],
-    )
-    assert replay == 0
+    assert accepted == 0
+    assert _knownness(database, "learner", claim_id) == "delivered"
+    assert KIND_DISPLAYED not in _evidence_kinds(database, "learner", claim_id)
+    assert _exposure_row(database, delivered[0].delivery_id) is None
 
 
 def test_too_brief_visibility_does_not_count_as_displayed(database) -> None:
@@ -304,6 +300,39 @@ def test_detail_open_counts_even_when_dwell_is_brief(database) -> None:
     assert _knownness(database, "learner", claim_id) == "displayed"
     row = _exposure_row(database, delivered[0].delivery_id)
     assert row["detail_opened"] == 1
+
+
+def test_partial_metrics_stay_delivered_but_detail_open_still_counts(database) -> None:
+    _item_id, _event_id, _delta_id, claim_id = _project_claim(database)
+    store = FeedStore(database)
+    delivered, _ = store.list_feed(
+        "learner", relation=None, item_status=None, cursor=None, limit=50
+    )
+    delivery_id = delivered[0].delivery_id
+    rejected = store.record_exposures(
+        "learner",
+        [
+            {
+                "delivery_id": delivery_id,
+                "displayed_at": "2026-08-22T00:02:00Z",
+                "dwell_ms": 4_000,
+            }
+        ],
+    )
+    assert rejected == 0
+    assert _knownness(database, "learner", claim_id) == "delivered"
+    accepted = store.record_exposures(
+        "learner",
+        [
+            {
+                "delivery_id": delivery_id,
+                "displayed_at": "2026-08-22T00:03:00Z",
+                "detail_opened": True,
+            }
+        ],
+    )
+    assert accepted == 1
+    assert _knownness(database, "learner", claim_id) == "displayed"
 
 
 def test_later_meaningful_post_can_follow_rejected_transient(database) -> None:

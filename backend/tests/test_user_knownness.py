@@ -84,6 +84,8 @@ def test_exposed_claims_become_known_without_cross_user_contamination(database):
             {
                 "delivery_id": item.delivery_id,
                 "displayed_at": "2026-08-22T00:12:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
             }
             for item in delivered
         ],

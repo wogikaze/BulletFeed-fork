@@ -71,6 +71,8 @@ def test_feed_delivery_is_not_exposure_or_knownness(
                 {
                     "deliveryId": items[0]["deliveryId"],
                     "displayedAt": "2026-08-23T00:00:00Z",
+                    "dwellMs": 1200,
+                    "visibleRatio": 0.8,
                 }
             ]
         },

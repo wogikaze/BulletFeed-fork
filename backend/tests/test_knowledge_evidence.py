@@ -635,7 +635,14 @@ def test_display_read_and_feedback_extend_watermarks_without_replacing_them(
     )
     store.record_exposures(
         "learner",
-        [{"delivery_id": delivered[0].delivery_id, "displayed_at": "2026-08-22T00:02:00Z"}],
+        [
+            {
+                "delivery_id": delivered[0].delivery_id,
+                "displayed_at": "2026-08-22T00:02:00Z",
+                "dwell_ms": 1200,
+                "visible_ratio": 0.8,
+            }
+        ],
     )
     store.mark_read("learner", item_id)
     store.save_feedback("learner", item_id, "already_knew")
