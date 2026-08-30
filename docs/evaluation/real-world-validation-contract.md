@@ -45,6 +45,18 @@ canonical URL、同一 event、同一 update の mirror group、profile ID、red
 
 constructed profile の variation は persona family cluster として扱い、profile 数を独立な n とみなさない。package registry / RSS artifact は `source_family` と fetch provenance を明示する。
 
+## production scoring と不確実性
+
+`python backend/scripts/run_m2_validation_report.py --output backend/tests/gold/real_world_validation/v01/m2_readiness_report.json`
+は pilot/dev の real event だけを既存の production ranking contract で採点する。P@5/P@10、Recall@5/10、
+NDCG@5/10、redundancy、important-unknown recall、unknown-but-hidden、known-but-reshown を、
+cohort / persona family / language / source family / information type 別に保存する。
+
+不確実性は constructed profile の variation を独立標本にせず、persona family cluster の deterministic
+bootstrap (seed と replicate 数を report に保存) で計算する。production loader は blind path を構築せず、
+AI-silver label は Human Gold として扱わない。acquisition / projection / evidence の earliest-stage
+attribution は ranking 採点だけでは推定せず、別の journey trace で保存する。
+
 ## CI
 
 通常 PR CI は契約検証、split 漏洩、artifact hash、M2 deterministic qualification を実行する。live network の追加収集は manual の collection tool で行い、取得後の corpus は通常 CI で再検証する。
