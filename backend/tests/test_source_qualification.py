@@ -1,0 +1,30 @@
+from pathlib import Path
+
+from app.evaluation.source_qualification import (
+    TARGET_LIVE_ENDPOINTS,
+    TARGET_REPLAY_CASES,
+    load_and_evaluate_source_qualification,
+    qualification_release_violations,
+)
+
+_CORPUS = Path(__file__).parent / "gold" / "real_world_validation" / "v01"
+
+
+def test_recorded_live_artifacts_have_replay_identity() -> None:
+    report = load_and_evaluate_source_qualification(_CORPUS)
+
+    assert report.live_endpoint_count > 0
+    assert report.replay_case_count == sum(report.source_family_counts.values()) * 2
+    assert report.replay_failed_count == 0
+    assert "recorded_fetch" in report.scenario_counts
+    assert "duplicate_delivery" in report.scenario_counts
+
+
+def test_qualification_floors_are_explicit() -> None:
+    report = load_and_evaluate_source_qualification(_CORPUS)
+    violations = qualification_release_violations(report)
+
+    if report.live_endpoint_count < TARGET_LIVE_ENDPOINTS:
+        assert any("live_endpoint_count" in item for item in violations)
+    if report.replay_case_count < TARGET_REPLAY_CASES:
+        assert any("replay_case_count" in item for item in violations)
