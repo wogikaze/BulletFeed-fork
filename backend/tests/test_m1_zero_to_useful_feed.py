@@ -41,6 +41,11 @@ def test_qualification_attempts_all_constructed_personas(tmp_path: Path) -> None
     assert report["unsafe_suppression"] == 0
     assert report["stage_failure_counts"]["activation"] == 0
     assert report["harness_version"] == "m1-zero-to-useful-v02"
+    assert report["metrics"]["sample_count"] == 30
+    assert report["metrics"]["surfaced_card_count"] == 28
+    assert report["metrics"]["useful_proxy_at_5_total"] == 28
+    assert report["metrics"]["segments"]["language"]["ja"]["sample_count"] == 11
+    assert report["metrics"]["segments"]["cohort"]["cold_start"]["sample_count"] == 15
     assert all(
         {"discovery", "activation"} <= {stage["stage"] for stage in row["stages"]}
         for row in report["reports"]
