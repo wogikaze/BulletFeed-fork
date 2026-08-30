@@ -213,6 +213,22 @@ interface BulletFeedApi {
     suspend fun deleteSourceSubscription(
         @Path("subscriptionId") subscriptionId: String,
     )
+
+    @GET("v1/me/knowledge/bootstrap")
+    suspend fun getKnowledgeBootstrap(): KnowledgeBootstrapSummaryDto
+
+    @POST("v1/me/knowledge/bootstrap/claims")
+    suspend fun postKnowledgeBootstrapClaims(
+        @Body body: KnowledgeBootstrapClaimsRequestDto,
+    ): KnowledgeBootstrapClaimsResponseDto
+
+    @PUT("v1/me/knowledge/bootstrap/checkpoint")
+    suspend fun putKnowledgeBootstrapCheckpoint(
+        @Body body: KnowledgeBootstrapCheckpointRequestDto,
+    ): KnowledgeBootstrapCheckpointResponseDto
+
+    @DELETE("v1/me/knowledge/bootstrap")
+    suspend fun deleteKnowledgeBootstrap()
 }
 
 @Serializable
@@ -714,4 +730,65 @@ data class FeedSessionMetricsDto(
     val alreadyKnownReshowRate: Float? = null,
     val cardsToUsefulItem: Float? = null,
     val feedbackResponseRate: Float? = null,
+)
+
+@Serializable
+data class KnowledgeBootstrapSummaryDto(
+    val version: String,
+    val explicitClaimIds: List<String> = emptyList(),
+    val inferredClaimIds: List<String> = emptyList(),
+    val checkpoints: List<KnowledgeBootstrapCheckpointItemDto> = emptyList(),
+    val evidence: List<KnowledgeBootstrapEvidenceDto> = emptyList(),
+)
+
+@Serializable
+data class KnowledgeBootstrapCheckpointItemDto(
+    val subjectKind: String,
+    val subjectId: String,
+    val asOf: Long,
+    val catchUp: Boolean,
+    val claimIds: List<String> = emptyList(),
+)
+
+@Serializable
+data class KnowledgeBootstrapEvidenceDto(
+    val id: String,
+    val kind: String,
+    val provenance: String,
+    val confidence: String,
+    val sourceId: String,
+    val claimId: String? = null,
+    val eventId: String? = null,
+    val createdAt: Long,
+)
+
+@Serializable
+data class KnowledgeBootstrapClaimsRequestDto(
+    val claimIds: List<String>,
+    val sessionId: String? = null,
+)
+
+@Serializable
+data class KnowledgeBootstrapClaimsResponseDto(
+    val version: String,
+    val sessionId: String,
+    val claimIds: List<String> = emptyList(),
+)
+
+@Serializable
+data class KnowledgeBootstrapCheckpointRequestDto(
+    val subjectKind: String,
+    val subjectId: String,
+    val asOf: String? = null,
+    val catchUp: Boolean = false,
+)
+
+@Serializable
+data class KnowledgeBootstrapCheckpointResponseDto(
+    val version: String,
+    val subjectKind: String,
+    val subjectId: String,
+    val asOf: Long,
+    val catchUp: Boolean,
+    val claimIds: List<String> = emptyList(),
 )

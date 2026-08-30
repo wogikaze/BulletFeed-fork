@@ -51,6 +51,8 @@ fun EventDetailScreen(
     onBack: () -> Unit,
     onFeedback: (Feedback) -> Unit,
     onFollow: () -> Unit,
+    onMarkCurrentStateKnown: (catchUp: Boolean) -> Unit = {},
+    isSavingKnowledgeBootstrap: Boolean = false,
 ) {
     BackHandler(onBack = onBack)
     Scaffold(
@@ -92,6 +94,13 @@ fun EventDetailScreen(
                     Text(event.summary, style = MaterialTheme.typography.bodyLarge, color = Color(0xFF49454F), lineHeight = 24.sp)
                     Spacer(Modifier.height(18.dp))
                     CurrentStateCard(event.currentState)
+                    Spacer(Modifier.height(12.dp))
+                    KnowledgeBootstrapCard(
+                        currentState = event.currentState,
+                        following = event.following,
+                        isSaving = isSavingKnowledgeBootstrap,
+                        onMarkCurrentStateKnown = onMarkCurrentStateKnown,
+                    )
                     Spacer(Modifier.height(20.dp))
                     SectionTitle("Delta")
                     DeltaCard(event.openedDelta ?: event.latestDelta)
@@ -226,6 +235,61 @@ private fun EventSourceCard(source: EventSource) {
                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
                 Text("元ソースを開く", modifier = Modifier.padding(start = 5.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun KnowledgeBootstrapCard(
+    currentState: CurrentState,
+    following: Boolean,
+    isSaving: Boolean,
+    onMarkCurrentStateKnown: (Boolean) -> Unit,
+) = Card(
+    colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+    modifier = Modifier.fillMaxWidth(),
+) {
+    Column(Modifier.padding(16.dp)) {
+        Text("アプリ外ですでに知っている場合", fontWeight = FontWeight.Bold)
+        Text(
+            "現在状態「${currentState.summary}」を確認して登録します。Claim ID の入力は不要です。",
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF49454F),
+        )
+        Text(
+            "「現在より前を既知にする」は、この時点ですでに真だった事実だけを既知にします。途中経過は既知にしません。",
+            modifier = Modifier.padding(top = 8.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = Color(0xFF655F69),
+        )
+        Text(
+            "「これから追う（catch up）」は開始時刻だけを残し、過去の事実は既知にしません。後から同じ再掲を隠す用途には使いません。",
+            modifier = Modifier.padding(top = 4.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = Color(0xFF655F69),
+        )
+        if (!following) {
+            Text(
+                "初回フォロー時にも同じ確認が開きます。",
+                modifier = Modifier.padding(top = 6.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF655F69),
+            )
+        }
+        Button(
+            onClick = { onMarkCurrentStateKnown(false) },
+            enabled = !isSaving,
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        ) {
+            Text("この現在状態はすでに知っている")
+        }
+        OutlinedButton(
+            onClick = { onMarkCurrentStateKnown(true) },
+            enabled = !isSaving,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        ) {
+            Text("これから追う（過去は既知にしない）")
         }
     }
 }

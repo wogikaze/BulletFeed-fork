@@ -33,6 +33,12 @@ class MockAppState {
     val exposures: MutableList<FeedExposure> = mutableListOf()
     var activeFeedSessionId: String? = null
     var feedSessionStarts: Int = 0
+    var knowledgeBootstrap: KnowledgeBootstrapSummary =
+        KnowledgeBootstrapSummary(
+            version = "knowledge-bootstrap-v1",
+            explicitKnownFactCount = 0,
+            inferredFactCount = 0,
+        )
     val topicCatalog: List<UserTopic> =
         listOf(
             "Kotlin",

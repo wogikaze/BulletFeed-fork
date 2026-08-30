@@ -274,6 +274,52 @@ fun SourceSubscriptionDto.toDomain(): SourceSubscription =
         failureCount = status?.failureCount ?: 0,
     )
 
+fun KnowledgeBootstrapSummaryDto.toDomain(): KnowledgeBootstrapSummary =
+    KnowledgeBootstrapSummary(
+        version = version,
+        explicitKnownFactCount = explicitClaimIds.size,
+        inferredFactCount = inferredClaimIds.size,
+        checkpoints = checkpoints.map { it.toDomain() },
+        evidence = evidence.map { it.toDomain() },
+    )
+
+fun KnowledgeBootstrapCheckpointItemDto.toDomain(): KnowledgeBootstrapCheckpoint =
+    KnowledgeBootstrapCheckpoint(
+        subjectKind = BootstrapSubjectKind.valueOf(subjectKind.uppercase()),
+        subjectId = subjectId,
+        asOf = asOf,
+        catchUp = catchUp,
+        knownFactCount = claimIds.size,
+    )
+
+fun KnowledgeBootstrapEvidenceDto.toDomain(): KnowledgeBootstrapEvidence =
+    KnowledgeBootstrapEvidence(
+        id = id,
+        kind = kind,
+        provenance = provenance,
+        confidence = confidence,
+        sourceId = sourceId,
+        eventId = eventId,
+        createdAt = createdAt,
+    )
+
+fun KnowledgeBootstrapCheckpointResponseDto.toDomain(): KnowledgeBootstrapResult =
+    KnowledgeBootstrapResult(
+        version = version,
+        subjectKind = BootstrapSubjectKind.valueOf(subjectKind.uppercase()),
+        subjectId = subjectId,
+        asOf = asOf,
+        catchUp = catchUp,
+        knownFactCount = claimIds.size,
+    )
+
+fun KnowledgeBootstrapClaimsResponseDto.toDomain(): KnowledgeBootstrapResult =
+    KnowledgeBootstrapResult(
+        version = version,
+        sessionId = sessionId,
+        knownFactCount = claimIds.size,
+    )
+
 fun NotificationDto.toDomain(): AppNotification =
     AppNotification(
         id = id,

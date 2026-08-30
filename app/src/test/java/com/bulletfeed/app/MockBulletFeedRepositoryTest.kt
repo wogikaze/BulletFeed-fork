@@ -112,4 +112,37 @@ class MockBulletFeedRepositoryTest {
             repository.removeSourceSubscription(created.id)
             assertTrue(repository.getSourceSubscriptions().isEmpty())
         }
+
+    @Test
+    fun knowledgeBootstrapCheckpointDoesNotExposeClaimIdsInSummary() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            val empty = repository.getKnowledgeBootstrap()
+            assertEquals(0, empty.explicitKnownFactCount)
+            assertEquals(0, empty.inferredFactCount)
+
+            val marked = repository.recordKnowledgeCheckpoint(
+                BootstrapSubjectKind.EVENT,
+                "evt_demo",
+                catchUp = false,
+            )
+            assertEquals(false, marked.catchUp)
+            assertTrue(marked.knownFactCount > 0)
+
+            val catchUp = repository.recordKnowledgeCheckpoint(
+                BootstrapSubjectKind.TOPIC,
+                "React",
+                catchUp = true,
+            )
+            assertTrue(catchUp.catchUp)
+            assertEquals(0, catchUp.knownFactCount)
+
+            val summary = repository.getKnowledgeBootstrap()
+            assertTrue(summary.checkpoints.any { it.subjectKind == BootstrapSubjectKind.EVENT && !it.catchUp })
+            assertTrue(summary.checkpoints.any { it.subjectKind == BootstrapSubjectKind.TOPIC && it.catchUp })
+            assertTrue(summary.checkpoints.none { it.subjectId.isBlank() })
+
+            repository.resetKnowledgeBootstrap()
+            assertTrue(repository.getKnowledgeBootstrap().checkpoints.isEmpty())
+        }
 }

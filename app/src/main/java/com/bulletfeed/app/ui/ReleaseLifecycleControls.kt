@@ -94,6 +94,13 @@ fun SettingsScreen(
     subscriptionError: String? = null,
     onAddSubscription: (UserSourceKind, String, String) -> Unit = { _, _, _ -> },
     onRemoveSubscription: (String) -> Unit = {},
+    knowledgeBootstrap: KnowledgeBootstrapSummary = KnowledgeBootstrapSummary(
+        version = "",
+        explicitKnownFactCount = 0,
+        inferredFactCount = 0,
+    ),
+    isSavingKnowledgeBootstrap: Boolean = false,
+    onResetKnowledgeBootstrap: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -111,6 +118,9 @@ fun SettingsScreen(
             subscriptionError = subscriptionError,
             onAddSubscription = onAddSubscription,
             onRemoveSubscription = onRemoveSubscription,
+            knowledgeBootstrap = knowledgeBootstrap,
+            isSavingKnowledgeBootstrap = isSavingKnowledgeBootstrap,
+            onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
             modifier = Modifier.weight(1f),
         )
         OutlinedButton(

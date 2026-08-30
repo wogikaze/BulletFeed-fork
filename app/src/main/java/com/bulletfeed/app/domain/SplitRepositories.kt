@@ -112,6 +112,20 @@ interface MeRepository {
     ): SourceSubscription
 
     suspend fun removeSourceSubscription(subscriptionId: String)
+
+    suspend fun getKnowledgeBootstrap(): KnowledgeBootstrapSummary =
+        KnowledgeBootstrapSummary(version = "", explicitKnownFactCount = 0, inferredFactCount = 0)
+
+    suspend fun recordKnowledgeCheckpoint(
+        subjectKind: BootstrapSubjectKind,
+        subjectId: String,
+        catchUp: Boolean,
+        asOf: String? = null,
+    ): KnowledgeBootstrapResult
+
+    suspend fun recordExplicitKnowledgeClaims(claimIds: List<String>): KnowledgeBootstrapResult
+
+    suspend fun resetKnowledgeBootstrap()
 }
 
 interface IntegrationRepository {
