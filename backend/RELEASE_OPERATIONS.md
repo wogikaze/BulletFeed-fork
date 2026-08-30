@@ -32,7 +32,7 @@ Do not depend on a developer laptop's existing `data/bulletfeed.db`. The release
 
 ## Recovery and adversarial suite
 
-Repeatable automation is `python scripts/run_recovery_security_suite.py` from `backend/`. It covers backup/snapshot restore identity, Observation→Claim lineage after restore, duplicate-delivery idempotency, idempotent `initialize()`, tenant-isolated Feed, replay recovery, and SSRF/private-address suites. `python scripts/run_process_recovery_drill.py` separately starts the API and worker as independent processes, kills and restarts each one, verifies readiness transitions, and confirms the session survives both restarts. Disk-full and partial-filesystem-write drills remain host-specific. Do not widen Bandit/Semgrep waivers to make these suites green.
+Repeatable automation is `python scripts/run_recovery_security_suite.py` from `backend/`. It covers backup/snapshot restore identity, Observation→Claim lineage after restore, duplicate-delivery idempotency, idempotent `initialize()`, tenant-isolated Feed, replay recovery, and SSRF/private-address suites. `python scripts/run_process_recovery_drill.py --output tests/gold/recovery/v01/process_recovery_report.json` separately starts the API and worker as independent processes, kills and restarts each one, verifies readiness transitions, and confirms the session survives both restarts. The saved report omits ephemeral database paths and user IDs. Disk-full and partial-filesystem-write drills remain host-specific. Do not widen Bandit/Semgrep waivers to make these suites green.
 
 ## Required services
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import socket
@@ -115,7 +116,21 @@ def _user_exists(database_path: Path, user_id: str) -> bool:
         ).fetchone() is not None
 
 
-def main() -> int:
+def _emit(result: dict[str, Any], output: Path | None) -> None:
+    public_result = dict(result)
+    public_result.pop("database_path", None)
+    public_result.pop("session_user_id", None)
+    payload = json.dumps(public_result, ensure_ascii=False, indent=2) + "\n"
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload, encoding="utf-8")
+    print(payload, end="")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=None)
+    args = parser.parse_args(argv)
     workdir = Path(tempfile.mkdtemp(prefix="bulletfeed-process-recovery-"))
     database_path = workdir / "data" / "bulletfeed.db"
     database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -143,7 +158,6 @@ def main() -> int:
         "residual_risks": ["disk_full_and_partial_filesystem_write_require_host-specific drills"],
     }
     try:
-        worker = _start_worker(env)
         api = _start_api(env, port)
         base_url = f"http://127.0.0.1:{port}"
         _wait_for_status(
@@ -152,6 +166,7 @@ def main() -> int:
             timeout_seconds=READY_TIMEOUT_SECONDS,
             label="API health",
         )
+        worker = _start_worker(env)
         _wait_for_status(
             f"{base_url}/health/ready",
             200,
@@ -209,11 +224,11 @@ def main() -> int:
             raise RuntimeError(f"session persistence after API restart failed with HTTP {status}")
         result["api_restart"] = True
         result["status"] = "passed"
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _emit(result, args.output)
         return 0
     except Exception as exc:
         result.update({"status": "failed", "error": f"{type(exc).__name__}: {exc}"})
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _emit(result, args.output)
         return 1
     finally:
         _stop(api)
