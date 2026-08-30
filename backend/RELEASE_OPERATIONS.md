@@ -14,6 +14,10 @@ The script fail-closes on missing/placeholder GitHub OAuth values, an invalid Fe
 
 Do not depend on a developer laptop's existing `data/bulletfeed.db`. The release database path inside the stack is `/data/bulletfeed.db` on the durable `bulletfeed-data` volume.
 
+## Recovery and adversarial suite
+
+Repeatable automation is `python scripts/run_recovery_security_suite.py` from `backend/`. It covers backup/snapshot restore identity, idempotent `initialize()`, tenant-isolated Feed, replay recovery, and SSRF/private-address suites. Residual host drills (compose process kill, disk-full) stay outside PR CI. Do not widen Bandit/Semgrep waivers to make this suite green.
+
 ## Required services
 
 Run `docker compose -f compose.release.yml up -d api worker`. Both services use `.env.release` and the `bulletfeed-data` volume. `Database.initialize()` is the idempotent schema/migration entry point for both processes, so a newly deployed image upgrades the shared database before serving work.
