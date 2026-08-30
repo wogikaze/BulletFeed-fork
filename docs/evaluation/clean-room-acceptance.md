@@ -9,12 +9,17 @@ python scripts/run_clean_room_backend_acceptance.py
 ```
 
 証跡を保存する場合は `--output tests/gold/clean_room/v01/backend_report.json` を付ける。
-report は token を保存せず、user ID と各 stage の pass/fail だけを記録する。
+report は token と ephemeral user ID を保存せず、各 stage の pass/fail だけを記録する。
 
 検証する順序は fresh stack/readiness、session、profile/topic onboarding、source
 discovery、activation、subscription、acceptance acquisition/projection、feed、
 Event evidence、meaningful exposure、feedback、subsequent feed である。worker/API
 process recovery と Android release build は M5/M4 の専用 gate で別途実行する。
+
+Android の real-backend acceptance は `com.bulletfeed.app.RealBackendAcceptanceTest` を
+fresh ephemeral backendへ接続して実行する。結果は
+`backend/tests/gold/android_acceptance/v01/acceptance_report.json` に集約し、release APKは
+対応する Android Actions artifact として保存する。APK binaryやbackend tokenはcommitしない。
 
 この backend harness の source acquisition は deterministic acceptance fixture を
 使う。live OAuth、実ユーザー登録、公開 HTTPS backend 上の field validation は
