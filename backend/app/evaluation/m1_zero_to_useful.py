@@ -12,16 +12,21 @@ from pathlib import Path
 from typing import Any, Literal
 
 from app.database import Database
+from app.db.topic_catalog import install_topic_catalog
 from app.services.feed_projection import FeedProjector
 from app.services.ledger_projection import LedgerProjector
+from app.services.source_actionability import actionability_allows_approve
+from app.services.source_discovery import list_source_recommendations_for_user
 from app.services.statuspage_pipeline import StatuspagePipeline
 from app.stores.feed_store import FeedStore
 
-HARNESS_VERSION = "m1-zero-to-useful-v01"
+HARNESS_VERSION = "m1-zero-to-useful-v02"
 PERSONA_MANIFEST_VERSION = "m1-personas-v01"
 STAGES = (
     "account",
     "interests",
+    "discovery",
+    "activation",
     "acquisition",
     "projection",
     "feed",
@@ -191,6 +196,7 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
     with database.connect() as connection:
         connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", (user_id,))
         connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", (outsider_id,))
+    install_topic_catalog(database)
     stages.append(StageResult("account", True, "created", {"user_id": user_id}))
 
     with database.connect() as connection:
@@ -208,6 +214,36 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
             True,
             "topics recorded",
             {"topic_count": len(persona.topics)},
+        )
+    )
+
+    intended_empty = bool(persona.expect_empty_reason)
+    recommendations = list_source_recommendations_for_user(database, user_id)
+    approvable = [
+        item for item in recommendations.items if actionability_allows_approve(item.actionability)
+    ]
+    discovery_ok = intended_empty or bool(recommendations.items)
+    stages.append(
+        StageResult(
+            "discovery",
+            discovery_ok,
+            persona.expect_empty_reason or ("candidates" if recommendations.items else "no_candidates"),
+            {
+                "candidate_count": len(recommendations.items),
+                "runtime_hint_count": recommendations.runtime_hint_count,
+                "seed_fallback_used": recommendations.seed_fallback_used,
+            },
+        )
+    )
+    stages.append(
+        StageResult(
+            "activation",
+            intended_empty or bool(approvable),
+            "approvable" if approvable else "no_approvable_candidate",
+            {
+                "approvable_count": len(approvable),
+                "actionabilities": sorted({item.actionability for item in recommendations.items}),
+            },
         )
     )
 
