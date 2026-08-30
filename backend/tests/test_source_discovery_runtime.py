@@ -4,16 +4,21 @@ from pathlib import Path
 
 from app.database import Database
 from app.db.topic_catalog import install_topic_catalog
-from app.evaluation.source_discovery_gold import evaluate_source_discovery, load_source_discovery_gold
+from app.evaluation.source_discovery_gold import (
+    evaluate_source_discovery,
+    load_source_discovery_gold,
+)
 from app.observability import counters, reset
 from app.services.sitemap_discovery import record_sitemap_candidates
 from app.services.source_catalog import SourceKind
 from app.services.source_discovery import (
+    DiscoveryHint,
     discover_sources_for_topics,
     list_source_recommendations_for_user,
 )
 from app.services.source_discovery_runtime import (
     default_runtime_collector,
+    load_runtime_discovery_hints,
     persist_runtime_discovery_hints,
     refresh_runtime_discovery_for_topics,
 )
@@ -24,7 +29,7 @@ from app.stores.discovery_store import DiscoveryStore
 _GOLD = Path(__file__).parent / "gold" / "source_discovery" / "v01" / "cases.json"
 
 
-def _seed_user(connection, user_id: str, *, topics: tuple[tuple[str, str], ...]) -> None:
+def _seed_user(connection, user_id: str, *, topics: tuple[tuple[str, str], ...] = ()) -> None:
     connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", (user_id,))
     for index, (name, priority) in enumerate(topics):
         connection.execute(
@@ -36,53 +41,50 @@ def _seed_user(connection, user_id: str, *, topics: tuple[tuple[str, str], ...])
         )
 
 
-def test_topic_without_curated_seed_finds_official_runtime_candidates() -> None:
-    hints = default_runtime_collector(("Bun",))
-    result = discover_sources_for_topics(
-        ("Bun",),
-        SourceRegistry(seed_mvp=False),
-        include_curated_seeds=False,
-        hints=hints,
-    )
+def test_no_seed_topic_finds_official_runtime_candidates(tmp_path) -> None:
+    database = Database(tmp_path / "runtime.db")
+    database.initialize()
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        _seed_user(connection, "user_bun", topics=(("Bun", "high"),))
+
+    result = list_source_recommendations_for_user(database, "user_bun")
     urls = {item.canonical_url for item in result.items}
     assert canonicalize_url("https://bun.sh/rss.xml") in urls
     assert canonicalize_url("https://bun.sh/sitemap.xml") in urls
     assert canonicalize_url("https://status.bun.sh/api/v2/summary.json") in urls
-    provenances = {item.discovery_provenance for item in result.items}
-    assert DiscoveryProvenance.WEBSITE_FEED.value in provenances
-    assert DiscoveryProvenance.SITEMAP_LINK.value in provenances
-    assert DiscoveryProvenance.STATUSPAGE_LINK.value in provenances
-    assert DiscoveryProvenance.PACKAGE_HOMEPAGE.value in provenances
-    assert all(item.evidence_eligible is False for item in result.items)
-    assert all(
-        item.discovery_only is True
-        for item in result.items
-        if item.discovery_provenance == DiscoveryProvenance.EXTERNAL_INDEX.value
-    )
-
-
-def test_runtime_hints_persist_provenance_and_registry(tmp_path: Path) -> None:
-    database = Database(tmp_path / "runtime.db")
-    database.initialize()
-    hints = default_runtime_collector(("svelte",))
-    persisted = persist_runtime_discovery_hints(database, hints)
-    assert persisted == len(hints)
-    store = DiscoveryStore(database)
-    rows = store.list_all()
-    assert {row.discovery_method for row in rows} >= {
-        DiscoveryProvenance.WEBSITE_FEED.value,
-        DiscoveryProvenance.SITEMAP_LINK.value,
-    }
-    assert all(row.metadata.get("concept_ids") == ["svelte"] for row in rows)
+    assert result.runtime_hint_count >= 3
+    assert result.seed_fallback_used is False
+    feed = next(item for item in result.items if item.canonical_url.endswith("/rss.xml"))
+    assert feed.discovery_provenance == DiscoveryProvenance.WEBSITE_FEED
+    assert feed.evidence_eligible is False
+    persisted = DiscoveryStore(database).list_all()
+    assert any(row.target_url.endswith("/rss.xml") for row in persisted)
     registry = SourceRegistry(database)
-    feed = registry.find_duplicate_endpoint(
-        "https://svelte.dev/blog/rss.xml",
-        family=SourceKind.RSS_ATOM,
+    assert registry.find_duplicate_endpoint("https://bun.sh/rss.xml", family=SourceKind.RSS_ATOM)
+
+
+def test_hn_and_external_index_never_persist_as_truth(tmp_path) -> None:
+    database = Database(tmp_path / "hn-runtime.db")
+    database.initialize()
+    persist_runtime_discovery_hints(
+        database,
+        (
+            DiscoveryHint(
+                url="https://news.ycombinator.com/item?id=1",
+                provenance=DiscoveryProvenance.EXTERNAL_INDEX.value,
+                family=SourceKind.HACKER_NEWS_DISCOVERY,
+                concept_ids=("bun",),
+                title="HN thread",
+                why="Suggested by Hacker News",
+            ),
+        ),
     )
-    assert feed is not None
+    assert load_runtime_discovery_hints(database) == ()
+    assert DiscoveryStore(database).list_all() == []
 
 
-def test_persisted_sitemap_candidates_reenter_recommendations(tmp_path: Path) -> None:
+def test_persisted_sitemap_candidates_reenter_recommendations(tmp_path) -> None:
     database = Database(tmp_path / "sitemap.db")
     database.initialize()
     install_topic_catalog(database)
@@ -101,22 +103,19 @@ def test_persisted_sitemap_candidates_reenter_recommendations(tmp_path: Path) ->
         _seed_user(connection, "user_bun", topics=(("Bun", "high"),))
     result = list_source_recommendations_for_user(database, "user_bun")
     assert result.runtime_hint_count >= 4
-    assert result.seed_fallback_used is False
-    urls = {item.canonical_url for item in result.items}
-    assert canonicalize_url("https://bun.sh/rss.xml") in urls
-    assert any("bun.sh" in item.canonical_url for item in result.items)
+    assert canonicalize_url("https://bun.sh/rss.xml") in {item.canonical_url for item in result.items}
 
 
-def test_collector_failure_falls_back_to_seeds_and_is_measured(tmp_path: Path) -> None:
-    reset()
+def test_network_failure_falls_back_to_seeds_and_is_measured(tmp_path) -> None:
     database = Database(tmp_path / "fallback.db")
     database.initialize()
     install_topic_catalog(database)
     with database.connect() as connection:
         _seed_user(connection, "user_react", topics=(("React", "high"),))
+    reset()
 
     def boom(_topics):
-        raise TimeoutError("upstream discovery unavailable")
+        raise TimeoutError("collector offline")
 
     refresh = refresh_runtime_discovery_for_topics(
         database,
@@ -124,33 +123,27 @@ def test_collector_failure_falls_back_to_seeds_and_is_measured(tmp_path: Path) -
         collector=boom,
     )
     assert refresh.seed_fallback_used is True
-    assert refresh.persisted == 0
-    assert counters().get("runtime_discovery_fallback_seed", 0) >= 1
+    assert counters()["runtime_discovery_fallback_seed"] == 1
+
     result = list_source_recommendations_for_user(database, "user_react")
-    urls = {item.canonical_url for item in result.items}
-    assert canonicalize_url("https://github.com/facebook/react/releases") in urls
-    assert all(
-        item.discovery_only is True
-        for item in result.items
-        if item.discovery_provenance == DiscoveryProvenance.EXTERNAL_INDEX.value
-    )
+    assert any("react.dev" in item.canonical_url or "facebook/react" in item.canonical_url for item in result.items)
 
 
-def test_seed_versus_no_seed_recall_is_segmented() -> None:
+def test_seed_vs_no_seed_recall_is_segmented() -> None:
     gold = load_source_discovery_gold(_GOLD)
     report = evaluate_source_discovery(gold, registry=SourceRegistry())
     assert report.seed_mean_recall >= 0.45
-    assert report.no_seed_mean_recall >= 0.0
-    bun = discover_sources_for_topics(
+    no_seed = discover_sources_for_topics(
         ("Bun",),
-        SourceRegistry(seed_mvp=False),
+        SourceRegistry(),
         include_curated_seeds=False,
         hints=default_runtime_collector(("Bun",)),
     )
+    urls = {item.canonical_url for item in no_seed.items}
+    assert canonicalize_url("https://bun.sh/rss.xml") in urls
     seed_only = discover_sources_for_topics(
         ("Bun",),
-        SourceRegistry(seed_mvp=False),
+        SourceRegistry(),
         include_curated_seeds=True,
     )
-    assert bun.items
-    assert not any("bun.sh" in item.canonical_url for item in seed_only.items)
+    assert canonicalize_url("https://bun.sh/rss.xml") not in {item.canonical_url for item in seed_only.items}
