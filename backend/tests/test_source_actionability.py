@@ -114,6 +114,23 @@ def test_generic_web_subscribe_creates_watch_job(database, monkeypatch) -> None:
     assert _count(database, "source_sync_jobs") == 1
 
 
+def test_security_interest_has_actionable_advisory_page(database) -> None:
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        _seed_user(connection, "user_security", topics=(("security", "high"),))
+
+    items = list_source_recommendations_for_user(database, "user_security").items
+    cisa = next(
+        item
+        for item in items
+        if item.canonical_url == "https://cisa.gov/news-events/cybersecurity-advisories"
+    )
+
+    assert cisa.family == SourceKind.GENERIC_WEB.value
+    assert cisa.actionability == "subscribe"
+    assert cisa.discovery_only is True
+
+
 def test_unsupported_family_cannot_be_approved(database) -> None:
     install_topic_catalog(database)
     persist_runtime_discovery_hints(
