@@ -36,6 +36,8 @@ from app.services.source_registry import (
     SourceRegistry,
     VerificationStatus,
     canonicalize_url,
+    endpoint_id,
+    publisher_id,
 )
 from app.services.user_interest import (
     INTEREST_STATE_VERSION,
@@ -197,6 +199,7 @@ def discover_sources(
     hn_items: Sequence[Mapping[str, Any]] = (),
     include_ignored: bool = False,
     include_curated_seeds: bool = True,
+    persist_registry: bool = True,
     limit: int = _DEFAULT_LIMIT,
 ) -> SourceDiscoveryResult:
     source_registry = registry or SourceRegistry()
@@ -209,7 +212,12 @@ def discover_sources(
     )
     grouped: dict[str, SourceCandidate] = {}
     for hint in merged_hints:
-        candidate = _candidate_from_hint(state, source_registry, hint)
+        candidate = _candidate_from_hint(
+            state,
+            source_registry,
+            hint,
+            persist_registry=persist_registry,
+        )
         if candidate is None:
             continue
         existing = grouped.get(candidate.candidate_id)
@@ -326,7 +334,12 @@ def list_source_recommendations_for_user(
         refresh_runtime_discovery_for_user,
     )
 
-    refresh = refresh_runtime_discovery_for_user(database, user_id, registry=source_registry)
+    refresh = refresh_runtime_discovery_for_user(
+        database,
+        user_id,
+        registry=source_registry,
+        persist_registry=False,
+    )
     runtime_hints = load_runtime_discovery_hints(database)
     merged_hints = (*hints, *runtime_hints)
     with database.connect() as connection:
@@ -338,6 +351,7 @@ def list_source_recommendations_for_user(
             limit=limit,
             hints=merged_hints,
             hn_items=hn_items,
+            persist_registry=False,
         )
     return replace(
         result,
@@ -456,6 +470,8 @@ def _candidate_from_hint(
     state: UserInterestState,
     registry: SourceRegistry,
     hint: DiscoveryHint,
+    *,
+    persist_registry: bool = True,
 ) -> SourceCandidate | None:
     match = _match_hint(state, hint)
     if match is None:
@@ -476,6 +492,7 @@ def _candidate_from_hint(
         publisher_name=hint.publisher_name,
         verification_status=verification,
         authority_status=authority,
+        persist_registry=persist_registry,
     )
     publisher = registry.get_publisher(endpoint.publisher_id)
     publisher_slug = publisher.slug if publisher is not None else (hint.publisher_slug or "unknown")
@@ -526,10 +543,27 @@ def _register_or_reuse(
     publisher_name: str | None,
     verification_status: str,
     authority_status: str,
+    persist_registry: bool = True,
 ) -> Endpoint:
     existing = registry.find_duplicate_endpoint(url, family=family)
     if existing is not None:
         return existing
+    if not persist_registry:
+        try:
+            method = get_source_policy(family).discovery_method.value
+        except ValueError:
+            method = "html"
+        return Endpoint(
+            endpoint_id=endpoint_id(url=url, family=family),
+            publisher_id=publisher_id(slug=publisher_slug, homepage_url=homepage_url),
+            family=family.value,
+            canonical_url=canonicalize_url(url),
+            registered_url=url.strip(),
+            discovery_method=method,
+            verification_status=verification_status,
+            authority_status=authority_status,
+            created_at=_utc_now(),
+        )
     if publisher_slug:
         registry.register_publisher(
             slug=publisher_slug,

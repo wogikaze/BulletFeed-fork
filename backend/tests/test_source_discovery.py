@@ -259,6 +259,37 @@ def test_approve_ignore_does_not_auto_subscribe(tmp_path: Path) -> None:
     assert _count(database, "state_claims") == 0
 
 
+def test_list_recommendations_does_not_mutate_canonical_registry(tmp_path: Path) -> None:
+    database = Database(tmp_path / "get-registry.db")
+    database.initialize()
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        _seed_user(connection, "user_a", topics=(("React", "high"),))
+
+    first = list_source_recommendations_for_user(database, "user_a")
+    assert first.items
+
+    def registry_counts() -> tuple[int, int]:
+        with database.connect() as connection:
+            publishers = connection.execute(
+                "SELECT COUNT(*) AS count FROM source_publishers"
+            ).fetchone()["count"]
+            endpoints = connection.execute(
+                "SELECT COUNT(*) AS count FROM source_endpoints"
+            ).fetchone()["count"]
+        return int(publishers), int(endpoints)
+
+    before = registry_counts()
+    second = list_source_recommendations_for_user(database, "user_a")
+    third = list_source_recommendations_for_user(database, "user_a")
+    assert registry_counts() == before
+    assert [item.candidate_id for item in first.items] == [item.candidate_id for item in second.items]
+    assert [item.candidate_id for item in second.items] == [item.candidate_id for item in third.items]
+    assert all(item.verification_status != "verified" or item.discovery_only is False for item in first.items)
+    hn = [item for item in first.items if item.discovery_only]
+    assert all(item.verification_status != "verified" for item in hn)
+
+
 def test_approve_supported_family_creates_subscription_and_sync_job(database, monkeypatch) -> None:
     monkeypatch.setenv("BULLETFEED_RSS_ALLOWED_HOSTS", "react.dev")
     get_settings.cache_clear()

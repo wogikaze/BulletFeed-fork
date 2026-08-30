@@ -152,6 +152,7 @@ def persist_runtime_discovery_hints(
     *,
     registry: SourceRegistry | None = None,
     seen_at: str | None = None,
+    persist_registry: bool = True,
 ) -> int:
     store = DiscoveryStore(database)
     source_registry = registry or SourceRegistry(database)
@@ -176,18 +177,19 @@ def persist_runtime_discovery_hints(
             },
             seen_at=stamp,
         )
-        family = hint.family or infer_source_family(hint.url)
-        if hint.publisher_slug:
-            source_registry.register_publisher(
-                slug=hint.publisher_slug,
-                display_name=hint.publisher_name or hint.publisher_slug,
-                homepage_url=hint.homepage_url or hint.url,
+        if persist_registry:
+            family = hint.family or infer_source_family(hint.url)
+            if hint.publisher_slug:
+                source_registry.register_publisher(
+                    slug=hint.publisher_slug,
+                    display_name=hint.publisher_name or hint.publisher_slug,
+                    homepage_url=hint.homepage_url or hint.url,
+                )
+            source_registry.register_endpoint(
+                url=hint.url,
+                family=family,
+                publisher_slug=hint.publisher_slug,
             )
-        source_registry.register_endpoint(
-            url=hint.url,
-            family=family,
-            publisher_slug=hint.publisher_slug,
-        )
         persisted += 1
     return persisted
 
@@ -245,10 +247,16 @@ def refresh_runtime_discovery_for_topics(
     *,
     registry: SourceRegistry | None = None,
     collector: Collector | None = None,
+    persist_registry: bool = True,
 ) -> RuntimeDiscoveryRefresh:
     try:
         collected = (collector or default_runtime_collector)(topics)
-        persisted = persist_runtime_discovery_hints(database, collected, registry=registry)
+        persisted = persist_runtime_discovery_hints(
+            database,
+            collected,
+            registry=registry,
+            persist_registry=persist_registry,
+        )
         record("runtime_discovery_ok", persisted=persisted, topics=len(topics))
         return RuntimeDiscoveryRefresh(persisted=persisted, seed_fallback_used=False)
     except Exception as exc:
@@ -270,6 +278,7 @@ def refresh_runtime_discovery_for_user(
     *,
     registry: SourceRegistry | None = None,
     collector: Collector | None = None,
+    persist_registry: bool = True,
 ) -> RuntimeDiscoveryRefresh:
     with database.connect() as connection:
         state = load_user_interest(connection, user_id)
@@ -279,6 +288,7 @@ def refresh_runtime_discovery_for_user(
         topics,
         registry=registry,
         collector=collector,
+        persist_registry=persist_registry,
     )
 
 
