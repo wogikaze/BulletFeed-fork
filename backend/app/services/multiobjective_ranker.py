@@ -20,7 +20,8 @@ from app.evaluation.personalization_gold import (
 )
 from app.services.false_suppression import POLICY_VERSION as SUPPRESSION_POLICY_VERSION
 from app.services.false_suppression import decide_suppression
-from app.services.impact_signals import UNKNOWN, extract_impact_signals, features_for_ranking
+from app.services.impact_features import ranking_impact_snapshot
+from app.services.impact_signals import UNKNOWN
 from app.services.knowledge_evidence import (
     STATE_KNOWN,
     STATE_PROBABLY_KNOWN,
@@ -315,7 +316,7 @@ def candidate_from_gold_item(
         source_type=record["source_type"],
         delta_type=record["delta_type"],
     )
-    snapshot = features_for_ranking(extract_impact_signals(record))
+    snapshot = ranking_impact_snapshot(record)
     return RankerCandidate(
         item_id=item.item_id,
         event_id=item.redundancy_group,
