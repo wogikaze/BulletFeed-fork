@@ -159,6 +159,18 @@ class RealBackendAcceptanceTest {
             assertEquals(1, listed.size)
             assertEquals(created.id, listed.single().id)
 
+            val web = repository.addSourceSubscription(
+                kind = UserSourceKind.GENERIC_WEB,
+                url = "https://react.dev/learn",
+            )
+            assertEquals("generic_web", web.kind)
+            assertEquals(
+                1,
+                sourceSyncJobCount(baseUrl, userId, web.kind, "https://react.dev/learn"),
+            )
+            assertTrue(repository.getSourceSubscriptions().any { it.id == web.id })
+
+            repository.removeSourceSubscription(web.id)
             repository.removeSourceSubscription(created.id)
             assertTrue(repository.getSourceSubscriptions().isEmpty())
             assertEquals(0, sourceSyncJobCount(baseUrl, userId, created.kind, "accptest131job"))

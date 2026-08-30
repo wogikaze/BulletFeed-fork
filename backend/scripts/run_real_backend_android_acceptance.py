@@ -67,6 +67,7 @@ def main() -> int:
     env["BULLETFEED_GITHUB_CLIENT_ID"] = ""
     env["BULLETFEED_GITHUB_CLIENT_SECRET"] = ""
     env["BULLETFEED_RSS_ALLOWED_HOSTS"] = "react.dev"
+    env["BULLETFEED_WEB_ALLOWED_HOSTS"] = "react.dev,cisa.gov"
     env.pop("BULLETFEED_ACCEPTANCE_BASE_URL", None)
 
     process = subprocess.Popen(  # noqa: S603
