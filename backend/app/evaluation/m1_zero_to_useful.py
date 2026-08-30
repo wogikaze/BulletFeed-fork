@@ -83,14 +83,14 @@ def built_in_personas() -> tuple[M1Persona, ...]:
     """30 constructed personas covering M1 qualification slices."""
     specs: list[M1Persona] = []
     topics_pool = (
-        ("latency", "API"),
+        ("React", "TypeScript"),
         ("security", "CVE"),
-        ("コンパイラ最適化",),
+        ("llvm", "コンパイラ最適化"),
         ("Rust", "コンパイラ"),
         ("Kubernetes", "Go"),
-        ("React", "TypeScript"),
-        ("statuspage",),
-        ("データベース", "latency"),
+        ("Python", "FastAPI"),
+        ("Kotlin", "Android"),
+        ("Bun",),
     )
     languages: tuple[Language, ...] = ("ja", "en", "mixed")
     cohorts: tuple[Cohort, ...] = ("cold_start", "history_rich")
