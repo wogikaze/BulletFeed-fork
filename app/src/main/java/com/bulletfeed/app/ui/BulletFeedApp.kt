@@ -45,6 +45,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -409,7 +412,10 @@ private fun OfflineRecoveryBanner(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) = Card(
-    modifier = modifier.padding(12.dp).fillMaxWidth(),
+    modifier = modifier
+        .padding(12.dp)
+        .fillMaxWidth()
+        .semantics { liveRegion = LiveRegionMode.Polite },
     colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE3B3)),
     shape = RoundedCornerShape(16.dp),
 ) {
