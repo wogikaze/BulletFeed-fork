@@ -267,6 +267,17 @@ CURATED_SOURCE_SEEDS: tuple[SourceSeed, ...] = (
         why="Official OSV query API for security advisories",
     ),
     _seed(
+        slug="cisa",
+        name="CISA Cybersecurity Advisories",
+        home="https://www.cisa.gov",
+        url="https://www.cisa.gov/news-events/cybersecurity-advisories",
+        family=SourceKind.GENERIC_WEB,
+        concepts=("security", "cve"),
+        provenance=DiscoveryProvenance.CURATED_SEED,
+        display="CISA Cybersecurity Advisories",
+        why="Official CISA cybersecurity advisories",
+    ),
+    _seed(
         slug="github",
         name="GitHub",
         home="https://github.com",
