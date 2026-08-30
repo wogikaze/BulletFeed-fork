@@ -81,6 +81,8 @@ data class BulletFeedUiState(
     val topicRecommendationCohort: String = "",
     val isLoading: Boolean = true,
     val sessionExpired: Boolean = false,
+    val isOffline: Boolean = false,
+    val hasStaleFeed: Boolean = false,
     val errorMessage: String? = null,
 ) {
     val githubConnected: Boolean
@@ -142,6 +144,8 @@ class BulletFeedViewModel(
                 it.copy(
                     isLoading = true,
                     sessionExpired = false,
+                    isOffline = false,
+                    hasStaleFeed = false,
                     errorMessage = null,
                     feedLoadMoreError = null,
                 )
@@ -255,6 +259,8 @@ class BulletFeedViewModel(
                         topicItems = topicItems,
                         isLoading = false,
                         sessionExpired = false,
+                        isOffline = false,
+                        hasStaleFeed = false,
                         errorMessage = softError,
                     )
                 }
@@ -1466,6 +1472,8 @@ class BulletFeedViewModel(
                 isFeedLoadingMore = false,
                 isFeedFiltering = false,
                 sessionExpired = unauthorized,
+                isOffline = !unauthorized && error is IOException,
+                hasStaleFeed = !unauthorized && current.events.isNotEmpty(),
                 errorMessage = if (unauthorized) null else error.toUserMessage(),
             )
         }
