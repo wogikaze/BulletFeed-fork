@@ -14,6 +14,7 @@ from app.services.github_release_pipeline import ingest_github_release_events
 from app.services.github_webhook import release_from_webhook_payload, verify_github_webhook_signature
 
 router = APIRouter(prefix="/v1/webhooks", tags=["webhooks"])
+MAX_DELIVERY_ID_LENGTH = 128
 
 
 @router.post("/github")
@@ -26,13 +27,14 @@ async def github_webhook(
     x_github_delivery: Annotated[str | None, Header()] = None,
 ) -> dict[str, Any]:
     event_name = (x_github_event or "").strip()
+    delivery_id = (x_github_delivery or "").strip()[:MAX_DELIVERY_ID_LENGTH] or None
     secret = settings.github_webhook_secret.get_secret_value()
     if not secret:
         record(
             "webhook",
             source_type="github_release",
             github_event=event_name,
-            delivery_id=x_github_delivery,
+            delivery_id=delivery_id,
             accepted=False,
             reason="secret_not_configured",
         )
@@ -50,7 +52,7 @@ async def github_webhook(
             "webhook",
             source_type="github_release",
             github_event=event_name,
-            delivery_id=x_github_delivery,
+            delivery_id=delivery_id,
             accepted=False,
             signature_valid=False,
             reason="invalid_signature",
@@ -65,13 +67,13 @@ async def github_webhook(
             "webhook",
             source_type="github_release",
             github_event=event_name,
-            delivery_id=x_github_delivery,
+            delivery_id=delivery_id,
             accepted=True,
             signature_valid=True,
             ingested=False,
             ignored=True,
         )
-        return {"accepted": True, "ignored": True}
+        return {"accepted": True, "ignored": True, "deliveryId": delivery_id}
 
     try:
         payload = json.loads(body)
@@ -80,7 +82,7 @@ async def github_webhook(
             "webhook",
             source_type="github_release",
             github_event=event_name,
-            delivery_id=x_github_delivery,
+            delivery_id=delivery_id,
             accepted=False,
             signature_valid=True,
             reason="invalid_json",
@@ -96,7 +98,7 @@ async def github_webhook(
             "webhook",
             source_type="github_release",
             github_event=event_name,
-            delivery_id=x_github_delivery,
+            delivery_id=delivery_id,
             accepted=False,
             signature_valid=True,
             reason="incomplete_release_payload",
@@ -118,7 +120,7 @@ async def github_webhook(
         "webhook",
         source_type="github_release",
         github_event=event_name,
-        delivery_id=x_github_delivery,
+        delivery_id=delivery_id,
         accepted=True,
         signature_valid=True,
         ingested=True,
@@ -127,6 +129,6 @@ async def github_webhook(
     return {
         "accepted": True,
         "ignored": False,
-        "deliveryId": x_github_delivery,
+        "deliveryId": delivery_id,
         "eventIds": list(result.event_ids),
     }

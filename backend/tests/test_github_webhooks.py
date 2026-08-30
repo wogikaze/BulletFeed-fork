@@ -206,6 +206,24 @@ def test_push_webhook_is_not_stored_as_evidence(
     assert evidence == []
 
 
+def test_delivery_id_is_bounded_before_observability_and_response(
+    database,
+    monkeypatch,
+) -> None:
+    body = json.dumps(_push_payload()).encode()
+    headers = _headers(body, event="push")
+    headers["X-GitHub-Delivery"] = "d" * 512
+    reset()
+
+    with _webhook_client(database, monkeypatch) as client:
+        response = client.post("/v1/webhooks/github", content=body, headers=headers)
+
+    assert response.status_code == 200
+    assert len(response.json()["deliveryId"]) == 128
+    record = next(row for row in snapshot() if row.get("event") == "webhook")
+    assert len(record["delivery_id"]) == 128
+
+
 def test_polling_ingest_still_works_when_webhook_secret_is_missing(
     database,
     monkeypatch,
