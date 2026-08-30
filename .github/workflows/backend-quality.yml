@@ -48,6 +48,11 @@ jobs:
       - name: Real-world validation corpus contract
         run: python backend/scripts/check_real_world_validation_contract.py
 
+      - name: M2 production scoring and uncertainty report
+        run: |
+          python backend/scripts/run_m2_validation_report.py --check --output "$RUNNER_TEMP/m2-validation-report.json" |
+            tee "$RUNNER_TEMP/m2-validation-report.log"
+
       - name: Delta-06 asymmetric threshold calibration gate
         run: python backend/scripts/run_delta_calibration.py --split blind --check
 
