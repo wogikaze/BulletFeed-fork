@@ -170,6 +170,7 @@ def _m5_host_gate(report: dict[str, Any]) -> dict[str, Any]:
         "worker_restart": report.get("worker_restart") is True,
         "session_persisted": report.get("session_persisted") is True,
         "ready_after_restart": report.get("ready_after_restart") is True,
+        "filesystem_fault_injection": report.get("filesystem_fault_injection") is True,
     }
     return {
         "status": "partial" if all(checks.values()) else "fail",
@@ -283,7 +284,7 @@ def build_report() -> dict[str, Any]:
             "M1 Android journey and cross-surface breadth for all 30 personas",
             "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
             "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-            "M5 disk-full/partial filesystem fault injection",
+            "M5 persistent-volume disk-full fault injection",
             "M6 production Top-3 remediation followed by one-shot blind evaluation",
             "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
         ],
