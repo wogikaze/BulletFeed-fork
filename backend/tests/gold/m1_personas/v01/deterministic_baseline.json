@@ -1,0 +1,3050 @@
+{
+  "harness_version": "m1-zero-to-useful-v02",
+  "persona_manifest_version": "m1-personas-v01",
+  "label_source": "constructed",
+  "persona_count": 30,
+  "attempted": 30,
+  "failed_persona_ids": [],
+  "unexpected_empty_feed": 0,
+  "intended_empty_feed": 2,
+  "broken_evidence": 0,
+  "tenant_leak": 0,
+  "unsafe_suppression": 0,
+  "stage_failure_counts": {
+    "account": 0,
+    "interests": 0,
+    "discovery": 0,
+    "activation": 0,
+    "acquisition": 0,
+    "projection": 0,
+    "feed": 0,
+    "evidence": 0,
+    "feedback": 0,
+    "subsequent_feed": 0
+  },
+  "reports": [
+    {
+      "persona_id": "m1p_01",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_01"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_02",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_02"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 3,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 1,
+            "actionabilities": [
+              "subscribe",
+              "unsupported"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_03",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_03"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_04",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_04"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_05",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_05"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_06",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_06"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 6,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 6,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_07",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_07"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_08",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_08"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 4,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_09",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_09"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_10",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_10"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 3,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 1,
+            "actionabilities": [
+              "subscribe",
+              "unsupported"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_11",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_11"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_12",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_12"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_13",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_13"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_14",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_14"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 6,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 6,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_15",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_15"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_16",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_16"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 4,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_17",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_17"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_18",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_18"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 3,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 1,
+            "actionabilities": [
+              "subscribe",
+              "unsupported"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_19",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_19"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_20",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_20"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_21",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_21"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_22",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_22"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 6,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 6,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_23",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_23"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_24",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_24"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 4,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_25",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_25"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 1
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_26",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_26"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 3,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 1,
+            "actionabilities": [
+              "subscribe",
+              "unsupported"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_27",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_27"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 2,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 2,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_28",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_28"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 2
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "candidates",
+          "metrics": {
+            "candidate_count": 4,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "approvable",
+          "metrics": {
+            "approvable_count": 4,
+            "actionabilities": [
+              "select_repository",
+              "subscribe"
+            ]
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "feed listed",
+          "metrics": {
+            "surfaced": 1,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 1
+          }
+        }
+      ],
+      "useful_proxy_at_5": 1,
+      "cards_to_first_useful": 1
+    },
+    {
+      "persona_id": "m1p_29",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": true,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_29"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 0
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "no_topics_abstention",
+          "metrics": {
+            "candidate_count": 0,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "no_approvable_candidate",
+          "metrics": {
+            "approvable_count": 0,
+            "actionabilities": []
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "no_topics_abstention",
+          "metrics": {
+            "surfaced": 0,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 0
+          }
+        }
+      ],
+      "useful_proxy_at_5": 0,
+      "cards_to_first_useful": null
+    },
+    {
+      "persona_id": "m1p_30",
+      "earliest_failure": null,
+      "unexpected_empty_feed": false,
+      "intended_empty_feed": true,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "unsafe_suppression": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "created",
+          "metrics": {
+            "user_id": "user_m1p_30"
+          }
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "topics recorded",
+          "metrics": {
+            "topic_count": 0
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "no_topics_abstention",
+          "metrics": {
+            "candidate_count": 0,
+            "runtime_hint_count": 0,
+            "seed_fallback_used": false
+          }
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "no_approvable_candidate",
+          "metrics": {
+            "approvable_count": 0,
+            "actionabilities": []
+          }
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        {
+          "stage": "projection",
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "no_topics_abstention",
+          "metrics": {
+            "surfaced": 0,
+            "outsider_surfaced": 0
+          }
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {
+            "broken_evidence": false
+          }
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "applied if cards existed",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "relisted",
+          "metrics": {
+            "surfaced": 0
+          }
+        }
+      ],
+      "useful_proxy_at_5": 0,
+      "cards_to_first_useful": null
+    }
+  ],
+  "mode": "deterministic_fixture",
+  "persona_manifest": "gold/m1_personas/v01/personas.json"
+}

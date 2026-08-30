@@ -360,6 +360,14 @@ def run_qualification(
     selected = tuple(personas or built_in_personas())
     reports = [run_persona_journey(database_factory(), persona) for persona in selected]
     failures = [report.persona_id for report in reports if report.earliest_failure]
+    stage_failure_counts = {
+        stage: sum(
+            1
+            for report in reports
+            if any(result.stage == stage and not result.ok for result in report.stages)
+        )
+        for stage in STAGES
+    }
     return {
         "harness_version": HARNESS_VERSION,
         "persona_manifest_version": PERSONA_MANIFEST_VERSION,
@@ -368,7 +376,10 @@ def run_qualification(
         "attempted": len(reports),
         "failed_persona_ids": failures,
         "unexpected_empty_feed": sum(1 for report in reports if report.unexpected_empty_feed),
+        "intended_empty_feed": sum(1 for report in reports if report.intended_empty_feed),
         "broken_evidence": sum(1 for report in reports if report.broken_evidence),
         "tenant_leak": sum(1 for report in reports if report.tenant_leak),
+        "unsafe_suppression": sum(1 for report in reports if report.unsafe_suppression),
+        "stage_failure_counts": stage_failure_counts,
         "reports": [report.as_dict() for report in reports],
     }

@@ -38,6 +38,8 @@ def test_qualification_attempts_all_constructed_personas(tmp_path: Path) -> None
     assert report["attempted"] == 30
     assert report["persona_count"] == 30
     assert report["tenant_leak"] == 0
+    assert report["unsafe_suppression"] == 0
+    assert report["stage_failure_counts"]["activation"] == 0
     assert report["harness_version"] == "m1-zero-to-useful-v02"
     assert all(
         {"discovery", "activation"} <= {stage["stage"] for stage in row["stages"]}
