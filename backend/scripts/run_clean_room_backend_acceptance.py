@@ -104,10 +104,10 @@ def main(argv: list[str] | None = None) -> int:
         ],
     }
     try:
-        worker = _start_worker(env)
         api = _start_api(env, port)
         base_url = f"http://127.0.0.1:{port}"
         _wait_for_status(f"{base_url}/health", 200, timeout_seconds=40, label="API health")
+        worker = _start_worker(env)
         _wait_for_status(
             f"{base_url}/health/ready",
             200,
