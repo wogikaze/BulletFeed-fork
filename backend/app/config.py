@@ -1,8 +1,10 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.services.crawler_identity import RELEASE_CRAWLER_USER_AGENT, validate_crawler_user_agent
 
 
 class Settings(BaseSettings):
@@ -30,6 +32,12 @@ class Settings(BaseSettings):
     dynamic_web_max_output_bytes: int = 1_048_576
     dynamic_web_max_subresources: int = 8
     dynamic_web_max_memory_mb: int = 128
+    crawler_user_agent: str = RELEASE_CRAWLER_USER_AGENT
+
+    @field_validator("crawler_user_agent")
+    @classmethod
+    def _crawler_user_agent(cls, value: str) -> str:
+        return validate_crawler_user_agent(value)
 
     @property
     def cors_origins(self) -> list[str]:

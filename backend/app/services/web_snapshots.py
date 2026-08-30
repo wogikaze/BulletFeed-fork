@@ -16,6 +16,7 @@ from fastapi import HTTPException, status
 
 from app.config import Settings
 from app.database import Database
+from app.services.crawler_identity import RELEASE_CRAWLER_USER_AGENT
 from app.services.source_catalog import SourceKind
 from app.services.source_registry import canonicalize_url
 from app.services.url_safety import require_global_response_peer, validate_public_url
@@ -25,7 +26,7 @@ WEB_SNAPSHOT_POLL_INTERVAL_SECONDS = 300
 WEB_SNAPSHOT_RETRY_BASE_SECONDS = 30
 WEB_SNAPSHOT_RETRY_MAX_SECONDS = 3600
 MAX_REDIRECT_ATTEMPTS = 4
-DEFAULT_USER_AGENT = "BulletFeed-local-prototype/0.1 (+local development)"
+DEFAULT_USER_AGENT = RELEASE_CRAWLER_USER_AGENT
 ALLOWED_WEB_CONTENT_TYPES = {
     "text/html",
     "application/xhtml+xml",
@@ -284,7 +285,7 @@ async def fetch_web_snapshot(
     previous: WebSnapshot | None = None,
     allow_http: bool = False,
     check_robots: bool = True,
-    user_agent: str = DEFAULT_USER_AGENT,
+    user_agent: str | None = None,
 ) -> WebSnapshot:
     """Safely fetch an allowlisted public page and persist an immutable snapshot.
 
@@ -294,6 +295,7 @@ async def fetch_web_snapshot(
     """
     if not settings.web_hosts:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Web fetching is disabled")
+    user_agent = user_agent or settings.crawler_user_agent
     validated = validate_web_url(url, settings.web_hosts, allow_http=allow_http)
     stamp = retrieved_at or _utc_now()
     robots = (

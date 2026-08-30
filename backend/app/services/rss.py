@@ -51,7 +51,7 @@ async def _download(settings: Settings, url: str) -> tuple[bytes, str]:
                 current_url,
                 follow_redirects=False,
                 headers={
-                    "User-Agent": "BulletFeed-local-prototype/0.1 (+local development)",
+                    "User-Agent": settings.crawler_user_agent,
                     "Accept-Encoding": "identity",
                 },
             ) as response:
