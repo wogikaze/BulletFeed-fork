@@ -1458,25 +1458,7 @@ class BulletFeedViewModel(
     }
 
     private fun handleRootFailure(error: Throwable) {
-        val unauthorized = error.isUnauthorized() || error is SessionRecoveryRequiredException
-        _uiState.update { current ->
-            current.copy(
-                events = if (unauthorized) emptyList() else current.events,
-                feedDeliveryIds = if (unauthorized) emptyMap() else current.feedDeliveryIds,
-                feedNextCursor = if (unauthorized) null else current.feedNextCursor,
-                vulnerabilityAlerts = if (unauthorized) emptyList() else current.vulnerabilityAlerts,
-                notifications = if (unauthorized) emptyList() else current.notifications,
-                eventDetail = if (unauthorized) null else current.eventDetail,
-                vulnerabilityDetail = if (unauthorized) null else current.vulnerabilityDetail,
-                isLoading = false,
-                isFeedLoadingMore = false,
-                isFeedFiltering = false,
-                sessionExpired = unauthorized,
-                isOffline = !unauthorized && error is IOException,
-                hasStaleFeed = !unauthorized && current.events.isNotEmpty(),
-                errorMessage = if (unauthorized) null else error.toUserMessage(),
-            )
-        }
+        _uiState.update { it.reduceRootFailure(error) }
     }
 
     fun startFeedTelemetrySession() {
@@ -1522,6 +1504,26 @@ class BulletFeedViewModel(
             return BulletFeedViewModel(RemoteBulletFeedRepository(api, sessionManager)) as T
         }
     }
+}
+
+internal fun BulletFeedUiState.reduceRootFailure(error: Throwable): BulletFeedUiState {
+    val unauthorized = error.isUnauthorized() || error is SessionRecoveryRequiredException
+    return copy(
+        events = if (unauthorized) emptyList() else events,
+        feedDeliveryIds = if (unauthorized) emptyMap() else feedDeliveryIds,
+        feedNextCursor = if (unauthorized) null else feedNextCursor,
+        vulnerabilityAlerts = if (unauthorized) emptyList() else vulnerabilityAlerts,
+        notifications = if (unauthorized) emptyList() else notifications,
+        eventDetail = if (unauthorized) null else eventDetail,
+        vulnerabilityDetail = if (unauthorized) null else vulnerabilityDetail,
+        isLoading = false,
+        isFeedLoadingMore = false,
+        isFeedFiltering = false,
+        sessionExpired = unauthorized,
+        isOffline = !unauthorized && error is IOException,
+        hasStaleFeed = !unauthorized && events.isNotEmpty(),
+        errorMessage = if (unauthorized) null else error.toUserMessage(),
+    )
 }
 
 internal fun FeedFilter.toRelationOrNull(): Relation? =
