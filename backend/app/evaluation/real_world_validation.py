@@ -23,12 +23,13 @@ from app.evaluation.label_contract import assert_not_blind_for_production_scorin
 from app.services.source_registry import canonicalize_url
 
 DATASET_VERSION = "real-world-validation-v0.2"
-CONTRACT_VERSION = "real-world-validation-contract-v1.1"
+CONTRACT_VERSION = "real-world-validation-contract-v1.2"
 LABEL_PROTOCOL_VERSION = "label-protocol-v1"
 SOURCE_FAMILIES = (
     "github_release",
     "github_advisory",
     "osv",
+    "package_registry",
     "statuspage",
     "rss_atom",
     "json_feed",
@@ -74,10 +75,12 @@ REQUIRED_SOURCE_FIELDS = (
     "evidence_text",
     "normalized_evidence",
 )
-TARGET_EVENTS = 100
-TARGET_PROFILES = 50
-TARGET_JUDGMENTS = 2000
+TARGET_EVENTS = 500
+TARGET_PROFILES = 96
+TARGET_JUDGMENTS = 10000
 TARGET_SOURCE_FAMILIES = 6
+TARGET_AUTHORITATIVE_ENDPOINTS = 120
+TARGET_PERSONA_TEMPLATES = 24
 SPLITS = ("pilot", "dev", "blind")
 PRODUCTION_SCORING_SPLITS: tuple[Literal["pilot", "dev"], ...] = ("pilot", "dev")
 SPLIT_RECORD_FILES = (
@@ -93,7 +96,12 @@ ALLOWED_OCCURRED_AT_PROVENANCE = frozenset(
         "github_release.published_at",
         "github_advisory.published_at",
         "github_git_commit.committer.date",
+        "npm.version.time",
+        "pypi.releases.upload_time_iso_8601",
+        "crates.version.created_at",
         "osv.published",
+        "rss.published",
+        "rss.updated",
         "html_time_datetime",
         "html_visible_publish_date",
         "html_url_path_date",
@@ -109,6 +117,7 @@ SourceFamilyName = Literal[
     "github_release",
     "github_advisory",
     "osv",
+    "package_registry",
     "statuspage",
     "rss_atom",
     "json_feed",
@@ -329,6 +338,7 @@ class ValidationCorpus:
 class CapacityStatus:
     event_count: int
     real_event_count: int
+    authoritative_endpoint_count: int
     profile_count: int
     judgment_count: int
     source_family_count: int
@@ -502,6 +512,13 @@ def coverage_inventory(corpus: ValidationCorpus) -> dict[str, int]:
     return {
         "events": len(corpus.events),
         "real_events": len(real),
+        "authoritative_endpoints": len(
+            {
+                source.fetch.url
+                for source in event_pages
+                if source.fetch.fetch_kind == "live_https"
+            }
+        ),
         "contract_fixture_events": sum(1 for row in corpus.events if row.record_kind == "contract_fixture"),
         "discovery_sources": sum(1 for row in corpus.sources if row.source_role == "discovery_endpoint"),
         "profiles": len(corpus.profiles),
@@ -538,20 +555,36 @@ def split_leakage_report(corpus: ValidationCorpus) -> LeakageReport:
 def capacity_status(corpus: ValidationCorpus) -> CapacityStatus:
     real = corpus.real_events()
     event_pages = [row for row in corpus.sources if row.source_role == "event_page"]
+    authoritative_endpoints = {
+        source.fetch.url
+        for source in event_pages
+        if source.fetch.fetch_kind == "live_https"
+    }
     families = {row.source_family for row in event_pages}
     persona_templates = {row.persona_template for row in corpus.profiles}
     missing: list[str] = []
     if len(real) < TARGET_EVENTS:
         missing.append(f"real_events {len(real)} < {TARGET_EVENTS}")
+    if len(authoritative_endpoints) < TARGET_AUTHORITATIVE_ENDPOINTS:
+        missing.append(
+            "authoritative_endpoints "
+            f"{len(authoritative_endpoints)} < {TARGET_AUTHORITATIVE_ENDPOINTS}"
+        )
     if len(corpus.profiles) < TARGET_PROFILES:
         missing.append(f"profiles {len(corpus.profiles)} < {TARGET_PROFILES}")
     if len(corpus.judgments) < TARGET_JUDGMENTS:
         missing.append(f"judgments {len(corpus.judgments)} < {TARGET_JUDGMENTS}")
     if len(families) < TARGET_SOURCE_FAMILIES:
         missing.append(f"source_families {len(families)} < {TARGET_SOURCE_FAMILIES}")
+    if len(persona_templates) < TARGET_PERSONA_TEMPLATES:
+        missing.append(
+            "persona_templates "
+            f"{len(persona_templates)} < {TARGET_PERSONA_TEMPLATES}"
+        )
     return CapacityStatus(
         event_count=len(corpus.events),
         real_event_count=len(real),
+        authoritative_endpoint_count=len(authoritative_endpoints),
         profile_count=len(corpus.profiles),
         judgment_count=len(corpus.judgments),
         source_family_count=len(families),

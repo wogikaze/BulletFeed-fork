@@ -1,0 +1,20 @@
+{
+  "generator_version": "m2-ai-silver-metadata-rubric-v1",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": false,
+  "protocol_version": "label-protocol-v1",
+  "dataset_version": "real-world-validation-v0.2",
+  "selected_by_split": {
+    "pilot": 5000,
+    "dev": 5000
+  },
+  "selected_total": 10000,
+  "strata": {
+    "already_known": 14,
+    "clear_positive": 557,
+    "semantic_adjacent": 1547,
+    "unrelated": 7882
+  },
+  "independent_agreement": "not_collected"
+}

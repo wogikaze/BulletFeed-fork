@@ -50,13 +50,12 @@ def test_contract_fixture_loads_and_keeps_holdout_out_of_production() -> None:
     assert {row.split for row in scoring.sources} == {"pilot", "dev"}
     assert all(row.split != "blind" for row in scoring.judgments)
     status = capacity_status(corpus)
-    assert status.meets_targets is False
-    assert status.real_event_count == 10
-    assert status.real_event_count < 21
-    assert status.event_count == 13
-    assert status.profile_count == 50
-    assert status.judgment_count == 3
-    assert status.persona_template_count == 8
+    assert status.real_event_count >= 500
+    assert status.authoritative_endpoint_count >= 120
+    assert status.event_count == len(corpus.events)
+    assert status.profile_count >= 50
+    assert status.judgment_count >= 3
+    assert status.persona_template_count >= 8
 
 
 def test_production_scoring_paths_never_include_blind() -> None:

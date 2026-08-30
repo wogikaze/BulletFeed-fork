@@ -1,0 +1,3081 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Kotlin : A concise multiplatform language developed by JetBrains | The JetBrains Blog</title>
+	<atom:link href="https://blog.jetbrains.com/kotlin/feed/" rel="self" type="application/rss+xml" />
+	<link>https://blog.jetbrains.com</link>
+	<description>Developer Tools for Professionals and Teams</description>
+	<lastBuildDate>Fri, 28 Aug 2026 13:18:43 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	
+
+<image>
+	<url>https://blog.jetbrains.com/wp-content/uploads/2024/01/cropped-mstile-310x310-1-32x32.png</url>
+	<title>Kotlin : A concise multiplatform language developed by JetBrains | The JetBrains Blog</title>
+	<link>https://blog.jetbrains.com</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>Compose Multiplatform 1.12.0 Released</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/08/compose-multiplatform-1-12-0/</link>
+					<comments>https://blog.jetbrains.com/kotlin/2026/08/compose-multiplatform-1-12-0/#respond</comments>
+		
+		<dc:creator><![CDATA[Elvira Mustafina]]></dc:creator>
+		<pubDate>Wed, 26 Aug 2026 13:28:41 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/CMP-social-BlogFeatured-1280x720-1.png</featuredImage>		<category><![CDATA[multiplatform]]></category>
+		<category><![CDATA[releases]]></category>
+		<category><![CDATA[compose-for-desktop]]></category>
+		<category><![CDATA[compose-for-web]]></category>
+		<category><![CDATA[compose-hot-reload]]></category>
+		<category><![CDATA[mcp]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=734018</guid>
+
+					<description><![CDATA[Compose Multiplatform 1.12.0 is out! This version brings new tooling for AI assistants, improvements to web resource management, and finer control over desktop window states. Here are the highlights of this release: For a complete overview of the changes, check out What’s new in Compose Multiplatform 1.12.0 or the release notes on GitHub. Get Started [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>Compose Multiplatform 1.12.0 is out! This version brings new tooling for AI assistants, improvements to web resource management, and finer control over desktop window states.</p>
+
+
+
+<p>Here are the highlights of this release:</p>
+
+
+
+<ul class="wp-block-list">
+<li><a href="#mcp-server-for-ai-agents-in-compose-hot-reload">MCP server for AI agents in Compose Hot Reload</a></li>
+
+
+
+<li><a href="#automatic-font-fallback-for-web">Automatic font fallback for web</a></li>
+
+
+
+<li><a href="#window-and-dialog-api-v2">v2 version of the window and dialog API for desktop</a></li>
+</ul>
+
+
+
+<p>For a complete overview of the changes, check out <a href="https://kotlinlang.org/docs/multiplatform/whats-new-compose-112.html" target="_blank" rel="noopener">What’s new in Compose Multiplatform 1.12.0</a> or the <a href="https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.12.0" target="_blank" rel="noopener">release notes on GitHub</a>.</p>
+
+
+
+<p align="center"><a class="ek-link jb-download-button" href="https://kotlinlang.org/docs/multiplatform/compose-multiplatform.html" target="_blank" rel="noopener"><i class="download-icon"></i>Get Started with Compose Multiplatform</a></p>
+
+
+
+<h2 class="wp-block-heading">MCP server for AI agents in Compose Hot Reload</h2>
+
+
+
+<p>Compose Hot Reload now ships with an experimental Model Context Protocol (MCP) server that connects AI coding agents to your running application.</p>
+
+
+
+<p>Using the MCP server, an agent can trigger reloads, take screenshots, inspect the semantic tree, simulate clicks and text input, and read application logs. In practice, this means the agent can verify the results of its own edits. It can confirm that the reload succeeded, inspect the rendered UI, catch a runtime exception, and iterate – all without you describing what&#8217;s on screen.</p>
+
+
+
+<figure class="wp-block-image size-full"><img fetchpriority="high" decoding="async" style="border-style: solid;border-width: 1px;border-color: lightgray;; width:100% !important; height:auto !important; max-width:100% !important;" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/Screenshot-2026-08-25-at-01.36.40.png" alt="AI agent uses the MCP server" class="wp-image-734052"/></figure>
+
+
+
+<p>For the full list of available tools and instructions on connecting your agent, see the <a href="https://github.com/JetBrains/compose-hot-reload#mcp-server-for-ai-agents" target="_blank" rel="noopener">Compose Hot Reload documentation</a>.</p>
+
+
+
+<p align="center"><a class="ek-link jb-download-button" href="https://kotlinlang.org/docs/multiplatform/compose-hot-reload.html" target="_blank" rel="noopener"><i class="download-icon"></i>Try Compose Hot Reload</a></p>
+
+
+
+<h2 class="wp-block-heading">Automatic font fallback for web</h2>
+
+
+
+<p>Compose Multiplatform for web now handles characters that your application&#8217;s fonts don&#8217;t cover. When it encounters an unresolved character during rendering, it downloads the matching Noto font subset on demand and recomposes the affected text. As a result, Japanese, Arabic, Devanagari, and emoji render correctly without you having to bundle fonts for them.</p>
+
+
+
+<figure class="wp-block-image size-full"><img decoding="async" style="border-style: solid;border-width: 1px;border-color: lightgray;; width:100% !important; height:auto !important; max-width:100% !important;" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/Screenshot-2026-08-25-at-02.12.16.png" alt="Testing fonts" class="wp-image-734063"/></figure>
+
+
+
+<h2 class="wp-block-heading">Window and dialog API v2</h2>
+
+
+
+<p>This release introduces an experimental v2 of the API for <code>WindowState</code> and <code>DialogState</code> in the <code>androidx.compose.ui.window.v2</code> package. It gives you finer control over how windows and dialogs are positioned and sized. You can:</p>
+
+
+
+<ul class="wp-block-list">
+<li>Select the screen a window appears on.</li>
+
+
+
+<li>Provide custom positioning and sizing logic, including logic based on the content&#8217;s intrinsic size.</li>
+
+
+
+<li>Set minimum and maximum window sizes.</li>
+
+
+
+<li>Position dialogs relative to their parent window.</li>
+</ul>
+
+
+
+<p>The enhanced API also makes the asynchronous nature of window state changes explicit: It distinguishes the state you request from the state the window currently has.</p>
+
+
+
+<p>For example, to center a window and give it a fixed size, use <code>WindowPositionProvider</code> and <code>WindowSizeProvider</code>:</p>
+
+
+
+<pre class="EnlighterJSRAW EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">val windowState = rememberWindowState(
+    initialBoundsProvider = WindowBoundsProvider(
+        positionProvider = WindowPositionProvider.CenteredOnScreen,
+        sizeProvider = WindowSizeProvider.Fixed(DpSize(400.dp, 200.dp))
+    )
+)
+</pre>
+
+
+
+<p>With the API v2, you can also use <code>WindowSizeProvider.Unconstrained</code> to size the window to its content initially, while still letting that content expand with <code>fillMaxSize()</code> when the user enlarges the window:</p>
+
+
+
+<pre class="EnlighterJSRAW EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">WindowBoundsProvider(
+    positionProvider = WindowPositionProvider.CenteredOnScreen,
+    sizeProvider = WindowSizeProvider.Unconstrained
+)
+</pre>
+
+
+
+<p>See the <a href="https://kotlinlang.org/docs/multiplatform/compose-desktop-top-level-windows-management.html#window-and-dialog-api-v2" target="_blank" rel="noopener">Window and dialog API v2 documentation</a> for the full details.</p>
+
+
+
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+
+
+
+<p>Update your dependencies, try out the new APIs, and let us know what you think about Compose Multiplatform 1.12.0.</p>
+
+
+
+<p>For everything that didn&#8217;t make it into this post, check out the <a href="https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.12.0" target="_blank" rel="noopener">full release notes</a> or <a href="https://kotlinlang.org/docs/multiplatform/whats-new-compose-112.html" target="_blank" rel="noopener">What’s new</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://blog.jetbrains.com/kotlin/2026/08/compose-multiplatform-1-12-0/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Signatures, be true: domain errors and functional handling in Kotlin</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/08/signatures-be-true-domain-errors-and-functional-handling-in-kotlin/</link>
+		
+		<dc:creator><![CDATA[Viliam Sedliak]]></dc:creator>
+		<pubDate>Wed, 19 Aug 2026 15:52:05 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/KT-social-BlogFeatured-1280x720-1-1.png</featuredImage>		<category><![CDATA[backend]]></category>
+		<category><![CDATA[kotlin]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=732373</guid>
+
+					<description><![CDATA[Here’s a function that signs a document: In Kotlin, Unit means the function completes without returning a meaningful value – roughly equivalent to void in Java. Got it? Now, tell me what could go wrong. You can’t.&#160; Yet, the code might be invalid. The signing window might have closed. The database might be down. The [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                                                            <div class="about-author__box-img">
+                            <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/2026-08-18-15.29.34.jpg" alt="Sergey Chernov" loading="lazy">
+                        </div>
+                                        <div class="about-author__box-text">
+                                                    <h4>Sergey Chernov</h4>
+                                                <p>Sergey Chernov is a Lead Software Engineer at Salmon, specializing in functional Kotlin and type-safe system design. At Salmon, a technology-driven financial company building banking and lending products in Southeast Asia, Sergey works on authentication and verification systems: the platform layer responsible for keeping user access secure, reliable, and consistent across products. He has 10+ years of experience designing and building scalable backend systems.</p>
+                    </div>
+                            </div>
+        </div>
+    </div>
+
+
+
+<p>Here’s a function that signs a document:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">fun signDocument(
+    documentId: UUID,
+    code: String,
+): Unit</pre>
+
+
+
+<p>In Kotlin, <code>Unit</code> means the function completes without returning a meaningful value – roughly equivalent to <code>void</code> in Java.</p>
+
+
+
+<p>Got it? Now, tell me what could go wrong. <em>You can’t</em>.&nbsp;</p>
+
+
+
+<p>Yet, the code might be invalid. The signing window might have closed. The database might be down. The document might already be signed, or expired, or the request might have arrived out of order from a buggy client.&nbsp;</p>
+
+
+
+<p>Every one of those is a real outcome this function must reckon with. Not one is visible in the line above.</p>
+
+
+
+<p>To discover possible failures and how to handle them, you could open the implementation. Then, the service it calls. Then, the exception handlers, the route mapping, the tests, the OpenAPI spec, and the client code that consumes it.&nbsp;</p>
+
+
+
+<p>You could read everything except the one thing that should have told you in the first place: <strong>the signature</strong>.</p>
+
+
+
+<p>At Salmon, I work on authentication and verification. A mishandled failure is rarely cosmetic and the difference between two error cases can be the difference between letting the right person through and the wrong one. I’ve spent a fair bit of time on this question: <strong>how do you make a function’s expected failures part of what it tells you, instead of something you have to go digging for</strong>?&nbsp;</p>
+
+
+
+<p>This article is my answer. It uses Kotlin, but the concept carries to any language with sealed types.</p>
+
+
+
+<h2 class="wp-block-heading">Have no fear of “functional error handling”</h2>
+
+
+
+<p>“<em>Functional error handling</em>”. That phrase scares people off. They expect monads, category theory, and a lecture. This isn’t the case. The goal is plain: the function signature should be enough to know how to call it and how to handle every expected outcome. Nothing hidden in the body.&nbsp;</p>
+
+
+
+<p>If a failure is part of the business logic, it belongs in the function signature, the API contract, and the client’s handling code, not buried in the implementation.</p>
+
+
+
+<p>Salmon&#8217;s engineering culture runs on a few commitments: real ownership from day one, high standards held in the open, and a refusal to ship things that don&#8217;t actually work. A function that hides its failures is at odds with all three.&nbsp;</p>
+
+
+
+<p>So, in the case of the example above, the signature I actually want should look like this:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">fun signDocument(
+    documentId: UUID,
+    code: String,
+): Either&lt;DocumentSignError, Unit></pre>
+
+
+
+<p>We now have the inputs on the left of the function and the expected failure type and the success type on the right.&nbsp;</p>
+
+
+
+<p>Now, before we get to what <code>Either</code> is, we need to agree on what belongs inside <code>DocumentSignError</code> in the first place, because that’s where a lot of the value of this system comes from.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>Three kinds of failure, but only one belongs in the signature</strong></h2>
+
+
+
+<p>Not every bad thing that happens is the same kind of bad thing. I split failures into three groups, and each group gets handled differently.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>01 · API CLIENT ERRORS</strong></h3>
+
+
+
+<p>The caller used the API wrong: this means a malformed JSON, a missing header, an unsupported operation, a request that arrived out of sequence, access that isn’t allowed.&nbsp;</p>
+
+
+
+<p>A healthy client should almost never see these, and there is no designed screen for them, because a working app doesn’t produce them. Thus, you can collapse the whole category into coarse HTTP responses: a 400, a 403, a 404. You do not enumerate them one by one in your domain model<strong>.</strong></p>
+
+
+
+<h3 class="wp-block-heading"><strong>02 · UNEXPECTED EXCEPTIONS</strong></h3>
+
+
+
+<p>The database is unavailable. A dependency timed out. The network dropped. A null slipped through and you have a <code>NullPointerException</code>, or an invariant broke and you’re in an illegal state. These are <em>not</em> business outcomes.&nbsp;</p>
+
+
+
+<p>Nobody designs a user flow for “Postgres fell over.” You do not model these as domain errors. Instead, they become operational signals: a 500 to the client, a full stack trace in the logs, a spike in your error-rate metric, a page to whoever is on call.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>03 · DOMAIN ERRORS</strong></h3>
+
+
+
+<p>Here, the client behaved correctly, yet the operation still can’t succeed.&nbsp;</p>
+
+
+
+<p>The signing code was wrong. The window has closed. The document was already signed. Approval is missing. The policy rejected it. These are the failures a real user hits while doing everything right, and your designers have a specific screen for each one.&nbsp;</p>
+
+
+
+<p>This is the category that has to be visible. If a healthy client needs to handle two outcomes differently, those two outcomes have to be distinguishable in the type. <strong>This is the group that belongs in the contract.</strong></p>
+
+
+
+<p>I often see people mistakenly dragging the second group into the other two. For instance, people add <strong><code>DatabaseUnavailable</code></strong> to their error union as if it were a business failure. It isn’t. Let it throw, let the global handler catch it, and keep your domain model honest. </p>
+
+
+
+<p><code>HTTP 400</code> is not a domain concept. “Signing window closed” is.</p>
+
+
+
+<p>In any case, if you recognize and split these three categories correctly, most of the design work is already done. The rest is choosing a mechanism that keeps the second group visible.</p>
+
+
+
+<h2 class="wp-block-heading">Why exceptions and their relatives keep losing</h2>
+
+
+
+<p>The default in most Java and Kotlin codebases is to validate, then throw:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">fun signDocument(documentId: UUID, code: String) {
+    if (signingWindowClosed(documentId)) throw SigningWindowClosedException()
+    if (!codeMatches(documentId, code)) throw SignatureRejectedException()
+    if (alreadySigned(documentId)) throw AlreadySignedException()
+    // ... sign it
+}</pre>
+
+
+
+<p>The signature says “returns nothing, succeeds.” But the implementation tells a different story, and the compiler will not make the caller listen to it. If someone adds a fourth exception next quarter, every call site still compiles, and every call site silently fails to handle the new case. You find out in production, and that’s not great.</p>
+
+
+
+<p>Java tried to fix this with checked exceptions, and the instinct was right: force the caller to handle declared failures or pass them on. But it didn’t scale. And the Stream API doesn’t compose with checked exceptions at all, so you end up doing sneaky throws and wrapping everything back into runtime exceptions.</p>
+
+
+
+<p>As it turns out, the better tool is already in the language itself. A sealed interface tells the compiler the complete set of subtypes, this means that when you handle these errors (using Kotlin’s <code>when</code> expression), the compiler can safely verify you haven&#8217;t missed a single case:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">sealed interface DocumentSignError {
+    data object SignatureRejected   : DocumentSignError
+    data object SigningWindowClosed : DocumentSignError
+    data object AlreadySigned       : DocumentSignError
+}</pre>
+
+
+
+<p>Now the caller handles every case, and the compiler enforces it:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">when (error) {
+    SignatureRejected   -> showSignatureRejected()
+    SigningWindowClosed -> showSigningWindowClosed()
+    AlreadySigned       -> showAlreadySigned()
+}</pre>
+
+
+
+<p>Add a fourth failure to the sealed interface and this <strong><code>when</code></strong> stops compiling until you handle it. And this is the whole game: the compiler now knows what <em>can</em> fail, and it won’t let you forget.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>You just reinvented Either</strong></h2>
+
+
+
+<p>Once you have a sealed error type, you need a way to say “this function returns either that error or a success.” You can build a wrapper by hand, and people do, for each result type, over and over. That gets verbose fast.</p>
+
+
+
+<p>What you’re reaching for is a generic version of the same shape: a value that is one thing or the other, never both. Left for the failure, right for the success. That is <strong><code>Either</code></strong>, and you don’t need a library to understand it. It’s a sealed type with two cases and a handful of helper methods (<strong><code>map</code></strong>, <strong><code>flatMap</code></strong>, <strong><code>fold</code></strong>, <strong><code>getOrElse</code></strong>). If you’ve used <strong><code>Optional</code></strong> in Java or nullable types in Kotlin, you already know how it feels to work with. An <strong><code>Optional</code></strong> is roughly an <strong><code>Either</code></strong> whose left side carries no information, just <strong><code>Unit</code></strong>.</p>
+
+
+
+<p>The payoff is that the failure set moves into the public type:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">fun signDocument(
+    documentId: UUID,
+    code: String,
+): Either&lt;DocumentSignError, Unit></pre>
+
+
+
+<p>Failures are no longer hidden in the function body; they are part of what the function tells you upfront.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>Two unions people get wrong</strong></h2>
+
+
+
+<p>Unfortunately, two anti-patterns show up constantly once teams adopt this, and both undo most of the benefit.</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">fun signDocument(documentId: UUID, code: String): 
+Either&lt;Throwable, Unit></pre>
+
+
+
+<p>While this looks typed, the type says only “something can fail.” It does not say which expected failures the caller must handle, because <strong><code>Throwable</code></strong> is open, so a <strong><code>when</code></strong> over it always needs an <strong><code>else</code></strong>. You’re back to not knowing.&nbsp;</p>
+
+
+
+<p>This is essentially the same as throwing an error, and it’s why Kotlin’s own <strong><code>Result&lt;T&gt;</code></strong> type didn’t work out and isn’t recommended for domain modeling. If the left side is open, you’ve gained nothing.</p>
+
+
+
+<p>The second is one broad union shared across a whole class, in the name of not repeating yourself:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">sealed interface DocumentError {
+    data object SignatureRejected   : DocumentError
+    data object SigningWindowClosed : DocumentError
+    data object AlreadySigned       : DocumentError
+    data object TemplateNotFound    : DocumentError
+    data object ExportFailed        : DocumentError
+}
+ 
+fun signDocument(...)     : Either&lt;DocumentError, Unit>
+fun prepareSigning(...)   : Either&lt;DocumentError, SigningSession>
+fun exportDocument(...)   : Either&lt;DocumentError, ExportFile></pre>
+
+
+
+<p>The compiler is happy, but now every method appears to return every error. <strong><code>signDocument</code></strong> can never produce <strong><code>TemplateNotFound</code></strong>, yet every caller has to account for it anyway. You get exhaustive handling full of impossible branches, which is just catch-all programming wearing a type.</p>
+
+
+
+<p>The fix is to define one narrow union per public method:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">sealed interface DocumentSignError { /* the three real failures */ }
+sealed interface PrepareSigningError { /* its own set */ }
+sealed interface ExportError { /* its own set */ }</pre>
+
+
+
+<p>Then each <strong><code>when</code></strong> handles only what its method can actually return. No <strong><code>else</code></strong> or impossible cases:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">when (error) {
+    SignatureRejected   -> showSignatureRejected()
+    SigningWindowClosed -> showSigningWindowClosed()
+    AlreadySigned       -> showAlreadySigned()
+}</pre>
+
+
+
+<p>A little more typing up front, but worth it every single time you read one of these signatures later.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>Composition, without drowning in the plumbing</strong></h2>
+
+
+
+<p>Real flows chain steps, and each step can fail. Done naively with <strong><code>flatMap</code></strong>, the lambdas nest deeper with every step and the code gets ugly.&nbsp;</p>
+
+
+
+<p>You have a few ways out. Plain Kotlin handles it with early return:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">val document = findDocument(documentId)
+    .getOrElse { return it.left() }</pre>
+
+
+
+<p>Flat, typed, and the pattern itself needs no library: if you hand-roll <strong><code>Either</code></strong>, you write these helpers yourself. The syntax above happens to use <code><strong>Arrow’s</strong> <strong>getOrElse</strong></code> and <strong><code>left</code></strong>, but nothing here depends on the abstraction being fancy.&nbsp;</p>
+
+
+
+<p>If you want it cleaner, <strong><code>Arrow</code></strong> also gives you an <strong><code>either { }</code></strong> block where <strong><code>bind()</code></strong> unwraps a right value and short-circuits on the first left:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">either {
+    val document = findDocument(documentId).bind()
+    validateStatus(document).bind()
+    val signature = validateSignature(document, code).bind()
+    markSigned(document, signature).bind()
+}</pre>
+
+
+
+<p>This is the same idea Scala has had in the language for years with for-comprehensions. Use <strong><code>Arrow</code></strong> if the ergonomics help your team; it also brings useful types like non-empty lists. (But the contract idea does not depend on <strong><code>Arrow</code></strong>, and I’d rather you adopt the discipline than the dependency.)</p>
+
+
+
+<h2 class="wp-block-heading"><strong>The contract should survive the whole trip</strong></h2>
+
+
+
+<p>A typed failure is only useful if it stays typed across the stack. Here’s the rule I hold to: services and repositories return domain errors, and you map to HTTP at exactly one place, the route boundary.</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">service.signDocument(request)
+    .mapLeft { error -> error.toHttpResponse() }</pre>
+
+
+
+<p>Expected domain failures become an <strong><code>Either.Left</code></strong>. API-client misuse collapses to a coarse 4xx. Unexpected infrastructure failures and bugs stay as exceptions and become a 500. The controller is the only layer that knows about HTTP, and the layers beneath it speak in business outcomes.</p>
+
+
+
+<p>There’s also a bonus most teams don’t realize here: If you publish your API client alongside the service, publish the error types with it. If you do this, the client handles failures with the same sealed union the server produces, and the two stay consistent for free.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>How does this impact code review, and AI-generated code?</strong></h2>
+
+
+
+<p>The day-to-day return on all of this shows up in review. When failures live in the signature, a reviewer can start from the contract instead of doing implementation archaeology. Did the error union change? Is this API-client misuse dressed up as a domain error? Does the new failure map to HTTP? You can answer those by reading the interface, before you ever open the body.</p>
+
+
+
+<p>At Salmon and elsewhere, this agility matters more now that a large share of code is drafted by agents.&nbsp;</p>
+
+
+
+<p>When a model writes the implementation, an explicit contract is the cheapest way to check whether it did the right thing: you read the types, not the 200 lines underneath. You can put the rule in an agent instructions file, “<em>return a typed error union, don’t throw for expected failures,</em>” and the model will mostly follow it. But the way you verify is by reading the contract, not by trusting the prose.&nbsp;</p>
+
+
+
+<p>In fact, on our team at Salmon this is less a personal preference than a shared default: the contract is the unit of review, and a generated implementation doesn’t lower that bar. Deciding which failures an operation can actually produce is a judgment call, and the signature is where that judgment gets written down so the next person, or the next agent, has to respect it. Essentially, the signature is where ownership lives.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>The honest tradeoff</strong></h2>
+
+
+
+<p>This costs you something. More types, more mapping code, more verbose signatures. I won’t pretend otherwise.&nbsp;</p>
+
+
+
+<p>But the complexity was already there. The signing window could always close. The code could always be wrong. All this approach does is take that complexity out of the implementation, where it was hiding, and put it in the type, where it’s named, tested, and visible.<br><br>You are simply moving the work to where the compiler can help. It surfaces risk to the next caller instead of hiding it, makes clear what the code really does and stops broken paths from compiling. Making failures part of the signature is how those values show up at the smallest scale: one function telling the truth about what it can do. It is also how we work in practice at Salmon: we share these typed contracts across services and their clients, and in review we read the contract before the implementation.</p>
+
+
+
+<p>A signature that returns <strong><code>Unit</code></strong> and throws in secret is lying to you about what it does. Make your signatures tell the truth!</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Klibs.io Grows to 4,200+ KMP Projects With Smarter Discovery and New AI Integrations</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/08/klibsio-grows-to-4200-kmp-projects-with-smarter-discovery-and-new-ai-integrations/</link>
+		
+		<dc:creator><![CDATA[Viliam Sedliak]]></dc:creator>
+		<pubDate>Mon, 17 Aug 2026 13:12:57 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/KM-social-BlogFeatured-1280x720-1.png</featuredImage>		<category><![CDATA[kotlin]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[kotlin-multiplatform-libraries]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=731768</guid>
+
+					<description><![CDATA[Explore a growing Kotlin Multiplatform catalog in your browser, or bring up-to-date library data directly into your AI development workflow through the klibs.io MCP server. When we introduced klibs.io in December 2024, the goal was simple: make it easier to find a Kotlin Multiplatform library that fits both your use case and target platforms. Since [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>Explore a growing Kotlin Multiplatform catalog in your browser, or bring up-to-date library data directly into your AI development workflow through the klibs.io MCP server.<br><br>When we<a href="https://blog.jetbrains.com/kotlin/2024/12/introducing-klibs-io-a-new-way-to-discover-kotlin-multiplatform-libraries/" target="_blank" rel="noreferrer noopener"> introduced klibs.io in December 2024</a>, the goal was simple: make it easier to find a Kotlin Multiplatform library that fits both your use case and target platforms. Since then, klibs.io has grown into a catalog of more than 4,200 KMP projects – and discovering new libraries has become even easier.</p>
+
+
+
+<div class="buttons">
+    <div class="buttons__row">
+        <a class="ek-link jb-download-button" title="Explore Kotlin Multiplatform projects on klibs.io" href="https://klibs.io/" target="_blank" rel="noopener" data-test="blog-article-cta" data-cl="true">Explore Kotlin Multiplatform projects on klibs.io</a>
+    </div>
+</div>
+
+
+
+<h2 class="wp-block-heading"><strong>Discover more than 4,200+ KMP projects</strong></h2>
+
+
+
+<p>klibs.io combines information from GitHub and Maven Central, bringing the details needed to evaluate a project into a single catalog. When source metadata is incomplete, klibs.io uses LLMs to refine descriptions and tags, improving search and discoverability.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/klibsio-4200-projects-by-tags.png" alt="" class="wp-image-731771"/></figure>
+
+
+
+<p>Discovery now goes well beyond a basic keyword search. Use multiple search terms, filter by supported platforms and targets – including Android, iOS, JVM, JavaScript, and Wasm – and browse curated categories such as Compose UI, local storage, networking, or dependency injection. Results can be sorted by relevance, GitHub stars, or dependent count.</p>
+
+
+
+<p>Project pages make comparison easier by bringing together descriptions, tags, <code>README</code> content, supported platforms, package versions, dependent counts, license information, and project activity. </p>
+
+
+
+<p>This gives you a clearer view of whether a library fits your project before you add the dependency.</p>
+
+
+
+<aside role="note" style="margin: 24px 0; padding: 16px 20px; background: #f5f2ff; border-left: 4px solid #7f52ff; border-radius: 8px; color: #27282c; line-height: 1.6;">
+    <p style="margin: 0;">
+        <strong style="color: #5936c7;">TIP:</strong>
+        Explore klibs.io’s
+        <a href="https://klibs.io/?category=grant-winners" target="_blank" rel="noopener noreferrer" style="color: #5936c7; font-weight: 600;">
+            Grant winners
+        </a>
+        category – KMP libraries recognized by the Kotlin Foundation Grants Program for their quality and impact.
+    </p>
+</aside>
+
+
+
+<h2 class="wp-block-heading"><strong>Bring klibs.io into your AI workflow</strong></h2>
+
+
+
+<p>Library decisions often happen while you are already coding. The new AI integrations allow coding agents to pull structured, up-to-date data from klibs.io rather than relying solely on training data or a general web search.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>Connect through the klibs.io MCP server</strong></h3>
+
+
+
+<p>The<a href="https://github.com/JetBrains/klibs-io/tree/master/integrations/mcp#readme" target="_blank" rel="noreferrer noopener"> klibs.io MCP server</a> lets agents search Kotlin Multiplatform projects by platform and target and retrieve the latest published package versions directly from the klibs.io index.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>Give agents reusable KMP library expertise</strong></h3>
+
+
+
+<p>The<a href="https://klibs.io/ai#skill" target="_blank" rel="noreferrer noopener"> Kotlin Multiplatform Libraries expert skill</a> provides task-specific instructions for discovering and comparing libraries, recommending options for a use case, verifying platform support, and finding up-to-date dependency coordinates and stable versions. We measured agent output with and without klibs.io connected – the <a href="https://github.com/JetBrains/klibs-io/blob/f42d394e3b1a18757193241386aec7753437dc62/mcp-eval/RESULTS.md" target="_blank" rel="noreferrer noopener">evaluation results</a> are published in the klibs.io repository.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>Keep project guidance close to the code</strong></h3>
+
+
+
+<p>The<a href="https://klibs.io/ai#overview" target="_blank" rel="noopener"> AI integration guide</a> includes setup instructions and a<a href="https://klibs.io/ai#agents" target="_blank" rel="noreferrer noopener"> recommended AGENTS.md snippet</a>. Adding guidance to a project helps AI tools consistently use verified information from the KMP library.</p>
+
+
+
+<div class="buttons">
+    <div class="buttons__row">
+        <a class="ek-link jb-download-button" title="Explore AI development with klibs.io" href="https://klibs.io/ai#overview" target="_blank" rel="noopener" data-test="blog-article-cta" data-cl="true">Explore AI development with klibs.io</a>
+    </div>
+</div>
+
+
+
+<h2 class="wp-block-heading"><strong>Help shape what comes next</strong></h2>
+
+
+
+<p>klibs.io is an open-source project, and feedback from library users and authors helps the catalog keep improving. Here are a few ways to take part:</p>
+
+
+
+<p>•&nbsp; <strong>Try it out: </strong>Search for a library, explore a category, and see how the filters work for your target platforms.</p>
+
+
+
+<p>•&nbsp; <strong>Improve project information: </strong>Project owners can use the <em>Suggest an edit</em> option on project pages to propose better descriptions and tags through GitHub.</p>
+
+
+
+<p>•  <strong>Report issues or contribute: </strong>Report bugs, missing libraries, or incorrect metadata in the<a href="https://github.com/JetBrains/klibs-io/issues/new/choose" target="_blank" rel="noreferrer noopener"> GitHub issue tracker</a>, or contribute directly to the<a href="https://github.com/JetBrains/klibs-io" target="_blank" rel="noreferrer noopener"> open-source project</a>.</p>
+
+
+
+<p>•  <strong>Join the discussion: </strong>Share feedback in the<a href="https://kotlinlang.slack.com/archives/C081AF4JK70" target="_blank" rel="noreferrer noopener"> #klibs-io channel on Kotlin Slack</a>.<br></p>
+
+
+
+<p>Whether you browse the catalog directly or integrate it with your AI tools, klibs.io now makes it easier to discover, compare, and use Kotlin Multiplatform libraries with up-to-date information.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Exploring Compose HTML for Server Side Rendering</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/08/exploring-compose-html-for-server-side-rendering/</link>
+		
+		<dc:creator><![CDATA[Frederik Pietzko]]></dc:creator>
+		<pubDate>Fri, 14 Aug 2026 12:15:09 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/KT-social-BlogFeatured-1280x720-1.png</featuredImage>		<category><![CDATA[backend]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[compose-multiplatform]]></category>
+		<category><![CDATA[server]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=731283</guid>
+
+					<description><![CDATA[Something is happening in server-rendered web development. React shipped Server Components. HTMX made &#8220;hypermedia&#8221; cool again. Phoenix LiveView proved a server can push interactive UI updates without a client framework in sight. Every ecosystem seems to be rediscovering the server as a place to render UI, except one: the JVM. What if Compose, the UI [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>Something is happening in server-rendered web development. React shipped Server Components. HTMX made &#8220;hypermedia&#8221; cool again. Phoenix LiveView proved a server can push interactive UI updates without a client framework in sight. Every ecosystem seems to be rediscovering the server as a place to render UI, except one: the JVM. What if Compose, the UI toolkit already spanning Android, Desktop, and iOS, took a shot at server-rendering HTML too?</p>
+
+
+
+<p>The vision is simple: give backend developers a way to build server-rendered UI as type-safe, reusable Compose components (real Kotlin, with autocomplete, refactoring, and compiler checks) instead of string-based templates. No separate templating language, no separate UI codebase to maintain alongside the backend. This blog serves to explore some ideas how to achieve this vision and represents an exploration instead of an official commitment.</p>
+
+
+
+<p>Every major JS framework now has an SSR story: React has Next, Vue has Nuxt, Svelte has SvelteKit. And it&#8217;s not only the JS ecosystem. C#, Rust and even functional languages like Elixir have innovative solutions to build fullstack apps without relying on templating engines. Instead, they bundle state and rendering into reusable components, directly in code, the same way Compose already does everywhere else.</p>
+
+
+
+<p>Right now the JVM doesn&#8217;t have a horse in this race. There&#8217;s no shortage of SSR libraries on the JVM. But most of them need some sort of templating language and have nothing close enough to a component for a JS dev to recognize as such.</p>
+
+
+
+<p>But there is already a framework that is battle-tested and capable of filling this gap for the JVM, it just never really targeted the server. Compose Multiplatform allows us to write business logic and User Interfaces once and share it between platforms: Android, iOS, Desktop, and the web. It just needs to make the jump to the server next.</p>
+
+
+
+<p>Compose Multiplatform already targets the web, but not the way you&#8217;d want for this: it renders directly into a canvas, which shares UI code between mobile platforms and the browser at the cost of SEO, loading times, and accessibility.</p>
+
+
+
+<p>A way to render HTML with Compose already exists, and it&#8217;s older than Compose for Web: Compose HTML, which uses the Compose runtime to build SPAs in Kotlin and compile it to JS using the Kotlin/JS compiler. Add a JVM target and it could do SSR too. The rendering happens directly in Kotlin: real components, real types, no templating language.</p>
+
+
+
+<p>JVM devs stuck with Thymeleaf/JSP, or reaching for a separate JS framework just to build fullstack applications, wouldn&#8217;t have to leave the platform: type-safe, reusable Compose components replace what the templating language used to handle. Kotlin&#8217;s Java interoperability means it would slot into large legacy Java applications too.</p>
+
+
+
+<p>Take something as basic as a reusable card component. In Thymeleaf, that&#8217;s a fragment defined in its own file, called by name, with parameters passed as untyped strings:</p>
+
+
+
+<pre class="EnlighterJSRAW">&lt;!-- fragments/card.html --&gt;
+&lt;div th:fragment=&quot;card(title, count)&quot; class=&quot;card&quot;&gt;
+	&lt;h3 th:text=&quot;${title}&quot;&gt;Title&lt;/h3&gt;
+	&lt;span th:text=&quot;${count}&quot;&gt;0&lt;/span&gt;
+&lt;/div&gt;
+&lt;!-- usage --&gt;
+&lt;div th:replace=&quot;~{fragments/card :: card(title=&#039;Cart&#039;, count=${cartCount})}&quot;&gt;&lt;/div&gt;
+&lt;div th:replace=&quot;~{fragments/card :: card(title=&#039;Wishlist&#039;, count=${wishlistCount})}&quot;&gt;&lt;/div&gt;</pre>
+
+
+
+<p>Rename <code>count</code> to <code>itemCount</code> and every call site keeps compiling until it breaks at runtime. The compiler has no idea <code>card</code> or its parameters even exist.</p>
+
+
+
+<p>The same component in Compose is a typed function:</p>
+
+
+
+<pre class="EnlighterJSRAW">@Composable
+fun Card(title: String, count: Int) {
+	Div({ classes(&quot;card&quot;) }) {
+		H3 { Text(title) }
+		Span { Text(count.toString()) }
+	}
+}
+// usage
+Card(title = &quot;Cart&quot;, count = cartCount)
+Card(title = &quot;Wishlist&quot;, count = wishlistCount)</pre>
+
+
+
+<p>Rename <code>count</code> here and every call site either updates with the IDE or fails to compile. Pass a <code>String</code> where an <code>Int</code> is expected, and it&#8217;s a compiler error, not a runtime surprise.</p>
+
+
+
+<p>Today Compose HTML only has a JS target, so it can only be used from the browser; there&#8217;s no way of doing SSR yet. That doesn&#8217;t mean the Kotlin web-dev ecosystem is standing still, though.</p>
+
+
+
+<p>There is<a href="https://kobweb.varabyte.com/" target="_blank" rel="noopener"> Kobweb</a>, a batteries-included framework built on top of Compose HTML. It doesn&#8217;t offer SSR but supports static site export/prerendering to help with SEO. There is also<a href="https://kilua.dev/" target="_blank" rel="noopener"> Kilua</a>, which doesn&#8217;t build on top of Compose HTML but on top of the Compose Runtime directly to do SSR and CSR, leveraging JS or Wasm, and offers integrations for Ktor, Spring Boot, and others. And there is<a href="https://github.com/codeyousef/summon" target="_blank" rel="noopener"> Summon</a>, with SSR and hydration support.</p>
+
+
+
+<p>There&#8217;s already a small but active community leveraging Compose to build for the web. Adding SSR capabilities to Compose HTML would give Kobweb, Kilua, and Summon a shared foundation instead of three separate approaches, and give frameworks like Spring Boot and Ktor a good reason to integrate with it on the server.</p>
+
+
+
+<p>This space isn&#8217;t totally unexplored, but everything from this point onward is pure exploration.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>What Compose HTML on the server could look like</strong></h2>
+
+
+
+<p>The first step would be to add a JVM target to Compose HTML, which is a bit easier said than done. There would need to be <code>renderToString</code> and <code>renderToBytes</code> functions that run a composition once on the JVM and serialize the resulting tree into a string.<br></p>
+
+
+
+<pre class="EnlighterJSRAW">fun renderToString(content: @Composable DOMScope&lt;DomElement&gt;.() -&gt; Unit): String
+
+val html: String = renderToString {
+    Div({ classes(&quot;card&quot;) }) {
+        Text(&quot;Hello&quot;)
+        Span({ classes(&quot;title&quot;) }) {
+            Text(&quot;World&quot;)
+        }
+    }
+}
+// html == &quot;&quot;&quot;&lt;div class=&quot;card&quot;&gt;Hello&lt;span class=&quot;title&quot;&gt;World&lt;/span&gt;&lt;/div&gt;&quot;&quot;&quot;</pre>
+
+
+
+<p>It composes once, lets the initial composition settle, walks the resulting tree, and serializes it straight to an HTML string: no browser, no DOM.</p>
+
+
+
+<p>There are some limitations to this. There would probably be only a single render pass, meaning no recomposition on state change or any effects, in essence very similar to SSR in JS. Event listeners should be accepted but will be inert; there&#8217;s no point in binding to browser events on the server.</p>
+
+
+
+<p>This would probably already be enough to build basic, entirely server-rendered pages using Compose. Here&#8217;s a full todo app on Spring Boot:</p>
+
+
+
+<pre class="EnlighterJSRAW">@Controller
+class TodoController(private val todoService: TodoService) {
+
+    @GetMapping(&quot;/todos&quot;)
+    @ResponseBody
+    fun todoView(): String = renderToString {
+        TodoView(todoService)
+    }
+
+    @PostMapping(&quot;/todos&quot;)
+    fun addTodo(createTodoDto: CreateTodoDto): String {
+        todoService.addTodo(createTodoDto.title)
+        return &quot;redirect:/todos&quot;
+    }
+
+    @PostMapping(&quot;/complete/{id}&quot;)
+    fun completeTodo(@PathVariable id: Long): String {
+        todoService.completeTodo(id)
+        return &quot;redirect:/todos&quot;
+    }
+}
+
+data class CreateTodoDto(val title: String)
+
+@Composable
+fun TodoView(todoService: TodoService) {
+    AddTodo()
+    TodoList(todoService)
+}
+
+@Composable
+fun AddTodo() {
+    Form(
+        attrs = {
+            action(&quot;/todos&quot;)
+            method(FormMethod.Post)
+        }
+    ) {
+        TextInput(
+            attrs = {
+                placeholder(&quot;Add todo&quot;)
+                name(CreateTodoDto::title.name)
+            }
+        )
+        Button(
+            attrs = {
+                type(ButtonType.Submit)
+            }
+        ) {
+            Text(&quot;Add&quot;)
+        }
+    }
+}
+
+@Composable
+fun TodoList(todoService: TodoService) {
+    val todos by produceState(initialValue = emptyList&lt;Todo&gt;(), todoService) {
+        value = todoService.getTodos()
+    }
+    Ul {
+        todos.forEach { todo -&gt;
+            Li {
+                Form(
+                    attrs = {
+                        action(&quot;/complete/${todo.id}&quot;)
+                        method(FormMethod.Post)
+                    }
+                ) {
+                    Text(todo.title)
+                    Button(
+                        attrs = {
+                            type(ButtonType.Submit)
+                        }
+                    ) {
+                        Text(&quot;Complete&quot;)
+                    }
+                }
+            }
+        }
+    }
+}</pre>
+
+
+
+<p>Every interaction here is a real HTTP form submission and full-page redirect: no client JS at all, same as classic Thymeleaf-style SSR, just written entirely in Compose.</p>
+
+
+
+<p>At that point, frameworks like Spring and Ktor could start experimenting with integrations and identifying missing integration points. This would also be the first sensible point at which new libraries (e.g. components) could be created.</p>
+
+
+
+<p>Going entirely off the rails into pure speculation, this is what such an integration could look like for Spring:</p>
+
+
+
+<pre class="EnlighterJSRAW">@ComposePage(&quot;/todos&quot;)
+@Composable
+fun TodosPage(todoService: TodoService) {
+    AddTodo()
+    TodoList(todoService)
+}
+
+@ComposeAction(&quot;/todos&quot;, method = PostMapping::class)
+fun addTodo(
+    @RequestBody createTodoDto: CreateTodoDto,
+    todoService: TodoService
+) {
+    todoService.addTodo(createTodoDto.title)
+}</pre>
+
+
+
+<p>The idea: a hypothetical Spring integration could turn a <code>@Composable</code> function directly into a routed page, no manual <code>renderToString</code> call, no controller boilerplate, no wrapping HTML shell. Spring would own request mapping and dependency injection exactly like it does today; Compose HTML would just be the render target instead of a <code>View/template</code>.</p>
+
+
+
+<p>Or for Ktor:</p>
+
+
+
+<pre class="EnlighterJSRAW">routing {
+    composable(&quot;/todos&quot;) {
+        TodoView(todoService)
+    }
+
+    post(&quot;/todos&quot;) {
+        val params = call.receiveParameters()
+        todoService.addTodo(params&#091;&quot;title&quot;]!!)
+        call.respondRedirect(&quot;/todos&quot;)
+    }
+}</pre>
+
+
+
+<p><code>composable(path) { }</code> would be a thin wrapper Ktor could add: call <code>renderToString</code> internally and respond with the HTML content type, so a route body becomes a <code>@Composable</code> lambda instead of a string template or manual <code>call.respondText</code>.</p>
+
+
+
+<p>Worth repeating: these are illustrative sketches, not planned APIs, not a roadmap.</p>
+
+
+
+<p>Hydration and state sync are the natural next question, not an answer: how would a composable that already rendered on the server pick up interactivity in the browser, and would client and server ever need to agree on state? Answering that would also open the door to sharing UI code between client and server, the same component compiled once for the browser and once for the server, and enable interactive fullstack web apps built entirely in Kotlin.</p>
+
+
+
+<p>Let&#8217;s be clear about scope: the goal is not to expand Compose HTML into a fully-fledged, batteries-included framework. Rather, the vision is similar to React&#8217;s: stay small and let frameworks build the integration points on top, just applied to a multiplatform library instead of a single-platform one. Framework integrations and ecosystem libraries live outside the core. That&#8217;s a real contrast to the rest of Compose Multiplatform, which ships official libraries for Material3 components, state management, and many other things. Compose HTML will need to rely on the Kotlin community and ecosystem to figure out what integration points are actually needed and how its future will look, instead of dictating a direction from the inside.</p>
+
+
+
+<p>We are already talking to framework maintainers from Kobweb, Kilua, and Summon to gather their perspective, as well as the Spring team, which has expressed interest in experimenting once a JVM target is added to Compose HTML.</p>
+
+
+
+<p>If you want to talk shop, argue with any of this, or just see where it goes, join the Kotlinlang Slack (get your invite here: <a href="https://kotl.in/slack" target="_blank" rel="noopener">https://kotl.in/slack</a>) and the <a href="https://kotlinlang.slack.com/archives/C0BM8FWG58Q" target="_blank" rel="noopener">#compose-ssr</a> channel.</p>
+
+
+
+<p>Every other ecosystem already took its shot at the server. Kotlin&#8217;s turn is overdue.</p>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>When Escape Routes Become Toll Roads: Mapping How Developers Move Between Programming Languages</title>
+		<link>https://blog.jetbrains.com/research/2026/08/programming-language-migration/</link>
+		
+		<dc:creator><![CDATA[Vladimir Volokhonsky]]></dc:creator>
+		<pubDate>Wed, 12 Aug 2026 16:15:18 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/JB-social-BlogFeatured-1280x720-1-1.png</featuredImage>		<product ><![CDATA[kotlin]]></product>
+		<category><![CDATA[articles-2]]></category>
+		<category><![CDATA[deveco]]></category>
+		<category><![CDATA[research]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=research&#038;p=729328</guid>
+
+					<description><![CDATA[TL;DR: This post relates findings about language migration from the 2025 State of Developer Ecosystem survey. In general, project requirements are still the most common reasons for switching languages. One outlier from this trend, however, is Kotlin. People switch to Kotlin not because they have to; they switch because it simply feels better to work [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p><em>TL;DR: This post relates findings about language migration from the 2025 State of Developer Ecosystem survey. In general, project requirements are still the most common reasons for switching languages. One outlier from this trend, however, is Kotlin. People switch to Kotlin not because they have to; they switch because it simply feels better to work with, thanks to its better development experience and more modern features. C has a surprisingly high churn rate, and Java developers tend to move to Python and TypeScript. HTML/CSS developers learn JavaScript to improve their job opportunities, while JavaScript developers switch to almost everything else for the same reason.</em></p>
+
+
+
+<h3 class="wp-block-heading"><strong>The history of programming is, in part, a history of escape</strong></h3>
+
+
+
+<p><br>Ada Lovelace wrote for a machine that did not yet exist in working form. A century later, programmers were wrestling with machines that had switches, punched cards, and raw numeric instructions. Then came assembly, and with it the first great bargain of software: give up a little closeness to the machine, and gain a little room for the human mind. But history does not stand still. With new languages and shifts in context, aspects of existing languages began to get in the way.<br><br>One language moved to such a high level of abstraction that its efficiency in the physical reality of the machine stopped holding up. Meanwhile, the fast-growing Internet of Things meant that programs now had to run on a coffee machine in a sense that was no longer metaphorical. In some places, development speed was missing. In others, safety was.<br><br>We escaped from assembly into C, from C into managed runtimes, from ceremonial enterprise Java into Kotlin, from dynamic-language freedom into TypeScript, from unsafe systems code into Rust, and from heavy frameworks into smaller cloud-native tools. At first glance, all migration channels seem clear. But how does this map onto reality?<br>Quite a lot of material, in one way or another, measures how the popularity of programming languages changes over time. Yet it seems that no one has really looked at the broader picture of how programmers themselves move between languages – not from the point of view of global trends in software development, but from the point of view of an individual path.<br><br>For us at JetBrains, it is very important to get closer to understanding what is happening from the programmer’s perspective, rather than from that of a programming historian or a career adviser. This is the perspective that matters most to us. In this spirit, we designed our State of Developer Ecosystem surveys with the goal of illuminating what the path of a real programmer looks like. Here’s what we found in 2025.<br>First, we should acknowledge that the path between languages can look like almost anything. Yes, the most common routes are between the leading languages: from Python to Java and back, with Java to Kotlin in third place by absolute numbers. But people migrate in every possible direction.<br><br>But we’ve gotten ahead of ourselves. Let’s take things one step at a time.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>What we did before and what we achieved in 2025</strong></h3>
+
+
+
+<p>Since the beginning of the Development Ecosystem survey, we have used the question <em>“Do you plan to adopt or migrate to other languages in the next 12 months? If so, which ones?”</em> We quickly found, however, that it is not a good predictor for future language migration. It’s one thing to plan to try Rust or switch from Java to Kotlin, but even for very common moves, the number of developers who actually make the switch is much lower than the number of those who have plans. Just because we have issues supporting our old Java 8 codebase, for example, doesn’t mean we’ll actually leave it.<br>So last year, we added a new set of questions regarding respondents’ previous experience with programming languages. We decided to assess actual migration over the past year using the question <em>“What were your primary programming languages 12 months ago?”</em> and some other related ones. This report addresses these questions, as well as the programming language landscape as a whole, based on the 8,837 responses we collected.<br>For reference, the following terms refer to the answers of the corresponding questions:<br>Used language – “<em>Which programming languages have you used in the last 12 months?</em>”<br>Primary language – “<em>What are your primary programming languages? (Up to 3)”</em><br>Main language – <em>“What is your main programming language?”</em></p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/pl_dynamics_2017_2025.png" alt="" class="wp-image-729330" /></figure>
+
+
+
+<p>This сhart is based on the responses to the question “Which programming languages have you used in the last 12 months?” The increase in Java and Kotlin shares is most likely the result of a shift in the sample, rather than a real trend. The main fast risers are TypeScript and Rust, as we described in our <a href="https://www.jetbrains.com/lp/devecosystem-2024/#language_promise_index" target="_blank" rel="noopener">2024 Developer Ecosystem infographic</a>. We also predicted some growth for Python, Go, and Lua, but only Go showed actual growth.</p>
+
+
+
+<h3 class="wp-block-heading"><strong>JetBrains Language Promise Index</strong></h3>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/language_promise_index.png" alt="" class="wp-image-729342" /></figure>
+
+
+
+<p>The Language Promise Index tracks the migration prospects of languages in arbitrary units, based on the data we had on the stability of positive or negative migration dynamics and the number of people wishing to learn the language. <strong>Lua </strong>was previously one of the top languages in this category, but its growth has apparently reached a certain ceiling, and it is no longer among the leaders.</p>
+
+
+
+<p>TypeScript, Rust, Python, and Go all still have large growth potential. We expect that a lot of people would change their main language from JavaScript to TypeScript while still using JS as their secondary language.&nbsp;</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/lang_usage_breakdown.png" alt="" class="wp-image-729354" /></figure>
+
+
+
+<p>As you can see, despite being the most popular language in terms of overall usage, JavaScript is the main language for only 6% of software developers, while Java is still much more popular as a main language.&nbsp;</p>
+
+
+
+<p>Unfortunately, we don’t have enough answers for most programming languages, so the next tables include only the most popular ones.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/lang_net_growth_composition.png" alt="" class="wp-image-729365" /><figcaption class="wp-element-caption"><em>100% represents all respondents who reported using the respective language as their main language one year ago. </em><br><em>Loyals + Churners = 100%. <br>Net Growth = Newcomers + Switchers – Churners.<br>Newcomers – respondents who did not use any programming language one year ago but reported using this language this year.</em><br><em>Switchers – respondents who used a different main language one year ago and switched to this one.</em><br><em>Loyals – respondents who continued using the same main language as last year.</em><br><em>Churners – respondents who used this language as their main language a year ago but have since switched to another language.</em><br></figcaption></figure>
+
+
+
+<p>Surprisingly, C shows the lowest retention. About half of those who said that C was their main language last year have now switched to something else. This is a bit strange. Initially, we assumed that this flow probably consisted of students who had adopted C through their education and then switched to another language. However, the experience level has only a small effect. Half of those who dropped C chose <em>“I wanted to learn a new language”</em> as the reason for their change, which has a higher share than among switchers from other languages, who mostly chose <em>“A project I am working on requires the usage of a new language.”</em><br>However, we didn’t have such questions for last year and do not see so much churn for C based on a comparison of shares with previous-year data (2.1% this year as a main language vs 2.0% in last year). But this churn rate may be a good predictor of future changes.</p>
+
+
+
+<h3 class="wp-block-heading">Why developers leave – and where they go</h3>
+
+
+
+<p>First of all, we should say that we don&#8217;t have data about everyone who churned – people who retired or switched to another career path don’t typically answer our developer surveys. Nevertheless, we do have enough information to draw some conclusions about why people decide to switch from one language to another.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/churn_reasons_by_from_lang_heatmap.png" alt="" class="wp-image-729376" /></figure>
+
+
+
+<p>Note: The sample is extremely small (less than 100) for C, Kotlin, and PHP.,<br>Some findings from this data:<br>1. Project requirements are the most common reasons for switching languages.<br>2. As we mentioned before, for C, <em>“I wanted to learn a new language”</em> and <em>“More modern language features”</em> are very popular reasons for switching, which probably point to widespread dissatisfaction and the language’s aging.<br>3. For JavaScript, the reason people leave is often <em>“Better job market opportunities”.</em><br>4. Performance and scalability limitations are often a reason to switch from PHP.<br>5. “Other” reasons accounted for 18% of Kotlin churners. According to their answers, they are switching companies and switching between hobby and professional use.</p>
+
+
+
+<p>The following tables, where both rows and columns list the same programming languages, require some additional explanation. Each one depicts the shift in respondents’ main languages. In the first, the columns are divided by last year’s responses for a given language, and the rows show the languages that respondents have moved to. Conversely, the second tracks where new language users are coming from, with the columns divided by respondents’ current main languages and the rows showing their previous answers. Each column totals 100%, because it tracks the same population over the course of a year.&nbsp;</p>
+
+
+
+<p>The tables show transitions from seeing one language as your “main” language to seeing another language that way. This does not mean that people stopped programming in the “abandoned” language altogether. It simply means that it stopped being their primary language.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/churn_destinations_heatmap.png" alt="" class="wp-image-729387" /></figure>
+
+
+
+<p>This table shows where people go based on their previous language. Python is the main switch destination for all languages except C (whose users preferred to move to Java and C++) and TypeScript (where the top target destinations were Java, JavaScript, and C#).<br></p>
+
+
+
+<h3 class="wp-block-heading">Why developers adopt – and where they come from</h3>
+
+
+
+<p>Let’s look at the inverted perspective, based on the language to which people migrated.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/join_reasons_by_to_lang_heatmap.png" alt="" class="wp-image-729546" /></figure>
+
+
+
+<p>Some findings from this data:</p>
+
+
+
+<ol class="wp-block-list">
+<li>Surprisingly, JavaScript is both the main language people leave for better job market opportunities and the one people move to for the same reason. But these flows are not the same: one of the main sources for JavaScript growth is HTML/CSS. So, the pattern looks a bit like a conveyor belt: HTML to JavaScript to TypeScript.&nbsp;</li>
+
+
+
+<li>Project requirements are very common reasons for switching to C# and C++, suggesting many developers switch to these languages simply because they have to.&nbsp;</li>
+
+
+
+<li>People don’t go to Kotlin because they have to, but because it offers a better development experience and more modern language features.</li>
+
+
+
+<li>Performance and scalability are the main attractions of Go, whereas ecosystem and library support are stronger attractions for Python.</li>
+</ol>
+
+
+
+<p>At first glance, the following table may look the same as the main-language churn table above. But it is actually completely different, with a different meaning.</p>
+
+
+
+<p>Here, the language that respondents see as their main language at the time of answering is taken as 100%. Accordingly, the diagonal shows what we called the continuity rate: the share of people who use this language as their main language now and also used it as their main language a year ago. Imagine that we have 150 respondents. Of them, 100 said they use a certain language as their main language this year, while 125 said they used it as their main language last year. 75 people used this language as their main language both a year ago and at the time of the survey.</p>
+
+
+
+<p>In this case, the retention rate would be 75%, while the continuity rate would be 60%. It is important to note that everyone else is not necessarily a “newcomer” to the language. They may well have used this language before, just not as their main one.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/growth_sources_heatmap.png" alt="" class="wp-image-729760" /></figure>
+
+
+
+<p>In terms of growth sources, Python is the main source for C, C#, C++, Go, Java, and JavaScript, which is not surprising, because it is one of the most popular languages.</p>
+
+
+
+<p>For Kotlin, the main growth source is Java, while for PHP and TypeScript, it is JavaScript.</p>
+
+
+
+<p>For Python itself, the main growth source is Java.&nbsp;</p>
+
+
+
+<h3 class="wp-block-heading">Conclusion</h3>
+
+
+
+<p>By looking at actual moves instead of plans, we shift from intention to action – not what developers say, but what they do. The ecosystem data stops being a snapshot and starts to look like a map of flows.</p>
+
+
+
+<p>Project requirements still do most of the pushing. Necessity, not choice, drives many switches, but not all. Some languages win on specific jobs, others on performance or ecosystem. And many developers move in chains: from HTML/CSS to JavaScript, and then further along – a conveyor belt of skills, where each step opens the next.</p>
+
+
+
+<p>Churn tells a clearer story. C leaks talent faster than expected, even if its headline numbers look stable. Java remains a hub, but its outflow goes mostly to Python and TypeScript, not Kotlin. Python acts as a catch-all destination. TypeScript and Rust still look like the forward edge.</p>
+
+
+
+<p>Kotlin, our own language, plays a different game – and plays it well. Developers come not because they have to, but because they want to, drawn by cleaner syntax, fewer rough edges, and a development experience that simply feels better. It wins on pull, not push. Yet the inflow from Java is weaker than expected, and some developers even switch back.<br><br>The picture that emerges is a simple one of push, pull, and drift. With the new data, we see not just which languages grow or shrink, but how it happens – which languages move with the current, and which have to work against it.</p>
+
+
+
+<p>Let’s see what DevEco’26 will reveal.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Kodee’s Kotlin Roundup: Birthday Wishes, Shipaton 2026, and the New Kotlin AI Benchmark</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/08/kodees-kotlin-roundup-birthday-wishes-shipaton-2026-and-the-new-kotlin-ai-benchmark/</link>
+		
+		<dc:creator><![CDATA[Kodee]]></dc:creator>
+		<pubDate>Tue, 04 Aug 2026 08:14:27 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/KT-social-BlogFeatured-1280x720-1-5.png</featuredImage>		<category><![CDATA[kotlin]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[kotlin-roundup]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=727205</guid>
+
+					<description><![CDATA[Hi everyone! July gave me plenty to celebrate: Kotlin turned 15, got its first public benchmark for AI coding agents, became available in BlueJ, and shipped its 2.4.10 release. Developers can also demonstrate their skills at RevenueCat Shipaton 2026 by building a Kotlin Multiplatform app and competing for the Ship Kotlin Everywhere Award. Meanwhile, X [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>Hi everyone! July gave me plenty to celebrate: Kotlin turned 15, got its first public benchmark for AI coding agents, became available in BlueJ, and shipped its 2.4.10 release. Developers can also demonstrate their skills at RevenueCat Shipaton 2026 by building a Kotlin Multiplatform app and competing for the Ship Kotlin Everywhere Award. Meanwhile, X has rebuilt its Android app to be 100% Kotlin, marking another milestone for the language.</p>
+
+
+
+<p>Here’s what stood out to me most over the past month:</p>
+
+
+            <div class="newsletter">
+                            <h2>Kodee-approved spotlight</h2>
+                                                            <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Kotlin-Release-X-LinkedIn-FB-Bluesky-1200x675-1-4.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Kotlin turned 15: Leave a birthday wish</h3>
+                                                        <p>This one is close to my heart – Kotlin recently turned 15! To mark the milestone, we&#8217;re inviting the whole community to celebrate. You can create a birthday postcard, upload a photo to party with me, and share a wish or a prediction for Kotlin&#8217;s next chapter. Now is the perfect moment to look back at how far we&#8217;ve come – and to look ahead together.</p>
+                                                            <a href="https://kotlinlang.org/kotlin-effect/" class="btn" target="_blank" rel="noopener">Join the celebration</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Kotlin-Release-X-LinkedIn-FB-Bluesky-1200x675-1-3.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Ship Kotlin Everywhere Award at RevenueCat Shipaton 2026</h3>
+                                                        <p>Already know Kotlin? RevenueCat Shipaton 2026 is the perfect opportunity to turn your Kotlin skills into a new app. From August 1 to September 30, build and ship for Android, iOS, desktop, or web and compete for the Ship Kotlin Everywhere Award. Use the <a href="https://kotlinlang.org/docs/multiplatform/shipathon-starter-guide.html" target="_blank" rel="noopener">KMP starter guide</a> to get your project up and running. To earn bonus points, you can help others by sharing your development journey. Shipping is impressive, but helping someone else is even better.</p>
+                                                            <a href="https://kotlinlang.org/lp/shipaton/" class="btn" target="_blank" rel="noopener">Learn more and register</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/KT-social-BlogFeatured-1280x720-1.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>The Kotlin Benchmark for AI coding agents</h3>
+                                                        <p>Kotlin now has its very own public benchmark for AI coding agents. It ranks agents on 105 real engineering tasks drawn from open-source Kotlin repositories, so you can compare them by resolution rate, token cost, and latency – and dig into the methodology behind the numbers. As AI becomes a bigger part of coding in Kotlin, I love that we finally have an open, Kotlin-specific way to measure what actually works.</p>
+                                                            <a href="https://blog.jetbrains.com/kotlin/2026/07/introducing-the-kotlin-benchmark-evaluate-ai-coding-agents-on-real-world-kotlin-tasks/" class="btn" target="_blank">Explore the benchmark</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/KT-social-BlogFeatured-1280x720-1-2.png" alt="Kotlin release updates">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Kotlin 2.4.10 and Kotlin 2.4.20-Beta2</h3>
+                                                        <p>July brought the Kotlin 2.4.10 bug fix release, alongside Kotlin <a href="https://kotlinlang.org/docs/whatsnew-eap.html" target="_blank" rel="noopener">Kotlin 2.4.20-Beta2</a> with coroutine stack trace recovery, faster klib compilation, expanded Swift export, and an experimental compiler native image. Try the Beta version and share your feedback while the release is still taking shape.</p>
+                                                            <a href="https://github.com/JetBrains/kotlin/releases/tag/v2.4.10" class="btn" target="_blank" rel="noopener">See the Kotlin 2.4.10 changelog</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/Kotlin-Release-Blog-Featured-Blog-1280x720-1.png" alt="Kotlin Comes to BlueJ">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Kotlin comes to BlueJ</h3>
+                                                        <p>Kotlin support is now available in BlueJ 6.0 thanks to a collaboration between JetBrains and the BlueJ team at King’s College London. Students can create, edit, compile, and run Kotlin code, inspect class diagrams, and interact with objects through BlueJ’s familiar workflow. For educators, a new onboarding guide and ready-to-use materials make it easier to include Kotlin’s concise syntax and null safety in introductory object-oriented programming courses.</p>
+                                                            <a href="https://blog.jetbrains.com/kotlin/2026/07/kotlin-comes-to-bluej/" class="btn" target="_blank">Read the post</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-Featured-Blog-1280x720-1.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>A conversation with the Golden Kodee winners</h3>
+                                                        <p>The first Golden Kodee Community Awards recognized Matheus Leandro Ferreira, Jaewoong Eum, Nicole Terc, Eeva-Jonna Panula, and Yinlong Liu for their contributions to education, online presence, creativity, positive societal impact, and in-person community building. Read their interviews and <a href="https://www.youtube.com/watch?v=p88y4pjb8Cg" target="_blank" rel="noopener">watch the video</a> to discover practical advice on learning in public, starting small, and helping the community grow.</p>
+                                                            <a href="https://blog.jetbrains.com/kotlin/2026/07/in-conversation-with-the-golden-kodee-winners/" class="btn" target="_blank">Meet the Golden Kodee winners</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/Blog-Featured-1280x720-4.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Showcase your JetBrains IDE experience on LinkedIn</h3>
+                                                        <p>The free LinkedIn Connected Apps plugin lets you connect a supported JetBrains IDE to your LinkedIn profile. Once connected, a profile statement highlights how you use your IDE in practice, based on usage data that stays on your machine. As your development habits evolve, the statement updates automatically to reflect your experience. It is designed to showcase practical tool usage – not to rank developers or replace formal certification.</p>
+                                                            <a href="https://plugins.jetbrains.com/plugin/32011-linkedin-connected-apps" class="btn" target="_blank" rel="noopener">Connect your IDE to LinkedIn</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-Featured-1280x720-1.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>How I came to life</h3>
+                                                        <p>I didn’t always look like this! My journey began with a simple robot-inspired concept. Then, with the help of research, creativity, and community feedback, I evolved into the Kodee you know and love today. Check out my origin story (including how I got my name!).</p>
+                                                            <a href="https://blog.jetbrains.com/research/2026/07/the-history-of-kodee/" class="btn" target="_blank">Discover the story behind Kodee</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/klibsionew.jpg" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>KMP library spotlight: Ktor, Koin, and Kermit</h3>
+                                                        <p>Finding the right KMP library shouldn’t slow down your project. klibs.io brings together more than 4,100 Kotlin Multiplatform libraries, with filters for developers and <a href="https://klibs.io/ai" target="_blank" rel="noopener">AI integrations</a> that give coding agents access to accurate, up-to-date library data. This month, we’re spotlighting <a href="https://klibs.io/project/ktorio/ktor" target="_blank" rel="noopener">Ktor</a>, <a href="https://klibs.io/project/InsertKoinIO/koin" target="_blank" rel="noopener">Koin</a>, and <a href="https://klibs.io/project/touchlab/Kermit" target="_blank" rel="noopener">Kermit</a> – a practical trio for networking, dependency injection, and logging.</p>
+                                                            <a href="https://klibs.io/" class="btn" target="_blank" rel="noopener">Find your next KMP library</a>
+                                                    </div>
+                    </article>
+                                    <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/androidxapp.png" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>X rebuilds its Android app in 100% Kotlin</h3>
+                                                        <p>Built from scratch, X’s Android app is now written entirely in Kotlin. X Chat also uses Kotlin Multiplatform across Android, iOS, and web for end-to-end encryption, storage, sync, and business logic. It’s exciting to see Kotlin and Kotlin Multiplatform used at this scale.</p>
+                                                            <a href="https://x.com/kotlin/status/2079882056465535142" class="btn" target="_blank">Check out the rebuilt app</a>
+                                                    </div>
+                    </article>
+                                    </div>
+    
+
+
+<h2 class="wp-block-heading">Where you can learn more</h2>
+
+
+
+<ul class="wp-block-list">
+<li><a href="https://kotlinlang.org/docs/multiplatform/compose-navigation-3.html" target="_blank" rel="noreferrer noopener">Learn how to use Navigation 3 in Compose Multiplatform</a>.</li>
+
+
+
+<li><a href="https://kotlinlang.org/docs/multiplatform/multiplatform-cocoapods-spm-migration-ai.html" target="_blank" rel="noreferrer noopener">Move a KMP project from CocoaPods to SwiftPM dependencies with help from Junie</a>.</li>
+
+
+
+<li><a href="https://klibs.io/ai" target="_blank" rel="noreferrer noopener">Connect your AI coding agent to klibs.io for up-to-date KMP library data</a>.</li>
+
+
+
+<li><a href="https://kotlinlang.org/docs/kotlin-ai-skills.html" target="_blank" rel="noreferrer noopener">Use Kotlin AI skills for common migration tasks</a>.</li>
+
+
+
+<li><a href="https://blog.jetbrains.com/research/2026/07/kotlinllm-open-source/" target="_blank" rel="noreferrer noopener">KotlinLLM is Going Open Source</a>.</li>
+
+
+
+<li><a href="https://blog.jetbrains.com/kotlin/2026/07/secure-your-apis-oauth2-and-jwt-for-beginners/" target="_blank" rel="noreferrer noopener">Learn how to secure APIs built with Kotlin and Spring Boot using OAuth2 and JWT</a>.</li>
+
+
+
+<li><a href="https://kotlinlang.org/docs/spring-boot-claude.html" target="_blank" rel="noreferrer noopener">Build a task manager app with Kotlin, Spring Boot, and Claude Agent</a>.</li>
+
+
+
+<li><a href="https://kotlinlang.org/education/" target="_blank" rel="noreferrer noopener">Explore Backend Development with Kotlin – presentation slides and a runnable demo project</a>.</li>
+
+
+
+<li><a href="https://spring.io/blog/2026/07/02/a-bootiful-podcast-sebastien-deleuze" target="_blank" rel="noreferrer noopener">Listen to Sébastien Deleuze and Josh Long talk Kotlin for backend on<em> A Bootiful Podcast</em></a>.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">YouTube highlights</h2>
+
+
+
+<ul class="wp-block-list">
+<li><a href="https://www.youtube.com/watch?v=VVf6txPZk3Y" target="_blank" rel="noreferrer noopener">Sony’s KMP Journey: Scaling BLE &amp; Hardware with Kotlin Multiplatform | Sergio Carrilho</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=djrt5zsATtM" target="_blank" rel="noreferrer noopener">What’s New in Compose Multiplatform | Sebastian Aigner and Márton Braun</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=-w97euRLTBA" target="_blank" rel="noreferrer noopener">Run, Kotlin, Run! | Marc Reichelt</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=25Ngfn9Bhqc" target="_blank" rel="noreferrer noopener">A First Look at the Kotlin Ecosystem Plugin for Declarative Gradle | Marcin Mycek</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=9XL0r5lJNDs" target="_blank" rel="noreferrer noopener">Building Enterprise Ready AI With Koog | Vadim Briliantov</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=1sp05VqRVDA" target="_blank" rel="noreferrer noopener">Real-World Data Science With Kotlin Notebook | Adele Carpenter</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=5ccWWM3AZBU" target="_blank" rel="noreferrer noopener">Evolving Kotlin Language Defaults | Michail Zarečenskij</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=O1nTwf0QPj4" target="_blank" rel="noreferrer noopener">Context Parameters and API Design | Alejandro Serrano Mena</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=xGZIH-hfyhI" target="_blank" rel="noreferrer noopener">Concurrency Patterns for Modern High-Performance Kotlin Servers | Bowen Feng</a>.</li>
+
+
+
+<li><a href="https://www.youtube.com/watch?v=dmOrYzS_AKM" target="_blank" rel="noreferrer noopener">Deconstructing OkHttp | Jesse Wilson</a>.</li>
+</ul>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Know Kotlin? Ship It Everywhere and Win at Shipaton 2026</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/07/know-kotlin-ship-it-everywhere-and-win-at-shipaton-2026/</link>
+		
+		<dc:creator><![CDATA[Ekaterina Petrova]]></dc:creator>
+		<pubDate>Fri, 31 Jul 2026 13:49:33 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/KT-social-BlogFeatured-1280x720-1-6.png</featuredImage>		<category><![CDATA[multiplatform]]></category>
+		<category><![CDATA[news]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=727590</guid>
+
+					<description><![CDATA[Somewhere in your notes there&#8217;s an app idea waiting for a free weekend that never comes. Consider this its official deadline: RevenueCat Shipaton 2026, the world&#8217;s biggest mobile hackathon, runs August 1 to September 30. If you know Kotlin, that idea is closer to the App Store than you think. Join the Shipaton The Ship [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>Somewhere in your notes there&#8217;s an app idea waiting for a free weekend that never comes. Consider this its official deadline: <a href="https://kotlinlang.org/lp/shipaton/?utm_source=kotlin-blog&amp;utm_medium=blog&amp;utm_campaign=shipaton2026" target="_blank" rel="noopener">RevenueCat Shipaton 2026</a>, the world&#8217;s biggest mobile hackathon, runs August 1 to September 30.</p>
+
+
+
+<p>If you know Kotlin, that idea is closer to the App Store than you think.</p>
+
+
+
+<p align="center"><a class="ek-link jb-download-button" title="Join the Shipaton" href="https://kotlinlang.org/lp/shipaton/?utm_source=kotlin-blog&#038;utm_medium=blog&#038;utm_campaign=shipaton2026" target="_blank" rel="noopener">Join the Shipaton</a></p>
+
+
+
+<h2 class="wp-block-heading">The Ship Kotlin Everywhere Award</h2>
+
+
+
+<p>JetBrains is a Gold Sponsor of Shipaton this year, with our own category. The idea is simple: reuse the Kotlin you already know to build one brand-new app and bring it to multiple platforms, including Android, iOS, desktop, and web, with <a href="https://kotlinlang.org/multiplatform/" target="_blank" rel="noopener">Kotlin Multiplatform</a> and <a href="https://kotlinlang.org/compose-multiplatform/" target="_blank" rel="noopener">Compose Multiplatform</a>.</p>
+
+
+
+<p>You don&#8217;t need to hit all four platforms. Judges reward effective cross-platform development, not platform count alone.</p>
+
+
+
+<h2 class="wp-block-heading">What you can win</h2>
+
+
+
+<p>The award has a $30,000 prize pool split among three winners: $15,000, $10,000, and $5,000. The first-place app also receives Shipaton’s first-place category winner package: a feature on a Times Square billboard, an invitation to RevenueCat’s App Growth Annual conference in New York City on October 21, a custom Shippy trophy, and a media spotlight.</p>
+
+
+
+<p>One more thing: you submit once and compete everywhere. Your Kotlin Multiplatform app also stays in the running for the <strong>$100,000 Grand Prize</strong> and more than 20 other categories, from #BuildInPublic to the Best Game Award, with over $1,000,000 worth of prizes in total.</p>
+
+
+
+<p>Don&#8217;t just take our word for it. Here&#8217;s Chris Krueger, whose app <a href="https://devpost.com/software/momental" target="_blank" rel="noopener">Momental</a> took first place in our KMP category at Shipaton 2025:</p>
+
+
+
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p><em>&#8220;Building Momental with Kotlin Multiplatform was very enjoyable. Sharing one codebase for Android and iOS gave me so much more time to focus on user feedback and actually improving the app. I was amazed how quickly I could build a beautiful, complex UI — even features like a full music player with soundscapes worked smoothly across platforms.</em></p>
+
+
+
+<p><em>If you&#8217;re hesitating, just enter the challenge. It forces you to grow, explore new parts of KMP, and ship faster than you expect. You&#8217;ll reach way more users than you think possible.&#8221;</em></p>
+</blockquote>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-55.png" alt="" class="wp-image-727602"/><figcaption class="wp-element-caption">Chris Krueger with his award and Momental in Times Square.</figcaption></figure>
+
+
+
+<h2 class="wp-block-heading">What you get as a participant</h2>
+
+
+
+<ul class="wp-block-list">
+<li><strong>IntelliJ IDEA Ultimate, free for 3 months</strong> for the first 1,000 builders</li>
+
+
+
+<li><strong>Access to Junie</strong>, our AI coding agent, for 2 months for 200 builders ready to build in public</li>
+
+
+
+<li>A Starter Guide, an AI Guide, weekly livestreams, and JetBrains advocates answering questions in Discord</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">Ready to ship?</h2>
+
+
+
+<p>Everything you need is on the award page: rules, the starter kit, offers, and the timeline.</p>
+
+
+
+<p align="center"><a class="ek-link jb-download-button" title="Join the Ship Kotlin Everywhere Award" href="https://kotlinlang.org/lp/shipaton/?utm_source=kotlin-blog&#038;utm_medium=blog&#038;utm_campaign=shipaton2026" target="_blank" rel="noopener">Join the Ship Kotlin Everywhere Award</a></p>
+
+
+
+<p>Happy shipping!</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Qodana 2026.2: More Security, Better Coverage, Less Configuration</title>
+		<link>https://blog.jetbrains.com/qodana/2026/07/qodana-2026-2-more-security-better-coverage-less-configuration/</link>
+		
+		<dc:creator><![CDATA[Kerry Beetge]]></dc:creator>
+		<pubDate>Wed, 29 Jul 2026 13:47:03 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/Untitled-design-45.png</featuredImage>		<product ><![CDATA[kotlin]]></product>
+		<product ><![CDATA[qodana]]></product>
+		<product ><![CDATA[teamcity]]></product>
+		<category><![CDATA[release]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=qodana&#038;p=726686</guid>
+
+					<description><![CDATA[Qodana 2026.2 makes it easier for development teams to act on code quality, security, and compliance findings throughout the development workflow. This release introduces clearer code coverage insights for pull requests, highlights uncovered new lines directly in the IDE, and automatically detects coverage reports in common project locations &#8211; reducing the configuration required to get [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Untitled-design-45-1.png" alt="Qodana 2026.2" class="wp-image-726814"/></figure>
+
+
+
+<p>Qodana 2026.2 makes it easier for development teams to act on code quality, security, and compliance findings throughout the development workflow. This release introduces clearer code coverage insights for pull requests, highlights uncovered new lines directly in the IDE, and automatically detects coverage reports in common project locations &#8211; reducing the configuration required to get started.</p>
+
+
+
+<p>The release also expands Qodana’s security offering with new inspections, support for custom security rules, post-quantum cryptography inspections, and publicly available SAST benchmarks through SABER. Laravel inspections are now enabled by default, while new License Audit quality gates help teams prevent newly introduced dependencies with prohibited or unknown licences from progressing through the pipeline. Let&#8217;s get into the details.</p>
+
+
+
+<p align="center"><a class="jb-download-button" title="Try Qodana" href="https://www.jetbrains.com/qodana/buy/?billing=yearly" rel="noopener noreferrer" data-mce-href="https://www.jetbrains.com/qodana/buy/?billing=yearly" data-mce-selected="inline-boundary" data-mce- target="_blank"><i class="download-icon"></i>Try Qodana</a></p>
+
+
+
+<h2 class="wp-block-heading"> Better Code Coverage UX</h2>
+
+
+
+<h3 class="wp-block-heading">Code Coverage for incremental analysis in the IDE</h3>
+
+
+
+<p>Starting with Qodana 2026.2, pull request analyses can show which changed or added lines are covered by tests and which are not, alongside the total coverage for newly added code, known as fresh coverage.</p>
+
+
+
+<p>After the analysis, developers can open the report in the IDE and browse the files changed in the pull request. They can see which files lack coverage through statistics in the tool window, while new lines are highlighted in the IDE to reveal coverage gaps. Developers can use this information to write targeted tests for functionality that lacks coverage, improving the reliability of their software.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-35.png" alt="Qodana code coverage fo incremental analysis in the IDE" class="wp-image-726705"/></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>Out-of-the-box code coverage reporting</strong></h3>
+
+
+
+<p>Showing code coverage results in Qodana now requires fewer configuration steps. You no longer need to copy all reports to the <code>.qodana/code-coverage</code> directory, which lets you simplify your build configuration.</p>
+
+
+
+<p>Qodana 2026.2 automatically detects coverage reports in the project:</p>
+
+
+
+<ul class="wp-block-list">
+<li>Qodana for JVM and Qodana for Android: default paths for Jacoco and Kover plugins are supported for both Maven and Gradle</li>
+
+
+
+<li>Qodana for JS: default location <code>coverage/lcov.info</code> is supported, as well as some common community locations like <code>reports</code> or <code>test-coverage</code> directories</li>
+
+
+
+<li>Qodana for PHP: <code>clover.xml</code> and <code>coverage.xml</code> files are supported in common in community locations, such as the project root, <code>build/logs</code>, <code>reports</code> and <code>coverage</code></li>
+
+
+
+<li>Qodana for Python:&nbsp; <code>coverage.xml</code> file is supported in common locations like project root, <code>coverage-reports</code> or <code>reports</code></li>
+
+
+
+<li>Qodana for Go: <code>coverage.out</code> or <code>cover.out</code> files in root directory and other common directories like&nbsp; <code>coverage</code>, <code>reports</code> are supported</li>
+
+
+
+<li>Qodana for .NET: <code>coverage.cobertura</code> and <code>coverage.info</code> files in project root or other common directories like&nbsp; <code>coverage</code> or <code>TestResults</code> are supported<br></li>
+</ul>
+
+
+
+<p>To generate code coverage reports, set up one of the <a href="https://www.jetbrains.com/help/qodana/code-coverage.html" target="_blank" rel="noopener">supported tools</a>, and see your statistics in any run. To disable this behaviour, either selectively copy your reports to the <code>.qodana/code-coverage directory</code>, or specify your custom location using a new <code>codeCoverageLocations</code> parameter in your <code>qodana.yaml</code> file. See <a href="https://www.jetbrains.com/help/qodana/2026.2/code-coverage.html#code-coverage-before-you-start" target="_blank" rel="noopener">the documentation</a> for an example of how to specify a custom directory. To disable coverage reporting, disable the <a href="https://www.jetbrains.com/help/qodana/2026.2/code-coverage.html#How+code+coverage+works" target="_blank" rel="noopener">corresponding inspection</a> in your configuration.</p>
+
+
+
+<p align="center"><a class="jb-download-button" title="View Documentation" href="https://www.jetbrains.com/help/qodana/code-coverage.html" rel="noopener noreferrer" data-mce-href="https://www.jetbrains.com/help/qodana/code-coverage.html" data-mce-selected="inline-boundary" data-mce- target="_blank"><i class="download-icon"></i>View Documentation</a></p>
+
+
+
+<h2 class="wp-block-heading">New security inspections</h2>
+
+
+
+<p><strong>Broader SAST and multi-file taint analysis</strong></p>
+
+
+
+<p>Qodana 2026.2 expands the security analysis available in the Qodana for .NET linter, helping teams detect a broader range of vulnerabilities in C#, JavaScript, and TypeScript code. The new inspections are enabled by default in the recommended profile and appear as standard Qodana findings within existing IDE, CI/CD, and reporting workflows.</p>
+
+
+
+<p>The expanded inspection set combines two forms of analysis. Pattern-matching rules identify insecure coding practices within individual code locations, while taint analysis tracks untrusted data as it moves through an application, including across multiple files. This enables Qodana to detect vulnerabilities such as SQL injection, command injection, cross-site scripting (XSS), and path traversal.</p>
+
+
+
+<p>Teams can also extend this coverage with their own security rules. Qodana for .NET now supports custom and third-party rules written in the OpenGrep format. Place these rules in the .qodana/opengrep directory at the project root, and Qodana will make them available as Qodana inspections.</p>
+
+
+
+<p>The predefined rules are publicly available in the opengrep-sast-rules repository. Behind the scenes, pattern matching uses an open-source JetBrains fork of OpenGrep, while data-flow tracking is handled by Qodana’s own taint analysis engine. This gives teams access to the OpenGrep rule format and ecosystem while retaining Qodana’s multi-file analysis and developer workflows. Support will be extended to additional Qodana linters and languages (Kotlin/Java) in future releases.</p>
+
+
+
+<p>The following example shows how Qodana detects a classic SQL injection vulnerability in the WebGoat.NET project. The taint trace follows untrusted input from Request[&#8220;productNumber&#8221;] to its use in an SQL query located in another file.<br></p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-36.png" alt="" class="wp-image-726720"/></figure>
+
+
+
+<p><em>The taint trace begins with the untrusted user input in the Request[&#8220;productNumber&#8221;]</em></p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-37.png" alt="" class="wp-image-726731"/><figcaption class="wp-element-caption"><em>Untrusted input is landed in the SQL query in another file</em></figcaption></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>SABER &#8211; Static Analysis Benchmark Evaluation Runner</strong></h2>
+
+
+
+<p>To make the performance of these inspections easier to evaluate, we have introduced SABER, the Static Analysis Benchmark Evaluation Runner. SABER runs Qodana against publicly available security benchmarks and compares its findings with known expected results.</p>
+
+
+
+<p><strong>Transparent SAST benchmarking with SABER</strong></p>
+
+
+
+<p>The current benchmark suite includes:</p>
+
+
+
+<ul class="wp-block-list">
+<li>CodeQL benchmarks for C# and JavaScript, built from CodeQL .expected files</li>
+
+
+
+<li>WebGoat.NET, using publicly available ground-truth data from Sonar</li>
+
+
+
+<li>The Qodana post-quantum cryptography demonstration project</li>
+</ul>
+
+
+
+<p><br>The benchmark configurations, individual runs, and aggregated results are publicly available on the<a href="https://jb.gg/sq26z2" target="_blank" rel="noopener"> SABER TeamCity instance</a>. <br><br>Guest access is enabled, allowing anyone to inspect the results and follow how Qodana’s SAST capabilities develop over time. It is available via <a href="https://jb.gg/sq26z2" target="_blank" rel="noopener">this link</a>. Guest access is enabled, so anyone can open it using the ‘Log in as guest’ option. We have a strong commitment to demonstrating SAST-related capabilities and continually improving them using industry-standard benchmarks. For example, this is the aggregated report for the currently available benchmarks:</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-41.png" alt="" class="wp-image-726875"/><figcaption class="wp-element-caption">SABER in Qodana 2026.2</figcaption></figure>
+
+
+
+<p>Projects ‘CodeQL C#&#8217; and ‘CodeQL JS’  use the <a href="https://github.com/jetbrains-qodana/codeql-benchmark" target="_blank" rel="noopener">jetbrains-qodana/codeql-benchmark</a> project that is built from the <a href="https://github.com/github/codeql" target="_blank" rel="noopener">CodeQL</a> ‘.expected’ files. Project <a href="http://webgoat.net" target="_blank" rel="noopener">WebGoat.NET</a> is a well-known vulnerable C# project (our fork is here: <a href="https://github.com/jetbrains-qodana/WebGoat.NET" target="_blank" rel="noopener">jetbrains-qodana/WebGoat.NET</a>) and uses the publicly available <a href="https://github.com/SonarSource/sonar-benchmarks-scores/blob/master/csharp/security/WebGoat.Net/ground-truth.json" target="_blank" rel="noopener">ground-truth.json</a> as the expected results. The <a href="https://jb.gg/gsngr2" target="_blank" rel="noopener">PQC demo</a> project is a test project that demonstrates the capability to identify post-quantum cryptography issues in your code.</p>
+
+
+
+<h2 class="wp-block-heading"><strong>Post-Quantum Cryptography (PQC) inspections</strong></h2>
+
+
+
+<p>If you have heard about quantum computation, you might know that it will, in the future, easily break many widely used public-key cryptographic algorithms (such as RSA and ECC). Even though quantum computation is not yet widely spread, you should be ready now because of the <a href="https://en.wikipedia.org/wiki/Harvest_now,_decrypt_later" target="_blank" rel="noopener">Harvest Now, Decrypt Later</a> approach, in which future attackers might already harvest and store your encrypted data to decrypt it later.</p>
+
+
+
+<p>Qodana for JVM now includes inspections that help developers identify affected code and guide them toward post-quantum cryptographic alternatives, reducing future security risk and supporting a gradual, manageable migration, helping organizations prepare for quantum-era security risks.</p>
+
+
+
+<p>Our PQC inspections are implemented in accordance with <a href="https://www.nist.gov/pqc" target="_blank" rel="noopener">NIST recommendations</a> and are grouped into several priority levels (called PqcMinLevel1, PqcMinLevel2, and so on to PqcMinLevel5). To enable these inspections, activate one of the corresponding groups that represent NIST-based post-quantum readiness levels:<br></p>
+
+
+
+<ul class="wp-block-list">
+<li>Level 1 &#8211; Flag pre-quantum and legacy cryptographic algorithms. This uncovers the most critical vulnerabilities.</li>
+
+
+
+<li>Level 2 &#8211; Flag baseline post-quantum algorithms.</li>
+
+
+
+<li>Level 3 &#8211; Flag standard-strength post-quantum algorithms.</li>
+
+
+
+<li>Level 4 &#8211; Flag high-strength post-quantum algorithms.</li>
+
+
+
+<li>Level 5 &#8211; Flag all algorithms except those providing maximum security.</li>
+</ul>
+
+
+
+<p>Every level includes all previous levels, so level 5 includes inspections from levels 1-4 as well.</p>
+
+
+
+<p>We also prepared a demo project (<a href="https://github.com/jetbrains-qodana/pqc-demo" target="_blank" rel="noopener">PQC demo</a>) that showcases PQC&#8217;s current capabilities. These inspections are backed by OpenGrep and taint analysis (described in the previous section), which also support excellent pattern matching and multifile taint analysis for Java and Kotlin, as shown in the example below.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-38.png" alt="" class="wp-image-726742"/></figure>
+
+
+
+<p><em>A non-compliant crypto protocol is found in a string constant</em></p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-39.png" alt="" class="wp-image-726754"/><figcaption class="wp-element-caption"><em>That is propagated via another file</em></figcaption></figure>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-40.png" alt="" class="wp-image-726765"/><figcaption class="wp-element-caption"><em>And landed in real usage, showing a correct detection of the issue</em></figcaption></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>Laravel checks enabled by default</strong></h2>
+
+
+
+<p>Qodana for PHP now includes Laravel code inspections. This reduces the number of false positives in PHP code, and analyses code for Laravel-specific code problems, such as directly assigning values to guarded attributes.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-42.png" alt="" class="wp-image-726890"/><figcaption class="wp-element-caption">Laravel checks</figcaption></figure>
+
+
+
+<h2 class="wp-block-heading">Quality gates on License Audit</h2>
+
+
+
+<p>Qodana 2026.2 adds support for license audit quality gates, with two new options:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+
+
+
+<ul class="wp-block-list">
+<li><code>failOnProhibited</code> — fails the run if any dependency uses a license prohibited by your configured license rules.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+
+
+
+<li><code>failOnUnknown</code> — fails the run if any dependency has a license that couldn&#8217;t be detected or categorized.</li>
+</ul>
+
+
+
+<p><br>For example, in qodana.yaml, the failureConditions section may now contain a dependencyLicenses block:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="yaml" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">failureConditions:                                                                                                                                                                                                                     
+  dependencyLicenses:                                                                                                                                                                                                                  
+    failOnProhibited: true
+    failOnUnknown: true
+</pre>
+
+
+
+<p>Qodana evaluates the quality gate against the collected dependency licenses directly, independently of whether License Audit problems are present as inspection results. Only the CheckDependencyLicenses inspection needs to be enabled.</p>
+
+
+
+<p>License audit quality gates also work for incremental analysis, and only fail on new violations. </p>
+
+
+
+<h2 class="wp-block-heading">What to do next:</h2>
+
+
+
+<p>If you’re already using the latest release, you’re ready to start using the improvements in Qodana 2026.2 right away. If not, update to 2026.2.</p>
+
+
+
+<p>For setup details and feature-specific guidance, head over <a href="https://www.jetbrains.com/help/qodana/2026.2/new-in-qodana.html" target="_blank" rel="noopener">to the documentation</a>. If you’d like to see what Qodana can do in your own environment, try it on your project and explore the latest updates on the <a href="https://blog.jetbrains.com/qodana/">Qodana blog</a>.<br><br>Request a demo if you&#8217;d like to learn more from our sales team or want 20% off when switching to Qodana from a comparable, commercial solution.</p>
+
+
+
+<p align="center"><a class="jb-download-button" title="Request Qodana Demo" href="https://www.jetbrains.com/qodana/request-a-demo/" rel="noopener noreferrer" data-mce-href="https://www.jetbrains.com/qodana/request-a-demo/" data-mce-selected="inline-boundary" data-mce- target="_blank"><i class="download-icon"></i>Request Qodana Demo</a></p>
+
+
+
+<p><br><br></p>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Secure Your APIs: OAuth2 and JWT for Beginners</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/07/secure-your-apis-oauth2-and-jwt-for-beginners/</link>
+		
+		<dc:creator><![CDATA[Alina Dolgikh]]></dc:creator>
+		<pubDate>Wed, 29 Jul 2026 11:28:21 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/04/KT-social-BlogFeatured-1280x720-1-6.png</featuredImage>		<category><![CDATA[backend]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[tutorials]]></category>
+		<category><![CDATA[architecture]]></category>
+		<category><![CDATA[kotlin]]></category>
+		<category><![CDATA[spring]]></category>
+		<category><![CDATA[tutorial]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=721798</guid>
+
+					<description><![CDATA[This tutorial was written by an external contributor. APIs are frequent targets for bad actors since they expose data and functionality. Securing them while maintaining usability is often one of the most challenging and time-consuming parts of API development. OAuth 2.0 and JSON Web Tokens (JWT) help make these processes more manageable and reliable. They [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p><em>This tutorial was written by an external contributor.</em></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                                                            <div class="about-author__box-img">
+                            <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/Mdu-Sibisi.webp" alt="Mdu Sibisi" loading="lazy">
+                        </div>
+                                        <div class="about-author__box-text">
+                                                    <h4>Mdu Sibisi</h4>
+                                                <p data-start="74" data-end="526">Mdu Sibisi is an Oracle-certified software developer and blogger with over ten years of experience working primarily with object-oriented languages. He has been writing about technology for more than eight years, focusing on making complex topics easier to understand. Mdu is passionate about accessible developer education, clean code, and creating content that helps developers learn and grow.</p>
+<p><a href="https://www.technewstoday.com/author/mduduzi/" target="_blank" rel="noopener">Website</a> | <a href="https://x.com/Old_Recluse" target="_blank" rel="noopener">Twitter</a></p>
+                    </div>
+                            </div>
+        </div>
+    </div>
+
+
+            <div class="newsletter">
+                                                            <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/github-repository.webp" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Repository with the companion code for the tutorial</h3>
+                                                                                                                    <a href="https://kotl.in/6uptzh" class="btn" target="_blank" rel="noopener">Go to GitHub</a>
+                                                    </div>
+                    </article>
+                                    </div>
+    
+
+
+<p>APIs are frequent targets for bad actors since they expose data and functionality. Securing them while maintaining usability is often one of the most challenging and time-consuming parts of API development.<a href="https://oauth.net/2/" target="_blank" rel="noreferrer noopener"> OAuth 2.0</a> and<a href="https://jwt.io/" target="_blank" rel="noreferrer noopener"> JSON Web Tokens</a> (JWT) help make these processes more manageable and reliable. They allow developers to represent and verify identity and manage access by safely transmitting claims and enabling delegated authorization.</p>
+
+
+
+<p>This article discusses these technologies and the most efficient ways you can use them to secure your Spring Boot-built APIs and backends. If you&#8217;re interested in a coroutine‑driven solution, a companion tutorial using <a href="https://ktor.io/" target="_blank" rel="noreferrer noopener">Ktor</a> is also planned and will be published soon.</p>
+
+
+
+<h2 class="wp-block-heading">OAuth2 and JWT Primer</h2>
+
+
+
+<p>OAuth2 and JWT(s) aren&#8217;t competing technologies. They&#8217;re complementary pieces of the puzzle, with one handling the delegation of authorization and the other serving as the compact, verifiable token format that carries secure information.</p>
+
+
+
+<h3 class="wp-block-heading">Authentication vs. Authorization</h3>
+
+
+
+<p>Authentication verifies identity (who you are), usually through credentials like passwords, tokens, or certificates. JWTs can carry identity information and act like a form of ID once issued. Roles and other claims within a JWT are then used for authorization.</p>
+
+
+
+<p>Authorization helps control what a user has access to (what they can do). This includes the scopes or resources that they can &#8220;touch&#8221; and how those permissions are managed. In a system that uses OAuth2 and JWT, the access badge is bundled into your ID card. OAuth2 oversees and manages this process.</p>
+
+
+
+<h3 class="wp-block-heading">The Role of OAuth2</h3>
+
+
+
+<p>OAuth2 is a framework for delegated access. Instead of sharing passwords directly, users grant applications a token that represents their permissions. This means that your backend (acting as a<a href="https://www.oauth.com/oauth2-servers/the-resource-server/" target="_blank" rel="noreferrer noopener"> Resource Server</a>) doesn&#8217;t have to issue tokens. Instead, it trusts and validates the ones coming from the Authorization Server within OAuth2’s framework. This decoupling of duties allows you to simplify your APIs while reducing security risks and ensuring all tokens follow a clear, consistent, centralized policy.</p>
+
+
+
+<p>You don&#8217;t have to worry about implementing user logins or browser redirects within your API. As far as validation and authorization are concerned, your backend or API&#8217;s job is to receive the<a href="https://blog.postman.com/what-is-a-bearer-token/" target="_blank" rel="noreferrer noopener"> Bearer Token</a>, authenticate the signature, check expiration, and enforce scopes/roles.</p>
+
+
+
+<p>Your API just checks badges; it&#8217;s not responsible for printing them. So how do JWTs fit into the equation?</p>
+
+
+
+<h3 class="wp-block-heading">What Is a JWT?</h3>
+
+
+
+<p>A JWT is a small, web-friendly piece of text (string) that securely transports information between systems. Their compactness makes them easy to pass around in<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers" target="_blank" rel="noreferrer noopener"> HTTP headers</a> or URLs. Each token uses<a href="https://nshielddocs.entrust.com/wsop-docs/user-guide/base64url-encoding.html" target="_blank" rel="noreferrer noopener"> Base64URL encoding</a>, making them safe to include in query strings or headers.</p>
+
+
+
+<p>JWTs are signed (and sometimes encrypted), so that recipients can verify that they weren&#8217;t tampered with. They&#8217;re also self-contained, carrying details like user ID, roles, or permissions. These elements (especially self-containment and signing) allow for<a href="https://www.descope.com/learn/post/stateless-authentication" target="_blank" rel="noreferrer noopener"> stateless authentication</a> without<a href="https://dev.to/aneeqakhan/a-developers-guide-to-browser-storage-local-storage-session-storage-and-cookies-4c5f#:~:text=2.%20Session%20Storage%20%E2%8F%B3" target="_blank" rel="noreferrer noopener"> Session Storage</a>. This means that you don&#8217;t need a database or cache to track active sessions. It also encourages fewer lookups and less infrastructure complexity, which reduces your system&#8217;s overhead.</p>
+
+
+
+<p>JWTs have a very simple, standardized structure made up of three parts, separated by dots:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>The Header</strong> contains metadata about the token, such as the type (<code>JWT</code>) and the signing algorithm (<code>HS256</code>, <code>RS256</code>).</li>
+
+
+
+<li><strong>The Payload</strong> features the claims, which are statements about the user or system (like user ID, roles, or token expiry).</li>
+
+
+
+<li><strong>The Signature</strong> is a cryptographic signature created using the header, payload, and a secret or private key. This ensures the token has not been tampered with.<br></li>
+</ul>
+
+
+
+<p>The basic structure of a JWT looks like this:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">xxxxx.yyyyy.zzzzz</pre>
+
+
+
+<p>A real-world Base64URL-encoded token typically resembles the following:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</pre>
+
+
+
+<h3 class="wp-block-heading">When OAuth2 meets JWT</h3>
+
+
+
+<p>There are four key roles in OAuth2&#8217;s implementation:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>Resource Owner:</strong> The entity (usually the user) granting access to the protected resources.</li>
+
+
+
+<li><strong>Client:</strong> The application requesting access to the resource on behalf of the resource owner.</li>
+
+
+
+<li><strong>Authorization Server:</strong> The server that authenticates the resource owner and issues access tokens to the client.</li>
+
+
+
+<li><strong>Resource Server:</strong> The server hosting the protected resources, which accepts and validates tokens.<br></li>
+</ul>
+
+
+
+<p>The Resource Owner grants permission (<em>e.g.</em>, you click &#8220;Allow&#8221; when an app requests access), the Client then requests authorization from the Authorization Server, which issues an access token (JWT) if the Resource Owner approves. The Client uses this access token to access data from the Resource Server.</p>
+
+
+                    <div class="alert ">
+            <p><strong>Note:</strong> It&#8217;s important to note that JWTs aren&#8217;t the only token format that OAuth2 can work with; it&#8217;s just the most popular because of its perks. OAuth2 can also work with <a href="https://docs.secureauth.com/ciam/en/opaque-token--concept,-purpose,-way-it-works.html" target="_blank" rel="noopener">Opaque Tokens</a>, <a href="https://learn.microsoft.com/en-us/dotnet/framework/wcf/feature-details/saml-tokens-and-claims" target="_blank" rel="noopener">SAML Tokens</a>, or custom token formats like Microsoft&#8217;s reference tokens or Google&#8217;s access tokens.</p>
+        </div>
+    
+
+
+
+
+
+
+<h2 class="wp-block-heading">How to Implement OAuth2 and JWT</h2>
+
+
+
+<p>Imagine you’re building a simple document management system with a Kotlin and Spring-based backend that exposes a REST API. This implementation lets clients upload documents, list them, view specific ones, etc. Some potential endpoints the API can expose include:</p>
+
+
+
+<ul class="wp-block-list">
+<li><code>GET /documents</code>: Lists all documents.</li>
+
+
+
+<li><code>GET /documents/{id}</code>: View a specific document.</li>
+
+
+
+<li><code>POST /documents</code>: Upload a new document.<br></li>
+</ul>
+
+
+
+<p>You want to restrict access so that only authenticated users can view or upload documents, but you don&#8217;t want to manage passwords in your backend. You also don&#8217;t have to maintain sessions or deal with login forms.</p>
+
+
+
+<h3 class="wp-block-heading">Prerequisites</h3>
+
+
+
+<p>If you want to follow along, you&#8217;ll need:</p>
+
+
+
+<ul class="wp-block-list">
+<li><a href="https://www.jetbrains.com/idea/download/" target="_blank" rel="noreferrer noopener">IntelliJ IDEA</a></li>
+
+
+
+<li><a href="https://jdk.java.net/17/" target="_blank" rel="noreferrer noopener">JDK 17+</a></li>
+
+
+
+<li><a href="https://console.cloud.google.com/welcome/new" target="_blank" rel="noreferrer noopener">Google Cloud Console</a></li>
+
+
+
+<li>A basic understanding of <a href="https://kotlinlang.org/docs/getting-started.html" target="_blank" rel="noreferrer noopener">Kotlin</a>, Spring Boot, and Spring Security<br></li>
+</ul>
+
+
+
+<p>All the code used in this tutorial is available on <a href="https://github.com/OrigamiFolds/doc-manager-kotlin-demo" target="_blank" rel="noreferrer noopener">GitHub repository</a>.</p>
+
+
+
+<h3 class="wp-block-heading">Initial Application Setup</h3>
+
+
+
+<p>To start, run IntelliJ IDEA and create a new project (<strong>File</strong> &gt; <strong>New</strong> &gt; <strong>Project</strong>):</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/HTiRGsQ.png" alt="" class="wp-image-703782"/></figure>
+
+
+
+<p>Select <strong>Spring Boot</strong> under the Generators section on the left panel. Give your project a name (like <code>doc-manager</code>), select <strong>Kotlin</strong> as the Language, <strong>Gradle &#8211; Kotlin</strong> as the Type, <strong>17</strong> as the Java version, <strong>Jar</strong> as the packaging, and <strong>Properties</strong> as the configuration. Leave all other properties in their default state and then click <strong>Next</strong>.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/3uVKXW9.png" alt="" class="wp-image-703793"/></figure>
+
+
+
+<p>On the next screen, select dependencies for your project. Make sure you&#8217;re using the latest stable version of Spring Boot (4.0.3 at the time of writing) and then use the search bar to find and add the following dependencies:</p>
+
+
+
+<ul class="wp-block-list">
+<li>Spring Security</li>
+
+
+
+<li>OAuth2 Authorization Server</li>
+
+
+
+<li>OAuth2 Resource Server</li>
+
+
+
+<li>Spring Web<br></li>
+</ul>
+
+
+
+<p>Once that&#8217;s done, click <strong>Create</strong>.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/niTrboS.png" alt="" class="wp-image-703815"/></figure>
+
+
+
+<p>After your project&#8217;s done importing and loading, expand your project, scroll down, and find the <code>application.properties</code> file under the resources folder (<strong>src</strong> &gt; <strong>main</strong> &gt; <strong>resources</strong>). Add the following lines to it:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">spring.application.name=doc-manager-kotlin-demo
+
+spring.security.oauth2.resourceserver.jwt.public-key-location=classpath:public.pem</pre>
+
+
+
+<p>In most cases, you&#8217;d specify an<a href="https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#_specifying_the_authorization_server" target="_blank" rel="noreferrer noopener"> Authorization Server</a> (<code>issuer-uri</code>) here. But to keep things simple, you won&#8217;t be using a real Authorization Server for this part of the implementation (this will come in later). So you need to supply your application with a public key to verify signed tokens. You can generate your own <code>publickey.pem</code> using<a href="https://www.scottbrady.io/openssl/creating-rsa-keys-using-openssl" target="_blank" rel="noreferrer noopener"> OpenSSL</a> or use the ones provided in this project&#8217;s<a href="https://github.com/OrigamiFolds/doc-manager-kotlin-demo/tree/master/src/main/resources" target="_blank" rel="noreferrer noopener"> resources folder</a>. Make sure to save and store the <code>private.pem</code>. You&#8217;ll need it for JWT generation.&nbsp;</p>
+
+
+
+<h3 class="wp-block-heading">Configure Your Resource Server</h3>
+
+
+
+<p>Create a resource controller for your endpoint:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">// Insert Your Package Name Here + .controller
+
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/api")
+class ResourceController {
+    @GetMapping("/fetchDocuments")
+    fun fetchDocumentsEndpoint(): String {
+        return "Here are your documents"
+    }
+}</pre>
+
+
+
+<p>For now, the <code>ResourceController</code> class contains only one endpoint.</p>
+
+
+
+<p>Next, create a security configuration for your Resource Server:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">// Insert Your Package Name Here + .config
+
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
+
+@Configuration
+@EnableWebSecurity
+class OAuth2ResourceServerSecurityConfiguration {
+
+    @Bean
+    @Throws(Exception::class)
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
+        http
+            .httpBasic { it.disable() }
+            .formLogin { it.disable() } 	// Disables Spring's default form-based login
+            .csrf { it.disable() } 		    
+            .authorizeHttpRequests {
+                it.requestMatchers(HttpMethod.GET, "/api/fetchDocuments").hasAuthority("SCOPE_read:documents") // Verifies that client has read access  
+                it.anyRequest().authenticated()			   	
+            }
+            .oauth2ResourceServer {  // Enables JWT‑based authentication for an OAuth2 Resource Server.
+                it.jwt { }
+            }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .build()
+}</pre>
+
+
+
+<p>If you’ve worked with Spring Security in Java before, you’ll likely notice how clean the Kotlin DSL looks in comparison. References to <code>OAuth2LoginConfigurer</code>, wrapping lambdas in <code>Customizer</code>, or even annotations like <code>@Throws(Exception::class)</code> aren&#8217;t strictly necessary (unless you&#8217;re working with a mix of Java and Kotlin). Kotlin’s DSL trims that away and lets you express the rules directly.</p>
+
+
+
+<p>Now, generate the JWT using the private key (found in the <code>private.pem</code>). Make sure to encode it using the <code>RS256</code> and that the claims are set and formatted correctly:</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/3I6kIgA.webp" alt="" class="wp-image-703826"/></figure>
+
+
+
+<p>Run your Spring Boot application and then initiate an authenticated request to the <code>/fetchDocuments</code> API endpoint with your generated JWT as the bearer token:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">GET http://localhost:8080/api/fetchDocuments
+Bearer Token &lt;JWT></pre>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/N91Ktiq.png" alt="" class="wp-image-703837"/></figure>
+
+
+
+<p>If it works as it should, you should see &#8220;Here are your documents&#8221; as a response. This implementation enables you to simulate a client sending a request with a Bearer token (JWT). Upon receiving the token, your Resource Server (backend) checks the expiry date and signature using the details in your application&#8217;s properties file. It also looks for the <code>read:documents</code> scope before granting access to the <code>fetchDocument</code> endpoint.</p>
+
+
+
+<h2 class="wp-block-heading">Handling Advanced Patterns and Validations</h2>
+
+
+
+<p>In a document management API (and most complex systems), simple scope checks aren&#8217;t enough. They can grant coarse permissions, but they often fail to capture the nuance of real-world access control. To address this, the system must separate token validation (ensuring the JWT is authentic) from business authorization (deciding what actions a user can perform).</p>
+
+
+
+<p>Scopes alone can’t enforce ownership or hierarchical rules, and they don&#8217;t capture organizational roles. That&#8217;s why you need a combination of scope and role-based access, where administrators can access all features, while lower-level users are granted only a few. By layering roles, scopes, and resource checks, the API achieves fine-grained, context-aware authorization that balances security with usability.</p>
+
+
+
+<p>Hardcoding security decisions in such systems should be avoided at all costs. Practices like embedding role checks or scope logic directly into controller methods may seem convenient at first, but it introduces significant risks as your system grows. A developer might forget to update one of these hardcoded checks when business requirements change, leaving certain endpoints exposed or inconsistent. Hardcoding also undermines separations of concerns. Security decisions should be modeled in a dedicated layer, not mixed into business logic.</p>
+
+
+
+<h3 class="wp-block-heading">Using Custom Claim Extraction and Spring Security&#8217;s PreAuthorize</h3>
+
+
+
+<p>Like most token formats, JWTs can carry custom claims in their payloads. A JWT with custom claims for roles and permissions would look something like this: &nbsp;</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="json" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">{
+  "iss": "https://myapp.com/auth",
+  "sub": "mdu",
+  "iat": 1773754406,
+  "exp": 1773840838,
+  "scope": "read:documents",
+  "roles": ["admin", "editor"],
+  "permissions": ["documents:read:all", "documents:write:own"]
+}</pre>
+
+
+
+<p>Spring handles authority mapping for scopes out of the box and provides a <code>hasRole</code> function. However, roles aren&#8217;t automatically extracted from JWTs because there is no universal standard for how identity providers represent them. Scopes are standardized in OAuth2 and OpenID Connect, so Spring can safely map them into authorities. Roles often appear under custom claims and require a custom converter to translate them into Spring’s expected format before they can be used effectively.</p>
+
+
+
+<p>Let&#8217;s say you want to authenticate and authorize based on roles and scope. Navigate to your security config and add the following function:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">@Bean
+fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+    val converter = JwtAuthenticationConverter()
+    converter.setJwtGrantedAuthoritiesConverter { jwt ->
+        val authorities = mutableListOf&lt;GrantedAuthority>()
+
+        // Map scopes
+        val scopes = (jwt.claims["scope"] as? String)?.split(" ") ?: emptyList()
+        authorities.addAll(scopes.map { SimpleGrantedAuthority("SCOPE_$it") })
+
+        // Map roles
+        val roles = jwt.claims["roles"] as? Collection&lt;*> ?: emptyList&lt;Any>()
+        authorities.addAll(roles.map { SimpleGrantedAuthority("ROLE_$it") })
+
+        // Map permissions
+        val permissions = jwt.claims["permissions"] as? Collection&lt;*> ?: emptyList&lt;Any>()
+        authorities.addAll(permissions.map { SimpleGrantedAuthority(it.toString()) })
+
+        authorities
+    }
+    return converter
+}</pre>
+
+
+
+<p>This changes the behaviour of the <code>JwtAuthenticationConverter</code> so that it no longer relies solely on Spring Security’s default scope mapping. Instead, it explicitly maps both scopes and roles from the JWT into Spring authorities. If you mapped only roles, then Spring Security would ignore the <code>scope</code> claim entirely.</p>
+
+
+
+<p>Kotlin ensures the safe extraction of custom claims thanks to its null-safety. For instance, take a look at the scope mapping section of the code. The safe call operator (<code>?.</code>) ensures that if <code>jwt.claims["scope"]</code> is <code>null</code>, the chain stops gracefully instead of throwing a <code>NullPointerException</code>. The safe cast operator (<code>as? String</code>) attempts to convert the value returned from the <code>jwt.claims["scope"]</code> operation into a <code>String</code> from an <code>Any?</code> (could be anything or null). If the safe cast operator fails, it returns <code>null</code> instead of throwing a <code>ClassCastException</code>. This allows for type-safe conversions that won’t interrupt or break your code. The Elvis operator (<code>?:</code>) provides a fallback value when the left-hand side is <code>null</code>. So if the role is missing for whatever reason, the function returns an empty list as a default value.</p>
+
+
+
+<p>The tricky part is adding validations for all these claims. If you were checking these claims individually, you could use the <code>hasRole</code> function for roles, and <code>hasAuthority</code> for scopes and permissions. One way to chain these validations together would be to use the<a href="https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/config/annotation/web/configurers/AuthorizeHttpRequestsConfigurer.AuthorizedUrl.html#access(org.springframework.security.authorization.AuthorizationManager)" target="_blank" rel="noreferrer noopener"> access</a> function. Here, you&#8217;ll use [Spring&#8217;s Method Security](<a href="https://www.baeldung.com/spring-enablemethodsecurity" target="_blank" rel="noreferrer noopener">Spring @EnableMethodSecurity Annotation | Baeldung</a>) (<code>@PreAuthorize</code>) because it offers a more fine-grained and cleaner approach.</p>
+
+
+
+<p>Return to your Security Config file and place the <code>@EnableMethodSecurity(prePostEnabled = true)</code> above the class definition:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">...
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+class OAuth2ResourceServerSecurityConfiguration {
+    class SecurityConfig(
+... </pre>
+
+
+
+<p>You can keep your security filter chain as is for now. Navigate to your resource controller, and add the <code>@PreAuthorize</code> annotation to it:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">...
+@GetMapping("/fetchDocuments")
+@PreAuthorize("hasRole('admin') and hasAuthority('documents:read:all')")
+fun fetchDocumentsEndpoint(): String {
+    return "Here are your documents"
+}
+...</pre>
+
+
+                    <div class="alert ">
+            <p><strong>Note:</strong> You&#8217;ll need to import the <a href="https://docs.spring.io/spring-security/site/apidocs/org/springframework/security/access/prepost/PreAuthorize.html" target="_blank" rel="noopener">PreAuthorize</a> annotation for this to work.<br />
+</p>
+        </div>
+    
+
+
+
+
+
+
+<p>This ensures that only admins with read-all permissions can access the <code>fetchDocuments</code> endpoint. You can create more endpoints, like <code>getDocument</code> and <code>deleteDocument</code> to test the combination of your roles and permissions. The <code>@PreAuthorize</code> annotation helps you avoid embedding role checks or scope logic directly inside controller methods (for example, writing <code>if (user.hasRole("admin")) { ... }</code> in the body of a controller). Alternatively, you can perform your role checks in your filter chain and your scope and permission checks on the method level.</p>
+
+
+
+<h3 class="wp-block-heading">Strengthening Token Trust: Issuer and Audience Enforcement</h3>
+
+
+
+<p>Under most normal circumstances, you&#8217;d supply Spring Security with an issuer URI in your application properties file. Then Spring would do the work of finding the <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig" target="_blank" rel="noreferrer noopener">Provider Configuration</a> or<a href="https://tools.ietf.org/html/rfc8414#section-3" target="_blank" rel="noreferrer noopener"> Authorization Server Metadata</a> and using them to decode your JWT. But as you learned here, these can be bypassed when you&#8217;re using custom-generated keys.</p>
+
+
+
+<p>Regardless of whether you&#8217;ve configured an issuer URI or not, it&#8217;s important to explicitly verify the issuer (<code>iss</code>) in your code to ensure that every incoming token actually claims the same issuer and prevent token replay across apps. This adds defense in depth and makes your security posture clear in code. Likewise, audience (<code>aud</code>) ensures that the token is meant for your API, not for some other application. When both the issuer and the audience are checked, it prevents tokens from other apps or environments from being accepted by your API.</p>
+
+
+
+<p>To validate these claims, you&#8217;ll need to create a custom <a href="https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/oauth2/jwt/JwtDecoder.html" target="_blank" rel="noreferrer noopener">JwtDecoder</a>. But, because Spring doesn&#8217;t have a dedicated <a href="https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/oauth2/core/OAuth2TokenValidator.html" target="_blank" rel="noreferrer noopener">OAuth2TokenValidator</a> for its audience, you&#8217;ll need to create one. Re-open your Security Configuration file and add the following class (nested):</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">class AudienceValidator(private val audience: String) : OAuth2TokenValidator&lt;Jwt> {
+    override fun validate(token: Jwt): OAuth2TokenValidatorResult =
+        if (token.audience.contains(audience)) {
+            OAuth2TokenValidatorResult.success()
+        } else {
+            OAuth2TokenValidatorResult.failure(OAuth2Error("invalid_token", "The required audience is missing", null))
+        }
+}</pre>
+
+
+                    <div class="alert alert-warning">
+            <p><strong>Warning:</strong> Don&#8217;t forget to import all necessary classes and interfaces</p>
+        </div>
+    
+
+
+
+
+
+
+<p>Then, add the following method:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">@Bean
+fun jwtDecoder(): JwtDecoder {
+        val issuer = "https://myapp.com/auth"           // Replace with your own official issuer URI
+        val audience = "http://localhost:8080/api/"
+
+        val decoder = JwtDecoders.fromIssuerLocation&lt;NimbusJwtDecoder>(issuer)
+
+        // Add audience validation
+        val audienceValidator = AudienceValidator(audience)
+        val issuerValidator = JwtValidators.createDefaultWithIssuer(issuer)
+
+        val validator = DelegatingOAuth2TokenValidator(listOf(issuerValidator, audienceValidator))
+        (decoder as NimbusJwtDecoder).setJwtValidator(validator)
+
+        return decoder
+}</pre>
+
+
+
+<p>This function builds a custom <code>JwtDecoder</code> that enforces stricter validation on incoming JWTs. It starts by creating a decoder from the configured issuer, then defines two validators: one to ensure the token’s <code>aud</code> claim matches the expected audience, and another to ensure the <code>iss</code> claim matches the trusted issuer. These validators are combined into a <code>DelegatingOAuth2TokenValidator</code> and applied to the decoder, so that only tokens issued by the correct identity provider and intended for your application are accepted.</p>
+
+
+                    <div class="alert ">
+            <p><strong>Note:</strong> If you need an Authorization Server (issuer) to test this flow, you can use a local or mock server like <a href="https://github.com/navikt/mock-oauth2-server?tab=readme-ov-file" target="_blank" rel="noopener">mock-oauth2-server</a>. It also supports custom JWT generation.<br />
+</p>
+        </div>
+    
+
+
+
+
+
+
+<p>Add the validation to your security filter chain:</p>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="kotlin" data-enlighter-theme="" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">@Bean
+@Throws(Exception::class)
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
+    http
+        .httpBasic { it.disable() }
+        .formLogin { it.disable() }
+        .csrf { it.disable() }
+        .authorizeHttpRequests {
+            it.requestMatchers("/api/fetchDocuments").hasAuthority("SCOPE_read:documents")
+
+            it.anyRequest().authenticated()
+        }
+        .oauth2ResourceServer {
+            it.jwt { jwt -> 
+                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                jwt.decoder(jwtDecoder())         // Add custom JwtDecoder                                                              
+            }
+        }          
+        .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+        .build()</pre>
+
+
+
+<p>This allows the strict enforcement of the rules by the backend, never leaving it up to frontend logic to authorize or validate sensitive information.</p>
+
+
+            <div class="newsletter">
+                                                            <article class="newsletter__post">
+                                                                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="newsletter__post-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/04/github-repository.webp" alt="">
+                                                                            <div class="newsletter__post-text">
+                                                            <h3>Repository with the companion code for the tutorial</h3>
+                                                                                                                    <a href="https://kotl.in/6uptzh" class="btn" target="_blank" rel="noopener">Go to GitHub</a>
+                                                    </div>
+                    </article>
+                                    </div>
+    
+
+
+<h2 class="wp-block-heading">What&#8217;s Next?</h2>
+
+
+
+<p>Strong security requires fine-grained control and layered safeguards beyond basic authentication. Use short-lived tokens with clear refresh and revocation strategies to limit exposure and prevent compromised tokens from persisting. Avoid using JWTs for session storage, as this leads to token bloat, complicates revocation, and increases the risk of exposing sensitive data. Instead, keep JWTs focused on authentication and authorization claims, and enforce validation of issuer, audience, signature, and expiry to ensure tokens are trustworthy and intended for your application.</p>
+
+
+
+<p>Ultimately, securing Spring Boot APIs with OAuth2 and JWT depends on careful design, explicit configuration, and a clear understanding of how tokens, scopes, and identities are validated and enforced. Kotlin complements this by promoting null safety, immutability, and concise configuration, helping reduce misconfigurations and overlooked edge cases.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>KotlinLLM is Going Open Source </title>
+		<link>https://blog.jetbrains.com/research/2026/07/kotlinllm-open-source/</link>
+		
+		<dc:creator><![CDATA[Anastasia Birillo]]></dc:creator>
+		<pubDate>Tue, 28 Jul 2026 07:50:41 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/JB-social-BlogFeatured-1280x720-1-8.png</featuredImage>		<product ><![CDATA[kotlin]]></product>
+		<category><![CDATA[kotlin]]></category>
+		<category><![CDATA[research]]></category>
+		<category><![CDATA[kotlinllm]]></category>
+		<category><![CDATA[research-prototype]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=research&#038;p=724665</guid>
+
+					<description><![CDATA[TL;DR KotlinLLM is now public. It&#8217;s a research prototype for delegating runtime logic to an LLM from Kotlin code. Instead of calling an LLM on every request or running a separate agent, you can write an explicit Kotlin call. Its body is generated Kotlin source code, and that code is updated as your application hits [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<h2 class="wp-block-heading">TL;DR</h2>
+
+
+
+<p><strong>KotlinLLM is now public</strong>. It&#8217;s a <strong>research prototype</strong> for delegating runtime logic to an LLM from Kotlin code. Instead of calling an LLM on every request or running a separate agent, you can write an explicit Kotlin call. Its body is <strong>generated Kotlin source code</strong>, and that code is updated as your application hits new runtime scenarios.</p>
+
+
+
+<p>👉 <a style="color:#6B57FF;" href="https://github.com/JetBrains-Research/kotlinllm-plugin" target="_blank" rel="noreferrer noopener"><strong>Check it out</strong></a>&nbsp;</p>
+
+
+
+<p>👉 <strong>KotlinConf 2026 <a style="color:#6B57FF;" href="https://kotlinconf.com/talks/1085233/" target="_blank" rel="noopener">talk</a></strong></p>
+
+
+
+<h2 class="wp-block-heading">What is KotlinLLM?</h2>
+
+
+
+<p>KotlinLLM is an <strong>IntelliJ IDEA plugin</strong> for Kotlin/JVM projects. It adds a language feature we call <strong>Smart macros</strong>. A Smart macro is a regular Kotlin function call whose body is generated Kotlin code. The public API has the following two Smart macros:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong><code>asLlm&lt;F, T&gt;(from, hint)</code></strong> converts an input of type F into a typed value T (data class, enum, list, or primitive). Use it to parse unstructured or semi-structured data into typed Kotlin values at runtime.</li>
+
+
+
+<li><strong><code>mockLlm&lt;T&gt;()</code></strong> generates a stateful implementation of an interface T. Its behavior depends on which methods are called on it, so it works as a test double that you don&#8217;t have to write by hand.</li>
+</ul>
+
+
+
+<pre class="EnlighterJSRAW" data-enlighter-language="generic" data-enlighter-theme="enlighter" data-enlighter-highlight="" data-enlighter-linenumbers="" data-enlighter-lineoffset="" data-enlighter-title="" data-enlighter-group="">// One level of abstraction higher: describe intent, let KotlinLLM fill in the logic.
+val issuesApiUrl: String = asLlm(repoInput, hint = "GitHub API URL: get all issues, including closed")
+val issues: List&lt;Issue> = asLlm(response, hint = "Return all beginner-friendly issues for this repository")</pre>
+
+
+
+<p>The behavior comes from actual runtime usage rather than being fully specified before the program runs. The call site stays compact and explicit: a clear, keyword-like API over generated code.</p>
+
+
+
+<h2 class="wp-block-heading">The problem it solves</h2>
+
+
+
+<p>In software engineering, LLMs are used during <strong>development</strong>, for code completion, code generation, and program comprehension. Using an LLM at the <strong>runtime</strong> of a compiled application is less common, and the existing options have clear trade-offs:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>Direct runtime delegation</strong> (calling the model on every invocation) is slow, non-deterministic, and costly. It also makes the application depend on an LLM service at runtime.</li>
+
+
+
+<li><strong>External agent workflows </strong>keep the generated logic outside the codebase, where it&#8217;s harder to review, test, and ship.</li>
+
+
+
+<li>Most prior work (e.g. <a href="https://arxiv.org/abs/2405.08965" target="_blank" rel="noopener">byLLM</a>, <a href="https://openreview.net/forum?id=E7ZZRnBQU7" target="_blank" rel="noopener">nightjar</a>, <a href="https://arxiv.org/abs/2408.01055" target="_blank" rel="noopener">Healer</a>) targets <strong>interpreted languages</strong> like Python, not a compiled, statically typed language like Kotlin.</li>
+</ul>
+
+
+
+<p>KotlinLLM is built around three properties:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>Explicit</strong> – the call site shows that a feature is LLM-backed, so it&#8217;s visible in code review.</li>
+
+
+
+<li><strong>Persistent</strong> – generated behavior is saved as an ordinary Kotlin source, not kept only in the runtime session. It can be committed, reviewed, tested, and distributed like any other code.</li>
+
+
+
+<li><strong>Portable</strong> – once generated, the code runs as plain Kotlin without the plugin. For scenarios that are already covered, there&#8217;s no further LLM call, so no added latency or cost, and the result is reproducible.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">Does it actually work?</h2>
+
+
+
+<p>We tested the approach on two Kotlin/JVM projects:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>An adapted Spring Petclinic Kotlin</strong> – 18 <code>asLlm</code> call sites, <strong>24/24</strong> application scenarios completed after Smart macro evolution, with a <strong>100% hot-reload success rate</strong> and compilation/redefinition adding ~1% of total runtime overhead.</li>
+
+
+
+<li><strong>A synthetic &#8220;GitHub Beginner Issue Radar&#8221;</strong> – parsing real GitHub issue data across 20 repositories (30k+ issues), reaching <strong>~0.89 recall</strong> on ground-truth beginner labels.</li>
+</ul>
+
+
+
+<p>These results show that persistent runtime evolution for compiled Kotlin is feasible. The evaluation also documents the current limits.</p>
+
+
+
+<h2 class="wp-block-heading">We&#8217;re making it public&nbsp;</h2>
+
+
+
+<p>KotlinLLM is <strong>open source</strong> under the <strong>Apache License 2.0</strong>. The repository contains:</p>
+
+
+
+<ul class="wp-block-list">
+<li>The IntelliJ plugin prototype and the stable Smart macro API.</li>
+
+
+
+<li>Runnable <strong>example projects</strong> (GitHub Issue Radar, an adapted Petclinic), including <em>committed generated sources,</em> so you can inspect what the LLM produced and run it as ordinary Kotlin.</li>
+
+
+
+<li>The <strong>KotlinConf2026 talk <a style="color:#6B57FF;" href="https://www.youtube.com/watch?v=tmPZajBUsKg" target="_blank" rel="noopener">recording </a></strong> and the <strong>theoretical <a style="color:#6B57FF;" href="https://github.com/JetBrains-Research/kotlinllm-plugin/blob/main/thesis.pdf" target="_blank" rel="noopener">write-up</a> </strong> with the full design rationale and evaluation.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">Try it and tell us what you think&nbsp;</h2>
+
+
+
+<p>KotlinLLM is a <strong>research prototype</strong>, so feedback is useful at this stage. A few ways to help:</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>Start and <a style="color:#6B57FF;" href="https://github.com/JetBrains-Research/kotlinllm-plugin" target="_blank" rel="noopener">explore the repo</a></strong></li>
+
+
+
+<li><strong>Try it on your own Kotlin/JVM project</strong>. Add the <code>KotlinLLM.kt</code> API file, launch with the <em>Run with KotlinLLM</em> executor, and let the Smart macros evolve. Setup steps are in the README.&nbsp;</li>
+
+
+
+<li><strong>Open issues</strong> for anything you run into: rough edges, unexpected LLM behavior, missing cases, or behavior you&#8217;d expect to be different.</li>
+
+
+
+<li><strong>Send PRs with use cases.</strong> Real scenarios where <code>asLlm/mockLlm</code> work well – or break – are the most useful. New examples, target types, and agent tools are all welcome.</li>
+</ul>
+
+
+
+<p>If you find a place where runtime logic delegation fits your code, open an issue. If you build something with it, send a PR.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Kotlin Turns 15: Celebrate the Kotlin Effect</title>
+		<link>https://blog.jetbrains.com/kotlin/2026/07/kotlin-turns-15-celebrate-the-kotlin-effect/</link>
+		
+		<dc:creator><![CDATA[Kodee]]></dc:creator>
+		<pubDate>Fri, 17 Jul 2026 13:29:40 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/Kotlin-Release-X-LinkedIn-FB-Bluesky-1200x675-1-5.png</featuredImage>		<category><![CDATA[kotlin]]></category>
+		<category><![CDATA[news]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=721999</guid>
+
+					<description><![CDATA[🎉 Kotlin turns 15! 🎉 For 15 years, you&#8217;ve helped shape Kotlin into the language it is today. Whether you&#8217;ve built apps, contributed to the ecosystem, taught others, or simply chosen Kotlin for your next project – thank you for being part of the journey. Today, we’re celebrating Kotlin and the people who have made [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/celebrate-the-kotlin-effect-with-us.png" alt="" class="wp-image-724928" /></figure>
+
+
+
+<p>🎉 Kotlin turns 15! 🎉</p>
+
+
+
+<p>For 15 years, you&#8217;ve helped shape Kotlin into the language it is today. Whether you&#8217;ve built apps, contributed to the ecosystem, taught others, or simply chosen Kotlin for your next project – thank you for being part of the journey.<br><br>Today, we’re celebrating Kotlin and the people who have made its journey possible. Explore special ways to celebrate Kotlin’s 15th birthday.</p>
+
+
+
+<h2 class="wp-block-heading">Leave a birthday wish for Kotlin</h2>
+
+
+
+<p>Create a <a href="https://kotlinlang.org/kotlin-effect/#celebrate-with-kodee" target="_blank" rel="noopener">digital birthday postcard</a> with a wish or prediction for Kotlin’s next chapter. You can also upload your own photo to personalize the postcard.</p>
+
+
+
+<p>Share your postcard with the Kotlin community and add your message to Kotlin’s 15th birthday celebration.</p>
+
+
+
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6a9415028d3cf&quot;}" data-wp-interactive="core/image" class="wp-block-image size-full wp-lightbox-container"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on-async--click="actions.showLightbox" data-wp-on-async--load="callbacks.setButtonStyles" data-wp-on-async-window--resize="callbacks.setButtonStyles" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/KT-Twitter_Facebook_LinkedIn-1200x675-1.png" alt="" class="wp-image-722875" /><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			aria-label="Enlarge image"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on-async--click="actions.showLightbox"
+			data-wp-style--right="state.imageButtonRight"
+			data-wp-style--top="state.imageButtonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button></figure>
+
+
+
+<h2 class="wp-block-heading">More ways to celebrate</h2>
+
+
+
+<p>Explore the Kotlin Effect beyond the code:</p>
+
+
+
+<ul class="wp-block-list">
+<li><a href="https://kotlinlang.org/kotlin-effect/#kotlin-effect-in-real-life" target="_blank" rel="noreferrer noopener">Watch familiar Kotlin ideas come to life</a>.</li>
+
+
+
+<li><a href="https://kotlinlang.org/kotlin-effect/#kotlin-effect-action" target="_blank" rel="noreferrer noopener">Battle friction in a browser game.</a></li>
+
+
+
+<li>Keep learning with free access to <a href="https://kotlinlang.org/kotlin-effect/#yours-kotlin-effect" target="_blank" rel="noreferrer noopener">select Kotlin courses on Hyperskill</a> until September 9, 2026.</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading"><strong>Thank you for being part of Kotlin’s journey</strong></h2>
+
+
+
+<p>Fifteen years is an incredible milestone – made possible by everyone who has built with Kotlin, contributed to its ecosystem, shared knowledge, and supported one another along the way.</p>
+
+
+
+<p>There are still more ideas to explore, more friction to remove, and many more things to build together.<br><br>Happy 15th birthday, Kotlin! 💜</p>
+
+
+
+<div class="buttons">
+        <div class="buttons__row">
+            <a class="ek-link jb-download-button" title="Celebrate with us" href="https://kotlinlang.org/kotlin-effect/" target="_blank" rel="noopener" data-test="blog-article-cta" data-cl="true">Celebrate with us</a>
+         </div>
+</div>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>The History of Kodee, Kotlin’s Mascot</title>
+		<link>https://blog.jetbrains.com/research/2026/07/the-history-of-kodee/</link>
+		
+		<dc:creator><![CDATA[Olga Vorobeva]]></dc:creator>
+		<pubDate>Thu, 09 Jul 2026 14:53:46 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-Featured-1280x720-1.png</featuredImage>		<product ><![CDATA[kotlin]]></product>
+		<product ><![CDATA[research]]></product>
+		<category><![CDATA[kotlin]]></category>
+		<category><![CDATA[research]]></category>
+		<category><![CDATA[design]]></category>
+		<category><![CDATA[cap-kodee]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=research&#038;p=719177</guid>
+
+					<description><![CDATA[A few years back, the Kotlin team figured it was time their programming language had a mascot – something fun and friendly to make developers feel more at home. After all, so many other programming languages have their own characters – Gofer, elePHPant, Dart’s Dash, or Rust’s Ferris, for example. Bringing Kodee to life wasn’t [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>A few years back, the Kotlin team figured it was time their programming language had a mascot – something fun and friendly to make developers feel more at home. After all, so many other programming languages have their own characters – <a href="https://go.dev/blog/gopher" target="_blank" rel="noopener">Gofer</a>, <a href="https://www.php.net/elephpant.php" target="_blank" rel="noopener">elePHPant</a>, <a href="https://docs.flutter.dev/dash" target="_blank" rel="noopener">Dart’s Dash</a>, or <a href="https://rustacean.net/" target="_blank" rel="noopener">Rust’s Ferris,</a> for example.</p>
+
+
+
+<p>Bringing Kodee to life wasn’t just a design challenge; it was a deeply collaborative effort by the Kotlin Marketing team, together with the Design and Strategic Research teams at JetBrains. The project’s goal was to create a mascot that truly resonated with the developer community. To do that, Strategic Research team leaned into a structured approach: gathering feedback through surveys, analyzing user sentiment, and facilitating a focus group to uncover the values and traits developers wanted to see.&nbsp;</p>
+
+
+
+<p>What follows is a behind-the-scenes look at how thoughtful research and creative iteration turned a simple idea into a beloved mascot.</p>
+
+
+
+<h2 class="wp-block-heading">First iteration of the Kotlin mascot</h2>
+
+
+
+<p>The mascot project was initiated and driven by the Kotlin Marketing team. The first design concept was the result of a thoughtful and detailed creative process in which Kotlin designers explored everything from the character’s shape and traits to its personality. The initial idea was to introduce a robot companion that subtly echoed the Kotlin logo – one that was helpful and approachable by nature, with a screen for a face. A reliable sidekick, always ready to lend a hand!</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-1-1.png" alt="" class="wp-image-719745"/></figure>
+
+
+
+<p><em>Preliminary sketches of the Kotlin mascot</em></p>
+
+
+
+<p>Following <a href="https://blog.jetbrains.com/kotlin/2021/10/introducing-the-kotlin-mascot/">its release</a>, the character received mostly positive feedback. However, a few social media channels and online forums made it clear that the character hadn’t quite clicked with some members of the Kotlin community. This is where the Kotlin Marketing and Strategic Research teams partnered to validate the direction, and the researchers launched a mixed-method project to better understand community sentiment and shape the next iteration. Here, user feedback was indispensable. We started by scouring the internet to get a general idea of how the community felt about the mascot. This allowed us to make a few initial adjustments. At the same time, we realized we needed to dig deeper, so we moved on to the survey phase.</p>
+
+
+
+<h3 class="wp-block-heading">Survey feedback gathering</h3>
+
+
+
+<p>The Strategic Research team organized a feedback round to learn more about developers&#8217; feelings about the character. We wanted to understand not just what people liked or disliked about the mascot, but also the reasons behind their sentiments. And the clock was ticking. With barely more than six months remaining before KotlinConf 2023, starting everything over from scratch (naming, production, etc.) wasn’t an option. Moreover, a lot of Kotlin users had already been vocal about liking the first variant, and it didn’t seem fair to totally replace a mascot that had already won the hearts of so many in the community.</p>
+
+
+
+<p>We kicked things off with a survey. As researchers, we’re used to getting responses that only express broader emotions (“It’s bad”, “I don’t like it”, etc.), so this time we designed the questions to help guide responses toward more specific insights. The survey included a mix of:</p>
+
+
+
+<ul class="wp-block-list">
+<li>Projective questions like “What specific mascots of other brands do you consider ‘good’ or ‘bad’?”&nbsp;</li>
+
+
+
+<li>Associative questions like “What comes to mind when you see this character?”</li>
+
+
+
+<li>Direct prompts like “What specifically don’t you like about this mascot, beyond just ‘I don’t like it’ or ‘It’s just bad’?”&nbsp;</li>
+</ul>
+
+
+
+<h3 class="wp-block-heading">Feedback round 1: Results</h3>
+
+
+
+<p>We went into this knowing that opinions would differ. After all, you can’t please everyone. But our goal was merely to find overarching patterns in the feedback – and in this regard, we succeeded.</p>
+
+
+
+<p>The most frequent concerns participants expressed were that the character:</p>
+
+
+
+<ul class="wp-block-list">
+<li>Didn’t feel charming or cute (which is typically expected from a mascot).&nbsp;</li>
+
+
+
+<li>Came across as too plastic and robotic.&nbsp;</li>
+
+
+
+<li>Lacked expression and personality.&nbsp;</li>
+
+
+
+<li>Had some visual quirks that bothered people (for example, the proportions, the oversized eyes, a missing mouth, and the color palette).</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">Second iteration of the Kotlin mascot</h2>
+
+
+
+<p>Next, we asked the design team to create three quick concept drafts – no deep detailing, just enough to capture the overall impression while reflecting the feedback we’d gathered.&nbsp;</p>
+
+
+
+<p>Each of the three sketches went in a different direction. One leaned into a more human-like but still robotic style; another took a more animal-like approach; and the third refined the original concept, adjusting its features based on the feedback we’d received.&nbsp;</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-2.png" alt="" class="wp-image-719189"/></figure>
+
+
+
+<p><em>The three mascot variants</em></p>
+
+
+
+<p>Each draft gave us a fresh angle to consider, helping us explore what felt most relatable and visually appealing to the community.</p>
+
+
+
+<p>After their changes, three things were clear:&nbsp;</p>
+
+
+
+<ul class="wp-block-list">
+<li>The proportions felt more natural.</li>
+
+
+
+<li>The character’s personality had begun to shine through. It was no longer just a silent silhouette.</li>
+
+
+
+<li>Its emotions had become more expressive.</li>
+</ul>
+
+
+
+<p>The designers also made sure the color palette would work well with a wide range of different backgrounds, making the mascot more versatile. The Kotlin team intended to use the character in a wide variety of ways, so it had to fit naturally into any digital and real-life context and had to align with the general Kotlin brand design guidelines.</p>
+
+
+
+<h3 class="wp-block-heading">Focus group feedback</h3>
+
+
+
+<p>We planned to present the drafts during a guided focus group session, which would give participants the chance to share deeper feedback and help us choose the most promising direction to take things in. The idea for this focus group came from one of the researchers&#8217; backgrounds in urban anthropology and spatial development. A widely adopted approach in this field is participatory design, in which users of a space share their perspectives on how public areas should be shaped and experienced.</p>
+
+
+
+<p>To keep the process productive, we carefully applied the principles of <a href="https://en.wikipedia.org/wiki/Cognitive_interview" target="_blank" rel="noopener">cognitive interviewing</a> to uncover the implicit expectations and mental images of the participants. Some participants actually requested a preview of the drafts in advance, but we had to decline, so as to ensure we were getting a totally “fresh” reaction from every single session participant.</p>
+
+
+
+<p>We kicked the session off by dividing everyone into smaller groups to ensure every voice could be heard. The first task was to define the core values, keywords, and associations the Kotlin mascot should reflect. What key traits did the participants identify? They said it should be friendly and supportive, a little mischievous, and clearly tech-savvy. Participants also emphasized that the character should feel helpful and be something they’d be proud to show off.&nbsp;</p>
+
+
+
+<p>To guide the evaluation process, we set up a Miro board where participants could assess each mascot variant against the criteria they had established earlier in the session. The board was structured to reflect the key traits – like friendliness, tech-savviness, and a touch of playfulness –&nbsp;and allowed each group to visually map how well each character draft aligned with those values.</p>
+
+
+
+<p>This setup worked out as we expected: it made it easy to compare impressions across groups, highlight areas of consensus, and spot where a particular variant might fall short. Moreover, we visualized and mapped all the individual “mental images” of the character and managed to get all the participants to agree on those “personality traits”. This helped us gather structured, actionable feedback about the mascot’s appearance for the design team in a collaborative and engaging way.&nbsp;</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-4.png" alt="" class="wp-image-719211"/></figure>
+
+
+
+<p><em>Miro board where participants evaluated mascot variants according to criteria they developed</em></p>
+
+
+
+<p>In the end, the refined version of the original character came out on top. By modifying its features based on community feedback – adding warmth, personality, and visual balance – we managed to strike the right chord with participants. The design stayed true to the initial concept while evolving into a more relatable mascot.</p>
+
+
+
+<p>And the winner is…</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-3-1.png" alt="" class="wp-image-719805"/></figure>
+
+
+
+<p><em>Kodee toy specifications</em></p>
+
+
+
+<p>After that, designers spent some time refining the final version and aligning it with the feedback from the session. It took a few rounds to make sure everything was just right – from visual details to brand alignment.&nbsp;Once the design felt solid, Kotlin Marketing led the stakeholder approval process, aligning teams around the refined direction before moving into production.</p>
+
+
+
+<p>Eventually, the mascot was officially approved and ready to meet the world. And then came the final piece of the puzzle: the mascot’s name.&nbsp;</p>
+
+
+
+<h2 class="wp-block-heading">Naming the Kotlin community’s mascot</h2>
+
+
+
+<p>Naming the mascot turned out to be one of the most creative and surprisingly tricky parts of the process. We were looking for a name that felt tech-savvy and in line with Kotlin’s spirit, while also carrying a sense of warmth and approachability. Striking that balance wasn’t easy.</p>
+
+
+
+<p>To generate new ideas, the mascot working group split back up into teams so that each team could have a brainstorming session and work on the problem from their own angle. The Strategic Research team even used ChatGPT (a fairly novel strategy in early 2023!) to refine the list of options and bring it more in line with the focus group feedback we’d collected. Meanwhile, the Kotlin Marketing team also consulted the Twitter community (now X), and the response was incredible: we received hundreds of thoughtful, fun, and clever suggestions.&nbsp;</p>
+
+
+
+<p>After much deliberation, the Kotlin team narrowed it down to a short list of appealing options. To avoid copyright clashes or intercultural confusion, we invited JetBrains Localization team and Copyeditor team to check how each option might be received among people from various cultural and linguistic backgrounds. After this analysis, we landed on three finalists: Kodee, Milo, and Lilo. Picking one was no small feat. Milo was nice, but had no obvious relation to Kotlin. One key reason it edged out Lilo was flexibility. In many languages, “Lilo” would call to mind a shade of purple or violet. But since the mascot’s look was bound to evolve over time, we thought it was best not to use a name that was tied to a physical trait. Ultimately, the Kotlin team landed on Kodee, a playful nod to coding that felt right at home in the Kotlin ecosystem.&nbsp;</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-5-1.png" alt="" class="wp-image-719816"/></figure>
+
+
+
+<p><strong>And just like that, Kodee was born – ready to meet the world, be animated in presentations, and featured on pins.</strong></p>
+
+
+
+<h2 class="wp-block-heading">Multiple versions of Kodee</h2>
+
+
+
+<p>The response to the new version of Kodee was overwhelmingly positive. Developers loved the refreshed design and personality, and it quickly became a recognizable part of the Kotlin identity.&nbsp;</p>
+
+
+
+<p>Today, Kodee takes many forms, from expressive emojis and animated stickers to physical merchandise like plush toys. It’s not just a mascot anymore – it’s a friendly face that brings the Kotlin community together across platforms and events.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-6.png" alt="" class="wp-image-719233"/></figure>
+
+
+
+<p><em>Different versions of Kodee, including plush, Lego, and life-sized forms</em></p>
+
+
+
+<p>Recently, Kodee has started resonating beyond the developer community. Earlier this year, the character was presented at Pictoplasma in Berlin, one of the world’s leading conferences dedicated to character design, storytelling, and contemporary visual culture. Introducing Kodee to an audience of designers, illustrators, and character creators demonstrated that the mascot can connect with people not only as a product symbol, but also as an independent character with its own identity and story. For us, this was an exciting milestone in Kodee’s evolution and a reminder that well-crafted characters can build bridges between different creative communities.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-7.png" alt="" class="wp-image-719244"/></figure>
+
+
+
+<p><em>Kodee&#8217;s story at Pictoplasma in Berlin</em>, <em>plush Kodee shown on the screen</em></p>
+
+
+
+<h2 class="wp-block-heading">Conclusion</h2>
+
+
+
+<p>Kodee&#8217;s journey from concept to community icon reflects a cross-functional effort by the Kotlin Marketing team in close collaboration with Design, Strategic Research, many other JetBrains teams, and the Kotlin community. What began as a simple idea for adding warmth and personality to the programming language evolved into a vibrant character shaped by feedback, creativity, and shared values.&nbsp;</p>
+
+
+
+<p>The greatest recognition for our mascot project came from the Kotlin community itself: Kodee was wholeheartedly adopted, creatively reinterpreted, and enthusiastically reproduced in countless ways, from digital artwork to handmade clay figures. It really became a character that Kotlin developers are proud to show off – one of the essential requirements for the mascot, as described by our focus group participants.</p>
+
+
+
+<p>With its expressive design, tech-savvy charm, and playful spirit, Kodee now stands out as more than just a mascot: it’s a symbol of Kotlin’s inclusive and developer-friendly culture, ready to grow alongside the community it represents.</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Blog-8.png" alt="" class="wp-image-719266"/></figure>
+
+
+
+<p><em>Kodee and its leading researcher, Olga Vorobeva</em></p>
+
+
+
+<h2 class="wp-block-heading">Many thanks to all teams involved:</h2>
+
+
+
+<p><strong>Researchers:</strong>&nbsp;<br>Leading researcher – Olga Vorobeva<br>Naming – Yanina Ledovaya, Sofia Kulikova<br>Focus group designers and facilitators – Olga Vorobeva, Yanina Ledovaya, Raisa Kanischeva, Evgenia Igolnikova, Sofia Kulikova</p>
+
+
+
+<p><strong>Designers:</strong><br>Main designer / Kodee’s “mother” – Tina Prokhorova<br>Positions and situations of the characters – Arina Kovrizhkina<br>Preliminary 3D version and animation – Kirill Malich<br>Final 3D version – Alexey Salmin<br>Final animation – Alena Sulza, Anastasia Ibragimova</p>
+
+
+
+<p><strong>Kotlin team representatives:</strong><br>VP of Product – Egor Tolstoy<br>Kotlin Marketing Team Lead – Ekaterina Volodko&nbsp;<br>PMM – Maria Krishtal<br>PMM – Ksenia Shneyveys<br>And other Kotlin team members who were always eager to help, brainstorm, and give feedback.</p>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>
