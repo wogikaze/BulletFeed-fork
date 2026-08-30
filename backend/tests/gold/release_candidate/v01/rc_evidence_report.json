@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "7a3d8ea32949ece14cc610e76825d683d8340632",
+  "repository_sha": "a421e9e71c5ac79d777ee5b4ff88b83a79378091",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -99,6 +99,7 @@
       },
       "scenario_counts": {
         "compressed_response_guard": 1,
+        "conditional_304": 1,
         "credential_url_guard": 1,
         "duplicate_delivery": 998,
         "malformed_json_guard": 1,
@@ -109,8 +110,11 @@
         "recorded_fetch": 998,
         "redirect_private_guard": 1,
         "reordered_payload": 605,
+        "robots_disallow": 1,
         "server_error_guard": 1,
+        "source_identity_change": 1,
         "ssrf_private_ip_guard": 1,
+        "timeout_transport": 1,
         "unsupported_content_type_guard": 1,
         "update_detection": 1
       },
@@ -119,7 +123,7 @@
         "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries without making external requests.",
         "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, HTTP status, and malformed-feed boundaries without making external requests.",
         "A deterministic immutable-snapshot pair exercises update detection; per-source update rates remain not_recorded because the live corpus has one fetch per endpoint.",
-        "Timeout, conditional-304, robots, and source-identity drills still require dedicated transport fixtures or host probes."
+        "Timeout, conditional-304, robots, and source-identity scenarios use an isolated transport fixture and never make external requests."
       ],
       "live_sample": {
         "status": "partial",
