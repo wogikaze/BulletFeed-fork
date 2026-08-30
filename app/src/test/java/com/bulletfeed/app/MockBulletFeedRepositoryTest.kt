@@ -68,4 +68,23 @@ class MockBulletFeedRepositoryTest {
             assertEquals(listOf("Kotlin", "GitHub"), snapshot.topics)
             assertTrue(repository.getGithubConnection())
         }
+
+    @Test
+    fun sourceRecommendationApproveAndIgnoreUpdateLocalState() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            val pending = repository.getSourceRecommendations()
+            assertTrue(pending.any { it.discoveryOnly })
+            assertTrue(pending.none { it.evidenceEligible })
+
+            val official = pending.first { !it.discoveryOnly }
+            val approved = repository.decideSourceRecommendation(official.id, SourceRecommendationDecision.APPROVED)
+            assertEquals(SourceRecommendationStatus.APPROVED, approved.recommendationStatus)
+
+            val discovery = pending.first { it.discoveryOnly }
+            repository.decideSourceRecommendation(discovery.id, SourceRecommendationDecision.IGNORED)
+            val visible = repository.getSourceRecommendations()
+            assertTrue(visible.none { it.id == discovery.id })
+            assertTrue(visible.any { it.id == official.id && it.recommendationStatus == SourceRecommendationStatus.APPROVED })
+        }
 }

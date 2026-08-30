@@ -44,5 +44,50 @@ class MockAppState {
             UserTopic("catalog_$index", name, TopicType.TECHNOLOGY, TopicPriority.NORMAL, index)
         }
 
+    var sourceRecommendations: MutableList<SourceRecommendation> =
+        mutableListOf(
+            SourceRecommendation(
+                id = "rec_react_rss",
+                endpointId = "ep_react_rss",
+                canonicalUrl = "https://react.dev/rss.xml",
+                family = "rss_atom",
+                discoveryMethod = "feed",
+                discoveryProvenance = "curated_seed",
+                verificationStatus = "verified",
+                authorityStatus = "official",
+                authorityConfidence = 0.92f,
+                evidenceEligible = false,
+                discoveryOnly = false,
+                reason = "React の公式フィード",
+                explanation = "追跡中のテーマ React に直接対応する公式RSSです。",
+                matchedConcepts = listOf("react"),
+                matchOrigin = "explicit",
+                matchKind = "direct",
+                score = 0.88f,
+                recommendationStatus = SourceRecommendationStatus.PENDING,
+                publisher = SourcePublisher("react", "React"),
+            ),
+            SourceRecommendation(
+                id = "rec_hn_discovery",
+                endpointId = "ep_hn",
+                canonicalUrl = "https://news.ycombinator.com/",
+                family = "hacker_news_discovery",
+                discoveryMethod = "external_index",
+                discoveryProvenance = "external_index",
+                verificationStatus = "unverified",
+                authorityStatus = "aggregator",
+                authorityConfidence = 0.2f,
+                evidenceEligible = false,
+                discoveryOnly = true,
+                reason = "議論の発見用インデックス",
+                explanation = "話題の発見には使えますが、事実の根拠にはしません。",
+                matchedConcepts = listOf("react"),
+                matchOrigin = "inferred",
+                matchKind = "neighbor",
+                score = 0.31f,
+                recommendationStatus = SourceRecommendationStatus.PENDING,
+            ),
+        )
+
     fun topicNames(): List<String> = topics.map { it.name }
 }

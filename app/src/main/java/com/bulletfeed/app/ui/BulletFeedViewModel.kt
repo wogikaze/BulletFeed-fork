@@ -63,6 +63,8 @@ data class BulletFeedUiState(
     val pendingGithubAuthUrl: String? = null,
     val isSavingOnboarding: Boolean = false,
     val isDeletingAccount: Boolean = false,
+    val sourceRecommendations: List<SourceRecommendation> = emptyList(),
+    val decidingRecommendationId: String? = null,
     val isLoading: Boolean = true,
     val sessionExpired: Boolean = false,
     val errorMessage: String? = null,
@@ -164,6 +166,17 @@ class BulletFeedViewModel(
                 } else {
                     emptyList()
                 }
+                val recommendations = if (ready) {
+                    try {
+                        repository.getSourceRecommendations()
+                    } catch (error: Throwable) {
+                        if (error.isUnauthorized()) throw error
+                        softError = softError ?: error.toUserMessage()
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
                 if (version != refreshVersion) return@launch
                 _uiState.update { current ->
                     current.copy(
@@ -174,6 +187,7 @@ class BulletFeedViewModel(
                         isFeedFiltering = false,
                         vulnerabilityAlerts = alerts,
                         notifications = notifications,
+                        sourceRecommendations = recommendations,
                         githubConnection = githubConnection,
                         githubRepositories = if (githubConnection.credentialState == GithubCredentialState.REAUTHORIZATION_REQUIRED) {
                             emptyList()
@@ -961,6 +975,42 @@ class BulletFeedViewModel(
         }
     }
 
+    fun decideSourceRecommendation(
+        candidateId: String,
+        decision: SourceRecommendationDecision,
+    ) {
+        if (_uiState.value.decidingRecommendationId != null) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(decidingRecommendationId = candidateId, errorMessage = null) }
+            try {
+                val updated = repository.decideSourceRecommendation(candidateId, decision)
+                _uiState.update { current ->
+                    val next =
+                        current.sourceRecommendations
+                            .map { if (it.id == updated.id) updated else it }
+                            .filter { it.recommendationStatus != SourceRecommendationStatus.IGNORED }
+                    current.copy(
+                        sourceRecommendations = next,
+                        decidingRecommendationId = null,
+                    )
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                if (error.isUnauthorized()) {
+                    handleRootFailure(error)
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            decidingRecommendationId = null,
+                            errorMessage = error.toUserMessage(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun addTopic(
         name: String,
         type: TopicType = TopicType.TECHNOLOGY,
@@ -973,12 +1023,14 @@ class BulletFeedViewModel(
         }
         repository.addUserTopic(normalized, type)
         refreshTopicsFromServer()
+        refreshSourceRecommendationsFromServer()
         reloadFeedFromServer()
     }
 
     fun removeTopic(topicId: String) = launchUpdate {
         repository.removeUserTopic(topicId)
         refreshTopicsFromServer()
+        refreshSourceRecommendationsFromServer()
         reloadFeedFromServer()
     }
 
@@ -1077,6 +1129,11 @@ class BulletFeedViewModel(
                 topics = items.map { item -> item.name },
             )
         }
+    }
+
+    private suspend fun refreshSourceRecommendationsFromServer() {
+        val items = repository.getSourceRecommendations()
+        _uiState.update { it.copy(sourceRecommendations = items) }
     }
 
     private fun markGithubReauthorizationRequired() {

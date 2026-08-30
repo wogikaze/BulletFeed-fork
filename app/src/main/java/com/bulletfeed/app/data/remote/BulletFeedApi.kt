@@ -165,6 +165,21 @@ interface BulletFeedApi {
 
     @POST("v1/me/notifications/read-all")
     suspend fun readAllNotifications(): NotificationReadAllDto
+
+    @GET("v1/me/source-recommendations")
+    suspend fun getSourceRecommendations(
+        @Query("includeIgnored") includeIgnored: Boolean = false,
+        @Query("limit") limit: Int = 20,
+    ): SourceRecommendationListDto
+
+    @POST("v1/me/source-recommendations/{candidateId}")
+    suspend fun decideSourceRecommendation(
+        @Path("candidateId") candidateId: String,
+        @Body body: SourceRecommendationDecisionDto,
+    ): SourceRecommendationDto
+
+    @GET("v1/me/sources")
+    suspend fun getSourceSubscriptions(): SourceSubscriptionListDto
 }
 
 @Serializable
@@ -540,4 +555,56 @@ data class SessionResponseDto(
     val userId: String,
     val accessExpiresInSeconds: Int,
     val refreshExpiresInSeconds: Int,
+)
+
+@Serializable
+data class SourceRecommendationListDto(
+    val version: String,
+    val items: List<SourceRecommendationDto>,
+)
+
+@Serializable
+data class SourceRecommendationDto(
+    val id: String,
+    val endpointId: String,
+    val canonicalUrl: String,
+    val family: String,
+    val discoveryMethod: String,
+    val discoveryProvenance: String,
+    val verificationStatus: String,
+    val authorityStatus: String,
+    val authorityConfidence: Float,
+    val evidenceEligible: Boolean,
+    val discoveryOnly: Boolean,
+    val reason: String,
+    val explanation: String,
+    val matchedConcepts: List<String> = emptyList(),
+    val matchOrigin: String,
+    val matchKind: String,
+    val score: Float,
+    val recommendationStatus: String,
+    val publisher: SourcePublisherDto? = null,
+)
+
+@Serializable
+data class SourcePublisherDto(
+    val slug: String,
+    val displayName: String,
+)
+
+@Serializable
+data class SourceRecommendationDecisionDto(
+    val decision: String,
+)
+
+@Serializable
+data class SourceSubscriptionListDto(
+    val items: List<SourceSubscriptionDto> = emptyList(),
+)
+
+@Serializable
+data class SourceSubscriptionDto(
+    val id: String,
+    val kind: String,
+    val canonicalUrl: String,
 )

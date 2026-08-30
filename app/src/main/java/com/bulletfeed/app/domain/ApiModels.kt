@@ -153,6 +153,43 @@ data class UserTopic(
     val order: Int,
 )
 
+enum class SourceRecommendationStatus { PENDING, APPROVED, IGNORED }
+
+enum class SourceRecommendationDecision { APPROVED, IGNORED }
+
+data class SourcePublisher(
+    val slug: String,
+    val displayName: String,
+)
+
+data class SourceRecommendation(
+    val id: String,
+    val endpointId: String,
+    val canonicalUrl: String,
+    val family: String,
+    val discoveryMethod: String,
+    val discoveryProvenance: String,
+    val verificationStatus: String,
+    val authorityStatus: String,
+    val authorityConfidence: Float,
+    val evidenceEligible: Boolean,
+    val discoveryOnly: Boolean,
+    val reason: String,
+    val explanation: String,
+    val matchedConcepts: List<String>,
+    val matchOrigin: String,
+    val matchKind: String,
+    val score: Float,
+    val recommendationStatus: SourceRecommendationStatus,
+    val publisher: SourcePublisher? = null,
+)
+
+data class SourceSubscription(
+    val id: String,
+    val kind: String,
+    val canonicalUrl: String,
+)
+
 data class MeBootstrap(
     val onboardingCompleted: Boolean,
     val onboardingState: OnboardingState,

@@ -249,6 +249,21 @@ class RemoteMeRepository(
             topics = persistedTopics,
         )
     }
+
+    override suspend fun getSourceRecommendations(includeIgnored: Boolean): List<SourceRecommendation> =
+        api.getSourceRecommendations(includeIgnored = includeIgnored).items.map { it.toDomain() }
+
+    override suspend fun decideSourceRecommendation(
+        candidateId: String,
+        decision: SourceRecommendationDecision,
+    ): SourceRecommendation =
+        api.decideSourceRecommendation(
+            candidateId,
+            SourceRecommendationDecisionDto(decision.name.lowercase()),
+        ).toDomain()
+
+    override suspend fun getSourceSubscriptions(): List<SourceSubscription> =
+        api.getSourceSubscriptions().items.map { it.toDomain() }
 }
 
 class RemoteIntegrationRepository(
