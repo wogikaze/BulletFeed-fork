@@ -21,7 +21,15 @@ from app.evaluation.real_world_validation import (
 )
 from app.services.http import require_json
 from app.services.url_safety import reject_private_resolved_addresses, validate_public_url, validate_url_shape
-from app.services.web_snapshots import _reject_unsafe_encoding, _require_allowed_content_type
+from app.services.web_changes import extract_web_snapshot_changes
+from app.services.web_snapshots import (
+    RobotsDecision,
+    WebSnapshot,
+    _reject_unsafe_encoding,
+    _require_allowed_content_type,
+    content_hash_for,
+    snapshot_id_for,
+)
 
 QUALIFICATION_VERSION = "m3-source-qualification-v1"
 TARGET_LIVE_ENDPOINTS = 200
@@ -119,6 +127,7 @@ def evaluate_source_qualification(
         )
         replay_cases.extend(_json_fault_cases(source, body))
     replay_cases.extend(_deterministic_fault_cases())
+    replay_cases.append(_update_detection_case())
 
     outcomes = Counter(case.outcome for case in replay_cases)
     scenarios = Counter(case.scenario for case in replay_cases)
@@ -149,6 +158,8 @@ def evaluate_source_qualification(
             "without making external requests.",
             "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, "
             "HTTP status, and malformed-feed boundaries without making external requests.",
+            "A deterministic immutable-snapshot pair exercises update detection; per-source update "
+            "rates remain not_recorded because the live corpus has one fetch per endpoint.",
             "Timeout, conditional-304, robots, and source-identity drills still require dedicated "
             "transport fixtures or host probes.",
         ),
@@ -329,6 +340,63 @@ def _json_fault_cases(source, body: bytes) -> tuple[ReplayCase, ...]:
             outcome="passed" if len(b"x") * (1_048_576 + 1) > 1_048_576 else "failed",
             detail="payloads over the 1 MiB acquisition boundary are rejected",
         ),
+    )
+
+
+def _update_detection_case() -> ReplayCase:
+    canonical_url = "https://qualification.example/changelog"
+    left_body = b"<html><body><h1>Changelog</h1><p>Version 1 is available.</p></body></html>"
+    right_body = (
+        b"<html><body><h1>Changelog</h1>"
+        b"<p>Version 2 is available with security fixes.</p></body></html>"
+    )
+    left = _qualification_snapshot(
+        canonical_url=canonical_url,
+        body=left_body,
+        retrieved_at="2026-08-01T00:00:00Z",
+    )
+    right = _qualification_snapshot(
+        canonical_url=canonical_url,
+        body=right_body,
+        retrieved_at="2026-08-02T00:00:00Z",
+    )
+    changes = extract_web_snapshot_changes(left, right)
+    return _contract_case(
+        scenario="update_detection",
+        outcome=(
+            "passed"
+            if left.content_hash != right.content_hash and bool(changes.downstream_candidates)
+            else "failed"
+        ),
+        detail="a changed immutable snapshot produces a downstream update candidate",
+    )
+
+
+def _qualification_snapshot(
+    *,
+    canonical_url: str,
+    body: bytes,
+    retrieved_at: str,
+) -> WebSnapshot:
+    digest = content_hash_for(body)
+    return WebSnapshot(
+        snapshot_id=snapshot_id_for(canonical_url=canonical_url, content_hash=digest),
+        canonical_url=canonical_url,
+        retrieved_at=retrieved_at,
+        content_hash=digest,
+        status_code=200,
+        headers=(("content-type", "text/html"),),
+        body=body,
+        etag=None,
+        last_modified=None,
+        robots=RobotsDecision(
+            source_url=canonical_url,
+            robots_url=None,
+            allowed=True,
+            reason="qualification_fixture",
+            retrieved_at=retrieved_at,
+        ),
+        final_url=canonical_url,
     )
 
 

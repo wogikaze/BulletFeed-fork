@@ -11,6 +11,11 @@ hash・evidence・duplicate replay を再検証する。外部ネットワーク
 python scripts/run_live_source_qualification.py --limit 200 --output tests/gold/source_qualification/v01/live_report.json
 ```
 
+`live_sample_200_report.json` は200 endpointを実際に取得した保存済みsampleで、
+`endpoint_count=200`、`success_rate=1.0`、`failure_dimensions={}`、median latency
+3,965.293 ms を記録している。live reportはネットワーク依存のため通常PR CIでは実行せず、
+このartifactとdeterministic replayを分離して扱う。
+
 live runner は HTTPS、DNS 解決先、接続 peer、redirect、HTTP error、429、response size、
 latency を記録する。redirect は追従せず、取得した response body は保存しない。
 

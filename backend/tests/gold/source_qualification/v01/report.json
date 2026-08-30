@@ -2,8 +2,8 @@
   "qualification_version": "m3-source-qualification-v1",
   "live_endpoint_count": 619,
   "unique_artifact_count": 619,
-  "replay_case_count": 3820,
-  "replay_passed_count": 3820,
+  "replay_case_count": 3821,
+  "replay_passed_count": 3821,
   "replay_failed_count": 0,
   "source_family_counts": {
     "github_advisory": 2,
@@ -184,10 +184,11 @@
     "reordered_payload": 605,
     "server_error_guard": 1,
     "ssrf_private_ip_guard": 1,
-    "unsupported_content_type_guard": 1
+    "unsupported_content_type_guard": 1,
+    "update_detection": 1
   },
   "outcome_counts": {
-    "passed": 3820
+    "passed": 3821
   },
   "failure_dimensions": {},
   "source_inventory": [
@@ -41730,12 +41731,21 @@
       "scenario": "malformed_xml_guard",
       "outcome": "passed",
       "detail": "malformed RSS/XML without entries is rejected by the parser boundary"
+    },
+    {
+      "case_id": "m3_contract:update_detection",
+      "source_id": "m3_contract",
+      "source_family": "qualification_contract",
+      "scenario": "update_detection",
+      "outcome": "passed",
+      "detail": "a changed immutable snapshot produces a downstream update candidate"
     }
   ],
   "limitations": [
     "This qualification replays recorded live HTTPS artifacts without live network access.",
     "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries without making external requests.",
     "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, HTTP status, and malformed-feed boundaries without making external requests.",
+    "A deterministic immutable-snapshot pair exercises update detection; per-source update rates remain not_recorded because the live corpus has one fetch per endpoint.",
     "Timeout, conditional-304, robots, and source-identity drills still require dedicated transport fixtures or host probes."
   ]
 }
