@@ -63,6 +63,9 @@ jobs:
       - name: Eval-02 product release floors
         run: python backend/scripts/run_product_release_gate.py --check
 
+      - name: M5 API and worker process recovery drill
+        run: python backend/scripts/run_process_recovery_drill.py
+
       - name: Run Ruff
         run: ruff check backend
 
