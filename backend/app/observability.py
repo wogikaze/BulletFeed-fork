@@ -103,6 +103,13 @@ def record(event: str, **fields: Any) -> dict[str, Any]:
     payload = json.loads(serialized)
     _records.append(payload)
     _counters[event] += 1
+    if event == "webhook":
+        if payload.get("accepted") is True:
+            _counters["webhook_accepted"] += 1
+        if payload.get("ignored") is True:
+            _counters["webhook_ignored"] += 1
+        if payload.get("signature_valid") is False:
+            _counters["webhook_signature_failure"] += 1
     LOGGER.info("%s", serialized)
     return payload
 
@@ -127,4 +134,8 @@ def public_counters() -> dict[str, int]:
         "revision": _counters.get("revision", 0),
         "projection": _counters.get("projection", 0),
         "syncFailure": _counters.get("sync_failure", 0),
+        "webhook": _counters.get("webhook", 0),
+        "webhookAccepted": _counters.get("webhook_accepted", 0),
+        "webhookIgnored": _counters.get("webhook_ignored", 0),
+        "webhookSignatureFailures": _counters.get("webhook_signature_failure", 0),
     }

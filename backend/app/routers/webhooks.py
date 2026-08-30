@@ -23,9 +23,19 @@ async def github_webhook(
     database: Annotated[Database, Depends(get_database)],
     x_hub_signature_256: Annotated[str | None, Header()] = None,
     x_github_event: Annotated[str | None, Header()] = None,
+    x_github_delivery: Annotated[str | None, Header()] = None,
 ) -> dict[str, Any]:
+    event_name = (x_github_event or "").strip()
     secret = settings.github_webhook_secret.get_secret_value()
     if not secret:
+        record(
+            "webhook",
+            source_type="github_release",
+            github_event=event_name,
+            delivery_id=x_github_delivery,
+            accepted=False,
+            reason="secret_not_configured",
+        )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="GitHub webhook secret is not configured",
@@ -36,19 +46,45 @@ async def github_webhook(
         body=body,
         signature_header=x_hub_signature_256,
     ):
+        record(
+            "webhook",
+            source_type="github_release",
+            github_event=event_name,
+            delivery_id=x_github_delivery,
+            accepted=False,
+            signature_valid=False,
+            reason="invalid_signature",
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid webhook signature",
         )
 
-    event_name = (x_github_event or "").strip()
     if event_name != "release":
-        record("webhook", source_type="github_release", github_event=event_name, ingested=False)
+        record(
+            "webhook",
+            source_type="github_release",
+            github_event=event_name,
+            delivery_id=x_github_delivery,
+            accepted=True,
+            signature_valid=True,
+            ingested=False,
+            ignored=True,
+        )
         return {"accepted": True, "ignored": True}
 
     try:
         payload = json.loads(body)
     except json.JSONDecodeError as exc:
+        record(
+            "webhook",
+            source_type="github_release",
+            github_event=event_name,
+            delivery_id=x_github_delivery,
+            accepted=False,
+            signature_valid=True,
+            reason="invalid_json",
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Webhook payload is not valid JSON",
@@ -56,6 +92,15 @@ async def github_webhook(
 
     extracted = release_from_webhook_payload(payload)
     if extracted is None:
+        record(
+            "webhook",
+            source_type="github_release",
+            github_event=event_name,
+            delivery_id=x_github_delivery,
+            accepted=False,
+            signature_valid=True,
+            reason="incomplete_release_payload",
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Release webhook payload is incomplete",
@@ -73,11 +118,15 @@ async def github_webhook(
         "webhook",
         source_type="github_release",
         github_event=event_name,
+        delivery_id=x_github_delivery,
+        accepted=True,
+        signature_valid=True,
         ingested=True,
         event_count=len(result.event_ids),
     )
     return {
         "accepted": True,
         "ignored": False,
+        "deliveryId": x_github_delivery,
         "eventIds": list(result.event_ids),
     }
