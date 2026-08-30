@@ -4,7 +4,7 @@ from pydantic import Field, model_validator
 
 from app.schemas.common import ApiModel
 
-UserSourceKind = Literal["statuspage", "rss_atom", "json_feed"]
+UserSourceKind = Literal["statuspage", "rss_atom", "json_feed", "generic_web"]
 SourceSubscriptionState = Literal["pending", "ok", "failing"]
 
 
