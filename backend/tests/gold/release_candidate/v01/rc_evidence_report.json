@@ -1,0 +1,150 @@
+{
+  "report_version": "m7-rc-evidence-v1",
+  "repository_sha": "ba50f2867495870818ce8ae7c1a2b03d5d5254af",
+  "status": "pre_field_release_candidate",
+  "completion_gate_pass": false,
+  "blind_read": false,
+  "missions": {
+    "m1": {
+      "artifact": "tests/gold/m1_personas/v01/deterministic_baseline.json",
+      "status": "partial",
+      "evidence_checks": {
+        "persona_count": true,
+        "unexpected_empty_feed": true,
+        "broken_evidence": true,
+        "tenant_leak": true,
+        "unsafe_suppression": true
+      },
+      "execution_mode": "deterministic_fixture",
+      "note": "The checked-in harness is deterministic fixture mode, not 30 real Android journeys."
+    },
+    "m2": {
+      "artifact": "tests/gold/real_world_validation/v01/m2_readiness_report.json",
+      "status": "partial",
+      "evidence_checks": {
+        "capacity_targets": true,
+        "blind_isolation": true,
+        "uncertainty": true,
+        "failure_taxonomy": true
+      },
+      "capacity": {
+        "event_count": 1004,
+        "real_event_count": 1001,
+        "authoritative_endpoint_count": 622,
+        "profile_count": 146,
+        "judgment_count": 10003,
+        "source_family_count": 7,
+        "persona_template_count": 24,
+        "meets_targets": true,
+        "missing": []
+      },
+      "stage_attribution": {
+        "status": "partial",
+        "earliest_stage_for_recorded_failures": "ranking",
+        "failure_count": 8342,
+        "by_stage": {
+          "ranking": 8342
+        },
+        "uncovered_stages": [
+          "acquisition",
+          "projection",
+          "evidence"
+        ],
+        "note": "These are misses in the production ranking replay. Acquisition, projection, and evidence failures require full journey traces and are not inferred here."
+      },
+      "note": "Ranking misses are attributed; acquisition/projection/evidence still require journey traces."
+    },
+    "m3": {
+      "artifact": "tests/gold/source_qualification/v01/report.json",
+      "status": "partial",
+      "evidence_checks": {
+        "live_endpoint_floor": true,
+        "replay_floor": true,
+        "replay_failures": true
+      },
+      "source_family_counts": {
+        "github_advisory": 2,
+        "github_release": 2,
+        "official_changelog": 2,
+        "osv": 1,
+        "package_registry": 500,
+        "rss_atom": 391,
+        "statuspage": 100
+      },
+      "scenario_counts": {
+        "compressed_response_guard": 1,
+        "credential_url_guard": 1,
+        "duplicate_delivery": 998,
+        "malformed_json_guard": 1,
+        "malformed_payload": 605,
+        "malformed_xml_guard": 1,
+        "oversize_guard": 605,
+        "rate_limit_guard": 1,
+        "recorded_fetch": 998,
+        "redirect_private_guard": 1,
+        "reordered_payload": 605,
+        "server_error_guard": 1,
+        "ssrf_private_ip_guard": 1,
+        "unsupported_content_type_guard": 1
+      },
+      "limitations": [
+        "This qualification replays recorded live HTTPS artifacts without live network access.",
+        "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries without making external requests.",
+        "The deterministic guard matrix exercises redirect/SSRF, URL, encoding, content-type, HTTP status, and malformed-feed boundaries without making external requests.",
+        "Timeout, conditional-304, robots, and source-identity drills still require dedicated transport fixtures or host probes."
+      ]
+    },
+    "m4": {
+      "status": "not_evaluated",
+      "artifact": null,
+      "note": "Android acceptance and release-build status come from Android Actions, not a checked-in backend report."
+    },
+    "m5": {
+      "artifact": "tests/gold/recovery/v01/process_recovery_report.json",
+      "status": "partial",
+      "evidence_checks": {
+        "status": true,
+        "worker_restart": true,
+        "api_restart": true,
+        "session_persisted": true
+      },
+      "residual_risks": [
+        "disk_full_and_partial_filesystem_write_require_host-specific drills"
+      ]
+    },
+    "m6": {
+      "artifact": "tests/gold/m6/v01/top3_selection.json",
+      "status": "partial",
+      "evidence_checks": {
+        "top3_selected": true,
+        "representative_case_floor": true
+      },
+      "note": "Selection is complete; production remediation and blind one-shot evaluation are not."
+    },
+    "m7": {
+      "artifact": "tests/gold/clean_room/v01/backend_report.json",
+      "status": "partial",
+      "evidence_checks": {
+        "backend_status": true,
+        "all_backend_stages": true,
+        "no_user_id_in_report": true
+      },
+      "limitations": [
+        "source acquisition uses the local acceptance seed fixture; live OAuth and real user enrollment are excluded"
+      ],
+      "note": "This is backend clean-room evidence; Android release and field validation remain separate."
+    }
+  },
+  "unmet_gate_items": [
+    "M1 real-backend Android journey for all 30 personas",
+    "M3 timeout/conditional-304/robots/source-identity qualification and observed-failure remediation",
+    "M4 Android error/offline/a11y/large-screen evidence and release artifact",
+    "M5 host-level disk-full and partial-write drill",
+    "M6 production Top-3 remediation followed by one-shot blind evaluation",
+    "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
+  ],
+  "human_only_or_field_validation": [
+    "live OAuth and real-user enrollment are excluded from automated clean-room evidence",
+    "public HTTPS field validation is not replaced by local fixtures"
+  ]
+}
