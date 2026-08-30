@@ -126,7 +126,8 @@ def test_network_failure_falls_back_to_seeds_and_is_measured(tmp_path) -> None:
     assert counters()["runtime_discovery_fallback_seed"] == 1
 
     result = list_source_recommendations_for_user(database, "user_react")
-    assert any("react.dev" in item.canonical_url or "facebook/react" in item.canonical_url for item in result.items)
+    urls = " ".join(item.canonical_url for item in result.items)
+    assert "react.dev" in urls or "facebook/react" in urls
 
 
 def test_seed_vs_no_seed_recall_is_segmented() -> None:
