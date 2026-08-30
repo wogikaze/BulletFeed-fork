@@ -15,7 +15,7 @@ async def get_summary(settings: Settings, page_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid Statuspage ID")
     url = f"https://{page_id}.statuspage.io/api/v2/summary.json"
     async with httpx.AsyncClient(timeout=settings.request_timeout_seconds, trust_env=False) as client:
-        response = await client.get(url, headers={"User-Agent": "BulletFeed-local-prototype/0.1"})
+        response = await client.get(url, headers={"User-Agent": settings.crawler_user_agent})
     data = await require_json(response, "Statuspage")
     if not isinstance(data, dict):
         raise HTTPException(

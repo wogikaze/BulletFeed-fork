@@ -42,6 +42,10 @@ Run `docker compose -f compose.release.yml up -d api worker`. Both services use 
 
 The stack binds Uvicorn only to host loopback. Do not expose port 8000 directly to the internet. The public reverse proxy must provide HTTPS, forward the original scheme/host, set normal request-size/time limits, and route the configured HTTPS GitHub callback URL to the API container.
 
+## Crawler identity
+
+Public watches (generic web, RSS/JSON feeds, Statuspage) send `BULLETFEED_CRAWLER_USER_AGENT`. The release default is `BulletFeed/1.0 (+https://github.com/wogikaze/BulletFeed-fork; source-watch)`. Robots.txt evaluation and the page fetch use the same string. Empty or control-character values fail settings validation at startup. Tests should pass an explicit fixture UA when they care about the header.
+
 ## Secrets and storage
 
 Create `.env.release` from `.env.release.example`. The GitHub client secret and `BULLETFEED_TOKEN_ENCRYPTION_KEY` are secrets and must come from the deployment secret manager rather than source control. The encryption key must remain stable across restarts or existing encrypted GitHub credentials cannot be read.

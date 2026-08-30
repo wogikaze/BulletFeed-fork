@@ -13,11 +13,11 @@ from app.services.source_ingestion import NormalizedObservation, SourceIngestion
 API_URL = "https://api.github.com"
 
 
-def _headers(token: str | None) -> dict[str, str]:
+def _headers(settings: Settings, token: str | None) -> dict[str, str]:
     headers = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "BulletFeed-local-prototype/0.1",
+        "User-Agent": settings.crawler_user_agent,
     }
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -34,7 +34,7 @@ async def fetch_github_sbom(
     async with httpx.AsyncClient(timeout=settings.request_timeout_seconds, trust_env=False) as client:
         response = await client.get(
             f"{API_URL}/repos/{owner}/{repository}/dependency-graph/sbom",
-            headers=_headers(token),
+            headers=_headers(settings, token),
         )
     data = await require_json(response, "GitHub SBOM")
     if not isinstance(data, dict) or not isinstance(data.get("sbom"), dict):
