@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shutil
@@ -57,7 +58,18 @@ def _stage(
         raise RuntimeError(f"{name}: {detail}")
 
 
-def main() -> int:
+def _emit(result: dict[str, Any], output: Path | None) -> None:
+    payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload, encoding="utf-8")
+    print(payload, end="")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=None)
+    args = parser.parse_args(argv)
     workdir = Path(tempfile.mkdtemp(prefix="bulletfeed-clean-room-"))
     database_path = workdir / "data" / "bulletfeed.db"
     database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -281,12 +293,12 @@ def main() -> int:
             detail=f"HTTP {status}; cards={len(subsequent.get('items', []))}",
         )
         result["status"] = "passed"
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _emit(result, args.output)
         return 0
     except Exception as exc:
         result["status"] = "failed"
         result["error"] = f"{type(exc).__name__}: {exc}"
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        _emit(result, args.output)
         return 1
     finally:
         _stop(api)
