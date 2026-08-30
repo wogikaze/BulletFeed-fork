@@ -27,6 +27,10 @@ def test_recorded_live_artifacts_have_replay_identity() -> None:
     assert report.scenario_counts["server_error_guard"] > 0
     assert report.scenario_counts["malformed_xml_guard"] > 0
     assert report.scenario_counts["update_detection"] == 1
+    assert report.scenario_counts["timeout_transport"] == 1
+    assert report.scenario_counts["conditional_304"] == 1
+    assert report.scenario_counts["robots_disallow"] == 1
+    assert report.scenario_counts["source_identity_change"] == 1
     package_metrics = report.source_family_metrics["package_registry"]
     assert package_metrics["endpoint_count"] == 500
     assert package_metrics["recorded_fetch_success_rate"] == 1.0
