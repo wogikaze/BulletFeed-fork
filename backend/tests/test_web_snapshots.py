@@ -234,6 +234,43 @@ def test_snapshot_store_is_immutable(tmp_path: Path) -> None:
     assert store.list_ids() == (original.snapshot_id,)
 
 
+def test_snapshot_store_cleans_partial_write_on_publish_failure(tmp_path: Path) -> None:
+    root = tmp_path / "snaps"
+    store = SnapshotStore(root)
+
+    with patch(
+        "app.services.web_snapshots.os.replace",
+        side_effect=OSError("simulated disk-full publish failure"),
+    ):
+        with pytest.raises(OSError, match="disk-full"):
+            store.put(_snapshot())
+
+    assert store.list_ids() == ()
+    assert not any(path.name.startswith(".tmp-") for path in root.iterdir())
+
+
+def test_snapshot_store_cleans_partial_body_on_metadata_write_failure(tmp_path: Path) -> None:
+    root = tmp_path / "snaps"
+    store = SnapshotStore(root)
+    original_write_text = Path.write_text
+
+    def fail_metadata_write(path: Path, data: str, *args, **kwargs) -> int:
+        if path.name == "meta.json":
+            raise OSError("simulated disk-full metadata failure")
+        return original_write_text(path, data, *args, **kwargs)
+
+    with patch(
+        "app.services.web_snapshots.Path.write_text",
+        autospec=True,
+        side_effect=fail_metadata_write,
+    ):
+        with pytest.raises(OSError, match="disk-full"):
+            store.put(_snapshot())
+
+    assert store.list_ids() == ()
+    assert not any(path.name.startswith(".tmp-") for path in root.iterdir())
+
+
 def test_snapshot_gc_retains_referenced_and_expired_snapshots(tmp_path: Path) -> None:
     store = SnapshotStore(tmp_path / "snaps")
     referenced = _snapshot(body=b"<html>referenced</html>", retrieved_at="2025-01-01T00:00:00Z")
