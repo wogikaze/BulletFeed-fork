@@ -105,6 +105,31 @@ fun ProfileDto.toDomain(): UserProfile = UserProfile(role = occupation, interest
 
 fun UserProfile.toDto(): ProfileDto = ProfileDto(occupation = role, interests = interests.toList(), region = region)
 
+fun TopicRecommendationListDto.toDomain(): TopicRecommendationPage =
+    TopicRecommendationPage(
+        version = version,
+        items = items.map { it.toDomain() },
+        abstentions = abstentions.map { it.toDomain() },
+        policyVersion = policyVersion,
+        cohort = cohort,
+    )
+
+fun TopicRecommendationDto.toDomain(): TopicRecommendation =
+    TopicRecommendation(
+        id = id,
+        name = name,
+        type = runCatching { TopicType.valueOf(type.uppercase()) }.getOrDefault(TopicType.TECHNOLOGY),
+        score = score,
+        reason = reason,
+        provenance = provenance,
+        alreadyFollowed = alreadyFollowed,
+        confidence = confidence,
+        sourceSignals = sourceSignals,
+    )
+
+fun TopicRecommendationAbstentionDto.toDomain(): TopicRecommendationAbstention =
+    TopicRecommendationAbstention(name = name, reason = reason, score = score)
+
 fun TopicDto.toDomain(): UserTopic =
     UserTopic(
         id = id,

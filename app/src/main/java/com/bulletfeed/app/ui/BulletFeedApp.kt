@@ -141,6 +141,8 @@ fun BulletFeedApp(
                             initialTopics = uiState.topics,
                             isSaving = uiState.isSavingOnboarding,
                             onComplete = viewModel::completeOnboarding,
+                            recommendedTopics = uiState.topicRecommendations,
+                            onIgnoreRecommendation = viewModel::ignoreTopicRecommendation,
                         )
                         uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
                     }
@@ -350,6 +352,8 @@ private fun ReadyApplication(
             onAddTopicSearchResult = viewModel::addTopicSearchResult,
             onPriorityChange = viewModel::updateTopicPriority,
             onReorderTopics = viewModel::reorderTopics,
+            onAddRecommendedTopic = viewModel::addRecommendedTopic,
+            onIgnoreTopicRecommendation = viewModel::ignoreTopicRecommendation,
             onSaveProfile = viewModel::saveProfile,
             onDeleteAccount = viewModel::deleteAccount,
             onApproveRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.APPROVED) },
@@ -382,6 +386,8 @@ private fun MainNavigation(
     onAddTopicSearchResult: (UserTopic) -> Unit,
     onPriorityChange: (String, TopicPriority) -> Unit,
     onReorderTopics: (List<String>) -> Unit,
+    onAddRecommendedTopic: (TopicRecommendation) -> Unit,
+    onIgnoreTopicRecommendation: (String) -> Unit,
     onSaveProfile: (UserProfile) -> Unit,
     onDeleteAccount: () -> Unit,
     onApproveRecommendation: (String) -> Unit,
@@ -463,6 +469,9 @@ private fun MainNavigation(
             onRemoveTopic = onRemoveTopic,
             onPriorityChange = onPriorityChange,
             onReorderTopics = onReorderTopics,
+            recommendedTopics = uiState.topicRecommendations,
+            onAddRecommendation = onAddRecommendedTopic,
+            onIgnoreRecommendation = onIgnoreTopicRecommendation,
             modifier = Modifier.padding(innerPadding),
         )
         AppTab.SETTINGS -> SettingsScreen(

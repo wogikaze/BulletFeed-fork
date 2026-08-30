@@ -151,6 +151,34 @@ class RealBackendAcceptanceTest {
             assertEquals(0, sourceSyncJobCount(baseUrl, userId, created.kind, "accptest131job"))
         }
 
+    @Test
+    fun `topic recommendations are distinct from search and change after follow`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+
+            val empty = repository.getTopicRecommendations()
+            assertEquals("empty_profile", empty.cohort)
+            assertTrue(empty.version.isNotBlank())
+            assertTrue(empty.items.isNotEmpty())
+            assertTrue(empty.items.all { it.provenance.isNotBlank() && it.reason.isNotBlank() })
+
+            val search = repository.searchTopics("cloud")
+            assertTrue(search.none { it.name == empty.version })
+
+            repository.addUserTopic("React", TopicType.TECHNOLOGY)
+            val selected = repository.getTopicRecommendations()
+            assertEquals("topic_selected", selected.cohort)
+            val hide = selected.items.first { !it.alreadyFollowed }
+            val afterIgnore = repository.ignoreTopicRecommendation(hide.id)
+            assertTrue(afterIgnore.items.none { it.id == hide.id })
+        }
+
     private suspend fun assertApiFailureIsProductionError(repository: RemoteBulletFeedRepository) {
         try {
             repository.getEventDetail("evt_missing_acceptance")

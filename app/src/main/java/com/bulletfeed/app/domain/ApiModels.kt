@@ -145,6 +145,32 @@ data class FeedExposure(
     val detailOpened: Boolean = false,
 )
 
+data class TopicRecommendation(
+    val id: String,
+    val name: String,
+    val type: TopicType,
+    val score: Float,
+    val reason: String,
+    val provenance: String,
+    val alreadyFollowed: Boolean,
+    val confidence: String,
+    val sourceSignals: List<String> = emptyList(),
+)
+
+data class TopicRecommendationPage(
+    val version: String,
+    val items: List<TopicRecommendation>,
+    val abstentions: List<TopicRecommendationAbstention> = emptyList(),
+    val policyVersion: String,
+    val cohort: String,
+)
+
+data class TopicRecommendationAbstention(
+    val name: String,
+    val reason: String,
+    val score: Float,
+)
+
 data class UserTopic(
     val id: String,
     val name: String,

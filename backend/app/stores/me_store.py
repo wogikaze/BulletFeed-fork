@@ -8,9 +8,17 @@ from datetime import UTC, datetime
 from fastapi import HTTPException, status
 
 from app.database import Database
+from app.db.topic_recommendation_schema import ensure_topic_recommendation_schema
 from app.errors import not_found, unprocessable
 from app.schemas.common import TopicType
-from app.schemas.me import MeBootstrap, Profile, Topic, TopicRecommendationItem, TopicRecommendationList
+from app.schemas.me import (
+    MeBootstrap,
+    Profile,
+    Topic,
+    TopicRecommendationAbstention,
+    TopicRecommendationItem,
+    TopicRecommendationList,
+)
 from app.services.feed_projection import FeedProjector
 from app.services.follow_baseline import SUBJECT_TOPIC, record_follow_baseline
 from app.services.topic_recommendations import recommend_topics_for_user
@@ -188,6 +196,7 @@ class MeStore:
         limit: int = 10,
         include_followed: bool = True,
     ) -> TopicRecommendationList:
+        ensure_topic_recommendation_schema(self._database)
         with self._database.connect() as connection:
             result = recommend_topics_for_user(
                 connection,
@@ -195,6 +204,17 @@ class MeStore:
                 limit=limit,
                 include_followed=include_followed,
             )
+            ignored = {
+                row["topic_id"]
+                for row in connection.execute(
+                    """
+                    SELECT topic_id FROM topic_recommendation_decisions
+                    WHERE user_id = ? AND decision = 'ignored'
+                    """,
+                    (user_id,),
+                )
+            }
+        items = [item for item in result.items if item.topic_id not in ignored]
         return TopicRecommendationList(
             version=result.version,
             items=[
@@ -209,11 +229,36 @@ class MeStore:
                     confidence=item.confidence,
                     source_signals=list(item.source_signals),
                 )
-                for item in result.items
+                for item in items
+            ],
+            abstentions=[
+                TopicRecommendationAbstention(name=item.name, reason=item.reason, score=item.score)
+                for item in result.abstentions
             ],
             policy_version=result.policy_version,
             cohort=result.cohort,
         )
+
+    def ignore_topic_recommendation(self, user_id: str, topic_id: str) -> TopicRecommendationList:
+        ensure_topic_recommendation_schema(self._database)
+        candidate_id = topic_id.strip()
+        if not candidate_id:
+            raise unprocessable("topicId is required")
+        current = self.list_topic_recommendations(user_id, limit=20, include_followed=True)
+        if candidate_id not in {item.id for item in current.items}:
+            raise not_found("Topic recommendation was not found")
+        with self._database.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO topic_recommendation_decisions (user_id, topic_id, decision, decided_at)
+                VALUES (?, ?, 'ignored', ?)
+                ON CONFLICT(user_id, topic_id) DO UPDATE SET
+                    decision = excluded.decision,
+                    decided_at = excluded.decided_at
+                """,
+                (user_id, candidate_id, int(time.time())),
+            )
+        return self.list_topic_recommendations(user_id, limit=20, include_followed=True)
 
     def search_topics(self, query: str) -> list[Topic]:
         needle = f"%{query.strip()}%"

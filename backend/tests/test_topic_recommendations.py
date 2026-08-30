@@ -290,8 +290,72 @@ def test_api_requires_auth_and_is_distinct_from_search(
     assert "version" in recommended.json()
     assert "version" not in search.json()
     assert recommended.json()["items"]
+    assert "abstentions" in recommended.json()
     assert all(item.get("provenance") == "inferred" for item in recommended.json()["items"])
     assert any("catalog" in item["reason"].casefold() for item in recommended.json()["items"])
+
+
+def test_api_cohorts_change_and_ignore_hides_candidate(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    empty = client.get("/v1/me/topic-recommendations", headers=auth_headers)
+    assert empty.status_code == 200
+    assert empty.json()["cohort"] == "empty_profile"
+    empty_names = [item["name"] for item in empty.json()["items"]]
+
+    created = client.post(
+        "/v1/me/topics",
+        headers=auth_headers,
+        json={"name": "React", "type": "technology"},
+    )
+    assert created.status_code == 201
+    selected = client.get("/v1/me/topic-recommendations", headers=auth_headers)
+    assert selected.status_code == 200
+    assert selected.json()["cohort"] == "topic_selected"
+    selected_names = [item["name"] for item in selected.json()["items"]]
+    assert selected_names != empty_names
+
+    first = selected.json()["items"][0]
+    ignored = client.post(
+        f"/v1/me/topic-recommendations/{first['id']}",
+        headers=auth_headers,
+        json={"decision": "ignored"},
+    )
+    assert ignored.status_code == 200
+    assert all(item["id"] != first["id"] for item in ignored.json()["items"])
+    missing = client.post(
+        "/v1/me/topic-recommendations/unknown-topic",
+        headers=auth_headers,
+        json={"decision": "ignored"},
+    )
+    assert missing.status_code == 404
+
+
+def test_api_github_and_history_cohorts_change_candidates(
+    client: TestClient,
+    database: Database,
+) -> None:
+    session = client.post("/v1/sessions")
+    assert session.status_code == 200
+    user_id = session.json()["userId"]
+    headers = {"Authorization": f"Bearer {session.json()['accessToken']}"}
+    empty = client.get("/v1/me/topic-recommendations", headers=headers)
+    assert empty.json()["cohort"] == "empty_profile"
+    empty_ids = [item["id"] for item in empty.json()["items"]]
+
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO github_repo_watches (
+                user_id, repository_id, full_name, html_url, selected, private
+            ) VALUES (?, ?, ?, ?, 1, 0)
+            """,
+            (user_id, "repo-react", "facebook/react", "https://github.com/facebook/react"),
+        )
+    github = client.get("/v1/me/topic-recommendations", headers=headers)
+    assert github.json()["cohort"] == "github_connected"
+    github_ids = [item["id"] for item in github.json()["items"]]
+    assert github_ids != empty_ids
 
 
 def test_gold_precision_of_recommended_names_vs_user_relevant_topics() -> None:
