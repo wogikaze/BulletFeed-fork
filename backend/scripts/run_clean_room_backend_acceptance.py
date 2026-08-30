@@ -281,15 +281,28 @@ def main(argv: list[str] | None = None) -> int:
             access_token=access_token,
         )
         _stage(stages, "feedback", ok=status == 200, detail=f"HTTP {status}")
-        status, subsequent = _json_request(
+        status, read = _json_request(
             base_url,
-            "/v1/feed?limit=5",
+            f"/v1/feed/items/{first.get('id')}/read",
+            method="PUT",
             access_token=access_token,
         )
         _stage(
             stages,
+            "read_state",
+            ok=status == 200 and read.get("status") == "read",
+            detail=f"HTTP {status}; status={read.get('status')}",
+        )
+        status, subsequent = _json_request(
+            base_url,
+            "/v1/feed?status=unread&limit=5",
+            access_token=access_token,
+        )
+        unread_ids = {item.get("id") for item in subsequent.get("items", []) if isinstance(item, dict)}
+        _stage(
+            stages,
             "subsequent_feed",
-            ok=status == 200 and isinstance(subsequent.get("items"), list),
+            ok=status == 200 and first.get("id") not in unread_ids,
             detail=f"HTTP {status}; cards={len(subsequent.get('items', []))}",
         )
         result["status"] = "passed"
