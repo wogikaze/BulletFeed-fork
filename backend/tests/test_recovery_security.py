@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sqlite3
 import sys
 from datetime import UTC, datetime
@@ -179,17 +180,24 @@ def test_database_restore_preserves_snapshot_gc_references(tmp_path: Path) -> No
     backup_path = backup_sqlite(live, tmp_path / "backups")
     restored = tmp_path / "snapshot-reference-restored.db"
     _restore_sqlite(backup_path, restored)
+    restored_snapshot_root = tmp_path / "restored-snapshots"
+    shutil.copytree(snapshot_root, restored_snapshot_root)
     restored_db = Database(restored)
     restored_db.initialize()
 
     assert referenced_snapshot_ids(restored_db) == frozenset({snapshot.snapshot_id})
-    result = store.garbage_collect(
+    restored_store = SnapshotStore(restored_snapshot_root)
+    restored_snapshot = restored_store.get(snapshot.snapshot_id)
+    assert restored_snapshot is not None
+    assert restored_snapshot.content_hash == snapshot.content_hash
+    assert content_hash_for(restored_snapshot.body) == snapshot.content_hash
+    result = restored_store.garbage_collect(
         referenced_ids=referenced_snapshot_ids(restored_db),
         retention_days=0,
         now=datetime(2026, 8, 30, tzinfo=UTC),
     )
     assert result.retained_referenced_ids == (snapshot.snapshot_id,)
-    assert store.get(snapshot.snapshot_id) is not None
+    assert restored_store.get(snapshot.snapshot_id) is not None
 
 
 def test_initialize_is_idempotent_across_restart(tmp_path: Path) -> None:
