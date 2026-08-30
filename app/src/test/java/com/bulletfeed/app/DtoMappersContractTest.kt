@@ -128,6 +128,29 @@ class DtoMappersContractTest {
     }
 
     @Test
+    fun `source subscription maps failing status from nested backend payload`() {
+        val mapped = SourceSubscriptionDto(
+            id = "sub-1",
+            kind = "rss_atom",
+            canonicalUrl = "https://react.dev/blog/rss.xml",
+            pageId = null,
+            publisher = SourcePublisherDto("react", "React"),
+            status = SourceSubscriptionStatusDto(
+                selected = true,
+                state = "failing",
+                lastSuccessAt = null,
+                lastAttemptAt = "2026-08-22T00:00:00Z",
+                failureCount = 3,
+            ),
+        ).toDomain()
+
+        assertEquals(SourceSubscriptionState.FAILING, mapped.state)
+        assertEquals(3, mapped.failureCount)
+        assertEquals("React", mapped.publisher?.displayName)
+        assertEquals("rss_atom", UserSourceKind.RSS_ATOM.name.lowercase())
+    }
+
+    @Test
     fun `feed feedback types serialize to api snake case and keep ranking aliases`() {
         val expected = mapOf(
             FeedFeedbackType.IMPORTANT to "important",

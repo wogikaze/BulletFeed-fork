@@ -180,6 +180,16 @@ interface BulletFeedApi {
 
     @GET("v1/me/sources")
     suspend fun getSourceSubscriptions(): SourceSubscriptionListDto
+
+    @POST("v1/me/sources")
+    suspend fun addSourceSubscription(
+        @Body body: SourceSubscriptionCreateDto,
+    ): SourceSubscriptionDto
+
+    @DELETE("v1/me/sources/{subscriptionId}")
+    suspend fun deleteSourceSubscription(
+        @Path("subscriptionId") subscriptionId: String,
+    )
 }
 
 @Serializable
@@ -607,4 +617,25 @@ data class SourceSubscriptionDto(
     val id: String,
     val kind: String,
     val canonicalUrl: String,
+    val pageId: String? = null,
+    val publisher: SourcePublisherDto? = null,
+    val status: SourceSubscriptionStatusDto? = null,
+)
+
+@Serializable
+data class SourceSubscriptionStatusDto(
+    val selected: Boolean = true,
+    val state: String = "pending",
+    val lastSuccessAt: String? = null,
+    val lastAttemptAt: String? = null,
+    val failureCount: Int = 0,
+    val nextRunAt: String? = null,
+)
+
+@Serializable
+data class SourceSubscriptionCreateDto(
+    val kind: String,
+    val url: String? = null,
+    val pageId: String? = null,
+    val catchUp: Boolean = false,
 )

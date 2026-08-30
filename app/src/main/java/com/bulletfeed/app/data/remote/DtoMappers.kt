@@ -222,7 +222,18 @@ fun SourceRecommendationDto.toDomain(): SourceRecommendation =
 fun SourcePublisherDto.toDomain(): SourcePublisher = SourcePublisher(slug = slug, displayName = displayName)
 
 fun SourceSubscriptionDto.toDomain(): SourceSubscription =
-    SourceSubscription(id = id, kind = kind, canonicalUrl = canonicalUrl)
+    SourceSubscription(
+        id = id,
+        kind = kind,
+        canonicalUrl = canonicalUrl,
+        pageId = pageId,
+        publisher = publisher?.toDomain(),
+        selected = status?.selected ?: true,
+        state = SourceSubscriptionState.valueOf((status?.state ?: "pending").uppercase()),
+        lastSuccessAt = status?.lastSuccessAt,
+        lastAttemptAt = status?.lastAttemptAt,
+        failureCount = status?.failureCount ?: 0,
+    )
 
 fun NotificationDto.toDomain(): AppNotification =
     AppNotification(

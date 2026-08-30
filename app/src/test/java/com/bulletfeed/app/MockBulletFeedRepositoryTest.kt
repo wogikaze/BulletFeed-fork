@@ -87,4 +87,17 @@ class MockBulletFeedRepositoryTest {
             assertTrue(visible.none { it.id == discovery.id })
             assertTrue(visible.any { it.id == official.id && it.recommendationStatus == SourceRecommendationStatus.APPROVED })
         }
+
+    @Test
+    fun sourceSubscriptionAddAndRemoveUpdateLocalState() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            val created = repository.addSourceSubscription(
+                UserSourceKind.RSS_ATOM,
+                url = "https://react.dev/blog/rss.xml",
+            )
+            assertEquals(listOf(created.id), repository.getSourceSubscriptions().map { it.id })
+            repository.removeSourceSubscription(created.id)
+            assertTrue(repository.getSourceSubscriptions().isEmpty())
+        }
 }

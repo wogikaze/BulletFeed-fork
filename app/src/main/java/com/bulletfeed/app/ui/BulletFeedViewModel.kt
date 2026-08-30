@@ -65,6 +65,9 @@ data class BulletFeedUiState(
     val isDeletingAccount: Boolean = false,
     val sourceRecommendations: List<SourceRecommendation> = emptyList(),
     val decidingRecommendationId: String? = null,
+    val sourceSubscriptions: List<SourceSubscription> = emptyList(),
+    val isSavingSourceSubscription: Boolean = false,
+    val sourceSubscriptionError: String? = null,
     val isLoading: Boolean = true,
     val sessionExpired: Boolean = false,
     val errorMessage: String? = null,
@@ -177,6 +180,17 @@ class BulletFeedViewModel(
                 } else {
                     emptyList()
                 }
+                val subscriptions = if (ready) {
+                    try {
+                        repository.getSourceSubscriptions()
+                    } catch (error: Throwable) {
+                        if (error.isUnauthorized()) throw error
+                        softError = softError ?: error.toUserMessage()
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
                 if (version != refreshVersion) return@launch
                 _uiState.update { current ->
                     current.copy(
@@ -188,6 +202,7 @@ class BulletFeedViewModel(
                         vulnerabilityAlerts = alerts,
                         notifications = notifications,
                         sourceRecommendations = recommendations,
+                        sourceSubscriptions = subscriptions,
                         githubConnection = githubConnection,
                         githubRepositories = if (githubConnection.credentialState == GithubCredentialState.REAUTHORIZATION_REQUIRED) {
                             emptyList()
@@ -994,6 +1009,9 @@ class BulletFeedViewModel(
                         decidingRecommendationId = null,
                     )
                 }
+                if (decision == SourceRecommendationDecision.APPROVED) {
+                    refreshSourceSubscriptionsFromServer()
+                }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Throwable) {
@@ -1004,6 +1022,64 @@ class BulletFeedViewModel(
                         it.copy(
                             decidingRecommendationId = null,
                             errorMessage = error.toUserMessage(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun addSourceSubscription(
+        kind: UserSourceKind,
+        url: String,
+        pageId: String,
+    ) {
+        if (_uiState.value.isSavingSourceSubscription) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSavingSourceSubscription = true, sourceSubscriptionError = null) }
+            try {
+                repository.addSourceSubscription(
+                    kind = kind,
+                    url = url.takeIf { kind != UserSourceKind.STATUSPAGE || it.isNotBlank() },
+                    pageId = pageId.takeIf { kind == UserSourceKind.STATUSPAGE && it.isNotBlank() },
+                )
+                refreshSourceSubscriptionsFromServer()
+                _uiState.update { it.copy(isSavingSourceSubscription = false, sourceSubscriptionError = null) }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                if (error.isUnauthorized()) {
+                    handleRootFailure(error)
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isSavingSourceSubscription = false,
+                            sourceSubscriptionError = error.toUserMessage(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun removeSourceSubscription(subscriptionId: String) {
+        if (_uiState.value.isSavingSourceSubscription) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSavingSourceSubscription = true, sourceSubscriptionError = null) }
+            try {
+                repository.removeSourceSubscription(subscriptionId)
+                refreshSourceSubscriptionsFromServer()
+                _uiState.update { it.copy(isSavingSourceSubscription = false) }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                if (error.isUnauthorized()) {
+                    handleRootFailure(error)
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isSavingSourceSubscription = false,
+                            sourceSubscriptionError = error.toUserMessage(),
                         )
                     }
                 }
@@ -1134,6 +1210,11 @@ class BulletFeedViewModel(
     private suspend fun refreshSourceRecommendationsFromServer() {
         val items = repository.getSourceRecommendations()
         _uiState.update { it.copy(sourceRecommendations = items) }
+    }
+
+    private suspend fun refreshSourceSubscriptionsFromServer() {
+        val items = repository.getSourceSubscriptions()
+        _uiState.update { it.copy(sourceSubscriptions = items) }
     }
 
     private fun markGithubReauthorizationRequired() {
@@ -1298,7 +1379,8 @@ private fun Throwable.toUserMessage(): String {
         this is SessionRecoveryRequiredException -> "保存済みのBulletFeedアカウントへ再認証してください。"
         this is IOException -> "通信できませんでした。接続を確認して再試行してください。"
         httpCode() == 401 -> "認証の有効期限が切れました。同じアカウントへ再認証してください。"
-        httpCode() == 403 -> "この情報へのアクセス権がありません。GitHubの再認証またはrepository accessを確認してください。"
+        httpCode() == 403 -> apiValidationMessage()
+            ?: "この情報へのアクセス権がありません。GitHubの再認証または情報源の許可設定を確認してください。"
         httpCode() == 404 -> "対象は削除されたか、現在はアクセスできません。"
         apiValidationMessage != null -> apiValidationMessage
         httpCode() == 409 -> "サーバー上の状態が更新されています。再読み込みしてからやり直してください。"
@@ -1311,13 +1393,21 @@ private fun Throwable.toUserMessage(): String {
 
 private fun Throwable.apiValidationMessage(): String? {
     val httpError = this as? HttpException ?: return null
-    if (httpError.code() != 409 && httpError.code() != 422) return null
+    if (httpError.code() !in setOf(403, 409, 422)) return null
     val body = runCatching { httpError.response()?.errorBody()?.string() }.getOrNull() ?: return null
     val message = runCatching { apiErrorJson.decodeFromString<ApiErrorEnvelope>(body).error.message }.getOrNull()
     return when (message) {
         "topic limit reached" -> TOPIC_LIMIT_REACHED_MESSAGE
         "topic already exists" -> "すでに追跡中のテーマです。"
-        else -> null
+        "url is required" -> "URLを入力してください。"
+        "Unsupported source kind" -> "この種類の情報源は購読できません。"
+        "Invalid Statuspage ID" -> "Statuspage の page ID が正しくありません。"
+        "pageId or url is required for statuspage" -> "Statuspage は page ID または URL が必要です。"
+        "Statuspage URL must use a statuspage.io page host" -> "Statuspage は statuspage.io のページURLを指定してください。"
+        "RSS fetching is disabled" -> "RSS/JSON Feed の取得は現在無効です。"
+        "RSS host is not in the allowlist" -> "このホストのフィードは許可されていません。"
+        "RSS host cannot be resolved" -> "フィードのホスト名を解決できません。"
+        else -> message?.takeIf { it.isNotBlank() && it.length <= 180 }
     }
 }
 
