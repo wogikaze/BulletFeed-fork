@@ -232,6 +232,12 @@ def run_drill(*, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> dict[str, 
             "persistent-volume disk-full still requires a host-specific fault drill"
         ],
     }
+    repository_sha = os.environ.get("GITHUB_SHA")
+    if repository_sha:
+        result["repository_sha"] = repository_sha
+    workflow_run_id = os.environ.get("GITHUB_RUN_ID")
+    if workflow_run_id and workflow_run_id.isdigit():
+        result["workflow_run_id"] = int(workflow_run_id)
     with tempfile.TemporaryDirectory(prefix="bulletfeed-m5-host-") as directory:
         root = Path(directory)
         env_file = root / "env.release"
