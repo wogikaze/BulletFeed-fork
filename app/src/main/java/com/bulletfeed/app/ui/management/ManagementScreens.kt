@@ -3,7 +3,10 @@ package com.bulletfeed.app
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -728,6 +731,7 @@ private fun KnowledgeBootstrapSection(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SourceSubscriptionsSection(
     subscriptions: List<SourceSubscription>,
@@ -775,13 +779,16 @@ private fun SourceSubscriptionsSection(
         }
     }
     Spacer(Modifier.height(8.dp))
-    Row {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         UserSourceKind.entries.forEach { option ->
             FilterChip(
                 selected = selectedKind == option,
                 onClick = { kind = option.name },
                 label = { Text(option.label()) },
-                modifier = Modifier.padding(end = 8.dp),
             )
         }
     }
