@@ -7,6 +7,7 @@
   "missions": {
     "m1": {
       "artifact": "tests/gold/m1_personas/v01/deterministic_baseline.json",
+      "api_artifact": "tests/gold/m1_personas/v01/api_qualification.json",
       "status": "partial",
       "evidence_checks": {
         "persona_count": true,
@@ -16,7 +17,31 @@
         "unsafe_suppression": true
       },
       "execution_mode": "deterministic_fixture",
-      "note": "The checked-in harness is deterministic fixture mode, not 30 real Android journeys."
+      "note": "The checked-in harness is deterministic fixture mode, not 30 real Android journeys.",
+      "api_qualification": {
+        "status": "partial",
+        "evidence_checks": {
+          "persona_count": true,
+          "failed_personas": true,
+          "unexpected_empty_feed": true,
+          "broken_evidence": true,
+          "tenant_leak": true,
+          "stage_failures": true
+        },
+        "execution_mode": "fresh_api_testclient_database_per_persona",
+        "metrics": {
+          "sample_count": 30,
+          "surfaced_card_count": 56,
+          "useful_proxy_at_5_total": 56,
+          "useful_proxy_at_10_total": 56,
+          "cards_to_first_useful": {
+            "sample_count": 28,
+            "median": 1.0,
+            "max": 1
+          }
+        },
+        "note": "API state transitions pass; Android surface and worker scheduling remain separate gates."
+      }
     },
     "m2": {
       "artifact": "tests/gold/real_world_validation/v01/m2_readiness_report.json",
@@ -142,7 +167,7 @@
     }
   },
   "unmet_gate_items": [
-    "M1 real-backend Android journey for all 30 personas",
+    "M1 Android/worker-backed journey for all 30 personas",
     "M3 timeout/conditional-304/robots/source-identity qualification and observed-failure remediation",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
     "M5 host-level disk-full and partial-write drill",

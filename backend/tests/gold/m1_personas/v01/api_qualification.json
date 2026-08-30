@@ -1,0 +1,3512 @@
+{
+  "harness_version": "m1-api-qualification-v1",
+  "label_source": "constructed",
+  "mode": "fresh_api_testclient_database_per_persona",
+  "persona_count": 30,
+  "attempted": 30,
+  "failed_persona_ids": [],
+  "unexpected_empty_feed": 0,
+  "broken_evidence": 0,
+  "tenant_leak": 0,
+  "stage_failure_counts": {
+    "account": 0,
+    "onboarding_profile": 0,
+    "topic_recommendation": 0,
+    "interests": 0,
+    "onboarding_ready": 0,
+    "discovery": 0,
+    "activation": 0,
+    "subscription": 0,
+    "acquisition": 0,
+    "feed": 0,
+    "evidence": 0,
+    "exposure": 0,
+    "feedback": 0,
+    "read": 0,
+    "subsequent_feed": 0,
+    "tenant_isolation": 0
+  },
+  "metrics": {
+    "sample_count": 30,
+    "surfaced_card_count": 56,
+    "useful_proxy_at_5_total": 56,
+    "useful_proxy_at_10_total": 56,
+    "cards_to_first_useful": {
+      "sample_count": 28,
+      "median": 1.0,
+      "max": 1
+    }
+  },
+  "reports": [
+    {
+      "persona_id": "m1p_01",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_02",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=13",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_03",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_04",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_05",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_06",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "high",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_07",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_08",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=16",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_09",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_10",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=13",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_11",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "broad",
+      "security": "high",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_12",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_13",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_14",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_15",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_16",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=16",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_17",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_18",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=13",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_19",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_20",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_21",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "high",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_22",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_23",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_24",
+      "cohort": "history_rich",
+      "language": "mixed",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=16",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_25",
+      "cohort": "cold_start",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_26",
+      "cohort": "history_rich",
+      "language": "en",
+      "breadth": "broad",
+      "security": "high",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=13",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_27",
+      "cohort": "cold_start",
+      "language": "mixed",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=12",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_28",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "broad",
+      "security": "low",
+      "intended_empty_feed": false,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 201",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 200; state=ready",
+          "metrics": {
+            "topic_count": 5
+          }
+        },
+        {
+          "stage": "discovery",
+          "ok": true,
+          "detail": "HTTP 200; candidates=14",
+          "metrics": {}
+        },
+        {
+          "stage": "activation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "subscription",
+          "ok": true,
+          "detail": "HTTP 200; subscriptions=1",
+          "metrics": {}
+        },
+        {
+          "stage": "acquisition",
+          "ok": true,
+          "detail": "HTTP 200; events=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=2",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "HTTP 200; sources=2",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "HTTP 200; accepted=1",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "HTTP 200; status=read",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=1",
+          "metrics": {
+            "removed_read_card": true
+          }
+        },
+        {
+          "stage": "tenant_isolation",
+          "ok": true,
+          "detail": "HTTP 200; outsider_cards=0",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 2,
+      "useful_proxy_at_5": 2,
+      "useful_proxy_at_10": 2,
+      "cards_to_first_useful": 1,
+      "earliest_failure": null
+    },
+    {
+      "persona_id": "m1p_29",
+      "cohort": "cold_start",
+      "language": "en",
+      "breadth": "narrow",
+      "security": "low",
+      "intended_empty_feed": true,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 422; expected abstention",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 422; state=None",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=0",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "no cards for intended abstention",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 0,
+      "useful_proxy_at_5": 0,
+      "useful_proxy_at_10": 0,
+      "cards_to_first_useful": null
+    },
+    {
+      "persona_id": "m1p_30",
+      "cohort": "history_rich",
+      "language": "ja",
+      "breadth": "narrow",
+      "security": "high",
+      "intended_empty_feed": true,
+      "unexpected_empty_feed": false,
+      "broken_evidence": false,
+      "tenant_leak": false,
+      "stages": [
+        {
+          "stage": "account",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_profile",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "topic_recommendation",
+          "ok": true,
+          "detail": "HTTP 200",
+          "metrics": {}
+        },
+        {
+          "stage": "interests",
+          "ok": true,
+          "detail": "HTTP 422; expected abstention",
+          "metrics": {}
+        },
+        {
+          "stage": "onboarding_ready",
+          "ok": true,
+          "detail": "HTTP 422; state=None",
+          "metrics": {}
+        },
+        {
+          "stage": "feed",
+          "ok": true,
+          "detail": "HTTP 200; cards=0",
+          "metrics": {}
+        },
+        {
+          "stage": "evidence",
+          "ok": true,
+          "detail": "no cards for intended abstention",
+          "metrics": {}
+        },
+        {
+          "stage": "exposure",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        },
+        {
+          "stage": "feedback",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        },
+        {
+          "stage": "read",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        },
+        {
+          "stage": "subsequent_feed",
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {}
+        }
+      ],
+      "surfaced": 0,
+      "useful_proxy_at_5": 0,
+      "useful_proxy_at_10": 0,
+      "cards_to_first_useful": null
+    }
+  ]
+}

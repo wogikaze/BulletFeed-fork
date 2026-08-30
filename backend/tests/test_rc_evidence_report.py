@@ -10,6 +10,7 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["completion_gate_pass"] is False
     assert set(report["missions"]) == {"m1", "m2", "m3", "m4", "m5", "m6", "m7"}
     assert report["missions"]["m1"]["evidence_checks"]["persona_count"] is True
+    assert report["missions"]["m1"]["api_qualification"]["evidence_checks"]["stage_failures"] is True
     assert report["missions"]["m2"]["evidence_checks"]["blind_isolation"] is True
     assert report["missions"]["m3"]["evidence_checks"]["replay_failures"] is True
     assert report["missions"]["m4"]["evidence_checks"]["acceptance_gradle"] is True
