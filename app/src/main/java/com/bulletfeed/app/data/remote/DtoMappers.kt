@@ -18,6 +18,20 @@ fun FeedItemDto.toDomain(): FeedItem =
 
 fun FeedPageDto.toDomain(): FeedPage = FeedPage(items = items.map { it.toDomain() }, nextCursor = nextCursor)
 
+fun FeedSessionDto.toDomain(): FeedSessionTelemetry =
+    FeedSessionTelemetry(version = version, id = id, startedAt = startedAt, endedAt = endedAt)
+
+fun FeedSessionMetricsDto.toDomain(): FeedSessionMetrics =
+    FeedSessionMetrics(
+        version = version,
+        sessionCount = sessionCount,
+        displayedCount = displayedCount,
+        usefulCardRate = usefulCardRate,
+        alreadyKnownReshowRate = alreadyKnownReshowRate,
+        cardsToUsefulItem = cardsToUsefulItem,
+        feedbackResponseRate = feedbackResponseRate,
+    )
+
 fun FeedDeltaDto.toDomain(): FeedDelta =
     FeedDelta(
         id = id,

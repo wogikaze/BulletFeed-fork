@@ -89,6 +89,18 @@ class MockBulletFeedRepositoryTest {
         }
 
     @Test
+    fun feedSessionStartIsIdempotentUntilEnded() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            val first = repository.startFeedSession()
+            val second = repository.startFeedSession()
+            assertEquals(first.id, second.id)
+            repository.endFeedSession(first.id)
+            val third = repository.startFeedSession()
+            assertTrue(third.id != first.id)
+        }
+
+    @Test
     fun sourceSubscriptionAddAndRemoveUpdateLocalState() =
         runTest {
             val repository = MockBulletFeedRepository()

@@ -155,6 +155,13 @@ class RemoteFeedRepository(
             ),
         )
     }
+
+    override suspend fun startFeedSession(): FeedSessionTelemetry = api.startFeedSession().toDomain()
+
+    override suspend fun endFeedSession(sessionId: String): FeedSessionTelemetry =
+        api.endFeedSession(sessionId).toDomain()
+
+    override suspend fun getFeedSessionMetrics(): FeedSessionMetrics = api.getFeedSessionMetrics().toDomain()
 }
 
 class RemoteEventRepository(

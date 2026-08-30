@@ -137,6 +137,23 @@ data class EventDetail(
     val following: Boolean,
 )
 
+data class FeedSessionTelemetry(
+    val version: String = "",
+    val id: String = "",
+    val startedAt: Long = 0,
+    val endedAt: Long? = null,
+)
+
+data class FeedSessionMetrics(
+    val version: String = "",
+    val sessionCount: Int = 0,
+    val displayedCount: Int = 0,
+    val usefulCardRate: Float? = null,
+    val alreadyKnownReshowRate: Float? = null,
+    val cardsToUsefulItem: Float? = null,
+    val feedbackResponseRate: Float? = null,
+)
+
 data class FeedExposure(
     val deliveryId: String,
     val displayedAt: String,

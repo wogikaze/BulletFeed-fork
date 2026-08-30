@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -115,6 +117,8 @@ class BulletFeedViewModel(
     private val viewportTracker = ViewportExposureTracker(nowMs = { SystemClock.elapsedRealtime() })
     private var lastViewportSnapshots: List<ViewportItemSnapshot> = emptyList()
     private var dwellRecheckJob: Job? = null
+    private var telemetrySessionId: String? = null
+    private var telemetryStartJob: Job? = null
 
     init {
         refresh()
@@ -238,6 +242,9 @@ class BulletFeedViewModel(
                 if (pendingAuthorization?.state == GithubAuthorizationState.PENDING) {
                     _uiState.update { it.copy(isGithubAuthorizing = true) }
                     startGithubAuthorizationPolling()
+                }
+                if (ready) {
+                    startFeedTelemetrySession()
                 }
             } catch (error: CancellationException) {
                 throw error
@@ -1348,6 +1355,39 @@ class BulletFeedViewModel(
                 errorMessage = if (unauthorized) null else error.toUserMessage(),
             )
         }
+    }
+
+    fun startFeedTelemetrySession() {
+        if (_uiState.value.onboardingState != OnboardingState.READY) return
+        if (!telemetrySessionId.isNullOrBlank() || telemetryStartJob?.isActive == true) return
+        telemetryStartJob = viewModelScope.launch {
+            try {
+                val session = repository.startFeedSession()
+                telemetrySessionId = session.id.takeIf { it.isNotBlank() }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Throwable) {
+                // Telemetry must not change feed UX.
+            }
+        }
+    }
+
+    fun endFeedTelemetrySession() {
+        val sessionId = telemetrySessionId
+        telemetrySessionId = null
+        telemetryStartJob?.cancel()
+        telemetryStartJob = null
+        if (sessionId.isNullOrBlank()) return
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                runCatching { repository.endFeedSession(sessionId) }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        endFeedTelemetrySession()
+        super.onCleared()
     }
 
     class Factory(

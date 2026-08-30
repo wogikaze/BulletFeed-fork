@@ -95,6 +95,18 @@ class DtoMappersContractTest {
     }
 
     @Test
+    fun `feed session telemetry maps empty disabled session without crashing`() {
+        val mapped = FeedSessionDto(
+            version = "session-telemetry-v1",
+            id = "",
+            startedAt = 0,
+            endedAt = null,
+        ).toDomain()
+        assertEquals("", mapped.id)
+        assertEquals("session-telemetry-v1", mapped.version)
+    }
+
+    @Test
     fun `topic recommendation page maps cohort provenance and abstention`() {
         val mapped = TopicRecommendationListDto(
             version = "topic-recommendations-v1",

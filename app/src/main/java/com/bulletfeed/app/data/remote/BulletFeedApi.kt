@@ -48,6 +48,17 @@ interface BulletFeedApi {
         @Body body: ExposuresDto,
     ): AcceptedDto
 
+    @POST("v1/me/feed-sessions")
+    suspend fun startFeedSession(): FeedSessionDto
+
+    @POST("v1/me/feed-sessions/{sessionId}/end")
+    suspend fun endFeedSession(
+        @Path("sessionId") sessionId: String,
+    ): FeedSessionDto
+
+    @GET("v1/me/feed-sessions/metrics")
+    suspend fun getFeedSessionMetrics(): FeedSessionMetricsDto
+
     @GET("v1/events/{eventId}")
     suspend fun getEvent(
         @Path("eventId") eventId: String,
@@ -684,4 +695,23 @@ data class TopicRecommendationAbstentionDto(
 @Serializable
 data class TopicRecommendationDecisionDto(
     val decision: String,
+)
+
+@Serializable
+data class FeedSessionDto(
+    val version: String,
+    val id: String,
+    val startedAt: Long,
+    val endedAt: Long? = null,
+)
+
+@Serializable
+data class FeedSessionMetricsDto(
+    val version: String,
+    val sessionCount: Int,
+    val displayedCount: Int,
+    val usefulCardRate: Float? = null,
+    val alreadyKnownReshowRate: Float? = null,
+    val cardsToUsefulItem: Float? = null,
+    val feedbackResponseRate: Float? = null,
 )

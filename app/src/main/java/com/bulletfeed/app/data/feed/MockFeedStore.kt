@@ -16,6 +16,30 @@ class MockFeedStore(
         applyFeedback(feedItemId, type, markRead = false)
     }
 
+    override suspend fun startFeedSession(): FeedSessionTelemetry {
+        if (state.activeFeedSessionId != null) {
+            return FeedSessionTelemetry(id = state.activeFeedSessionId.orEmpty(), startedAt = 1)
+        }
+        val id = "fs_mock_${state.feedSessionStarts}"
+        state.feedSessionStarts += 1
+        state.activeFeedSessionId = id
+        return FeedSessionTelemetry(version = "session-telemetry-v1", id = id, startedAt = 1)
+    }
+
+    override suspend fun endFeedSession(sessionId: String): FeedSessionTelemetry {
+        if (state.activeFeedSessionId == sessionId) {
+            state.activeFeedSessionId = null
+        }
+        return FeedSessionTelemetry(id = sessionId, startedAt = 1, endedAt = 2)
+    }
+
+    override suspend fun getFeedSessionMetrics(): FeedSessionMetrics =
+        FeedSessionMetrics(
+            version = "session-telemetry-v1",
+            sessionCount = state.feedSessionStarts,
+            displayedCount = state.exposures.size,
+        )
+
     override suspend fun recordExposures(items: List<FeedExposure>) {
         val known = state.feedItems.map { it.deliveryId }.toSet()
         state.exposures += items.filter { it.deliveryId in known && it.deliveryId !in state.exposures.map { e -> e.deliveryId } }

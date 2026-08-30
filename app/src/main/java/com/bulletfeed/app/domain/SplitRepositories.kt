@@ -23,6 +23,13 @@ interface FeedRepository {
     )
 
     suspend fun recordExposures(items: List<FeedExposure>)
+
+    suspend fun startFeedSession(): FeedSessionTelemetry = FeedSessionTelemetry()
+
+    suspend fun endFeedSession(sessionId: String): FeedSessionTelemetry =
+        FeedSessionTelemetry(id = sessionId)
+
+    suspend fun getFeedSessionMetrics(): FeedSessionMetrics = FeedSessionMetrics()
 }
 
 interface EventRepository {
