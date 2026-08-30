@@ -18,6 +18,7 @@ ARTIFACTS = {
     "m1": EVIDENCE_ROOT / "m1_personas" / "v01" / "deterministic_baseline.json",
     "m2": EVIDENCE_ROOT / "real_world_validation" / "v01" / "m2_readiness_report.json",
     "m3": EVIDENCE_ROOT / "source_qualification" / "v01" / "report.json",
+    "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
     "m5": EVIDENCE_ROOT / "recovery" / "v01" / "process_recovery_report.json",
     "m6": EVIDENCE_ROOT / "m6" / "v01" / "top3_selection.json",
     "m7_backend": EVIDENCE_ROOT / "clean_room" / "v01" / "backend_report.json",
@@ -91,6 +92,20 @@ def _m3_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m4_gate(report: dict[str, Any]) -> dict[str, Any]:
+    checks = {
+        "backend_health": report.get("backend_health") == "passed",
+        "acceptance_gradle": report.get("gradle_exit_code") == 0,
+        "acceptance_status": report.get("status") == "passed",
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "test_class": report.get("test_class"),
+        "note": "The release APK is retained as the corresponding Android Actions artifact.",
+    }
+
+
 def _m5_gate(report: dict[str, Any]) -> dict[str, Any]:
     checks = {
         "status": report.get("status") == "passed",
@@ -143,12 +158,8 @@ def build_report() -> dict[str, Any]:
         "m2": {"artifact": _relative(ARTIFACTS["m2"]), **_m2_gate(loaded["m2"])},
         "m3": {"artifact": _relative(ARTIFACTS["m3"]), **_m3_gate(loaded["m3"])},
         "m4": {
-            "status": "not_evaluated",
-            "artifact": None,
-            "note": (
-                "Android acceptance and release-build status come from Android Actions, "
-                "not a checked-in backend report."
-            ),
+            "artifact": _relative(ARTIFACTS["m4_android"]),
+            **_m4_gate(loaded["m4_android"]),
         },
         "m5": {"artifact": _relative(ARTIFACTS["m5"]), **_m5_gate(loaded["m5"])},
         "m6": {"artifact": _relative(ARTIFACTS["m6"]), **_m6_gate(loaded["m6"])},
@@ -170,7 +181,7 @@ def build_report() -> dict[str, Any]:
                 "M3 timeout/conditional-304/robots/source-identity qualification and "
                 "observed-failure remediation"
             ),
-            "M4 Android error/offline/a11y/large-screen evidence and release artifact",
+            "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
             "M5 host-level disk-full and partial-write drill",
             "M6 production Top-3 remediation followed by one-shot blind evaluation",
             "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",

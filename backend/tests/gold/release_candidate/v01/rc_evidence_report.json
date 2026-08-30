@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "79f534047191af966e90d58ed1f37ec5a592131f",
+  "repository_sha": "44c5f60c5861c13a2395fdc55978421de9b5fbfe",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -95,9 +95,15 @@
       ]
     },
     "m4": {
-      "status": "not_evaluated",
-      "artifact": null,
-      "note": "Android acceptance and release-build status come from Android Actions, not a checked-in backend report."
+      "artifact": "tests/gold/android_acceptance/v01/acceptance_report.json",
+      "status": "partial",
+      "evidence_checks": {
+        "backend_health": true,
+        "acceptance_gradle": true,
+        "acceptance_status": true
+      },
+      "test_class": "com.bulletfeed.app.RealBackendAcceptanceTest",
+      "note": "The release APK is retained as the corresponding Android Actions artifact."
     },
     "m5": {
       "artifact": "tests/gold/recovery/v01/process_recovery_report.json",
@@ -138,7 +144,7 @@
   "unmet_gate_items": [
     "M1 real-backend Android journey for all 30 personas",
     "M3 timeout/conditional-304/robots/source-identity qualification and observed-failure remediation",
-    "M4 Android error/offline/a11y/large-screen evidence and release artifact",
+    "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
     "M5 host-level disk-full and partial-write drill",
     "M6 production Top-3 remediation followed by one-shot blind evaluation",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"

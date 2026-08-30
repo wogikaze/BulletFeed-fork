@@ -1,0 +1,8 @@
+{
+  "acceptance_version": "m4-real-backend-android-v1",
+  "mode": "fresh_ephemeral_backend",
+  "test_class": "com.bulletfeed.app.RealBackendAcceptanceTest",
+  "backend_health": "passed",
+  "gradle_exit_code": 0,
+  "status": "passed"
+}
