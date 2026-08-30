@@ -14,10 +14,13 @@ def test_recorded_live_artifacts_have_replay_identity() -> None:
     report = load_and_evaluate_source_qualification(_CORPUS)
 
     assert report.live_endpoint_count > 0
-    assert report.replay_case_count == sum(report.source_family_counts.values()) * 2
+    assert report.replay_case_count >= sum(report.source_family_counts.values()) * 2
     assert report.replay_failed_count == 0
     assert "recorded_fetch" in report.scenario_counts
     assert "duplicate_delivery" in report.scenario_counts
+    assert report.scenario_counts["reordered_payload"] > 0
+    assert report.scenario_counts["malformed_payload"] > 0
+    assert report.scenario_counts["oversize_guard"] > 0
 
 
 def test_qualification_floors_are_explicit() -> None:

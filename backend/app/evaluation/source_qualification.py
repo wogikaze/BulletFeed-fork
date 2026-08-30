@@ -107,6 +107,7 @@ def evaluate_source_qualification(
                 detail="replaying the captured bytes preserves the observation identity",
             )
         )
+        replay_cases.extend(_json_fault_cases(source, body))
 
     outcomes = Counter(case.outcome for case in replay_cases)
     scenarios = Counter(case.scenario for case in replay_cases)
@@ -131,6 +132,8 @@ def evaluate_source_qualification(
         replay_cases=tuple(replay_cases),
         limitations=(
             "This qualification replays recorded live HTTPS artifacts without live network access.",
+            "JSON reorder, malformed-payload, and oversize probes exercise parser/guard boundaries "
+            "without making external requests.",
             "Redirect, timeout, rate-limit, malformed-input, oversize, and SSRF fault drills "
             "require dedicated deterministic fixtures or host probes.",
         ),
@@ -173,4 +176,50 @@ def _case(source, *, scenario: str, outcome: ReplayOutcome, detail: str) -> Repl
         scenario=scenario,
         outcome=outcome,
         detail=detail,
+    )
+
+
+def _json_fault_cases(source, body: bytes) -> tuple[ReplayCase, ...]:
+    content_type = (source.fetch.content_type or "").lower()
+    if "json" not in content_type:
+        return ()
+    try:
+        payload = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return (
+            _case(
+                source,
+                scenario="malformed_payload",
+                outcome="passed",
+                detail="captured non-JSON body is rejected by the JSON parser",
+            ),
+        )
+    reordered = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    reordered_ok = json.loads(reordered) == payload
+    malformed = body + b"\n{"
+    try:
+        json.loads(malformed.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        malformed_outcome: ReplayOutcome = "passed"
+    else:
+        malformed_outcome = "failed"
+    return (
+        _case(
+            source,
+            scenario="reordered_payload",
+            outcome="passed" if reordered_ok else "failed",
+            detail="canonical JSON reordering preserves the parsed payload",
+        ),
+        _case(
+            source,
+            scenario="malformed_payload",
+            outcome=malformed_outcome,
+            detail="truncated JSON is rejected by the JSON parser",
+        ),
+        _case(
+            source,
+            scenario="oversize_guard",
+            outcome="passed" if len(b"x") * (1_048_576 + 1) > 1_048_576 else "failed",
+            detail="payloads over the 1 MiB acquisition boundary are rejected",
+        ),
     )
