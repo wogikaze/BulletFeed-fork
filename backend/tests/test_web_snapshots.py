@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import socket
 from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -23,6 +24,7 @@ from app.services.web_snapshots import (
     content_hash_for,
     fetch_web_snapshot,
     record_web_snapshot_sync_result,
+    referenced_snapshot_ids,
     snapshot_id_for,
     validate_web_url,
     web_snapshot_backoff_seconds,
@@ -230,6 +232,72 @@ def test_snapshot_store_is_immutable(tmp_path: Path) -> None:
     assert reloaded.headers == original.headers
     assert reloaded.etag == '"v1"'
     assert store.list_ids() == (original.snapshot_id,)
+
+
+def test_snapshot_gc_retains_referenced_and_expired_snapshots(tmp_path: Path) -> None:
+    store = SnapshotStore(tmp_path / "snaps")
+    referenced = _snapshot(body=b"<html>referenced</html>", retrieved_at="2025-01-01T00:00:00Z")
+    expired = _snapshot(body=b"<html>expired</html>", retrieved_at="2025-01-02T00:00:00Z")
+    recent = _snapshot(body=b"<html>recent</html>", retrieved_at="2026-08-29T00:00:00Z")
+    for snapshot in (referenced, expired, recent):
+        store.put(snapshot)
+
+    result = store.garbage_collect(
+        referenced_ids={referenced.snapshot_id},
+        retention_days=30,
+        now=datetime(2026, 8, 30, tzinfo=UTC),
+    )
+
+    assert result.scanned_count == 3
+    assert result.deleted_ids == (expired.snapshot_id,)
+    assert result.retained_referenced_ids == (referenced.snapshot_id,)
+    assert set(store.list_ids()) == {referenced.snapshot_id, recent.snapshot_id}
+
+
+def test_snapshot_gc_capacity_preserves_referenced_snapshot(tmp_path: Path) -> None:
+    store = SnapshotStore(tmp_path / "snaps")
+    referenced = _snapshot(body=b"r" * 100, retrieved_at="2026-08-01T00:00:00Z")
+    removable = _snapshot(body=b"x" * 100, retrieved_at="2026-08-02T00:00:00Z")
+    store.put(referenced)
+    store.put(removable)
+    before = store.storage_stats()
+
+    result = store.garbage_collect(
+        referenced_ids={referenced.snapshot_id},
+        retention_days=365,
+        max_bytes=before.metadata_bytes + 100,
+        now=datetime(2026, 8, 30, tzinfo=UTC),
+    )
+
+    assert result.deleted_ids == (removable.snapshot_id,)
+    assert result.retained_referenced_ids == (referenced.snapshot_id,)
+    assert store.get(referenced.snapshot_id) is not None
+
+
+def test_referenced_snapshot_ids_are_read_from_web_observations(tmp_path: Path) -> None:
+    database = Database(tmp_path / "references.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO observations (
+                id, source_type, source_key, source_observation_id,
+                payload_hash, payload_json, original_url, retrieved_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "obs_snapshot_ref",
+                WEB_SNAPSHOT_SOURCE_TYPE,
+                "https://docs.example.com/changelog",
+                "snapshot-ref",
+                "hash",
+                '{"left_snapshot_id":"snap_left","nested":{"right_snapshot_id":"snap_right"}}',
+                "https://docs.example.com/changelog",
+                "2026-08-30T00:00:00Z",
+            ),
+        )
+
+    assert referenced_snapshot_ids(database) == frozenset({"snap_left", "snap_right"})
 
 
 @pytest.mark.asyncio

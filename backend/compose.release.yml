@@ -67,6 +67,19 @@ services:
       - bulletfeed-data:/data
       - bulletfeed-snapshots:/snapshots
 
+  snapshot-gc:
+    build:
+      context: .
+    command: ["python", "scripts/run_snapshot_gc.py"]
+    profiles: ["maintenance"]
+    env_file: .env.release
+    environment:
+      BULLETFEED_DATABASE_PATH: /data/bulletfeed.db
+      BULLETFEED_SNAPSHOT_DIR: /snapshots
+    volumes:
+      - bulletfeed-data:/data
+      - bulletfeed-snapshots:/snapshots
+
 volumes:
   bulletfeed-data:
   bulletfeed-backups:

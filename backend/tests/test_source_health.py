@@ -166,6 +166,7 @@ def test_private_source_health_is_fail_closed_and_not_listed(
     assert ready_body["sourceSyncWorker"] == "ok"
     assert ready_body["sourceIngestion"]["status"] == "failing"
     assert ready_body["sourceIngestion"]["stale"] == 1
+    assert ready_body["snapshotStorage"]["snapshot_count"] == 0
     assert "acme/secret" not in ready.text
     assert "source_key" not in ready.text
 
@@ -174,6 +175,7 @@ def test_private_source_health_is_fail_closed_and_not_listed(
     sources_body = sources.json()
     assert sources_body["workerHeartbeat"] == "ok"
     assert sources_body["sourceIngestion"]["privateOrUnknown"] == 1
+    assert sources_body["snapshotStorage"]["total_bytes"] == 0
     assert set(sources_body["pipeline"]) == {
         "fetch",
         "observation",
