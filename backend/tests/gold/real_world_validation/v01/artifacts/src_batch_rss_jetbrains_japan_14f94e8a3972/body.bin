@@ -1,0 +1,3301 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>JetBrains のブログ</title>
+	<atom:link href="https://blog.jetbrains.com/ja/feed/" rel="self" type="application/rss+xml" />
+	<link>https://blog.jetbrains.com/ja</link>
+	<description>Developer Tools for Professionals and Teams</description>
+	<lastBuildDate>Sat, 29 Aug 2026 08:57:48 +0000</lastBuildDate>
+	<language>ja</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	
+
+<image>
+	<url>https://blog.jetbrains.com/wp-content/uploads/2024/01/cropped-mstile-310x310-1-32x32.png</url>
+	<title>JetBrains のブログ</title>
+	<link>https://blog.jetbrains.com/ja</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>Junie CLI &#8211; パフォーマンスとコスト効率を両立したい開発者へ</title>
+		<link>https://blog.jetbrains.com/ja/junie/2026/08/junie-cli/</link>
+		
+		<dc:creator><![CDATA[Jiali Chen]]></dc:creator>
+		<pubDate>Tue, 18 Aug 2026 07:48:41 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/JN-social-BlogFeatured-1280x720-1.png</featuredImage>		<category><![CDATA[ai]]></category>
+		<category><![CDATA[cli]]></category>
+		<category><![CDATA[junie]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=junie&#038;p=730464</guid>
+
+					<description><![CDATA[Junieをご存じですか？Junieは、JetBrainsが開発するAIコーディングエージェントです。主な使い方は2つあります: この記事では、CLIを中心に開発している方に向けて、Junie CLIの特徴やメリット、知っておきたい便利な機能について紹介します。 Junieを使うメリット 1. 最新のSWE-rebenchで高いパフォーマンス SWE-rebenchとは、AIやコーディングエージェントが、実際のソフトウェア開発やバグ修正の課題をどれだけ正確に解決できるかを測定する、信頼性の高い評価ベンチマークです。 8月上旬時点で公開されているリーダーボードでは、JunieはSWE-rebenchのAgentカテゴリで1位になっています。上記のデータを見ると、タスク解決率は73.9%になっております。一つのタスク解決（Cost per Problem）は$0.85になっており他のLLM・エージェントと比べるとコストは安いです（その他のモデルは2倍〜４倍以上のコストになってます）。性能を損なわずに、コストを改善したい方にオススメです。「Junieが最も安い」というよりも、高い解決率とコスト効率を両立していると捉えるのが適切でしょう。 2. Kotlinの開発に優秀 JetBrainsは新しいKotlin開発専用のベンチマークを公開いたしました。こちらの内容ではJunieも高い解決率を示しています。日付は3月〜4月時点の内容ですので、上記のSWE-rebenchの結果と比較しながら、参考にしてください。Kotlin Benchmarkは今後も更新される予定なので、Kotlinプロジェクトでコーディングエージェントを比較する際の参考指標としてチェックしてみてください。 3. タスクに合わせてLLMを切り替えられる なぜLLMを簡単に切り替えられると良いのでしょうか？ Junieを使う場合、簡単に /model コマンドで対象のLLMを設定できます（Claude、GPT、Gemini、Grok）。→ JetBrains AIクレジットを使う場合、一つの契約で上記のLLMを使えます。JetBrains AI経由で利用できるモデルに加えて、BYOK（Bring Your Own Key）にも対応しています。 4. JetBrains IDEとの簡単な連携 Junie CLIは同じプロジェクトを開いているJetBrains IDEを自動的に検出できます。/ide コマンドで連携されているIDEの接続状態の確認や調整ができます。 IDEと連携するとは Junie CLIはJetBrainsのネイティブ機能を使用できるようになります。/debug コマンドを使用すれば、Junieを実行中のJetBrains IDEのデバッガーに接続し、ブレークポイントの設定、実行時の状態確認、式の評価などをエージェントに任せることができます。 また、JetBrains IDEにはMCP Server機能もあり、IDEをMCPサーバーとして実行すれば、MCP対象のネーティブコマンド一覧をJunie CLIで使用できるようになっております（例：コード検査機能等）。 5. どこでも使えるリモートモード 長時間かかるタスクをJunieに任せた後、PCの前から離れたいこともあるでしょう。そんなときに便利なのがRemote Modeです。Junie CLIで /remote を実行すると、Junie CLIのリモートセッションが開始されます。開始されたセッションはhttps://junie.jetbrains.com/remoteで開けます。ターミナルのセッションはブラウザーと共有し、他の端末でプロンプトを記入でき、実施中の内容を確認いただけます。例えば、長いタスクをJunieに任せたが、席を離れ、途中から新しいプロンプトを追加したい等、携帯からでも追加できます。 注意：クラウド上で実行されていることではなく、使用中のパソコン（ターミナル）で実行されております。 覚えておきたいJunie CLIコマンド Junie CLIの全コマンド一覧はJunie [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>Junieをご存じですか？<br>Junieは、JetBrainsが開発するAIコーディングエージェントです。<br>主な使い方は2つあります:</p>
+
+
+
+<ul class="wp-block-list">
+<li>JetBrains IDEのAI Chatから利用する</li>
+
+
+
+<li>ターミナルからJunie CLIを利用する</li>
+</ul>
+
+
+
+<p><br>この記事では、CLIを中心に開発している方に向けて、<a href="https://junie.jetbrains.com/" target="_blank" rel="noopener">Junie CLI</a>の特徴やメリット、知っておきたい便利な機能について紹介します。</p>
+
+
+
+<h2 class="wp-block-heading">Junieを使うメリット</h2>
+
+
+
+<h3 class="wp-block-heading">1. 最新のSWE-rebenchで高いパフォーマンス</h3>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" fetchpriority="high" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-34.png" alt="" class="wp-image-730467"/></figure>
+
+
+
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p><strong><strong>SWE-rebench</strong></strong>とは、AIやコーディングエージェントが、実際のソフトウェア開発やバグ修正の課題をどれだけ正確に解決できるかを測定する、信頼性の高い<strong>評価ベンチマーク</strong>です。</p>
+</blockquote>
+
+
+
+<p>8月上旬時点で公開されているリーダーボードでは、Junieは<a href="https://swe-rebench.com/" target="_blank" rel="noopener">SWE-rebench</a>のAgentカテゴリで1位になっています。<br>上記のデータを見ると、タスク解決率は73.9%になっております。<br>一つのタスク解決（Cost per Problem）は$0.85になっており他のLLM・エージェントと比べるとコストは安いです（その他のモデルは2倍〜４倍以上のコストになってます）。<br>性能を損なわずに、コストを改善したい方にオススメです。<br>「Junieが最も安い」というよりも、高い解決率とコスト効率を両立していると捉えるのが適切でしょう。</p>
+
+
+
+<h3 class="wp-block-heading">2. Kotlinの開発に優秀</h3>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-35.png" alt="" class="wp-image-730479"/></figure>
+
+
+
+<p>JetBrainsは新しいKotlin開発専用のベンチマークを公開いたしました。<br>こちらの内容ではJunieも高い解決率を示しています。<br>日付は3月〜4月時点の内容ですので、上記のSWE-rebenchの結果と比較しながら、参考にしてください。<br>Kotlin Benchmarkは今後も更新される予定なので、Kotlinプロジェクトでコーディングエージェントを比較する際の参考指標としてチェックしてみてください。</p>
+
+
+
+<h3 class="wp-block-heading">3. タスクに合わせてLLMを切り替えられる</h3>
+
+
+
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p>なぜLLMを簡単に切り替えられると良いのでしょうか？</p>
+</blockquote>
+
+
+
+<ul class="wp-block-list">
+<li>AIモデルは非常に速いペースで進化しています。最新モデルを試したい場合、自分のライセンス・アカウントを合わせて切り替える必要があります。</li>
+
+
+
+<li>タスクの種類に合わせて、適切なLLMを調整したい（スピード、品質、コスト改善）。</li>
+</ul>
+
+
+
+<p>Junieを使う場合、簡単に /model コマンドで対象のLLMを設定できます（Claude、GPT、Gemini、Grok）。<br>→ JetBrains AIクレジットを使う場合、一つの契約で上記のLLMを使えます。<br>JetBrains AI経由で利用できるモデルに加えて、BYOK（Bring Your Own Key）にも対応しています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-39.png" alt="" class="wp-image-730731"/></figure>
+
+
+
+<h3 class="wp-block-heading">4. JetBrains IDEとの簡単な連携</h3>
+
+
+
+<p>Junie CLIは同じプロジェクトを開いているJetBrains IDEを自動的に検出できます。<br>/ide コマンドで連携されているIDEの接続状態の確認や調整ができます。</p>
+
+
+
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p>IDEと連携するとは</p>
+</blockquote>
+
+
+
+<p>Junie CLIはJetBrainsのネイティブ機能を使用できるようになります。<br>/debug コマンドを使用すれば、Junieを実行中のJetBrains IDEのデバッガーに接続し、ブレークポイントの設定、実行時の状態確認、式の評価などをエージェントに任せることができます。</p>
+
+
+
+<p>また、JetBrains IDEにはMCP Server機能もあり、IDEをMCPサーバーとして実行すれば、MCP対象のネーティブコマンド一覧をJunie CLIで使用できるようになっております（例：コード検査機能等）。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-43.png" alt="" class="wp-image-730778"/></figure>
+
+
+
+<h3 class="wp-block-heading">5. どこでも使えるリモートモード</h3>
+
+
+
+<p>長時間かかるタスクをJunieに任せた後、PCの前から離れたいこともあるでしょう。<br>そんなときに便利なのがRemote Modeです。<br>Junie CLIで /remote を実行すると、Junie CLIのリモートセッションが開始されます。<br>開始されたセッションは<a href="https://junie.jetbrains.com/remote" target="_blank" rel="noopener">https://junie.jetbrains.com/remote</a>で開けます。<br>ターミナルのセッションはブラウザーと共有し、他の端末でプロンプトを記入でき、実施中の内容を確認いただけます。<br>例えば、長いタスクをJunieに任せたが、席を離れ、途中から新しいプロンプトを追加したい等、携帯からでも追加できます。<br><br>注意：クラウド上で実行されていることではなく、使用中のパソコン（ターミナル）で実行されております。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-42.png" alt="" class="wp-image-730764"/></figure>
+
+
+
+<h2 class="wp-block-heading">覚えておきたいJunie CLIコマンド</h2>
+
+
+
+<ul class="wp-block-list">
+<li>/mcp: 連携中のMCP確認、新しいMCPを設定（MCP一覧・手動設定）。</li>
+
+
+
+<li>/skill: 設定されているskill確認、新しいskillを設定（skill一覧・手動設定）。</li>
+
+
+
+<li>/model: 使用するLLMを選択し、対応モデルではreasoning effortも調整できます。</li>
+
+
+
+<li>/plan: 仕様駆動開発のガイドラインに従い、プロンプトの内容に合わせて、要件・デザイン・計画・テストファイルを作成いただけます。この段階では、コードは編集されません。作成されたファイルを確認・編集し、実施を依頼できます。</li>
+
+
+
+<li>/update: 簡単に最新のJunie CLIバージョンに更新します。</li>
+
+
+
+<li>/review: 現在のブランチ、最新コミット、未ステージの変更などを対象にローカルコードのレビューを実行します。</li>
+
+
+
+<li>/revert: 変更内容を元に戻します。</li>
+
+
+
+<li>/ide: JetBrains IDEとの接続状態を確認し、使用するIDEを切り替えられます。</li>
+
+
+
+<li>/settings: Junie CLIの設定を確認(steps limitをONにする場合、Junieは30ステップでタスクを続けたいかどうかを聞きます）。</li>
+
+
+
+<li>/debug: 接続中のJetBrains IDEのデバッガーを利用するDebug Modeに切り替えます。</li>
+
+
+
+<li>/remote: 現在のCLIセッションをWeb UIから利用できるRemote Modeを開始します。</li>
+
+
+
+<li>/usage：現在のセッションで使用したモデル、トークン、コストなどを確認できます。<br></li>
+</ul>
+
+
+
+<p>Junie CLIの全コマンド一覧は<a href="https://junie.jetbrains.com/docs/slash-commands.html" target="_blank" rel="noopener">Junie CLIの公式ドキュメント</a>でご確認いただけます。</p>
+
+
+
+<h2 class="wp-block-heading">GitHub上のJunie</h2>
+
+
+
+<p>JunieはGitHub ActionとしてGitHubのワークフローに組み込むこともできます。<br><a href="https://junie.jetbrains.com/docs/junie-on-github.html#setup" target="_blank" rel="noopener">Junie On GitHub設定方法</a><br><a href="https://github.com/marketplace/actions/official-junie-github-action" target="_blank" rel="noopener">マーケットプレース</a><br>GitHubと連携すれば、JunieはIssueやPRの確認、レビュー、修正を支援できるようになります。<br>コメントをするときに、@junie-agentを記載すれば、Junieにタスクを任せられます。<br>タスクの開始・完了時にはメールで通知されます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-59.png" alt="" class="wp-image-731950"/></figure>
+
+
+
+<h2 class="wp-block-heading">Junieと新しいJetBrains Context</h2>
+
+
+
+<p>2026年7月21日、JetBrainsは『<a href="https://www.jetbrains.com/ja-jp/context/" target="_blank" rel="noopener">JetBrains Context</a>』のEarly Accessを発表しました。<br>JetBrains Contextは、リポジトリをインデックス化し、AIコーディングエージェントが必要なコードや関連情報をセマンティック検索できるようにするrepository intelligence layerです。Junie CLIのほか、Claude CodeやCodex CLIとも連携できます。<br>通常、AIエージェントはタスクを受けると、関連するファイルや実装例を探すところから始めます。大規模なリポジトリでは、この探索だけでも多くの時間やトークンを消費します。<br>エージェントはゼロからプロジェクトを検索する必要がなくなり、インデックス化された内容を参考にすれば、次の効果が期待できます：</p>
+
+
+
+<ul class="wp-block-list">
+<li>コード品質の向上</li>
+
+
+
+<li>コスト削減</li>
+
+
+
+<li>時間節約</li>
+
+
+
+<li>複雑なリポジトリの深い理解</li>
+</ul>
+
+
+
+<p>→<a href="https://blog.jetbrains.com/ja/ai/2026/08/introducing-jetbrains-context-repository-intelligence-for-coding-agents/">Contextのブログポスト</a></p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-40.png" alt="" class="wp-image-730742"/></figure>
+
+
+
+<p>Early Access期間中は、無料でお試しいただけますので、是非お試しください。<br>Contextの効果を /jbcontext analyzeコマンドでご確認いただけます。</p>
+
+
+
+<h2 class="wp-block-heading">Junie CLIのデモ録画</h2>
+
+
+
+<p>最近、JetBrainsの日本チームでは、新しいオンラインイベント「Dojo Webinar」を月1回程度のペースで開催しています。<br>毎回、JetBrainsの製品や最新機能をご紹介するとともに、参加者の皆さまからの質問にお答えするQ&amp;Aセッションも実施しています。今後の開催情報はニュースレターでもご案内しています。<br>今回は、8月に開催したJunie CLIのデモセッションの録画をご紹介します。<br><a href="https://github.com/ktorio/ktor-chat" target="_blank" rel="noopener">公開リポジトリのktor-chat</a>を使用し、Junie CLIを実際のプロジェクトでどのように活用できるかをご覧いただけます。</p>
+
+
+
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+<iframe loading="lazy" title="Junie CLI と開発 [第二回 JetBrains 道場 〜オフィスアワー篇〜]" src="https://www.youtube.com/embed/v6-yp9yTBmo?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div></figure>
+
+
+
+<p><a href="https://youtu.be/v6-yp9yTBmo?si=016LUyIuXea8zW78&amp;t=592" target="_blank" rel="noopener">09:52 JetBrains Context</a><br><a href="https://youtu.be/v6-yp9yTBmo?si=31G32RcAdQzo4jEH&amp;t=726" target="_blank" rel="noopener">12:06 デモ</a><br><a href="https://youtu.be/v6-yp9yTBmo?si=8O4f30nHTbleRx3N&amp;t=1217" target="_blank" rel="noopener">20:17 Junie GitHubアクション</a><br><a href="https://youtu.be/v6-yp9yTBmo?si=uQyjt-JmGmT2JvLP&amp;t=1483" target="_blank" rel="noopener">24:43 Q&amp;A</a></p>
+
+
+
+<p>Q&amp;Aの質問</p>
+
+
+
+<ul class="wp-block-list">
+<li>複数のワークスペースがある場合、JetBrains Contextはそれぞれのワークスペースの状態に沿った情報を提供してくれますか？例えばワークスペースAにしかないシンボルの情報が、ワークスペースBで提供されるようなことはないですか？<br>→エージェントは、ローカルブランチに対応するインデックスが存在する場合はそのインデックスを使用します。存在しない場合はmainブランチのインデックスにフォールバックし、検索結果がフィルタリングされます。たとえば、ローカルには存在しないファイルに対する検索結果は除外されます。</li>
+
+
+
+<li>JunieのツールウィンドウやAIチャット、ツールウィンドウのJunieでは、JetBrains Contextを設定しなくても、IDEの情報がContextとして自動的に伝わると思います。Junieを使うことで手間がむしろ増えているように思いますが、Junie CLIのメリットは何でしょうか？<br>→普段からIDEよりCLIを中心に開発している方にとって、Junie CLIは使い慣れたターミナル上でそのままJunieを利用できる点がメリットです。<br>また、Junieの新機能はCLIに先行して提供される場合があるため、最新機能をいち早く試したい方にもおすすめです。</li>
+
+
+
+<li>JunieツールウィンドウやAIチャットはデータベーススキーマの情報もAIに伝わり、またSQLの発行も行えると思います。JetBrains ContextでもデータベーススキーマはAIに伝わり、SQLの発行も行えますか？<br>→現在対象外です。</li>
+
+
+
+<li>JetBrains Contextに似たプロダクトとしてSerenaがありますが、SerenaとJetBrains Contextの違いがあれば教えてください。<br>→Serenaは主にLSPやIntelliJ APIを活用し、エージェントにコード検索・編集ツールを提供します。一方、JetBrains Contextはニューラルネットワークによってコードをベクトル化し、セマンティック検索を実現します。そのため、コード内の識別子と完全に一致しない自然言語での検索や、より抽象的な質問にも対応できます。</li>
+
+
+
+<li>ACP経由でJunieを呼び出すと利用できない、Junie CLIだけの機能の一覧はどこで確認できますか？<br>→Junie Documentationに追加する予定です。</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">まとめ</h2>
+
+
+
+<p>普段からCLIを使って開発している方は、Junie CLIを一度試してみてはいかがでしょうか。<br>JetBrainsアカウントでログインすれば、対応するJetBrains AIプランを使ってすぐお試しいただけます。<br>また、OpenAI、Anthropic、GoogleのAPIキーを使ったBYOKにも対応しているため、すでに利用しているLLM環境を活用することもできます。<br>モデルをタスクに合わせて切り替えながら、JetBrains IDEとの連携、Remote Mode、GitHub Actions、JetBrains Contextなどを組み合わせられるのがJunie CLIの特徴です。<br>パフォーマンスだけでなく、開発時間やAI利用コストも含めて効率化したい方は、ぜひJunie CLIを試してみてください。<br>→<a href="https://junie.jetbrains.com/" target="_blank" rel="noopener">Junieホームページ</a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>JetBrains Context のご紹介: コーディングエージェントのリポジトリ・インテリジェンス</title>
+		<link>https://blog.jetbrains.com/ja/ai/2026/08/introducing-jetbrains-context-repository-intelligence-for-coding-agents/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Tue, 18 Aug 2026 03:23:49 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/JB-social-BlogFeatured-1280x720-1-2.png</featuredImage>		<category><![CDATA[agentic-ai]]></category>
+		<category><![CDATA[ai]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[releases]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=ai&#038;p=731864</guid>
+
+					<description><![CDATA[複雑なコードベースでコーディングエージェントの作業を効率化し、より高品質な結果を出せるようにする新しいリポジトリのためのインテリジェンスレイヤーである JetBrains Context をこの度公開しました。チームと組織を想定した JetBrains AI の導入の一環として、JetBrains AI サブスクリプションをお持ちの方を対象に JetBrains Context を追加料金なしで早期アクセスで提供中です。Claude Code、Codex CLI、および Junie CLI と統合し、JetBrains IDE、Air、VS Code、およびその他の対応エディターから使用できます。 JetBrains はどんなに複雑なコードベースを扱う場合でも、常に開発者の生産性が向上するように注力してきました。それは、従来は自動補完、コード解析、移動などのインテリジェント機能を提供することを意味していました。今日ではコードを効果的に作成、検証、レビューするのに必要なリポジトリ・インテリジェンスを AI エージェントに提供し、同様の生産性を AI エージェントにも反映させています。 「当社は数十年にわたり、開発者が複雑なコードベースに早く慣れるように支援してきました。実は AI エージェントも慣れないプロジェクトに取り組む場合、ほぼ同じ支援が必要なのです。」 Vlad TankovJetBrains エージェントシステム最高技術責任者 エンタープライズ規模のコードベースではコンテキストが必要不可欠です。入念なレビューや手直しを必要とする平凡な結果と、コードベースや API、依存関係、実装パターン、エンジニアリング規則を理解している効率的なエージェント型コーディングには根本的な違いがあります。 開発者と同様、エージェントは小規模な概念実証（PoC）プロジェクトではさほど支援を必要としません。しかしながら、エージェントが大規模なコードベースを効果的に扱えるようにするには、追加のコンテキスト、つまりは明文化されていない組織の知識や洞察が不可欠なのです。 エージェントの新たな現実 当社のコンテキストに対する取り組みは、開発者の間でエージェントのスキルを向上させるニーズが高まっていることを反映しています。開発者はかつてはどんな AI の出力でもたいていは満足していましたが、「ハネムーン期」（初期段階）が終わりつつある今、状況はより複雑化してきました。開発者への期待は徐々に高まっており、開発者が新たな要件を満たそうと努力している中、AI の使用範囲が拡大しています。AI の ROI（投資収益率）に対する要求は開発チームの工期短縮を意味し、AI の利用枠が設けられるようになりました。つまり、トークンを無限に消費して最先端モデルを湯水のように使い、力任せに問題を解決するやり方はもはや通用しないのです。エージェントが新たに得た「超能力」に現実の要求が急速に追いついてきているのです。 かつては単に不便だったものが、徐々にボトルネックに変わってきました。ほとんどの問題解決タスクや機能開発タスクでは、エージェントに大規模なコード探索を実行させ、現状を把握したり、予定している変更に向けて参考情報を得る必要があります。実務上では検索の実行、探索エージェントの起動、ファイルの読み取りなどがそうですが、これらの作業は時間やトークンを消費しがちです。最先端の高性能モデルを使用していても、コンテキストやリポジトリのアクセス範囲が限定的な場合は、エージェントが適切なコードを見つけたり、優れた実装例を探し当てたり、再利用価値のある既存のパターンを識別したりできなくなる可能性があります。結論は単純です。エージェントがリポジトリの検索にかかる時間を短縮すればするほど、より多くの時間を手元のタスクに費やせるようになるのです。JetBrains Context はまさにこの問題を解決するように設計されました。 JetBrains Context とは JetBrains Context は Claude Agent、OpenAI Codex、JetBrains Junie [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p>複雑なコードベースでコーディングエージェントの作業を効率化し、より高品質な結果を出せるようにする新しいリポジトリのためのインテリジェンスレイヤーである JetBrains Context をこの度公開しました。<a href="https://blog.jetbrains.com/ja/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/">チームと組織を想定した JetBrains AI の導入</a>の一環として、JetBrains AI サブスクリプションをお持ちの方を対象に JetBrains Context を追加料金なしで早期アクセスで提供中です。Claude Code、Codex CLI、および Junie CLI と統合し、JetBrains IDE、Air、VS Code、およびその他の対応エディターから使用できます。</p>
+<p>JetBrains はどんなに複雑なコードベースを扱う場合でも、常に開発者の生産性が向上するように注力してきました。それは、従来は自動補完、コード解析、移動などのインテリジェント機能を提供することを意味していました。今日ではコードを効果的に作成、検証、レビューするのに必要なリポジトリ・インテリジェンスを AI エージェントに提供し、同様の生産性を AI エージェントにも反映させています。</p>
+<div class="blockquote">
+<blockquote>
+<p>「当社は数十年にわたり、開発者が複雑なコードベースに早く慣れるように支援してきました。実は AI エージェントも慣れないプロジェクトに取り組む場合、ほぼ同じ支援が必要なのです。」</p>
+</blockquote>
+<div class="blockquote__author"><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="blockquote__author-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/vladislav-DBB_YwmS.png" alt="" />
+<div class="blockquote__author-info"><strong class="blockquote__author-title">Vlad Tankov</strong><br /><span class="blockquote__author-subtitle">JetBrains エージェントシステム最高技術責任者</span></div>
+</div>
+</div>
+<p>エンタープライズ規模のコードベースではコンテキストが必要不可欠です。入念なレビューや手直しを必要とする平凡な結果と、コードベースや API、依存関係、実装パターン、エンジニアリング規則を理解している効率的なエージェント型コーディングには根本的な違いがあります。</p>
+<p>開発者と同様、エージェントは小規模な概念実証（PoC）プロジェクトではさほど支援を必要としません。しかしながら、エージェントが大規模なコードベースを効果的に扱えるようにするには、追加のコンテキスト、つまりは明文化されていない組織の知識や洞察が不可欠なのです。</p>
+<h2 class="wp-block-heading">エージェントの新たな現実</h2>
+<p>当社のコンテキストに対する取り組みは、開発者の間でエージェントのスキルを向上させるニーズが高まっていることを反映しています。開発者はかつてはどんな AI の出力でもたいていは満足していましたが、「ハネムーン期」（初期段階）が終わりつつある今、状況はより複雑化してきました。開発者への期待は徐々に高まっており、開発者が新たな要件を満たそうと努力している中、AI の使用範囲が拡大しています。AI の ROI（投資収益率）に対する要求は開発チームの工期短縮を意味し、AI の利用枠が設けられるようになりました。つまり、トークンを無限に消費して最先端モデルを湯水のように使い、力任せに問題を解決するやり方はもはや通用しないのです。エージェントが新たに得た「超能力」に現実の要求が急速に追いついてきているのです。</p>
+<p>かつては単に不便だったものが、徐々にボトルネックに変わってきました。ほとんどの問題解決タスクや機能開発タスクでは、エージェントに大規模なコード探索を実行させ、現状を把握したり、予定している変更に向けて参考情報を得る必要があります。実務上では検索の実行、探索エージェントの起動、ファイルの読み取りなどがそうですが、これらの作業は時間やトークンを消費しがちです。最先端の高性能モデルを使用していても、コンテキストやリポジトリのアクセス範囲が限定的な場合は、エージェントが適切なコードを見つけたり、優れた実装例を探し当てたり、再利用価値のある既存のパターンを識別したりできなくなる可能性があります。結論は単純です。エージェントがリポジトリの検索にかかる時間を短縮すればするほど、より多くの時間を手元のタスクに費やせるようになるのです。JetBrains Context はまさにこの問題を解決するように設計されました。</p>
+<h2 class="wp-block-heading">JetBrains Context とは</h2>
+<p>JetBrains Context は Claude Agent、OpenAI Codex、JetBrains Junie をはじめとするコーディングエージェントのリポジトリ・インテリジェンスレイヤーです。リポジトリのセマンティックインデックスを段階的に構築してセマンティック取得機能を提供することで、エージェントがファイルの検索や読み取りを何度も行わなくても、関連するリポジトの情報にアクセスできるようにします。エージェントが単にキーワードを検索したり何度もファイルを探索したりするのではなく、どんな質問でも直接投げかけたり、関連する用語や概念を検索したりできるようになるのです。これを実現するため、リポジトリのインデックスを段階的に作成するバックエンドと、エージェントがそのデータを解析できるようにするセマンティック検索ツールという 2 つの主要コンポーネントを使用しています。</p>
+<p>今回導入される機能の中で特に有望なのは、<strong>複数のリポジトリを検索する機能</strong>です。エージェントが現在のリポジトリに限らず、ローカルにチェックアウトされていないリポジトリを含む組織コードベース全体から関連するコードを発見できます。これにより、エージェントによる API や依存関係の検証、変更による影響の把握、リモートプロジェクト内の再利用可能なコードの特定が可能になります。最終的にはコード品質の水準が向上し、不要な作業を回避し、コードベース全体でアーキテクチャの適合性を高めることができます。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-724639" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-29.png" alt="" />
+<figcaption class="wp-element-caption">jbcontext 解析ツールの出力例</figcaption>
+</figure>
+<h2 class="wp-block-heading">論より証拠（試せば分かる）</h2>
+<p>205 個のオープンソース SWE-bench タスク、175 個の production-monorepo タスク、1,953 個の code-localization タスクで JetBrains Context を検証しました。JetBrains Context はこれらの各ベンチマークでエージェントのターン数を最大 68%、遅延を最大 59%、実行コストを最大 48% 削減しました。</p>
+<p>AI システムを安定して測定するのは容易ではありません。最新のコーディングエージェントは本質的に確率ベースで動作するため、業界で定評のあるベンチマークと本番環境規模のリポジトリを基にした評価を設計しました。評価を通じて改良を重ねることで、この技術を大規模なコードベースで時間、コスト、コード品質を大きく変えられると確信を持って言えるレベルにまで高めることができました。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-724650" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/grafik.png" alt="" /></figure>
+<h2 class="wp-block-heading">JetBrains Context の早期アクセスはすでにサブスクリプションで提供されています</h2>
+<p>使用を開始するには、<a href="https://www.jetbrains.com/ja-jp/context/" target="_blank" rel="noopener">ランディングページ</a>の手順に従ってください。</p>
+<ol class="wp-block-list">
+<li>単純な <code>GET</code> リクエストを使用して CLI をインストールします。</li>
+<li>CLI の <code>jbcontext login</code> コマンドを使用して認証します。 既存の資格情報をそのまま使用できます。JetBrains AI のライセンスが必要ですが、JetBrains Context で AI の利用枠が消費されることはありません。</li>
+<li>プロジェクトフォルダーに移動し、<code>jbcontext setup-agent</code> コマンドを使用して、お好みのコーディングエージェント用に JetBrains Context を設定します。ユーザースコープ内でグローバルに設定することも可能です。</li>
+<li>JetBrains Context がエージェントフックで自動的にコードのインデックスを事前に作成します。自分で <code>jbcontext index</code> コマンドを呼び出すことで、明示的にインデックスを作成することも可能です。ユーザーのソースコードが JetBrains Context のサーバーに保存されることはありせん。</li>
+</ol>
+<p>今後は普段通りにコーディングを進めていく中で、エージェントの生産性を大幅に向上させる新しいリポジトリ・インテリジェンス機能が搭載されていることにお気づきになると思います。</p>
+<p>JetBrains Context を試しても役に立っているかどうか分からない場合は、新しい組み込みの解析機能をぜひご確認ください！ <code>jbcontext analyze</code> を入力するだけで、リアルタイムのデータに基づくコスト削減と時間短縮の効果をご確認いただけます。</p>
+<p>皆様のご意見をお待ちしています。以下のコメント欄からご意見・ご質問・ご感想をお寄せください。CLI から直接 <code>jbcontext send-feedback</code> コマンドを使用することもできます。</p>
+
+
+<p><strong>オリジナル（英語）ブログ記事の作者：</strong></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/ava-2022.v3-1.png" alt="Eduard Gurskiy" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Eduard Gurskiy</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1698430752158.jpeg" alt="Roni Dover" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Roni Dover</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/ai/2026/08/introducing-jetbrains-context-repository-intelligence-for-coding-agents/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/ai/2026/08/introducing-jetbrains-context-repository-intelligence-for-coding-agents/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/ai/2026/08/introducing-jetbrains-context-repository-intelligence-for-coding-agents/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>PyCharm 2026.2.1 の新機能</title>
+		<link>https://blog.jetbrains.com/ja/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Thu, 13 Aug 2026 06:51:08 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/PC-releases-BlogFeatured-1280x720-1-5.png</featuredImage>		<category><![CDATA[releases]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=pycharm&#038;p=731025</guid>
+
+					<description><![CDATA[今回の PyCharm のリリースは、AI を活用して開発を行っている方にとって大きなアップデートです。エージェントが Jupyter notebook 内で作業に着手できるようになりました。断片的なスクリプトを次々と勝手に実行するのではなく、ライブカーネル上で作業を行います。また、どの Python を使用すべきかを把握できるようになり、パッケージが毎回適切な環境にインストールされるようになりました。 IDE に marimo ノートブックも導入し、PyCharm の高速性と集中力を維持するためにバンドルプラグインに変更を加えました。 このリリースのハイライト AI エージェント用 Jupyter notebook スキル PyCharm のノートブックモデルとライブカーネルを介して Claude Code や Codex などの AI エージェントに .ipynb ノートブックを作成、編集、実行させることで、エージェントがシェルに処理を渡した場合にも変数、モデル、データをセル間で消えることなく保持することができます。使用するトークン数を少なく抑えながら、ノートブックと機械学習の作業の信頼性を高められるということです。このスキルの使用を開始するには、AI チャットを開き、エージェントにノートブックで作業するよう依頼してください。 エージェント環境コーディネーター AI エージェントが間違った Python 環境にパッケージをインストールして困ったことはありませんか？ この新しいスキルはプロジェクトで構成されているインタープリターとツール（uv、Poetry、venv 内の pip、または conda）をエージェントに提供することで、コマンドのターゲットがシステム環境ではなく、適切な環境になるようにします。適切な環境が存在しない場合は PyCharm を介して環境をセットアップ可能で、情報の使い方はエージェントが判断します。このスキルの使用を開始するには、エージェントにプロジェクト内で何らかを実行またはインストールするよう依頼してください。 PyCharm の marimo ノートブック [サードパーティ製プラグイン] PyCharm で marimo チームが開発した新しいプラグインを使用することで、marimo ノートブックを直接開き、編集・実行できるようになりました。&#160; IDE を離れることなく、専用のノートブックでリアクティブセルや対話的な [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>今回の <a href="https://www.jetbrains.com/ja-jp/pycharm/" data-type="link" data-id="https://www.jetbrains.com/ja-jp/pycharm/" target="_blank" rel="noopener">PyCharm</a> のリリースは、AI を活用して開発を行っている方にとって大きなアップデートです。エージェントが Jupyter notebook 内で作業に着手できるようになりました。断片的なスクリプトを次々と勝手に実行するのではなく、ライブカーネル上で作業を行います。また、どの Python を使用すべきかを把握できるようになり、パッケージが毎回適切な環境にインストールされるようになりました。</p>
+
+
+
+<p>IDE に marimo ノートブックも導入し、PyCharm の高速性と集中力を維持するためにバンドルプラグインに変更を加えました。</p>
+
+
+
+<h2 class="wp-block-heading">このリリースのハイライト</h2>
+
+
+
+<h3 class="wp-block-heading">AI エージェント用 Jupyter notebook スキル</h3>
+
+
+
+<p>PyCharm のノートブックモデルとライブカーネルを介して Claude Code や Codex などの AI エージェントに <code>.ipynb</code> ノートブックを作成、編集、実行させることで、エージェントがシェルに処理を渡した場合にも変数、モデル、データをセル間で消えることなく保持することができます。使用するトークン数を少なく抑えながら、ノートブックと機械学習の作業の信頼性を高められるということです。このスキルの使用を開始するには、AI チャットを開き、エージェントにノートブックで作業するよう依頼してください。</p>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://blog.jetbrains.com/pycharm/2026/08/we-gave-ai-agents-a-live-jupyter-kernel-in-pycharm/" class="btn" target="">さらに詳しく</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<h3 class="wp-block-heading">エージェント環境コーディネーター</h3>
+
+
+
+<p>AI エージェントが間違った Python 環境にパッケージをインストールして困ったことはありませんか？ この新しいスキルはプロジェクトで構成されているインタープリターとツール（<code>uv</code>、Poetry、<code>venv</code> 内の <code>pip</code>、または <code>conda</code>）をエージェントに提供することで、コマンドのターゲットがシステム環境ではなく、適切な環境になるようにします。適切な環境が存在しない場合は PyCharm を介して環境をセットアップ可能で、情報の使い方はエージェントが判断します。このスキルの使用を開始するには、エージェントにプロジェクト内で何らかを実行またはインストールするよう依頼してください。</p>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://blog.jetbrains.com/pycharm/2026/08/we-stopped-ai-agents-from-installing-into-the-wrong-python-task-success-rates-jumped-to-95/" class="btn" target="">さらに詳しく</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<h3 class="wp-block-heading">PyCharm の marimo ノートブック [サードパーティ製プラグイン]</h3>
+
+
+
+<p>PyCharm で marimo チームが開発した新しいプラグインを使用することで、marimo ノートブックを直接開き、編集・実行できるようになりました。&nbsp;</p>
+
+
+
+<p>IDE を離れることなく、専用のノートブックでリアクティブセルや対話的な UI 要素を操作できます。marimo ノートブックは Python ファイル形式で保存されるため、Git と相性が良く、スクリプトとして実行可能で、既存の Python プロジェクトに簡単に組み込めます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-51.png" alt="" class="wp-image-727410"/></figure>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://plugins.jetbrains.com/plugin/32416-marimo" class="btn" target="" rel="noopener">プラグインをインストール</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<h3 class="wp-block-heading">2026.2 におけるバンドルプラグインの変更</h3>
+
+
+
+<p>Data Wrangler、Hugging Face、Google Colab のサポートなど、利用頻度の低いプラグインのバンドル廃止と非推奨化を継続的な保守の一環で進めています。互換性のあるバージョンは JetBrains Marketplace から引き続きインストールできますが、廃止・非推奨化されるプラグインはバンドルされず、PyCharm チームによる積極的な保守も行われなくなります。バンドルプラグインをより厳選することでコードベースがスリム化され、当社が PyCharm の高速性と応答性を損ねることなく最も効果的な部分に注力できるようになります。</p>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://blog.jetbrains.com/pycharm/2026/08/unbundling-and-deprecating-low-usage-plugins-in-pycharm/" class="btn" target="">さらに詳しく</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<h2 class="wp-block-heading">Python パッケージツールウィンドウの再設計</h2>
+
+
+
+<ul class="wp-block-list">
+<li>パッケージが折りたたみ可能なツリー形式で依存関係と共に表示され、何がどのような理由でインストールされているかを確認できるようになりました。新しいアイコン、右揃えのバージョン情報、インラインの Install（インストール）/ Update（更新）リンクも追加されています。</li>
+
+
+
+<li>新しいフロート検索ポップアップ（パッケージ向けの「どこでも検索」のような機能）でパッケージの検索とインストールを素早く行えるようになりました。どの環境が使用されるかも表示され、モジュールと依存関係グループを選択できるようになっています。</li>
+
+
+
+<li>ワークスペースのメンバーごとに dev や test といった特定の <code>uv</code>/Poetry 依存関係グループにパッケージをインストールしたり、インラインで、または新しい Change Version（バージョンの変更）ダイアログからバージョンを変更したり、Custom Installation（カスタムインストール）を使用して VCS からインストールしたりできるようになりました。</li>
+
+
+
+<li>パッケージリポジトリは有効または無効に設定でき、その状態はセッションをまたいで記憶されます。また、到達不能な URL には明確なエラーが表示されるようになり、リモート開発のサポートも大幅に改善されました。</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/PY-89838-Python-Packages-Tool-Window-redesign.png" alt="PyCharm の Python パッケージツールウィンドウの再設計" class="wp-image-730282"/></figure>
+
+
+
+<h2 class="wp-block-heading">明確な型チェック</h2>
+
+
+
+<p>より明確で実利的な型のメッセージを取得できるようになりました。</p>
+
+
+
+<ul class="wp-block-list">
+<li>型不一致のエラーメッセージが拡充され、型が一致しない理由の詳細が表示されるようになりました。</li>
+
+
+
+<li>Callable やその他の複合型には型の差分を表示し、両側で同じように読めるようになりました。</li>
+
+
+
+<li>インスペクションのツールチップには名前と型がクリック可能なリンクと一緒に完全に表示されるようになりました。</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/PY-80221-explain_Show-a-breakdown-when-type-mismatch-is-reported.png" alt="PyCharm の明確な型チェック" class="wp-image-730293"/></figure>
+
+
+
+<h2 class="wp-block-heading">バグ修正</h2>
+
+
+
+<ul class="wp-block-list">
+<li><strong>サポートが終了した Python 用の仮想環境</strong>: PyCharm で Python バージョン 2.7、3.6、3.7 用の venv が作成されなくなりました。引き続きコマンドラインから新規環境を作成し、手動で IDE に追加することは可能です。</li>
+
+
+
+<li><strong>SQLAlchemy 2.0 の Session.get() 推論</strong>: <code>Session.get(Entity, id)</code>（および SQLModel）がクラスではなく、モデルインスタンスとして推論されるようになりました。</li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">PyCharm のダウンロード</h2>
+
+
+
+<p>これらすべての更新は、PyCharm 2026.2.1 で提供されています。IDE か Toolbox App から直接更新するか、<a href="https://www.jetbrains.com/ja-jp/pycharm/download/" target="_blank" rel="noopener">最新バージョンをダウンロード</a>し、ご自身のプロジェクトですべてをお試しください。いつものように、皆さんのフィードバックをお待ちしています。</p>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://www.jetbrains.com/ja-jp/pycharm/download/" class="btn" target="" rel="noopener">PyCharm をダウンロード</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<p>オリジナル（英語）ブログ投稿記事の作者：</p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/1762941790646.jpeg" alt="Evgenia Verbina" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Evgenia Verbina</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[zh-hans]]></code>
+                        <url>https://blog.jetbrains.com/zh-hans/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/pycharm/2026/08/what-s-new-in-pycharm-2026-2-1/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>JetBrains AI で Claude Code / Codex CLI が利用可能に &#8211; JetBrains Central CLI の使い方</title>
+		<link>https://blog.jetbrains.com/ja/blog/2026/08/10/jbai-claude-codex-cli/</link>
+		
+		<dc:creator><![CDATA[Masaru Horioka]]></dc:creator>
+		<pubDate>Mon, 10 Aug 2026 03:30:02 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/08/JPJBAI-Claude-Codex-CLI-BlogFeatured.png</featuredImage>		<category><![CDATA[agentic-ai]]></category>
+		<category><![CDATA[ai]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=blog&#038;p=729399</guid>
+
+					<description><![CDATA[こんにちは。JetBrains 堀岡です。 先日早期アクセスが発表された JetBrains Central CLI により、JetBrains AI のクレジットを使って Claude Code、Codex CLI、Gemini CLI を実行できるようになりました。 ブログポスト「Junie だけではない JetBrains AI の現在（2026年）」でも紹介しておりますが、現在 JetBrains AI は Claude、Codex、Gemini、Junie という主要なコーディングエージェントを、1 つの契約で使い分けられる「エージェント非依存（Coding Agent Agnostic）」なプラットフォームです。JetBrains Central CLI により、JetBrains AI のクレジットを IDE や JetBrains Air だけでなく、CLI 環境でのコーディングエージェントにも使用できるようになり、より幅広いユースケースをサポートできるようになりました。 本記事では、以下について紹介します。 JetBrains Central CLI のセットアップと使用方法 JetBrains Central CLI は、Claude Code、Codex CLI、Gemini CLI などを JetBrains AI のクレジットで利用するためのツールです。 JetBrains [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>こんにちは。JetBrains 堀岡です。</p>
+
+
+
+<p>先日早期アクセスが発表された <a href="https://www.jetbrains.com/ja-jp/central-cli/" target="_blank" rel="noreferrer noopener"><strong>JetBrains Central CLI</strong> </a>により、<strong>JetBrains AI のクレジットを使って Claude Code、Codex CLI、Gemini CLI を実行</strong>できるようになりました。</p>
+
+
+
+<p>ブログポスト「<a href="https://blog.jetbrains.com/ja/blog/2026/06/16/junie-jetbrains-ai-2026/" target="_blank" rel="noreferrer noopener">Junie だけではない JetBrains AI の現在（2026年）</a>」でも紹介しておりますが、現在 JetBrains AI は <strong>Claude、Codex、Gemini、Junie という主要なコーディングエージェントを、1 つの契約で使い分けられる「エージェント非依存（Coding Agent Agnostic）」なプラットフォーム</strong>です。JetBrains Central CLI により、JetBrains AI のクレジットを IDE や JetBrains Air だけでなく、CLI 環境でのコーディングエージェントにも使用できるようになり、より幅広いユースケースをサポートできるようになりました。</p>
+
+
+
+<p>本記事では、以下について紹介します。</p>
+
+
+
+<ul class="wp-block-list">
+<li>JetBrains Central CLI のセットアップ方法、仕組み、料金</li>
+
+
+
+<li>関連トピックとして JetBrains IDE と CLI/TUI コーディングエージェントの統合を進化させるプラグイン &nbsp;<a href="https://plugins.jetbrains.com/plugin/33314-air-alpha" target="_blank" rel="noreferrer noopener">Air Alpha</a> （2026年8月現在：元は <a href="https://plugins.jetbrains.com/plugin/30926-agent-workbench" data-type="link" data-id="https://plugins.jetbrains.com/plugin/30926-agent-workbench" target="_blank" rel="noreferrer noopener">Agent Workbench</a> ）</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-57.png" alt="" class="wp-image-731672" style="width:650px; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">JetBrains AI がサポートする開発環境</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h2 class="wp-block-heading"><strong>JetBrains Central CLI のセットアップと使用方法</strong></h2>
+
+
+
+<p><a href="https://www.jetbrains.com/ja-jp/central-cli/" target="_blank" rel="noreferrer noopener">JetBrains Central CLI</a> は、Claude Code、Codex CLI、Gemini CLI などを JetBrains AI のクレジットで利用するためのツールです。</p>
+
+
+
+<p></p>
+
+
+
+<h3 class="wp-block-heading">JetBrains Central CLI を利用するための前提条件</h3>
+
+
+
+<p>2026年8月7日時点では<a href="https://www.jetbrains.com/help/central-cli/quickstart.html#requirements" target="_blank" rel="noreferrer noopener">前提条件</a>として以下があります。</p>
+
+
+
+<ul class="wp-block-list">
+<li>（認証のための）ブラウザがインストールされていること</li>
+
+
+
+<li><a href="https://code.claude.com/docs/en/quickstart" data-type="link" data-id="https://code.claude.com/docs/en/quickstart" target="_blank" rel="noreferrer noopener">Claude Code</a> や <a href="https://learn.chatgpt.com/docs/codex/cli" target="_blank" rel="noreferrer noopener">Codex CLI</a> などコーディングエージェントがインストール済み</li>
+
+
+
+<li><a href="https://account.jetbrains.com/login" data-type="link" data-id="https://account.jetbrains.com/login" target="_blank" rel="noreferrer noopener">JetBrains Account</a> があり、JetBrains AI を利用可能なライセンス（JetBrains IDE, JetBrains AI, All Products/dotUltimateなど）をお持ちであること。SSO は今後サポート予定です。</li>
+</ul>
+
+
+
+<h3 class="wp-block-heading">セットアップから実行まで</h3>
+
+
+
+<p>インストール方法について、および最速で設定したい方は、<a href="https://www.jetbrains.com/help/central-cli/quickstart.html" target="_blank" rel="noopener">JetBrains Central CLI のクイックスタート</a>をご確認ください。</p>
+
+
+
+<p>以下ではインストール以降の利用の流れを見てみましょう。</p>
+
+
+
+<h4 class="wp-block-heading">JetBrains Central / Account にログイン</h4>
+
+
+
+<p>ターミナルから <code>central login</code> を実行すると、ブラウザが起動するので、JetBrains AI を使用する法人または個人ライセンスを選択します。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/jp_central_login.png" alt="" class="wp-image-729558" style="width:652px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">central login コマンド実行後のブラウザ認証画面</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h4 class="wp-block-heading">JetBrains AI クレジットを使用するコーディングエージェントを選択</h4>
+
+
+
+<p><a href="https://www.jetbrains.com/help/central-cli/quickstart.html#wire-agents" target="_blank" rel="noopener">クイックスタートガイド</a>では、<code>central add claude</code> コマンドで JetBrains AI で Claude Code を使用するための設定を行っていますが、以下では、何が起きているか理解するため、クイックスタートとは異なる方法（central コマンドのインタラクティブモード）で Claude Code を JetBrains AI で使うための設定を紹介します。</p>
+
+
+
+<p>ターミナルで <code>central</code> コマンドを実行し、「Wire agents」を選択します。<strong>「Wire」は JetBrains AI とコーディングエージェントの紐付けを意味</strong>しています。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-26.png" alt="" class="wp-image-729709" style="width:650px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">Central CLI メニュー</figcaption></figure>
+
+
+
+<p>次の画面ではコーディングエージェント一覧が表示されます。今回 Claude を JetBrains AI に紐づけるため、「Wire Claude Code」を選択します。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-12.png" alt="" class="wp-image-729415" style="width:648px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">Wire 対象のコーディングエージェント選択画面</figcaption></figure>
+
+
+
+<p>このアクションでは <code>~/.claude/settings.json</code> を書き換えるので、バックアップを取得するかどうか聞かれます。ここでは「Yes, save a backup copy too」を選択しておきましょう。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/jp_central_wire_claude_save_config.png" alt="" class="wp-image-729569" style="width:651px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">claude settings.json ファイルバックアップ確認画面</figcaption></figure>
+
+
+
+<p>これで Claude Code と JetBrains AI の紐付けが完了しました。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/jp_central_wire_claude_wired.png" alt="" class="wp-image-729580" style="width:649px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">Claude Code Wire 完了画面</figcaption></figure>
+
+
+
+<p>その後 Esc で central のインタラクティブモードを抜けます。</p>
+
+
+
+<h4 class="wp-block-heading">JetBrains AI とコーディングエージェントの紐付けを解除したい場合</h4>
+
+
+
+<p>前述の Wire agents のメニューで「Reset &lt;エージェント名&gt;」を選択すれば、元に戻ります。</p>
+
+
+
+<h3 class="wp-block-heading">エージェントの実行</h3>
+
+
+
+<p>エージェントの実行はこれまで通りです。ターミナルから <code>claude</code> を起動すると “<a href="http://claude.ai" target="_blank" rel="noopener">claude.ai</a> connectors are disabled … “ というメッセージが下部に表示されますが、これは Central CLI により JetBrains AI Platform に接続されているためです。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-17.png" alt="" class="wp-image-729515" style="width:641px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">JetBrains AI に Wire された Claude Code 起動画面</figcaption></figure>
+
+
+
+<h3 class="wp-block-heading">JetBrains AI のクレジット残量確認</h3>
+
+
+
+<p><code>central limit </code>コマンドで可能です。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/jp_central_claude_limit.png" alt="" class="wp-image-729591" style="width:650px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">Claude Code 内で central limit (JetBrains AI のクレジット残高確認）コマンド実行結果</figcaption></figure>
+
+
+
+<p>インタラクティブモードの場合 central を起動後、More メニューから Credit limit を選択すると利用状況を確認することができます。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/jp_central_limit.png" alt="" class="wp-image-729602" style="width:651px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">central コマンドインタラクティブモードでの Credit limit 確認画面</figcaption></figure>
+
+
+
+<h2 class="wp-block-heading">JetBrains Central CLI の仕組み</h2>
+
+
+
+<p>以下の図はブログ記事<a href="https://blog.jetbrains.com/ai/2026/08/our-first-moves-to-get-ai-spend-under-control/" data-type="link" data-id="https://blog.jetbrains.com/ai/2026/08/our-first-moves-to-get-ai-spend-under-control/" target="_blank" rel="noreferrer noopener">「Our First Moves to Get AI Spend Under Control」</a>に掲載されているものです。 JetBrains Central CLI、JetBrains AI Platform、LLM プロバイダーの関係を表しています。特に注目すべきなのは、Central CLI に、Claude Code や Codex CLI から JetBrains AI Platform にアクセスするためのローカルプロキシが含まれている点です。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-16.png" alt="" class="wp-image-729501" style="width:648px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">Central CLI が JetBrains AI Platform を経由して LLM プロバイダーと接続する仕組み</figcaption></figure>
+
+
+
+<p>central add claude コマンドや前述の Wire 設定は <code>~/.claude/settings.json</code>&nbsp; を以下のように書き換え、 ANTHROPIC_BASE_URL などを追加します。これにより、claude コマンドが JetBrains AI Platform 経由で実行されるようになります。</p>
+
+
+
+<pre class="EnlighterJSRAW">{
+&nbsp;&nbsp;&quot;apiKeyHelper&quot;: &quot;central proxy start --ensure-updated --return-key&quot;,
+&nbsp;&nbsp;&quot;env&quot;: {
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;ANTHROPIC_BASE_URL&quot;: &quot;http://127.0.0.1:19516/wire/&lt;省略&gt;/claude-code/anthropic&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;ENABLE_PROMPT_CACHING_1H&quot;: &quot;1&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;ENABLE_TOOL_SEARCH&quot;: &quot;true&quot;
+&nbsp;&nbsp;},
+&nbsp;&nbsp;&quot;model&quot;: &quot;sonnet&quot;,
+...
+}</pre>
+
+
+
+<h3 class="wp-block-heading">Central CLI の構成状況の確認</h3>
+
+
+
+<p><code>central status </code>コマンドを実行すると、以下のように Central CLI の起動状況および有効な設定を確認することができます。Agents セクションにおいて「wired」と表示されているものが JetBrains AI Platform を利用するよう構成済みです。</p>
+
+
+
+<p>Central CLI ではどのコーディングエージェントを JetBrains AI と紐付けるかは選択可能です。たとえば、Claude Max を契約済みのユーザーが、追加で Codex や Gemini を利用したい場合、Codex や Gemini のみをJetBrains AI 経由で利用するといったことも可能です。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/jp_central_status.png" alt="" class="wp-image-729613" style="width:650px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">central status コマンド実行結果</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h3 class="wp-block-heading">JetBrains Central CLI の機能一覧</h3>
+
+
+
+<p>JetBrains Central CLI はアクティブに開発が進められており、様々な機能が日々追加されています。オンラインドキュメントに記載がない機能もあるため、最新の状況を確認したい場合、ターミナルから <code>central --help</code> コマンドを実行する、または <code>central</code> コマンドのインタラクティブモードから様々な機能を発見することができます。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-25.png" alt="" class="wp-image-729692" style="width:651px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">central &#8211;help コマンド実行結果</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h2 class="wp-block-heading"><strong>JetBrains AI のクレジットと費用</strong></h2>
+
+
+
+<p>現在 JetBrains IDE には AI Free プランとして 3 クレジット/月 （1 クレジットは 1 USD 相当）が付与されています。それ以上の利用は JetBrains AI の有償プランへの加入およびクレジットを追加購入することで可能となります。</p>
+
+
+
+<h3 class="wp-block-heading"><strong>クレジット単価は API の従量課金と同等水準、日本円で購入可能</strong></h3>
+
+
+
+<p>JetBrains AI のクレジットは、Anthropic API や OpenAI API などと同様に利用するモデルや入出力トークンなどに応じて消費されます。</p>
+
+
+
+<p>Anthropic API や OpenAI API などの従量課金プランと同等水準のトークン単価で利用できます。</p>
+
+
+
+<p>価格は<a href="https://www.jetbrains.com/help/jetbrains-console/eap/plans-and-pricing.html#model-pricing" target="_blank" rel="noreferrer noopener"> JetBrains AI モデル価格</a> をご覧いただくか <a href="https://www.jetbrains.com/ja-jp/support/sales/?responseType=email-sales" data-type="link" data-id="https://www.jetbrains.com/ja-jp/support/sales/?responseType=email-sales" target="_blank" rel="noreferrer noopener">JetBrains 日本語営業窓口</a>までお問い合わせください。</p>
+
+
+
+<p><strong>参考 </strong></p>
+
+
+
+<p>Anthropic 社 <a href="https://platform.claude.com/docs/ja/about-claude/pricing" data-type="link" data-id="https://platform.claude.com/docs/ja/about-claude/pricing" target="_blank" rel="noreferrer noopener">Claude モデル 単価</a></p>
+
+
+
+<p>OpenAI <a href="https://help.openai.com/ja-jp/articles/20001415-chatgpt-rate-card-enterprise-token-based-pricing#chatgpt-work-%E3%81%A8-codex-%E3%81%AE%E3%83%A2%E3%83%87%E3%83%AB" data-type="link" data-id="https://help.openai.com/ja-jp/articles/20001415-chatgpt-rate-card-enterprise-token-based-pricing#chatgpt-work-%E3%81%A8-codex-%E3%81%AE%E3%83%A2%E3%83%87%E3%83%AB" target="_blank" rel="noreferrer noopener">ChatGPT 料金表</a></p>
+
+
+
+<p></p>
+
+
+
+<p>JetBrains AI は 1 クレジット = 1 USD 相当ですが、<strong>日本のお客様は JetBrains IDE と同様、日本円で購入できます。</strong>特に法人のお客様の場合、AI サービスごとに外貨決済を管理するのではなく、JetBrains 製品と同じ購入・請求プロセスにまとめられるため、調達や経費処理の簡素化が期待できます。</p>
+
+
+
+<p></p>
+
+
+
+<h2 class="wp-block-heading">Air Alpha (元 <strong>Agent Workbench） で IDE を AI エージェントのコクピットに</strong></h2>
+
+
+
+<p><a href="https://plugins.jetbrains.com/plugin/33314-air-alpha" target="_blank" rel="noreferrer noopener">Air Alpha</a>  は、Claude Code や Codex CLI などの AI エージェント を JetBrains IDE 内で便利に使うためのプラグインです。元々は JetBrains の開発者らが個人的に開発した <a href="https://plugins.jetbrains.com/plugin/30926-agent-workbench" target="_blank" rel="noopener">Agent Workbench</a> として公開されていました。本記事を作成した 2026 年 8 月 7 日リリースの Agent Workbench バージョン 262.10000.1 では、JetBrains が開発元となっている <a href="https://plugins.jetbrains.com/plugin/33314-air-alpha" target="_blank" rel="noreferrer noopener">Air Alpha</a> プラグインを実体とする構成に変更されました。<strong>2026 年 8 月 12 日のアップデート以降は Agent Workbench をインストールしていた場合、削除し、 <a href="https://plugins.jetbrains.com/plugin/33314-air-alpha" target="_blank" rel="noreferrer noopener">Air Alpha</a> を直接インストールしたほうがよさそうです。ただし、このプラグインは実験的な取り組みのため、今後もプラグイン名やリリース形態が変更される可能性があります。</strong></p>
+
+
+
+<p>個人的に試してみた限りでは Air Alpha/Agent Workbench プラグインは、以下の IntelliJ ベースの IDE との自然な統合がメリットであると感じています。</p>
+
+
+
+<h3 class="wp-block-heading">IDE メニューから複数のコーディングエージェントセッションを簡単起動</h3>
+
+
+
+<p>Air Alpha/Agent Workbench はインストール済みのコーディングエージェントを自動認識します。メニューバーからエージェントを選択すると、IDE 上でエージェントが実行され、エディタ上のタブで表示されます（これをエージェントセッションと呼びます）。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-23.png" alt="" class="wp-image-729669" style="width:652px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">エージェントセッション起動メニュー</figcaption></figure>
+
+
+
+<p>2026 年 8 月 12 日版においては、デフォルトではAI Assistant のような Chat モードでエージェントセッションが開始されます。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-50.png" alt="" class="wp-image-731443" style="width:650px; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">エージェントセッション（Chat/GUI モード）</figcaption></figure>
+
+
+
+<h3 class="wp-block-heading">Chat(GUI) モードと Terminal  モードへの切り替え</h3>
+
+
+
+<p>Claude や Codex で TUI に慣れている方、および契約済み Claude サブスクリプションを利用されたい方は</p>
+
+
+
+<p>設定 &gt; ツール &gt; エージェントワークベンチ（または AIR）</p>
+
+
+
+<p>の <strong>「Open sessions in」 で 「Terminal」 を選択する</strong>と、CLI/TUI モードでエージェントを起動するように変更できます。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-45.png" alt="" class="wp-image-731314" style="width:650px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">エージェントセッション実行モード選択メニュー</figcaption></figure>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-51.png" alt="" class="wp-image-731454" style="width:650px; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">エージェントセッション（TUIモード）</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h3 class="wp-block-heading">エージェントセッション（エージェントとのやりとり）が、ソースコードと同じ領域に表示される</h3>
+
+
+
+<p>コーディングエージェントを多用する開発では、ソースコードを編集するよりエージェントとのやりとりに時間を多く費やします。これまで開発の中心であったソースコードと同じ場所で、ソースコードのファイルを切り替えるのと同じ感覚で（ Ctrl+E / ⌘E で切り替えながら）、複数のエージェントセッションを管理できるので、（IDE に慣れている人には）UI のなじみ具合が良いと感じるのではないでしょうか。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-27.png" alt="" class="wp-image-729721"/><figcaption class="wp-element-caption">Agent Sessions ツールウィンドウ（画面右）</figcaption></figure>
+
+
+
+<h3 class="wp-block-heading">エージェントセッション管理ビューで複数セッションを管理</h3>
+
+
+
+<p>実行中および完了したエージェントセッションは <strong>Agent Sessions ツールウィンドウ</strong>で管理されます。実行状況やセッションをクリックし、過去のセッションの再開も可能です。<strong>非表示の場合、IDE 右側の「⋯」（他のツールウィンドウ）から表示可能です。</strong>表示場所はドラッグで変更できます。</p>
+
+
+
+<p>ツール &gt; AIR（または エージェントワークベンチ） &gt; Sessions の Show session cost を選択しておくと、<strong>セッションごとの概算コストを表示</strong>することができます。USD/米ドル表示になっていますが、1 USD = 1 JetBrains AI クレジットです。異なるエージェントや異なるモデルによるコストの違いを把握することができます。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/image-20.png" alt="" class="wp-image-729636" style="width:647px;height:auto; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">エージェントセッションコスト表示メニュー</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h3 class="wp-block-heading">TUI モードであれば契約中の Claude サブスクリプション枠が使える&nbsp;</h3>
+
+
+
+<p>Air Alpha/Agent Workbench から起動するコーディングエージェントの CLI は、Codex CLI や Claude Code そのものです。</p>
+
+
+
+<p>これまで JetBrains AI Assistant + ACP から <a href="https://www.jetbrains.com/ja-jp/help/ai-assistant/claude-agent.html" target="_blank" rel="noreferrer noopener">Claude Agent</a> を利用する場合、Claude の規約上サードパーティサービスとして扱われるため、Claude Max などのサブスクリプション枠に含まれるクレジットを利用することはできませんでした。</p>
+
+
+
+<p>一方、Air Alpha/Agent Workbench で上述の <strong>Terminal モードを使用する場合、 Codex CLI や Claude Code の CLI/TUI を直接利用する</strong>ため、各サービスのサブスクリプションをそのまま利用できます。Claude Max などのClaude サブスクリプションを契約している場合も、その契約を使って Claude Code を利用できます。</p>
+
+
+
+<p>ただし、<strong>JetBrains Central CLI を構成すると、Claude Max などのサブスクリプション枠ではなく JetBrains AI のクレジットが使用されるため注意してください。</strong> Claude サブスクリプションの利用枠を使いたい場合、JetBrains Central CLI の構成は不要です（構成済みの場合は解除してください）。現在どの Claude クレジットを使用しているかは、Claude CLI 起動画面で確認できます（Claude Pro/Max/Team などのサブスクリプション or JetBrains AI 経由の API billing等が表示されます）。</p>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/08/JPCeontralCLIClaudeSub.jpeg" alt="" class="wp-image-732861" style="width:650px; width:100% !important; height:auto !important; max-width:100% !important;"/><figcaption class="wp-element-caption">Claude サブスクリプションが有効（JetBrains AI との関連付けが無効）な場合の Claude Code 起動画面</figcaption></figure>
+
+
+
+<p></p>
+
+
+
+<h2 class="wp-block-heading"><strong>まとめ</strong></h2>
+
+
+
+<p><a href="https://www.jetbrains.com/central-cli/" target="_blank" rel="noreferrer noopener">JetBrains Central CLI</a> により JetBrains AI で Claude Code や Codex CLI が使えるようになりました。All Products Pack や dotUltimate についてくる AI クレジットを活用していなかった方はこの機会にぜひお試しください。</p>
+
+
+
+<p>また、JetBrains IDE と CLI のコーディングエージェントを共用している方は、すでに提供されている<a href="https://www.jetbrains.com/ja-jp/help/idea/mcp-server.html" data-type="link" data-id="https://www.jetbrains.com/ja-jp/help/idea/mcp-server.html" target="_blank" rel="noreferrer noopener">コーディングエージェント向け IDE MCP 機能</a>に加えて <a href="https://plugins.jetbrains.com/plugin/33314-air-alpha" target="_blank" rel="noreferrer noopener">Air Alpha</a> で IDE と CLI/TUI のさらなる融合をぜひお試しください。</p>
+
+
+
+<p>ご質問や導入のご相談は&nbsp;<a href="https://www.jetbrains.com/ja-jp/support/sales/?responseType=email-sales" target="_blank" rel="noreferrer noopener">JetBrains 日本語窓口</a>&nbsp;、その他ご意見 フィードバックは&nbsp;<a href="https://x.com/masaruhr" target="_blank" rel="noreferrer noopener">@masaruhr</a>&nbsp;までお気軽にご連絡ください。</p>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>AI コーディングエージェント向け Kotlin Benchmark のご紹介</title>
+		<link>https://blog.jetbrains.com/ja/kotlin/2026/07/introducing-the-kotlin-benchmark-evaluate-ai-coding-agents-on-real-world-kotlin-tasks/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Mon, 27 Jul 2026 09:44:52 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/KT-social-BlogFeatured-1280x720-1-4.png</featuredImage>		<product ><![CDATA[ai]]></product>
+		<product ><![CDATA[kotlin]]></product>
+		<category><![CDATA[ai]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=kotlin&#038;p=726457</guid>
+
+					<description><![CDATA[エージェント型コーディングのベンチマークが実際のソフトウェア開発で身近になりつつあります。Kotlin チームにとっては、問題の解釈から検証に合格する解決策を生成するまでの一連の Kotlin タスクを AI エージェントがどれくらい確実に完了できるのか？というのが最大の疑問です。 当社はこの疑問を解決するための第一歩として、Kotlin のソフトウェアエンジニアリングタスクの AI コーディングエージェントを評価する JetBrains 公式ベンチマークである Kotlin Benchmark をリリースします。当社は Kotlin でさまざまなエージェントのパフォーマンスを評価し、日々の開発業務に近いタスクを使用してエージェントの構成を比較するための確実かつ公開された手法を開発者に提供することを目標としています。 ベンチマークのリリースに合わせて GitHub 上にベンチマーク用アセットを公開するとともに、評価結果を追跡できる公式リーダーボードを立ち上げることにしました。 GitHub でベンチマークを詳しく見る リーダーボードで最初の結果を見る Kotlin Benchmark の仕組み Kotlin Benchmark の最初の公開イテレーションは SWE-bench 手法に基づいており、リポジトリレベルの Kotlin ソフトウェアエンジニアリングタスクに焦点を当てています。 Kotlin はすでに Kotlin_HumanEval や Kotlin_QA など、モデルによる言語の構文や中核となる概念の理解度を測定するのに役立つモデル中心の強力な評価アセットを備えています。Kotlin Benchmark は 別の側面から着目します。AI コーディングエージェントが既存の Kotlin プロジェクトで検証済みのソフトウェアエンジニアリングタスクをどの程度正確に完了できるかを検証するのです。 このデータセットにはアクティブなオープンソースリポジトリから収集した 105 件のエンジニアリングタスクが含まれています。それぞれのタスクでは、AI エージェントが実際の課題の説明を解釈し、プロジェクトのコンテキストを参照し、機能するパッチを生成しなければなりません。解決策はコンテナー環境内で厳格に検証され、タスクは生成された解決策が必須のテスト検証に合格した場合にのみ解決済みに設定されます。 環境セットアップやデータ収集に関する詳細については、手法のページをご覧ください。 最初の結果 最初の評価結果から、主要コーディングエージェントが現在の Kotlin ベンチマークタスクの大部分を完了できることが分かります。この結果はベンチマークの最初の公開イテレーションを反映したものであり、最新のモデルリリースはまだ含まれていません。すでに第 2 [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p>エージェント型コーディングのベンチマークが実際のソフトウェア開発で身近になりつつあります。Kotlin チームにとっては、問題の解釈から検証に合格する解決策を生成するまでの一連の Kotlin タスクを AI エージェントがどれくらい確実に完了できるのか？というのが最大の疑問です。</p>
+<p>当社はこの疑問を解決するための第一歩として、Kotlin のソフトウェアエンジニアリングタスクの AI コーディングエージェントを評価する JetBrains 公式ベンチマークである <a href="http://kotlinlang.org/benchmark/" target="_blank" rel="noopener">Kotlin Benchmark</a> をリリースします。当社は Kotlin でさまざまなエージェントのパフォーマンスを評価し、日々の開発業務に近いタスクを使用してエージェントの構成を比較するための確実かつ公開された手法を開発者に提供することを目標としています。</p>
+<p>ベンチマークのリリースに合わせて GitHub 上にベンチマーク用アセットを公開するとともに、評価結果を追跡できる公式リーダーボードを立ち上げることにしました。</p>
+<p><a href="https://github.com/Kotlin/kotlin-swe-bench" target="_blank" rel="noopener">GitHub でベンチマークを詳しく見る</a></p>
+<p><a href="http://kotlinlang.org/benchmark/" target="_blank" rel="noopener">リーダーボードで最初の結果を見る</a></p>
+<h3 class="wp-block-heading">Kotlin Benchmark の仕組み</h3>
+<p>Kotlin Benchmark の最初の公開イテレーションは SWE-bench 手法に基づいており、リポジトリレベルの Kotlin ソフトウェアエンジニアリングタスクに焦点を当てています。</p>
+<p>Kotlin はすでに <a href="https://huggingface.co/datasets/JetBrains/Kotlin_HumanEval" target="_blank" rel="noopener">Kotlin_HumanEval</a> や <a href="https://huggingface.co/datasets/JetBrains/Kotlin_QA" target="_blank" rel="noopener">Kotlin_QA</a> など、モデルによる言語の構文や中核となる概念の理解度を測定するのに役立つモデル中心の強力な評価アセットを備えています。Kotlin Benchmark は 別の側面から着目します。AI コーディングエージェントが既存の Kotlin プロジェクトで検証済みのソフトウェアエンジニアリングタスクをどの程度正確に完了できるかを検証するのです。</p>
+<p>このデータセットにはアクティブなオープンソースリポジトリから収集した 105 件のエンジニアリングタスクが含まれています。それぞれのタスクでは、AI エージェントが実際の課題の説明を解釈し、プロジェクトのコンテキストを参照し、機能するパッチを生成しなければなりません。解決策はコンテナー環境内で厳格に検証され、タスクは生成された解決策が必須のテスト検証に合格した場合にのみ解決済みに設定されます。</p>
+<p>環境セットアップやデータ収集に関する詳細については、<a href="https://kotlinlang.org/benchmark/methodology/" target="_blank" rel="noopener">手法のページ</a>をご覧ください。</p>
+<h3 class="wp-block-heading">最初の結果</h3>
+<p>最初の評価結果から、主要コーディングエージェントが現在の Kotlin ベンチマークタスクの大部分を完了できることが分かります。この結果はベンチマークの最初の公開イテレーションを反映したものであり、最新のモデルリリースはまだ含まれていません。すでに第 2 イテレーションを進めているところですので、新しい評価結果が追加され次第、リーダーボードを更新していく予定です。</p>
+<p>この時点では Claude Code と Opus 4.7 xhigh の組み合わせが最高の結果を出し、105 件のタスクのうち 90 件が解決され、解決率は 85.71％ でした。JetBrains Junie と Opus 4.7 max（81.9%）および Codex と GPT 5.5 xhigh（81.9%）の組み合わせが僅差で続いています。</p>
+<p>完全なリーダーボードは <a href="http://kotlinlang.org/benchmark" target="_blank" rel="noopener">kotlinlang.org/benchmark</a> をご覧ください。エージェントや構成の詳細を比較できます。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-720156" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/SWE-Benchmark-Infographics-1920x1080-1.png" alt="" />
+<figcaption class="wp-element-caption">ここに表示されている結果は、Kotlin ベンチマークの最初の公開イテレーションを反映したものです。リーダーボードは新しいモデルの評価が追加されるたびに更新されます。</figcaption>
+</figure>
+<p>このベンチマークは、コーディングエージェントを評価するチームがベンダーの主張のみに依拠することなく Kotlin タスクの構成を比較するための共通の基準を提供します。このスコアはあくまで目安として提示しているものであり、すべてのコードベースについて保証するものではありません。実際の結果は、アーキテクチャ、内部 API、コーディング標準、ツール、検証プロセスによって異なります。</p>
+<h3 class="wp-block-heading">今後の予定</h3>
+<p>当社はオープンな姿勢を大切にしているため、このベンチマークをオープンソースの Multi-SWE-bench インフラストラクチャ上に構築し、すべてのデータセットとテストハーネスを一般公開しました。</p>
+<p>当社はベンチマークを継続的な品質測定のパイプラインとして位置づけています。今後は以下の分野でこの枠組みを拡大していく予定です。</p>
+<ul class="wp-block-list">
+<li><strong>Kotlin エコシステムの対応範囲を拡大:</strong> Android や Kotlin Multiplatform といった分野を含め、実運用での Kotlin の使用状況をタスクの組み合わせにより適切に反映し、より幅広いタスクの難易度に対応できるようにします。</li>
+<li><strong>評価指標を追加: </strong>テストの合格は正確さを示す便利な目安ではありますが、エージェント評価のごく一部に過ぎません。今後のイテレーションでは、コスト、パフォーマンス、保守性、コード品質についても評価していく予定です。</li>
+<li><strong>エージェントとモデルの構成を追加:</strong> より多くの商用エージェント、エージェントとモデルの構成、オープンウェイトモデルを評価することで、チームがより幅広い構成を比較できるようにしていく予定です。</li>
+</ul>
+<p>このベンチマークは公開されています。タスクを調査し、結果を比較し、当社が次に取り上げるべき Kotlin のシナリオをお聞かせください。</p>
+
+
+<p>オリジナル（英語）ブログ投稿記事の作者：</p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2021/08/photo_2021-08-03_15-27-43-200x200.jpg" alt="Alyona Chernyaeva" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Alyona Chernyaeva</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[zh-hans]]></code>
+                        <url>https://blog.jetbrains.com/zh-hans/kotlin/2026/07/introducing-the-kotlin-benchmark-evaluate-ai-coding-agents-on-real-world-kotlin-tasks/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/kotlin/2026/07/introducing-the-kotlin-benchmark-evaluate-ai-coding-agents-on-real-world-kotlin-tasks/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/kotlin/2026/07/introducing-the-kotlin-benchmark-evaluate-ai-coding-agents-on-real-world-kotlin-tasks/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/kotlin/2026/07/introducing-the-kotlin-benchmark-evaluate-ai-coding-agents-on-real-world-kotlin-tasks/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>CLion 2026.2 がリリースされました</title>
+		<link>https://blog.jetbrains.com/ja/clion/2026/07/2026-2-release/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Fri, 24 Jul 2026 02:03:22 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/CL-releases-BlogFeatured-1280x720-1.png</featuredImage>		<category><![CDATA[news]]></category>
+		<category><![CDATA[releases]]></category>
+		<category><![CDATA[agent-skills]]></category>
+		<category><![CDATA[bazel]]></category>
+		<category><![CDATA[cmake]]></category>
+		<category><![CDATA[debugger]]></category>
+		<category><![CDATA[embedded]]></category>
+		<category><![CDATA[natvis]]></category>
+		<category><![CDATA[stm32]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=clion&#038;p=726045</guid>
+
+					<description><![CDATA[AI エージェント用のデバッガースキル、デバッガー構成を単純化するデバッグプロファイル、C++26 のリフレクションのサポートが実装されました。 CLion 2026.2 がリリースされました。この C および C++ 用 JetBrains IDE の最新バージョンには、以下の主な機能が含まれています。 エージェント型デバッグ用の新しいバンドルスキル 新しい ST バンドルマネージャーである STM32 Cube CLI のサポート デバッグプロファイルによるデバッガー構成の単純化 C++26 のリフレクションをサポート。 CLion 2026.2 は以下のリンク、Toolbox App、またはバージョン 2026.1 のパッチ更新からダウンロードできます。Ubuntu ユーザーの方はスナップパッケージとしてダウンロードすることも可能です。 CLion 2026.2 をダウンロード AI エージェント用デバッガースキル CLion 2026.2 では、AI エージェントがデバッガーに直接アクセスできるバンドルスキルが導入されました。エージェントがスタックトレース、ブレークポイント、変数の値を使用し、自律型ワークフローを中断することなく根本原因を調査することができます。 このスキルは GDB、LLDB、DAP ベースのデバッガーで動作し、ACP（Agent Client Protocol）互換のエージェントで使用できます。このスキルを呼び出すには、Claude Code では /clion-debugger、Codex では $clion-debugger を使用してください。今後のアップデートでは組み込み関連のデバッグ機能をさらに追加する予定です。 組み込み開発 STM32 バンドルマネージャーのサポート STM32 [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p><strong>AI エージェント用のデバッガースキル、デバッガー構成を単純化するデバッグプロファイル、C++26 のリフレクションのサポートが実装されました。</strong></p>
+<p>CLion 2026.2 がリリースされました。この C および C++ 用 JetBrains IDE の最新バージョンには、以下の主な機能が含まれています。</p>
+<ul class="wp-block-list">
+<li>エージェント型デバッグ用の<a href="#debugger-skill-for-ai-agents">新しいバンドルスキル</a></li>
+<li>新しい ST バンドルマネージャーである <a href="#support-for-the-stm32-bundle-manager">STM32 Cube CLI のサポート</a></li>
+<li>デバッグプロファイルによる<a href="#simplified-debugger-configuration-with-debug-profiles">デバッガー構成の単純化</a></li>
+<li><a href="#support-for-new-c-features">C++26 のリフレクションをサポート</a>。</li>
+</ul>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-722853" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/CL-releases-BlogFeatured-1280x720-1.png" alt="" /></figure>
+<p>CLion 2026.2 は以下のリンク、<a href="https://www.jetbrains.com/ja-jp/toolbox-app/" target="_blank" rel="noopener">Toolbox App</a>、またはバージョン 2026.1 のパッチ更新からダウンロードできます。Ubuntu ユーザーの方はスナップパッケージとしてダウンロードすることも可能です。</p>
+<p align="center"><a class="jb-download-button" href="https://www.jetbrains.com/ja-jp/clion/download/" target="_blank" rel="noopener" data-test="blog-article-cta"><i class="download-icon"></i>CLion 2026.2 をダウンロード</a></p>
+<h2 class="wp-block-heading">AI エージェント用デバッガースキル</h2>
+<p>CLion 2026.2 では、AI エージェントがデバッガーに直接アクセスできるバンドルスキルが導入されました。エージェントがスタックトレース、ブレークポイント、変数の値を使用し、自律型ワークフローを中断することなく根本原因を調査することができます。</p>
+<p>このスキルは GDB、LLDB、DAP ベースのデバッガーで動作し、ACP（Agent Client Protocol）互換のエージェントで使用できます。このスキルを呼び出すには、Claude Code では <code>/clion-debugger</code>、Codex では <code>$clion-debugger</code> を使用してください。今後のアップデートでは組み込み関連のデバッグ機能をさらに追加する予定です。</p>
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-debugger-skill.mp4"></video></figure>
+<h2 class="wp-block-heading">組み込み開発</h2>
+<h3 class="wp-block-heading">STM32 バンドルマネージャーのサポート</h3>
+<p>STM32 組み込み開発環境をセットアップする際、現時点では具体的なツールや特定のバンドルバージョンのみが必要な場合にもオールインワン型の STM32CubeCLT パッケージをインストールする必要があります。CLion 2026.2 では新しい STM32 バンドルマネージャーである STM32 Cube CLI のサポートが追加されたため、CMake、ST-LINK GDB サーバー、GNU ツールなどの必要なツールのみをダウンロードし、IDE 内で開発バンドルを直接管理できるようになりました。</p>
+<p>STM32 Cube CLI はターミナル、または <em>Tools | STM32 Cube CLI</em>（ツール | STM32 Cube CLI） で使用できます。この IDE では、WSL または SSH 経由のツールチェーンを扱う際にプロジェクトバンドルをすべての環境に一括インストールすることもできます。必要なバンドルが見つからない場合は CLion の CMake の出力に通知が表示され、対象のバンドルをワンクリックでインストールするためのアクションが提供されます。CLion 2026.3 ではさらに多くのオプションが追加される予定です。</p>
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-stm32-cube.mp4"></video></figure>
+<h3 class="wp-block-heading">ライブウォッチでの構造体と配列のサポート</h3>
+<p><a href="https://www.jetbrains.com/ja-jp/help/clion/live-watches.html" target="_blank" rel="noopener">ライブウォッチ</a>を使用すると、グローバル変数をリアルタイムで監視できます。のため、デバッガーを停止したり、プログラムの実行を中断したりする必要はありません。このリリースでは変数の型のサポートを拡張し、配列と構造体を検査できるようにしました。新しいボタンを使用することで、変数値の履歴をクリアして現在のデータに表示を絞り込むことも可能です。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-722935" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-live-watches-upd.png" alt="" /></figure>
+<h2 class="wp-block-heading">デバッガー</h2>
+<h3 class="wp-block-heading">デバッグプロファイルによるデバッガー構成の単純化</h3>
+<p>従来はデバッガーを構成する場合、さまざまな IDE の設定を操作する必要がありました。ハードウェアのインターフェースやプローブなどの特別なレイヤーを追加する組み込みプロジェクトでは、このような作業がさらに複雑化していました。</p>
+<p>2026.2 では、すべてのデバッグ環境（ローカル、リモート、組み込み）を一元的に構成できる新しい設定セクションが提供されています。GDB、LLDB、SEGGER J-Link、ST-Link のすべての設定を <em>Settings（設定）| Debugger（デバッガー）| Debug Profiles（デバッグプロファイル）</em> で構成できるようになりました。</p>
+<div class="slider slider-full">
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-debug-profiles.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-debug-profiles.png" alt="" /><br /></a></div>
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-debug-profiles.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-debug-profiles.png" alt="" /><br /></a></div>
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/3-debug-profiles.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/3-debug-profiles.png" alt="" /><br /></a></div>
+</div>
+<h3 class="wp-block-heading">フィールドとグローバル変数のインスペクションの容易化</h3>
+<p><em>Threads &amp; Variables</em>（スレッドと変数）ペインでデバッグを行う際、CLion はローカル変数を自動的に追跡します。従来はフィールドとグローバル変数を検査するのに手動でウォッチを設定する必要があったため、検査対象が現在のコンテキストのみに関連する場合でも手間がかかっていました。</p>
+<p>CLion 2026.2 にはフィールドとグローバル変数と共にローカル変数を自動的に表示し、それらを視覚的に区別しやすくする新しいデバッガーの設定が導入されています。この機能はデフォルトで有効化されていますが、 <em>Settings（設定）| Build, Execution, Deployment（ビルド、実行、デプロイ）| Debugger（デバッガー）| Data Views（データビュー）| C/C++ | Variables（変数）</em>で無効化することも可能です。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-722981" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-inspection-globals.png" alt="" /></figure>
+<h3 class="wp-block-heading">構成固有のブレークポイント</h3>
+<p>マルチプロセスシステムをデバッグする際や複数の異なるターゲットプラットフォームを扱う際、複数の構成でブレークポイントを管理するのが面倒になる場合があります。あるプロセスやターゲットに設定されたブレークポイントが、別のプロセスやターゲットで予期せずトリガーされてしまう可能性があります。</p>
+<p>CLion 2026.2 ではこのような場合に問題の切り分けや診断を行いやすくする機能が導入され、 <em>Breakpoints</em>（ブレークポイント）ダイアログ（<em>Run（実行）| View Breakpoints（ブレークポイントの表示）</em>）で特定のデバッグ構成にブレークポイントを割り当てられるようになりました。この構成が有効である場合、デバッガーは割り当てられたブレークポイントのみで停止し、他のブレークポイントは無視するようになります。</p>
+<div class="slider slider-full">
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-config-sp-breakpoints.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-config-sp-breakpoints.png" alt="" /><br /></a></div>
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-config-sp-breakpoints.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-config-sp-breakpoints.png" alt="" /><br /></a></div>
+</div>
+<h3 class="wp-block-heading">Linux および macOS での Natvis のサポート</h3>
+<p>以前、macOS と Linux のユーザーがデバッガーでの型の可視化を改善する場合、LLDB 用の Python データフォーマッターを記述する必要がありました。これは非常に時間がかかり、エラーが発生しやすいプロセスです。CLion 2026.2 では、macOS と Linux 向けの Natvis のサポートが追加されたため、その必要がなくなりました。希望する型の表示方法を Natvis ファイルに数行で記述すると、残りの処理は CLion のデバッガーが行います。</p>
+<p>この機能は、プロジェクトルートおよび IDE 設定で指定された追加ディレクトリに <code>.natvis</code> ファイルがあるプロジェクトで使用できます。また、バンドルされている LLDB またはカスタム LLDB のみで機能します。カスタム LLDB を使用している場合は、Python 3.10 以降が含まれることを確認してください。</p>
+<p>Natvis のレンダリングを有効化するには、<em>Settings（設定）| Build, Execution, Deployment（ビルド、実行、デプロイ）| Debugger（デバッガー）| Data Views（データビュー）| C/C++</em> に移動し、 <em>Enable Natvis renderers for LLDB</em>（LLDB で Natvis レンダラーを有効にする）をオンにします。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-723014" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/natvis.png" alt="" /></figure>
+<p>Natvis のサポートは Rider でも提供されています。詳細は、Rider チームによる<a href="https://blog.jetbrains.com/dotnet/2026/07/06/natvis-comes-to-linux-and-macos-in-rider-2026-2-debugger/">ブログ記事</a>をご覧ください。</p>
+<h2 class="wp-block-heading">ビルドツールとプロジェクト形式</h2>
+<h3 class="wp-block-heading">Bazel サポートの改善</h3>
+<p><a href="https://plugins.jetbrains.com/plugin/9554-bazel-for-clion" target="_blank" rel="noopener">Bazel for CLion プラグイン</a>の開発とメンテナンスを Google から引き継いでから約 1 年が経過しましたが、当社は引き続き安定、軽快、かつ直感的な Bazel 開発を行えるようにしています。このリリースでは、このプラグインに以下のような複数の改善が導入されています。</p>
+<ul class="wp-block-list">
+<li>デバッグセッションを開始する際、<a href="https://jb.gg/cl_bzl_262_wn" target="_blank" rel="noopener">CLion がデバッグフラグを自動注入せず、プロジェクトがデバッグシンボルを含めてビルドされているかどうかを確認するようになりました</a>。デバッグシンボルがない場合は IDE に警告が表示され、その警告から直接デバッグフラグを注入できます。その後、デバッグセッションが続行されます。</li>
+</ul>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-723025" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-bazel.png" alt="" /></figure>
+<ul class="wp-block-list">
+<li>同じファイルに複数の構成が存在する場合、構成を切り替えられるようになりました。従来は<a href="#removing-the-clion-classic-engine">既存の CLion Classic エンジン</a>を使用しているユーザーのみが切り替え可能でした。</li>
+<li>プラグインがターゲットのデバッグや実行時に正しい構成を自動的に選択し、アクティブなターゲットに合わせて常にコードインサイトを反映するようになりました。</li>
+</ul>
+<h3 class="wp-block-heading">CMake ターゲットの名前変更を容易化</h3>
+<p>CMake ターゲットは <code>add_executable</code> や <code>add_library</code> などのコマンドで作成された実行可能ファイル、ライブラリ、およびユーティリティです。従来は CLion でターゲット名を変更する場合、そのすべての出現箇所を手動で編集する必要がありました。このリリースでは <em>Rename</em>（名前の変更）リファクタリングアクション（<em>Shift+F6</em>）を使用することで、<code>CMakeLists.txt</code> ファイル内で自動的にターゲット名を変更し、 ターゲット名のすべての定義と使用箇所をプロジェクト全体で更新できるようになりました。</p>
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/4-cmake-renaming.mp4"></video></figure>
+<h3 class="wp-block-heading">バンドルのツールチェーンに関する更新</h3>
+<p>CLion にバンドルされている複数のツールを更新しました。</p>
+<ul class="wp-block-list">
+<li>CMake が v4.3 に更新されました</li>
+<li>GCC が v15.2.0 に更新されました</li>
+<li>GDB が v17.1 に更新されました</li>
+<li>Mingw-w64 が v13 に更新されました</li>
+</ul>
+<h2 class="wp-block-heading">言語機能に関する更新</h2>
+<h3 class="wp-block-heading">新しい C++ 機能のサポート</h3>
+<p><strong>C++26 のリフレクション</strong>: C++26 のコンパイル時リフレクションは、ここ数年で最も重要なこの言語の追加機能のひとつです。従来は構造体メンバーのリスト表示や列挙値から文字列への変換などを行う際、コンパイル時にコードが型、関数、またはメンバーに対する検査や反復処理を必要とする冗長なボイラープレートの作成が必要になる場合がありました。C++26 のリフレクションはコンパイル時に型、関数、変数、およびその他の宣言に関する情報にアクセスする標準的な手段をプログラムに提供することで、このような反復的なコードを削減しています。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-723181" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/3-cpp-26-reflection.png" alt="" /></figure>
+<p>GCC 16.1 以上を使用している場合、CLion 2026.2 はリフレクションに対応したハイライトとコード解析を追加します。この追加により、IDE が C++26 のほとんどの機能をサポートするようになりました。詳細は<a href="https://blog.jetbrains.com/clion/2026/06/modern-cpp-support/">ブログ記事</a>をご覧ください。</p>
+<p><strong>リフレクション関連の機能</strong>: リフレクションのサポートに伴い、以下の関連する 2 つの C++26 言語機能が追加されました。</p>
+<ul class="wp-block-list">
+<li>IDE は <code>consteval { ... }</code> ブロックをサポートするようになりました。このブロックはコンパイル時に評価され、エンクロージングスコープに宣言を注入することができます。<code>consteval</code> ブロックを使用すると、コンパイル時の副作用を正しく呼び出すことができるため、特にリフレクションを使用した実用的なメタプログラミングで役立ちます。</li>
+<li>ユーザー定義のアノテーション&lt;/0&gt;を宣言に添付し、リフレクション API 経由でクエリできるようになりました。カスタムメタデータによるコード生成が可能になります。</li>
+</ul>
+<p><strong><code>constexpr</code> の評価</strong>: CLion 2026.2 では constexpr 評価機能が拡張され、2 つの重要な機能が実装されました。</p>
+<ul class="wp-block-list">
+<li>評価機能では、定数評価時の動的なメモリの割り当てがサポートされました。これは C++20 で導入された機能です。これにより、<code>new</code>/<code>delete</code> を使用するか、<code>std::vector</code> や <code>std::string</code> のような標準コンテナーを使用する <code>constexpr</code> コードを正しく評価することができます。</li>
+<li>評価機能では、C++26 の constexpr 例外がサポートされ、定数評価時に <code>try</code>/<code>catch</code> および <code>throw</code> 式を処理できるようになりました。</li>
+</ul>
+<h3 class="wp-block-heading">CLion Classic エンジンの廃止</h3>
+<p>IDE で古い C および C++ エンジンである CLion Classic が廃止され、<a href="https://plugins.jetbrains.com/plugin/32355-c-c--language-support-via-classic-engine" target="_blank" rel="noopener">JetBrains Marketplace のプラグイン</a>としてのみ提供されるようになりました。これをもって CLion Nova への移行が完了し、このエンジンが全ユーザーのデフォルトのエンジンになりました。この決定の理由については、<a href="https://blog.jetbrains.com/clion/2025/12/2025-3-release/#faster-performance-with-the-new-language-engine">こちらのブログ記事</a>をご覧ください。</p>
+<p>CLion Classic を引き続き使用するには、<em>Settings | Plugins | Marketplace</em>（設定 | プラグイン | Marketplace）から <em>C/C+​+​ Language Support via Classic Engine</em> プラグインをインストールしてください。CLion Classic はすでに開発が終了しており、新しい言語機能はすべて CLion Nova 専用に開発されています。</p>
+<h2 class="wp-block-heading">その他の更新</h2>
+<h3 class="wp-block-heading">Git に関する改善</h3>
+<ul class="wp-block-list">
+<li><strong>Git 競合の解決の合理化</strong>: 大規模なプロジェクトではマージする際に多数の競合が発生しがちです。<em>Resolve All Simple Conflicts</em>（単純な競合をすべて解決）は、ファイルを 1 つずつ開かず、標準的な競合を変更セット全体でまとめて自動的に解決する新しいアクションです。新しいフローでは、解決済みのファイルと未解決のファイルの概要も確認できます。</li>
+</ul>
+<div class="slider slider-full">
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-git-improvements.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/1-git-improvements.png" alt="" /><br /></a></div>
+<div class="slider__slide"><a href="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-git-improvements.png"><br /><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/2-git-improvements.png" alt="" /><br /></a></div>
+</div>
+<ul class="wp-block-list">
+<li><strong>Git ワークツリーのサポートの強化</strong>: WSL 環境でワークツリーを使用し、削除されたワークツリーを IDE から直接除去し、より信頼性の高いワークツリーの削除処理を利用できるようになりました。</li>
+<li><strong>コードレビューでのユーザー名の自動補完</strong>: コードレビューのコメントで <code>@</code> を入力することで、GitHub または GitLab リポジトリからユーザー名の自動補完候補を取得できるようになりました。</li>
+</ul>
+<h3 class="wp-block-heading">ターミナルの改善</h3>
+<ul class="wp-block-list">
+<li><strong>ファイルとフォルダーのドラッグアンドドロップ操作のサポート</strong>: ファイルまたはフォルダーをターミナルに直接ドラッグして現在のコマンドにパスを挿入したり、ターミナルのタブにドロップしてその場所をルートとする新しいタブを開いたりできるようになりました。クリップボードの画像をサポート対象の CLI エージェントセッションに直接貼り付けることも可能です。</li>
+</ul>
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/3-terminal.mp4"></video></figure>
+<ul class="wp-block-list">
+<li><strong>MCP セットアップの高速化</strong>: MCP サーバーが構成されていない状態でターミナルで新しい AI セッションを開始すると、CLion が MCP サーバーのセットアップを促し、関連する設定に直接遷移するようになりました。</li>
+</ul>
+<h3 class="wp-block-heading">修正されたバグ</h3>
+<p>以下はこのリリースにおける主な修正点です。</p>
+<ul class="wp-block-list">
+<li><strong><em>Project</em></strong><strong>（プロジェクト）ツールウィンドウ内の外部ソースの UI 改善</strong>: 外部ソースファイルとプロジェクトのソースに同じ名前を使用している場合、<em>Project</em>（プロジェクト）ツールウィンドウ内でそれらを区別するのが困難な場合があります。これは、長いファイルパスを使用する組み込みプロジェクトでは特に顕著です。CLion 2026.2 ではすべての外部ソースを専用のノード配下にまとめることで、プロジェクトのファイルと区別しやすくしています。</li>
+</ul>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-723080" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/3-fixes.png" alt="" /></figure>
+<ul class="wp-block-list">
+<li><strong>Machine Learning Code Completion プラグインのサポートを非推奨化</strong>: AI 補完、次の編集提案、およびエージェントがインテリジェントな支援機能に対応し始めたため、ML ベースの補完のランク付けを行うプラグインのバンドルが廃止されました。このプラグインは引き続き必要に応じて <a href="https://plugins.jetbrains.com/plugin/28632-machine-learning-code-completion" target="_blank" rel="noopener">JetBrains Marketplace</a> から入手することができます。</li>
+</ul>
+<h2 class="wp-block-heading">CLion を試した感想をお聞かせください</h2>
+<p>CLion 2026.2 をぜひお試しください。有効なサブスクリプションをお持ちの場合は、すぐに更新できます。CLion は初めてですか？ 非商用または教育プロジェクトでは、IDE を無料でご利用いただけます。それ以外の方も無料 30 日間体験版を開始して、すべての最新機能や改善された機能を体験することができます。</p>
+<p>当社はユーザーのフィードバックを重視しています。ご意見がある場合や問題に遭遇した場合は、以下のコメント欄、<a href="https://x.com/clion_ide">X</a>、または<a href="https://youtrack.jetbrains.com/issues/CPP/" target="_blank" rel="noopener">課題トラッカー</a>にてお知らせください。</p>
+<p align="center"><a class="jb-download-button" href="https://www.jetbrains.com/ja-jp/clion/download/" target="_blank" rel="noopener" data-test="blog-article-cta"><i class="download-icon"></i>CLion 2026.2 をダウンロード</a></p>
+
+
+<p><strong>オリジナル（英語）ブログ投稿記事の作者：</strong></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2024/09/DSC05379-1-min.jpg" alt="Oleg Zinovyev" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Oleg Zinovyev</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[zh-hans]]></code>
+                        <url>https://blog.jetbrains.com/zh-hans/clion/2026/07/2026-2-release/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/clion/2026/07/2026-2-release/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/clion/2026/07/2026-2-release/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/clion/2026/07/2026-2-release/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/clion/2026/07/2026-2-release/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/clion/2026/07/2026-2-release/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/clion/2026/07/2026-2-release/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>PyCharm 2026.2 の新機能</title>
+		<link>https://blog.jetbrains.com/ja/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Thu, 23 Jul 2026 04:40:46 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/PC-releases-BlogSocialShare-1280x720-1-2.png</featuredImage>		<category><![CDATA[releases]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=pycharm&#038;p=725793</guid>
+
+					<description><![CDATA[PyCharm 2026.2 では、新しい Rust プラグインで Python 拡張機能をビルドし、それをデフォルトのエンジンになった debugpy を使用してデバッグできます。外部ユーティリティの実行が uvx 向けに再設計された設定 UI を介して管理され、 複数プロジェクトの構成が uv、Poetry、Hatch のワークスペースで標準でサポートされるようになりました。今回のリリースではエディターのミニマップも導入され、より高速な型インサイトの提供を実現する Pyrefly エンジンが統合され、AI によるプロジェクト生成などの機能も追加されています。 Rust プラグインを使用した Python 拡張機能の開発 [ベータ][Pro] Rust モジュールを活用する Python プロジェクトとシームレスに連携することで、パフォーマンスが重要なコンポーネントを高速化できます。 デフォルトのデバッガーを debugpy に変更 Debug Adapter Protocol（DAP）を使用することで、バージョン 2026.1 でオプションのバックエンドオプションとして導入された debugpy がすべての Python プロジェクトと Jupyter ノートブックに対してデフォルトで有効化されるようになりました。 uv 基盤のツールと uvx のサポート PyCharm が uv ツールチェーンを活用して外部開発ユーティリティの実行プロセスを合理化するようになりました。これにより、ローカル環境が雑然とする原因になる手動パッケージ構成が不要になっています。 uv、Poetry、Hatch の複数プロジェクトと uv ワークスペースのサポート [ベータ] [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>PyCharm 2026.2 では、新しい Rust プラグインで Python 拡張機能をビルドし、それをデフォルトのエンジンになった debugpy を使用してデバッグできます。外部ユーティリティの実行が <code>uvx</code> 向けに再設計された設定 UI を介して管理され、 複数プロジェクトの構成が uv、Poetry、Hatch のワークスペースで標準でサポートされるようになりました。今回のリリースではエディターのミニマップも導入され、より高速な型インサイトの提供を実現する Pyrefly エンジンが統合され、AI によるプロジェクト生成などの機能も追加されています。</p>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://www.jetbrains.com/ja-jp/pycharm/whatsnew/" class="btn" target="" rel="noopener">新機能の詳細を読む</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+<iframe loading="lazy" title="What&#039;s New in PyCharm 2026.2" src="https://www.youtube.com/embed/pQNecZTlyq4?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div></figure>
+
+
+
+<h3 class="wp-block-heading">Rust プラグインを使用した Python 拡張機能の開発 [ベータ][Pro]</h3>
+
+
+
+<p>Rust モジュールを活用する Python プロジェクトとシームレスに連携することで、パフォーマンスが重要なコンポーネントを高速化できます。</p>
+
+
+
+<h3 class="wp-block-heading">デフォルトのデバッガーを debugpy に変更</h3>
+
+
+
+<p>Debug Adapter Protocol（DAP）を使用することで、バージョン 2026.1 でオプションのバックエンドオプションとして導入された debugpy がすべての Python プロジェクトと Jupyter ノートブックに対してデフォルトで有効化されるようになりました。</p>
+
+
+
+<h3 class="wp-block-heading">uv 基盤のツールと <code>uvx</code> のサポート</h3>
+
+
+
+<p>PyCharm が uv ツールチェーンを活用して外部開発ユーティリティの実行プロセスを合理化するようになりました。これにより、ローカル環境が雑然とする原因になる手動パッケージ構成が不要になっています。</p>
+
+
+
+<h3 class="wp-block-heading">uv、Poetry、Hatch の複数プロジェクトと uv ワークスペースのサポート [ベータ]</h3>
+
+
+
+<p>この機能は <a href="https://blog.jetbrains.com/pycharm/2026/05/support-for-uv-poetry-and-hatch-workspaces-beta/">PyCharm 2026.1.1 ではオプションとして提供</a>されていましたが、2026.2 バージョンではデフォルトで有効になりました。これによってサブプロジェクトの管理が合理化され、より詳細な依存関係のインサイトが構成ファイル内で直接提供されるようになりました。&nbsp;</p>
+
+
+
+<h3 class="wp-block-heading">エディターのミニマップ</h3>
+
+
+
+<p>エディターの公式ミニマップを使用すると、複雑なソースファイルやノートブックの間をより効率よく移動できるようになります。このミニマップはサポート対象のすべてのファイル形式でドキュメント構造の概要を視覚的に分かりやすく提供し、Jupyter ノートブック専用に設計したレイアウトも提供します。</p>
+
+
+
+<h3 class="wp-block-heading">Pyrefly 型エンジンの統合</h3>
+
+
+
+<p>Pyrefly を外部型エンジンとして使用することで、大規模な Python コードベースのコードインサイト機能が大幅に高速化します。</p>
+
+
+
+<h3 class="wp-block-heading">AI で新規プロジェクトを開始</h3>
+
+
+
+<p>JetBrains AI のライセンスをお持ちの方が「ようこそ」画面から自然言語のプロンプトを使用し、全面的に構成された実行可能なプロジェクトを直接ゼロから生成できるようになりました。</p>
+
+
+
+<h3 class="wp-block-heading">エージェントスキルマネージャー</h3>
+
+
+
+<p>AIエージェントが役に立つのは、コンテキストが与えられている場合だけです。フレームワークや規則、ツールに関する知識がない場合、新しいチャットウィンドウが開くたびに同じ構成を説明し直さなければなりません。</p>
+
+
+
+<p>この問題はエージェントスキルで解決できます。PyCharm にエージェントスキルを一度インストールすれば、エージェントがドメイン知識をすべてのプロジェクトやセッションに自動的に反映させます。IDE から直接スキルを参照・管理したり、公開 GitHub リポジトリなどの外部レジストリで組み込みライブラリを拡張したり、Claude Code や Codex 向けに設定済みのスキルを PyCharm にインポートさせたりできます。&nbsp;</p>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://www.jetbrains.com/ja-jp/pycharm/whatsnew/" class="btn" target="" rel="noopener">新機能の詳細を読む</a>
+                                                    </div>
+    </div>
+
+
+
+
+
+
+
+<p>オリジナル（英語）ブログ投稿記事の作者：</p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2022/03/Afanasiev-Ilia-200x200.jpg" alt="Ilia Afanasiev" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Ilia Afanasiev</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<p></p>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[zh-hans]]></code>
+                        <url>https://blog.jetbrains.com/zh-hans/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/pycharm/2026/07/what-s-new-in-pycharm-2026-2/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>RubyMine 2026.2: エージェント型デバッグ、GitHub Copilot のネイティブ統合、シンボルベースのコードインサイトのデフォルト化など</title>
+		<link>https://blog.jetbrains.com/ja/ruby/2026/07/rubymine-2026-2-agentic-debugging-native-github-copilot-integration-default-symbol-based-code-insight-and-more/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Wed, 22 Jul 2026 03:23:17 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/RM-releases-BlogFeatured-1280x720-1.png</featuredImage>		<product ><![CDATA[ruby]]></product>
+		<category><![CDATA[ai]]></category>
+		<category><![CDATA[github-copilot]]></category>
+		<category><![CDATA[rails]]></category>
+		<category><![CDATA[release]]></category>
+		<category><![CDATA[ruby]]></category>
+		<category><![CDATA[ruby-on-rails]]></category>
+		<category><![CDATA[rubymine-2026-2]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=ruby&#038;p=723838</guid>
+
+					<description><![CDATA[RubyMine 2026.2 がリリースされました！ RubyMine 2026.2 では、エージェント型デバッグ、GitHub Copilot のネイティブ統合、サードパーティプロバイダーによる AI 補完が導入され、シンボルベースのコードインサイトがデフォルトで有効化されました。また、Ruby エコシステム全体と定型的な IDE ワークフローで改善が行われています。 RubyMine 2026.2 は公式ウェブサイトからダウンロードすることも、Toolbox App 経由の更新で導入することもできます。 それでは、新機能の内容を見ていきましょう。 AI エージェント型デバッグ アプリケーションを手動でステップ実行する代わりに、RubyMine デバッガーを使用して AI エージェントに問題の調査を依頼できるようになりました。&#160; エージェント型デバッグにはバンドルスキル（対応する AI エージェントのアクセス権を IDE の機能に付与する定義済みのワークフロー）が使用されています。RubyMine 2026.2 には新しい rubymine-debugger スキルが搭載されており、エージェントがこのスキルを使用してデバッグセッションの開始、実行時状態の検査、およびアプリケーション動作の解析を自力で行えるようになっています。これにより、ソースコードとログだけでは理解しにくい問題を発見しやすくしています。 サードパーティプロバイダーによる AI 補完 AI ベースのコード補完機能は JetBrains AI ユーザー全員が初期状態で使用でき、AI クレジットを消費せずにインライン補完の提案やカーソル位置にとどまらない「次の編集提案」を提供します。 RubyMine 2026.2 では、AI 補完に独自の OpenAI 互換モデルのプロバイダーを使用できるようになり、好みのモデルを開発ワークフローに統合しやすくなりました。 GitHub Copilot のネイティブ統合 Copilot が Microsoft [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>RubyMine 2026.2 がリリースされました！</p>
+
+
+
+<p>RubyMine 2026.2 では、エージェント型デバッグ、GitHub Copilot のネイティブ統合、サードパーティプロバイダーによる AI 補完が導入され、シンボルベースのコードインサイトがデフォルトで有効化されました。また、Ruby エコシステム全体と定型的な IDE ワークフローで改善が行われています。</p>
+
+
+
+<p>RubyMine 2026.2 は公式<a href="https://www.jetbrains.com/ja-jp/ruby/download" target="_blank" rel="noopener">ウェブサイト</a>からダウンロードすることも、<a href="https://www.jetbrains.com/ja-jp/toolbox/app/" target="_blank" rel="noopener">Toolbox App</a> 経由の更新で導入することもできます。</p>
+
+
+
+<p>それでは、新機能の内容を見ていきましょう。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/RM-releases-BlogFeatured-1280x720-1.png" alt="" class="wp-image-721274"/></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>AI</strong></h2>
+
+
+
+<h3 class="wp-block-heading"><strong>エージェント型デバッグ</strong></h3>
+
+
+
+<p>アプリケーションを手動でステップ実行する代わりに、RubyMine デバッガーを使用して AI エージェントに問題の調査を依頼できるようになりました。&nbsp;</p>
+
+
+
+<p>エージェント型デバッグには<strong>バンドルスキル</strong>（対応する AI エージェントのアクセス権を IDE の機能に付与する定義済みのワークフロー）が使用されています。RubyMine 2026.2 には新しい <code>rubymine-debugger</code> スキルが搭載されており、エージェントがこのスキルを使用してデバッグセッションの開始、実行時状態の検査、およびアプリケーション動作の解析を自力で行えるようになっています。これにより、ソースコードとログだけでは理解しにくい問題を発見しやすくしています。</p>
+
+
+
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/ai_debugs.mp4"></video></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>サードパーティプロバイダーによる AI 補完</strong></h3>
+
+
+
+<p>AI ベースのコード補完機能は JetBrains AI ユーザー全員が初期状態で使用でき、AI クレジットを消費せずにインライン補完の提案やカーソル位置にとどまらない「次の編集提案」を提供します。</p>
+
+
+
+<p>RubyMine 2026.2 では、AI 補完に独自の OpenAI 互換モデルのプロバイダーを使用できるようになり、好みのモデルを開発ワークフローに統合しやすくなりました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/third_party.png" alt="" class="wp-image-721188"/></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>GitHub Copilot のネイティブ統合</strong></h3>
+
+
+
+<p>Copilot が Microsoft との提携を通じて RubyMine に組み込まれ、AI チャットから直接使用できるようになりました。</p>
+
+
+
+<p>エージェント選択メニューから <em>GitHub Copilot</em> を選択し、GitHub アカウントでサインインするだけで使用できるようになります。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/copliot.png" alt="" class="wp-image-721199"/></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>高度なコードインサイトをデフォルトで有効化</strong></h2>
+
+
+
+<p>RubyMine 2026.1 では新しいシンボルベースのコードインサイトエンジンが実験的機能として導入されましたが、 2026.2 からはこの機能がデフォルトで有効化されました。</p>
+
+
+
+<p>この新しいエンジンは RubyMine による Ruby のクラス、モジュール、および定数の解釈方法を変更し、移動操作とドキュメント作成の精度を向上させ、それと同時に将来の改善に向けた基盤としても機能します。</p>
+
+
+
+<p>新しいリリースではシンボルベースのモデリングが IDE 全体に拡張され、さらに効率化されています。<br></p>
+
+
+
+<p><strong><em>クイックドキュメント</em></strong><strong>の拡充</strong></p>
+
+
+
+<p><em>クイックドキュメント</em>で定義がより明確に表示され、利用できる場合に追加の型情報も表示されるようになりました。</p>
+
+
+
+<p><em>Ctrl/Cmd+Hover</em> の情報量が増え、定数やグローバル変数を含むより多くの Ruby シンボルの型情報が表示されるようになりました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/type_info.png" alt="" class="wp-image-721210"/></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>部分的にしか解決されていないコードのサポート改善</strong></h3>
+
+
+
+<p><em>Go to Declaration</em>（宣言に移動）、<em>Find Usages</em>（使用箇所の検索）、<em>Rename</em>（名前の変更）、<em>Quick Documentation</em>（クイックドキュメント）のような機能について、クラス、モジュール、または定数を完全に解決できない場合でも有意義な情報を取得できる限りは動作が継続するようになりました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/unresolved.png" alt="" class="wp-image-721221"/></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>パラメーター定義</strong></h3>
+
+
+
+<p>パラメーター定義でエンジンの他の部分と同じシンボルベースのモデリングが使用されるようになりました。</p>
+
+
+
+<p>これにより、パフォーマンスが改善しただけでなく、<em>Rename</em>（名前の変更）リファクタリングの精度が向上し、あいまい補完が強化され、文字列リテラル内の複雑な名前の処理が高度化されました。</p>
+
+
+
+<p>必要に応じて、<em>Settings（設定）| Languages &amp; Frameworks（言語とフレームワーク）| Ruby | Code Insight（コードインサイト）</em>から以前の実装に戻すことも可能です。</p>
+
+
+
+<h2 class="wp-block-heading"><strong>Ruby エコシステム関連の改善</strong></h2>
+
+
+
+<h3 class="wp-block-heading"><strong>RBS 開発の利便性向上</strong></h3>
+
+
+
+<p>RubyMine 2026.2 では、以下のような複数の改善によって RBS 開発の利便性を向上させています。</p>
+
+
+
+<ul class="wp-block-list">
+<li>型パラメーターヒントに変性修飾子、上限、デフォルト値が表示されるようになりました。</li>
+
+
+
+<li>モジュールの self 型が Ruby コードに直接表示されるようになりました。</li>
+
+
+
+<li>コードから直接使用できる新しいエディターアクションにより、RBS ヒントをより簡単に管理できるようになりました。</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/rbs.png" alt="" class="wp-image-721232"/></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>RSpec 4 サポートの拡張</strong></h3>
+
+
+
+<p>RubyMine では RSpec 4 のサポート範囲が拡張され、既存プロジェクトの移行を行いやすくなりました。</p>
+
+
+
+<p>IDE は非推奨の構文を検出し、互換性の問題をハイライトし、一般的なアップグレード計画に対応したクイックフィックスを提供します。</p>
+
+
+
+<p>インスペクションがトップレベルの DSL 宣言、非推奨の should 期待値、およびその他の RSpec 4 の互換性に関する変更に対応するようになったため、これらが問題となる前にテストスイートをモダン化しやすくなりました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/rspec.png" alt="" class="wp-image-721243"/></figure>
+
+
+
+<h3 class="wp-block-heading"><strong>デバッグ時の非プロジェクトコードのスキップ処理</strong></h3>
+
+
+
+<p>コードをステップ実行する際、通常はフレームワークの内部要素ではなく、自分のアプリケーションのみに関心があるものです。</p>
+
+
+
+<p><em>Ignore non-project sources</em>（非プロジェクトソースを無視する）オプションがより確実に機能するようになりました。RubyMine は Ruby 標準ライブラリのコード、フレームワークの内部要素、サードパーティの gem、および除外対象のディレクトリをスキップするため、実際のデバッグ対象コードに集中することができます。</p>
+
+
+
+<p>そのため、手動ステップ実行が少なくなり、デバッグセッションがより明確になります。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/ignore_on.gif" alt="" class="wp-image-721254"/></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>ユーザーエクスペリエンスの改善</strong></h2>
+
+
+
+<h3 class="wp-block-heading"><strong>gem 環境の更新を高速化</strong></h3>
+
+
+
+<p>gem 環境の更新がバックグラウンドで行われるようになったため、SDK と依存関係情報が更新される間の UI フリーズが減少し、RubyMine の応答性が維持されるようになりました。</p>
+
+
+
+<h3 class="wp-block-heading"><strong>プロジェクトの開始を単純化</strong></h3>
+
+
+
+<p>既存プロジェクトを開く際に必要な手動セットアップが少なくなりました。</p>
+
+
+
+<p>RubyMine が適切な Ruby インタープリターをプロジェクト構成ファイルから自動的に検出できるようになりました。これによって不要なセットアップの通知が減り、作業をより素早く開始できるようになりました。</p>
+
+
+
+<h3 class="wp-block-heading"><strong>RuboCop 処理の効率化</strong></h3>
+
+
+
+<p>RuboCop のバックグラウンド解析が最適化されて無駄な CPU 使用量が削減されたため、日々の開発における IDE の応答性が改善されました。</p>
+
+
+
+<h2 class="wp-block-heading">連絡先情報</h2>
+
+
+
+<p>最新機能のリリース時にその内容を詳しく知るには、<a href="https://twitter.com/rubymine" target="_blank" rel="noopener">RubyMine の X</a> をフォローしてください。&nbsp;</p>
+
+
+
+<p>以下のコメント欄で皆さんのご感想をお聞かせください。また、新機能の提案と投票は<a href="https://youtrack.jetbrains.com/issues/ruby" target="_blank" rel="noopener">課題トラッカー</a>をご利用ください。</p>
+
+
+
+<p>Happy Developing!</p>
+
+
+
+<p>RubyMine チーム一同より</p>
+
+
+
+<p><strong>オリジナル（英語）ブログ投稿記事の作者：</strong></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2025/04/FafRu1qOjLk-e1744804977965-200x200.jpg" alt="Alexey Varfolomeev" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Alexey Varfolomeev</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/ruby/2026/07/rubymine-2026-2-agentic-debugging-native-github-copilot-integration-default-symbol-based-code-insight-and-more/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>PhpStorm 2026.2 がリリースされました</title>
+		<link>https://blog.jetbrains.com/ja/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Tue, 21 Jul 2026 03:33:34 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/PS-releases-BlogSocialShare-1280x720-1.png</featuredImage>		<product ><![CDATA[phpstorm]]></product>
+		<category><![CDATA[releases]]></category>
+		<category><![CDATA[2026-2]]></category>
+		<category><![CDATA[phpstorm]]></category>
+		<category><![CDATA[release]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=phpstorm&#038;p=724709</guid>
+
+					<description><![CDATA[PhpStorm 2026.2 リリースの概要へようこそ。このバージョンでは、PhpStorm をお好みのコーディングエージェント、モデル、AI サブスクリプションに対応したプラットフォームとして進化させ、PHP と Laravel のサポートを強化し、Git リポジトリ、データベース、組み込みのターミナルを操作する際の生産性を向上させました。 PhpStorm 2026.2 のダウンロード PhpStorm で使用可能な AI PhpStorm 2026.2 ではネイティブでサポートされるサードパーティ AI プロバイダーの数が増え、IDE の定型的な機能に対するコーディングエージェントのアクセスがさらに拡大されました。 エージェントスキルマネージャー AIエージェントが役に立つのは、コンテキストが与えられている場合だけです。フレームワークや規則、ツールに関する知識がない場合、新しいチャットウィンドウが開くたびに同じ構成を説明し直さなければなりません。 この問題はエージェントスキルで解決できます。PhpStorm にエージェントスキルを一度インストールすれば、エージェントがドメイン知識をすべてのプロジェクトやセッションに自動的に反映させます。IDE から直接スキルを参照・管理したり、公開 GitHub リポジトリなどの外部レジストリで組み込みライブラリを拡張したり、Claude Code や Codex 向けに設定済みのスキルを PhpStorm にインポートさせたりできます。 詳細については、こちらのブログ記事をご覧ください。 AI ベースのコード補完におけるサードパーティプロバイダーのサポート AI ベースのコード補完は、インライン補完とカーソル位置にとどまらない「次の編集提案」を組み合わせたエディター組み込みのコード候補表示機能です。JetBrains AI ユーザー全員に初期状態で提供され、JetBrains がトレーニングしたモデルを使用して機能します。また、AI クレジットを消費しません。&#160; 最新のアップデートでは、独自の OpenAI 互換のモデルプロバイダーを AI 補完用に接続できるようになっています。 PhpStorm に組み込まれた GitHub Copilot JetBrains と Microsoft [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>PhpStorm 2026.2 リリースの概要へようこそ。このバージョンでは、PhpStorm をお好みのコーディングエージェント、モデル、AI サブスクリプションに対応したプラットフォームとして進化させ、PHP と Laravel のサポートを強化し、Git リポジトリ、データベース、組み込みのターミナルを操作する際の生産性を向上させました。</p>
+
+
+
+<p class="has-text-align-center"><a class="jb-download-button" href="https://www.jetbrains.com/ja-jp/phpstorm/download/" target="_blank" rel="noopener">PhpStorm 2026.2 のダウンロード</a></p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/PS-releases-BlogFeatured-1279x719-1.png" alt="" class="wp-image-720772"/></figure>
+
+
+
+<h2 class="wp-block-heading">PhpStorm で使用可能な AI</h2>
+
+
+
+<p>PhpStorm 2026.2 ではネイティブでサポートされるサードパーティ AI プロバイダーの数が増え、IDE の定型的な機能に対するコーディングエージェントのアクセスがさらに拡大されました。</p>
+
+
+
+<h3 class="wp-block-heading">エージェントスキルマネージャー </h3>
+
+
+
+<p>AIエージェントが役に立つのは、コンテキストが与えられている場合だけです。フレームワークや規則、ツールに関する知識がない場合、新しいチャットウィンドウが開くたびに同じ構成を説明し直さなければなりません。</p>
+
+
+
+<p>この問題はエージェントスキルで解決できます。PhpStorm にエージェントスキルを一度インストールすれば、エージェントがドメイン知識をすべてのプロジェクトやセッションに自動的に反映させます。IDE から直接スキルを参照・管理したり、公開 GitHub リポジトリなどの外部レジストリで組み込みライブラリを拡張したり、Claude Code や Codex 向けに設定済みのスキルを PhpStorm にインポートさせたりできます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/agent-skills.png" alt="" class="wp-image-720206"/></figure>
+
+
+
+<p>詳細については、<a href="https://blog.jetbrains.com/ai/2026/04/skill-manager-and-skill-repository/#skills-manager-one-place-to-install-manage-and-reuse-skills">こちらのブログ記事</a>をご覧ください。</p>
+
+
+
+<h3 class="wp-block-heading">AI ベースのコード補完におけるサードパーティプロバイダーのサポート</h3>
+
+
+
+<p>AI ベースのコード補完は、インライン補完とカーソル位置にとどまらない「次の編集提案」を組み合わせたエディター組み込みのコード候補表示機能です。JetBrains AI ユーザー全員に初期状態で提供され、JetBrains がトレーニングしたモデルを使用して機能します。また、AI クレジットを消費しません。&nbsp;</p>
+
+
+
+<p>最新のアップデートでは、独自の OpenAI 互換のモデルプロバイダーを AI 補完用に接続できるようになっています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/third-party-providers-in-ai-completion.png" alt="" class="wp-image-721710"/></figure>
+
+
+
+<h3 class="wp-block-heading">PhpStorm に組み込まれた GitHub Copilot</h3>
+
+
+
+<p>JetBrains と Microsoft の直接的な提携を通じ、GitHub Copilot が JetBrains IDE にネイティブ統合されたエージェントになりました。従来の <a href="https://blog.jetbrains.com/ai/2026/01/acp-agent-registry/" target="_blank" rel="noreferrer noopener">ACP レジストリのセットアップ</a>とは異なり、Copilot を初期状態で使用できるようになり、操作の統一感が高まりました。</p>
+
+
+
+<p>Copilot には AI チャットのエージェント選択メニューから直接アクセスできます。認証は GitHub アカウントによる OAuth で処理され、有効な GitHub Copilot サブスクリプションが必要です。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/github_copilot.png" alt="" class="wp-image-720217"/></figure>
+
+
+
+<h3 class="wp-block-heading">ターミナル内 AI セッション用 PhpStorm MCP サーバーの設定を高速化</h3>
+
+
+
+<p>AI エージェントワークフローをターミナル内で最大限に活用できるようにするため、お好みのコーディングエージェントを使用して新しいセッションを開始する際に IDE が PhpStorm MCP サーバーの構成を促せるようになりました。MCP サーバーが構成されていない場合は自動的に通知が表示され、関連する設定に直接案内されます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/faster-phpstorm-mcp-server-setup.png" alt="" class="wp-image-721721"/></figure>
+
+
+
+<h2 class="wp-block-heading">PHP</h2>
+
+
+
+<h3 class="wp-block-heading">永続的なファイル参照用の <code>#[FileReference]</code> アトリビュート</h3>
+
+
+
+<p>PhpStorm で関数、メソッド、およびコンストラクターのパラメーターに #<code>[FileReference]</code> アトリビュートを使用することで、文字列リテラルをファイルまたはディレクトリのパスに設定できるようになりました。そのようなパラメーターにパスが文字列として渡されている場合、移動操作やリファクタリングの際に PhpStorm から最高水準のサポートを受けられます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/persistent_reference1_upd-1.png" alt="" class="wp-image-721961"/></figure>
+
+
+
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/persistent_reference2_upd-2.mp4"></video></figure>
+
+
+
+<p>アノテーション付きのファイル参照はプロジェクト全体に適用され、IDE を再起動しても消えないため、手動での参照の挿入よりも優れています。PhpStorm は単純な参照に加えて、<code>basePath</code> を使用して定義された相対パス、動的に構築されるパス、さらには変数と定数を使用したパスをサポートしています。</p>
+
+
+
+<h3 class="wp-block-heading">コード品質ツールの実行オプション<strong></strong></h3>
+
+
+
+<p>IDE のパフォーマンスをさらに最適化するため、PhpStorm で PHPStan や Laravel Pint などのサードパーティ製コード品質ツールを実行する頻度を「入力中にその場で実行」、「アイドル時に実行」、または「ファイル保存時に実行」のいずれかに設定できるようにしました。<em>Run mode</em>（実行モード）設定は、<em>Settings（設定）| PHP | Quality Tools（品質ツール）| {quality_tool_name}</em> で設定できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/run_mode_qulity_tool-1.png" alt="" class="wp-image-721938"/></figure>
+
+
+
+<p>以下は、言語サポートのその他の改善です。<strong></strong></p>
+
+
+
+<ul class="wp-block-list">
+<li><a href="https://www.php-fig.org/per/coding-style/" target="_blank" rel="noreferrer noopener">PER Coding Style 3.0</a> のサポート。PhpStorm に内蔵された PHP フォーマッターで、<a href="https://www.jetbrains.com/ja-jp/help/phpstorm/reformat-and-rearrange-code.html" target="_blank" rel="noreferrer noopener">コードの整形アクション</a>に対して PER Coding Style 3.0 仕様を使用し続けるには、<em>Settings（設定）| Editor（エディター）| Code Style（コードスタイル）| PHP | Set from…（選択して設定&#8230;） </em>に移動し、リストから <em>PER-CS 3.0.0</em> を選択します。<br><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/per-cs-3-0-0.png" alt=""></li>
+</ul>
+
+
+
+<ul class="wp-block-list">
+<li>オブジェクト変数を入力後、方向キーを使用して自動補完します。この設定はデフォルトで有効になっています。無効化するには、<em>Settings（設定）| Editor（エディター）| General（一般）| Smart Keys（スマートキー）| PHP</em> に移動してください。<br><video controls="" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/arrow_completion.mp4"></video></li>
+</ul>
+
+
+
+<ul class="wp-block-list">
+<li><code>#[ArrayShape]</code> に明示的なキーを指定しないネストされた配列のコード補完。<br><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/nested_arrays_without_keys.png" alt=""></li>
+</ul>
+
+
+
+<h2 class="wp-block-heading">Laravel</h2>
+
+
+
+<h3 class="wp-block-heading"><em>Laravel</em> ツールウィンドウ</h3>
+
+
+
+<p>新しい<em> Laravel</em> ツールウィンドウを使用すると、PhpStorm を離れることなく Laravel プロジェクトを管理できます。<em>Dashboard</em>（ダッシュボード）タブは全体的なプロジェクト情報の確認と Artisan コマンドへの迅速なアクセスに、<em>Errors</em>（エラー）タブはローカルのログファイルか Sentry でホストされているログファイルの参照とログのコピーと貼り付けを行わない AI によるエラーの確認と修正に、<em>Laravel Cloud</em> タブはデプロイと環境変数の管理に使用できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/laravelLogViewer.gif" alt="" class="wp-image-720327"/></figure>
+
+
+
+<p>以下は Laravel 開発者向けのその他の主な改善点です。</p>
+
+
+
+<ul class="wp-block-list">
+<li><code>laravel/passport および stancl/tenancy</code> パッケージのサポート。</li>
+
+
+
+<li>PHP 8.5 のパイプ演算子のサポート。</li>
+
+
+
+<li>データベーススキーマファイルを参照するための <code>ide.json</code> のオプション、Eloquent モデルクラスからデータベーステーブルへの明示的なマッピング、カスタムの Laravel Livewire 格納場所のパス、および新しい <code>viteAsset、passportScopeId、および staticStrings</code>（ファイルリンク付き）補完タイプ。</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/laravel_updates.png" alt="" class="wp-image-720338"/></figure>
+
+
+
+<p>更新内容の全リストについては、<a href="https://laravel-idea.com/docs/changelog" target="_blank" rel="noreferrer noopener">Laravel Idea の変更ログ</a>をご覧ください。<br></p>
+
+
+
+<h2 class="wp-block-heading">ウェブ</h2>
+
+
+
+<h3 class="wp-block-heading">IDE による TypeScript 7 のサポート</h3>
+
+
+
+<p>補完に遅延が発生したり、リファクタリングにもたつきを感じるほどに TypeScript プロジェクトの規模が拡大した場合は、TypeScript 7 で修正されます。Microsoft がコンパイラーと言語サーバーを Go で書き換えたため、型チェックの速度は最大 4 倍に高速化されたとともに、大規模なコードベースであってもコード補完の応答性が向上し、リファクタリングがより瞬時に行われるようになりました。</p>
+
+
+
+<p>PhpStorm 2026.2 では TypeScript 7 をすでに使用しているプロジェクトでは TypeScript 7 がデフォルトでサポートされており、旧バージョンを引き続き使用しているプロジェクトではアップグレード経路を選択できます。速度改善のメリットは即座に享受でき、移行作業の初日にプロジェクト全体を移行する必要はありません。</p>
+
+
+
+<h2 class="wp-block-heading">バージョン管理</h2>
+
+
+
+<h3 class="wp-block-heading">Git ワークツリーのサポート強化</h3>
+
+
+
+<p>バージョン 2026.2 では WSL などの各種開発環境で Git ワークツリーの管理が単純化されています。また、ワークツリーの除去とクリーンアップを IDE から直接簡単に行えます。</p>
+
+
+
+<p>これらの更新によって日々のワークツリー管理を合理化すると同時に、外部 Git ツールに切り替える必要性を減らしています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/worktree_prunable.png" alt="" class="wp-image-720349" style="object-fit:cover; width:100% !important; height:auto !important; max-width:100% !important;"/></figure>
+
+
+
+<h3 class="wp-block-heading">Git の競合解決フローの合理化</h3>
+
+
+
+<p>大規模なプロジェクトではマージする際に多数のファイル競合が発生しがちで、その多くは単純なインポートの不一致や書式の違いです。PhpStorm 2026.2 では競合解決フローを改善し、<em>Resolve All Simple Conflicts （単純な競合をすべて解決）</em> アクションを呼び出して標準的な競合を変更セット全体で即座に自動的に解決できるようにしています。これにより、各ファイルを 1 つずつ開く必要はなくなりました。この新しいフローでは、解決済みのファイルと未解決のファイルの全体像を確認したり、任意のタイミングでファイルを開き直したり、競合箇所を任意の順序で元に戻したり再適用したりすることも可能です。</p>
+
+
+
+<div class="wp-block-columns is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex">
+<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/conflicts_resolution.png" alt="" class="wp-image-720360"/></figure>
+</div>
+</div>
+
+
+
+<h3 class="wp-block-heading">コードレビューでのユーザー名の自動補完</h3>
+
+
+
+<p>コードレビューのコメントでチームメイトをメンションしやすくなりました。コメントに <em>@</em> を入力するだけで、現在の GitHub または GitLab リポジトリのユーザーのリストが開き、メンション対象のユーザーを選択できるようになっています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/Github_mentions.png" alt="" class="wp-image-720371"/></figure>
+
+
+
+<h2 class="wp-block-heading">ターミナル</h2>
+
+
+
+<h3 class="wp-block-heading">ターミナルセッションでのファイルと画像の共有の容易化</h3>
+
+
+
+<p>ターミナルの操作時と CLI エージェントの使用時に、プロジェクトか外部アプリケーションからパスをコピーして貼り付ける必要がなくなりました。ファイルやフォルダーをターミナルに直接ドラッグアンドドロップし、そのパスを現在のコマンドに挿入できるようになっています。</p>
+
+
+
+<p>特定の場所からすぐに作業を開始するには、ファイルかフォルダーをターミナルのタブ領域にドロップします。すると、そのルートパスがすでに設定された状態で新しいタブが開きます。</p>
+
+
+
+<p>クリップボードの画像をサポート対象の CLI エージェントセッションに直接貼り付けられるようにもなっているため、エージェントに視覚的な情報を提供しやすくなっています。</p>
+
+
+
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/drag-and-drop-to-terminal.mp4"></video></figure>
+
+
+
+<h2 class="wp-block-heading">UI</h2>
+
+
+
+<h3 class="wp-block-heading">非モーダル型の <em>Settings</em>（設定）ダイアログ</h3>
+
+
+
+<p><em>Settings</em>（設定）ダイアログを開いたまま IDE のウィンドウを操作する際にダイアログを閉じる必要がなくなりました。これにより、プロジェクトのパスをコピーしてスコープを設定したり、構成ファイルの値を設定に挿入したり、コードの表示調整を即座に確認したり、構成作業の途中で別のプロジェクトに切り替えたりするのが容易になっています。</p>
+
+
+
+<p>デフォルトでは、<em>Settings</em>（設定）ウィンドウは呼び出し元のプロジェクトの上に表示されたままになります。ピン留めを解除すると、ウィンドウがプロジェクトの背面に送られます。</p>
+
+
+
+<div class="wp-block-columns is-layout-flex wp-container-core-columns-is-layout-2 wp-block-columns-is-layout-flex">
+<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
+<figure class="wp-block-video"><video controls src="https://blog.jetbrains.com/wp-content/uploads/2026/07/non-modal-settings-dialog.mp4"></video></figure>
+</div>
+</div>
+
+
+
+<h2 class="wp-block-heading">データベース</h2>
+
+
+
+<h3 class="wp-block-heading">空状態の場合のデザインを一新: プロジェクト開始の高速化<strong></strong></h3>
+
+
+
+<p>初回セットアップを合理化し、使用開始直後からコーディングをすぐに開始できるようにするため、<em>Database Explorer</em>（データベースエクスプローラー）ツールウィンドウが空状態の場合のデザインを一新しました。新しいプロジェクトを開く際、ツールウィンドウにデータソースを作成するためのクイックアクションが即座に表示されるようになりました。</p>
+
+
+
+<p>また、構成手順に気を取られることなく基本的なデータベース機能に慣れやすくするため、空状態からワンクリックで<a href="https://www.jetbrains.com/help/datagrip/2026.2/quick-start-guide.html" target="_blank" rel="noreferrer noopener">クイックスタートガイド</a>の PostgreSQL、MySQL、および SQLite のデモデータベースにアクセスできるようにしました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_empty_state-1.png" alt="" class="wp-image-720876"/></figure>
+
+
+
+<h3 class="wp-block-heading">カスタムクエリコンソール名: 一目でより多くのコンテキストを把握&nbsp;</h3>
+
+
+
+<p>クエリコンソール名のエディタータブのヘッダーへの表示方法をカスタマイズできるようになり、開いているコンソールとファイルを識別しやすくなりました。</p>
+
+
+
+<p>従来はファイル名の横にデータソース名のみが表示されていましたが、このリリースでは変数を使用してアタッチされたデータソース、データベース、スキーマ、または検索パスなどの追加情報を含めることができます。  テンプレートを構成するには、<em>Settings（設定）| Database（データベース）| Query Files</em> <em>and Consoles（クエリファイルとコンソール）</em>に移動し、<em>Template</em>（テンプレート）フィールドにキャレットを置いて必要な変数を挿入します。</p>
+
+
+
+<p><em>Use this template for query files</em>（クエリファイルにこのテンプレートを使用する）を有効化することで、同じテンプレートをクエリファイルに適用することもできます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/ps_20262_query_customs_names_for_query_consoles.png" alt="" class="wp-image-721949"/></figure>
+
+
+
+<h3 class="wp-block-heading">データベースの色: v2.0</h3>
+
+
+
+<p>データベースの色体系が刷新されて使用時の統一感が向上し、ユーザビリティに関する複数の改善が行われました。このリリースではアダプティブカラーエンジンが導入され、それと共に以下のような複数のユーザビリティに関する構造上の改善が行われています。</p>
+
+
+
+<ul class="wp-block-list">
+<li><strong>テーマを認識するカスタム色。</strong>従来はライトテーマとダークテーマで静的な <code>#RRGGBB</code> の 16 進数色コードが同じであったため、テーマを切り替える際に視覚的なコントラストが損なわれることがよくありました。このリリースでは色相のみを選択するだけで、使用中のテーマの網掛けが IDE によって自動的に調整されるようになりました。</li>
+
+
+
+<li><strong>フォルダー色のサポート。</strong>フォルダーだけでなく、個々のデータベースオブジェクトにもカスタム色を適用できるようになりました。</li>
+
+
+
+<li><strong>色設定へのアクセスを容易化。</strong>色のサブメニューが 1 つ上の階層に移動され、見つけやすくなりました。すべての色設定を個別のダイアログではなく、メインの <em>Settings（設定）</em>ウィンドウ内で直接使用できるようになっています。</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_colors.png" alt="" class="wp-image-720898"/></figure>
+
+
+
+<p><img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_colors_themes.png" alt=""></p>
+
+
+
+<h2 class="wp-block-heading">パフォーマンス</h2>
+
+
+
+<p><a href="https://blog.jetbrains.com/phpstorm/2026/05/phpstorm-2026-2-early-access-program-has-started/" target="_blank" rel="noreferrer noopener">2026.2 EAP のブログ記事</a>で告知したとおり、PhpStorm 2026.2 では IDE の全体的な安定性とパフォーマンスが重視されています。プロジェクトのインデックス作成時間が最大 10%* 短縮された以外の直接的な効果はまだ現れていませんが、この最新の変更は今後のリリースでローカルおよびリモート開発を行う際の起動時間、インデックス作成時間、フリーズを削減するための基盤となります。&nbsp;</p>
+
+
+
+<p>こちらの<a href="https://forms.gle/hRM2k4B5aoJS2edc6" target="_blank" rel="noreferrer noopener">アンケート</a>より、PhpStorm のパフォーマンスに関するフィードバックをお送りください。</p>
+
+
+
+<p><em>*さまざまな PHP フレームワークを代表する多数のプロジェクトに対してベンチマークを実施しました</em>&nbsp;</p>
+
+
+
+<h2 class="wp-block-heading">クラウド</h2>
+
+
+
+<h3 class="wp-block-heading">エディターに Docker Compose のステータスを直接表示&nbsp;</h3>
+
+
+
+<p>Docker Compose ファイルの情報量と対話性が向上しました。エディターを離れなくても Docker Compose ファイル内で実行中のコンテナーのステータスを直接確認でき、一般的なアクションに素早くアクセスできます。</p>
+
+
+
+<p>特定のサービスのログに直接移動したり、データベース接続を作成したり、サービスを Compose ファイル内の対応するエントリからブラウザーで直接開いたりする機能が備わっているため、アプリケーションスタックの監視と操作を行いやすくなっています。</p>
+
+
+
+<h3 class="wp-block-heading">サービステンプレートによる Docker Compose 設定の高速化<strong></strong></h3>
+
+
+
+<p>すぐに使用可能な PostgreSQL や Kafka などの一般的なテクノロジーに対応したテンプレートを使用することで、Docker Compose で依存サービスをより簡単に作成できるようになりました。</p>
+
+
+
+<p>サービス名の入力を開始するか、補完リストから名前を選択するだけで、IDE がユーザーに代わって対応する Docker Compose の構成を生成します。これにより、一般的なサービスを稼働するまでの時間を短縮し、それと同時に手動構成作業を減らせるようにしています。</p>
+
+
+
+<h3 class="wp-block-heading">Terraform テストフレームワークのサポート</h3>
+
+
+
+<p>バージョン 2026.2 では Terraform テストフレームワークのネイティブサポートを導入することで、IDE による Terraform インフラストラクチャのコード化機能のサポートを拡張しました。この統合によって IDE エコシステムへのサポートがさらに充実し、開発ライフサイクルの早い段階でのモジュール動作の検証や構成ポリシーの確実な適用が可能になりました。</p>
+
+
+
+<p>これらの追加機能は初期状態のインフラストラクチャツール一式を基盤とすることで、デプロイ構成の保守性、予測可能性、および明確性を高いレベルで維持しています。</p>
+
+
+
+<p><strong>オリジナル（英語）ブログ投稿記事の作者：</strong></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2023/06/Hanna-Yakush-e1688138701834-200x200.jpeg" alt="Hanna Yakush" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Hanna Yakush</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/phpstorm/2026/07/phpstorm-2026-2-is-now-out/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>DataGrip 2026.2: AI エージェントスキル、データソース管理用の MCP ツールと CLI コマンド、JDBC ドライバーのバンドル化、セッション管理の改善</title>
+		<link>https://blog.jetbrains.com/ja/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Fri, 17 Jul 2026 07:18:58 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/DG-social-BlogFeatured-1280x720-1.png</featuredImage>		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=datagrip&#038;p=723799</guid>
+
+					<description><![CDATA[今年 2 番目のメジャーアップデートである DataGrip 2026.2 がリリースされました！ では、その内容を見てみましょう。 AI このリリースでは、データベース操作用の 3 つの AI エージェントスキル（database-tools、database-connection-management、database-text-to-sql）を導入しています。これらを組み合わせることで、AI エージェントが接続されたデータベースの探索とクエリの実行、データベース接続の構成と更新を行い、AI Chat（AI チャット）からデータベーススキーマに基づいて SQL を直接生成できるようになります。これらのスキルには対応する MCP ツールも含まれているため、追加のセットアップは必要ありません。 エージェントがデータソースの管理タスクを円滑に行えるよう、2 つの新しい MCP ツール（create_database_connection と edit_database_connection）を追加し、これらを database-connection-management スキルに組み込みました。これらの MCP ツールと新スキルを使用すれば、プロンプトで接続の詳細を提供し、チャット内のエージェントに新しいデータソースの作成を依頼したりできます。 次は CLI で AI エージェントを扱うユーザー向けの更新内容です。エージェントがデータベースに対する操作を実行する前にユーザーの同意を求め、これから何を行うか説明するようにしました。SQL クエリの可読性を向上させるため、構文がハイライトされるようになりました。 今回のリリースでは、より円滑で信頼性の高い AI 支援データベースワークフローを実現するため、以下のような多数の小規模な機能強化も施されています。 AI Chat（AI チャット）ツールウィンドウのスキーマ添付 UI も再設計し、データベース固有の MCP ツールの AI Assistant プラグインの要件をなくしました。 開始手順の円滑化 ユーザーが IDE で最初に行う手順を変更しました。従来は DataGrip の初回起動時やすべてのプロジェクトを閉じた後に表示されるWelcome（ようこそ）画面はモーダルダイアログでしたが、このバージョンでは通常の [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<p>今年 2 番目のメジャーアップデートである DataGrip 2026.2 がリリースされました！ では、その内容を見てみましょう。</p>
+
+
+
+<h2 class="wp-block-heading">AI</h2>
+
+
+
+<p>このリリースでは、データベース操作用の 3 つの AI エージェントスキル（<code>database-tools</code>、<code>database-connection-management</code>、<code>database-text-to-sql</code>）を導入しています。これらを組み合わせることで、AI エージェントが接続されたデータベースの探索とクエリの実行、データベース接続の構成と更新を行い、AI Chat（AI チャット）からデータベーススキーマに基づいて SQL を直接生成できるようになります。これらのスキルには対応する MCP ツールも含まれているため、追加のセットアップは必要ありません。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_aia_skill_bundled-4.png" alt="" class="wp-image-722444"/></figure>
+
+
+
+<p>エージェントがデータソースの管理タスクを円滑に行えるよう、2 つの新しい MCP ツール（<code>create_database_connection</code> と <code>edit_database_connection</code>）を追加し、これらを <code>database-connection-management</code> スキルに組み込みました。これらの MCP ツールと新スキルを使用すれば、プロンプトで接続の詳細を提供し、チャット内のエージェントに新しいデータソースの作成を依頼したりできます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_aia_data_source_create.png" alt="" class="wp-image-721475"/></figure>
+
+
+
+<p>次は CLI で AI エージェントを扱うユーザー向けの更新内容です。エージェントがデータベースに対する操作を実行する前にユーザーの同意を求め、これから何を行うか説明するようにしました。SQL クエリの可読性を向上させるため、構文がハイライトされるようになりました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_aia_cli_user_consent.png" alt="" class="wp-image-720949"/></figure>
+
+
+
+<p>今回のリリースでは、より円滑で信頼性の高い AI 支援データベースワークフローを実現するため、以下のような多数の小規模な機能強化も施されています。</p>
+
+
+
+<ul class="wp-block-list">
+<li>AI Assistant に過去の対話のクエリ結果を記憶させ、クエリを再実行しなくても追加の行をフェッチできるようにしました。</li>
+
+
+
+<li>AI エージェントがデータベースオブジェクトを作成する際、すぐにそのオブジェクトを<em>データベースエクスプローラー</em>に表示するようにしました。</li>
+
+
+
+<li>AI エージェントのデータベースオブジェクトの解決能力を向上させました。存在しないオブジェクトとイントロスペクションが未実行のオブジェクトを区別できるようになっています。</li>
+
+
+
+<li>AI エージェントが実行したクエリをデータソースのクエリ履歴に含めるようにし、AI が生成した SQL をユーザー自身のクエリと比較しながらレビューしやすくしました。</li>
+
+
+
+<li>SQL クエリが失敗した際に AI エージェントが一般エラーではなく、データベースから実際のエラーメッセージを受け取るようにしました。これにより、より的確な対応を取れるようになりました。</li>
+
+
+
+<li><code>list_database_connections</code> MCP ツールでデフォルト値を持つパラメーターが指定された場合、出力スキーマエラーを返さないようにしました。</li>
+</ul>
+
+
+
+<p><em>AI Chat</em>（AI チャット）ツールウィンドウのスキーマ添付 UI も再設計し、データベース固有の MCP ツールの AI Assistant プラグインの要件をなくしました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_aia_schema_attachment.png" alt="" class="wp-image-720971"/></figure>
+
+
+
+<h2 class="wp-block-heading">開始手順の円滑化</h2>
+
+
+
+<p>ユーザーが IDE で最初に行う手順を変更しました。従来は DataGrip の初回起動時やすべてのプロジェクトを閉じた後に表示される<em>Welcome</em>（ようこそ）画面はモーダルダイアログでしたが、このバージョンでは通常の IDE のタブになりました。この画面を開いたまま IDE を使用できるようになっています。この新しい<em>Welcome</em>（ようこそ）タブは、<em>default</em>（デフォルト）プロジェクトに表示されます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_default_project.png" alt="" class="wp-image-721070"/></figure>
+
+
+
+<p>今回のリリースでは、<a href="https://www.jetbrains.com/ja-jp/help/datagrip/2026.2/feature-trainer.html" target="_blank" rel="noopener">対話型オンボーディングツアー</a>も導入しています。このツアーでは主な UI 画面の紹介と IDE の基本機能の案内が行われます。<em>Database Explorer</em>（データベースエクスプローラー）ツールウィンドウ内の主な操作、データソース設定ダイアログ、クエリコンソールでのクエリ実行、クエリ結果セットの表示と操作、データベースへの変更の反映方法が解説されます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_onboarding_tour.png" alt="" class="wp-image-721092"/></figure>
+
+
+
+<h2 class="wp-block-heading">データソース用 CLI コマンド</h2>
+
+
+
+<p><a href="https://www.jetbrains.com/ja-jp/help/datagrip/2026.2/cli-commands-for-data-sources.html" target="_blank" rel="noopener">コマンドラインインターフェース（CLI）</a> 上でデータソースに複数のアクションを実行できるようになりました。接続とドライバーを管理できる <code>list</code> および <code>manage</code> コマンドを導入しました。構文は次の通りです。</p>
+
+
+
+<p class="has-text-align-center"><code>datagrip dataSources  [options] [arguments]</code></p>
+
+
+
+<p>このインターフェースでは、バッチ処理の手法が採用されています。つまり、アクションごとに 1 つのコマンドを実行するのではなく、複数の命令を含む JSON ファイルを渡せるということです。このツールは複数の命令を 1 回のセッションで処理して結果を JSON 形式で返すため、シェルのパイプライン処理に最適です。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_cli.png" alt="" class="wp-image-720993"/></figure>
+
+
+
+<h2 class="wp-block-heading">接続</h2>
+
+
+
+<p>以下の 3 種類のセッション制御モードを用意し、クライアント（クエリコンソール、データエディターなど）間のデータベース接続セッションをどのように割り振りたいかに応じて切り替えられるようにしました。</p>
+
+
+
+<ul class="wp-block-list">
+<li><em>Single shared session</em>（1 つの共有セッションモード）は、1 つの接続を複数のクライアントで共有する場合に適しています。</li>
+
+
+
+<li><em>Two sessions: shared and introspection</em>（2 つのセッション: 共有とイントロスペクション）は、イントロスペクション用とそれ以外用の 2 つのセッションを作成します。</li>
+
+
+
+<li><em>Dedicated sessions</em>（専用セッション）は、クライアントごとに新しいセッションを作成します。</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_session_control.png" alt="" class="wp-image-721114"/></figure>
+
+
+
+<p>JDBC ドライバーのダウンロードを待たずにデータソースをすぐに作成できるようにするため、IDE には複数のドライバーを同梱しています。現在、DataGrip には以下のドライバーが含まれています。</p>
+
+
+
+<ul class="wp-block-list">
+<li>Microsoft SQL Server バージョン 13.2.1</li>
+
+
+
+<li>MongoDB バージョン 1.21</li>
+
+
+
+<li>MySQL Connector/J バージョン 9.5.0</li>
+
+
+
+<li>PostgreSQL バージョン 42.7.3</li>
+
+
+
+<li>Redis バージョン 1.6</li>
+</ul>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_connectivity_bundled_jdbc_drivers-1.png" alt="" class="wp-image-721632"/></figure>
+
+
+
+<p>データベースのロールとウェアハウス間の切り替えも大幅に高速化されました。Snowflake で作業する際、現在のセッションの権限を変更するために <code>SET ROLE</code> コマンドを手動で実行したり、接続設定を探し回ったりする必要がなくなりました。クエリコンソールツールバーの新しいドロップダウンメニューにより、使用可能なロールとウェアハウスを瞬時に切り替えられます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_connectivity_snowflake_role_warehouse.png" alt="" class="wp-image-721015"/></figure>
+
+
+
+<h2 class="wp-block-heading">データの処理</h2>
+
+
+
+<p>グリッドセルの値をリテラル値に制限せず、SQL 式を使用して設定できるようにしました。データエディターの新しい <em>SQL Expression</em> (SQL 式) モードでは、<code>NOW()</code> などの任意の有効な SQL 式をセルに入力し、DataGrip にその結果を新しいセルの値として使用させることができます。変更を送信すると、IDE はその式を文字列としてエスケープせず、生成した <code>UPDATE</code> または <code>INSERT</code> ステートメントに直接組み込みます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_data_sql_expression_mode_menu.png" alt="" class="wp-image-721026"/></figure>
+
+
+
+<p>この新しいモードでは、数値列に <code>0x</code> で始まる値を入力することも入力できます。SQL コマンドを実行する代わりに <em>SQL Expression</em> モードをオンにして値を入力するだけで、セルを更新できるようになっています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_data_hex_values.png" alt="" class="wp-image-720938"/></figure>
+
+
+
+<h2 class="wp-block-heading">データベースエクスプローラー</h2>
+
+
+
+<p><em>Database Explorer</em>（データベースエクスプローラー）ツールウィンドウが空状態の場合のデザインを一新し、<a href="https://www.jetbrains.com/ja-jp/help/datagrip/2026.2/quick-start-guide.html" target="_blank" rel="noopener">クイックスタートガイド</a>で説明しているものも含め、データソース作成用のクイックアクションを提供するようにしました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_empty_state.png" alt="" class="wp-image-721136"/></figure>
+
+
+
+<p>データベースの色体系を変更し、新しい統一感のある UI を使用してデータソース、データベースオブジェクト、フォルダーに色を割り当てやすくしました。カスタム色の動作が大幅に改善され、IDE のテーマがライトでもダークでもどちらにも合う色合いになりました。データソースフォルダーでもカスタム色を使用できるようになりました。データベースの色設定を見つけやすくするため、メインの IDE の <em>Settings</em>（設定）ダイアログの <em>Settings</em>（設定） | <em>Database</em>（データベース） | <em>Database Explorer</em>（データベースエクスプローラー）に移動しました。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_colors.png" alt="" class="wp-image-720898"/></figure>
+
+
+
+<p><em>Database Explorer</em>（データベースエクスプローラー）で接頭辞が同じデータベースオブジェクトを個別のグループに配置できるようになりました。グループには接頭辞の名前が割り当てられます。たとえば、<code>my_table01</code> と <code>my_table02</code> は <code>my_</code> の下にグループ化され、そのグループ内ではそれぞれの名前が <code>table01</code> および <code>table02</code> と表示されます。現時点で接頭辞区切り文字として処理される文字は、<code>_</code>、<code>-</code>、<code>$</code> です。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_group_by_prefix-1.png" alt="" class="wp-image-721643"/></figure>
+
+
+
+<p>他のフォルダーやデータソースを含むデータソースフォルダーを削除する場合は、その項目を選択し、右クリックして <em>Drop</em>（削除）を選択します。DataGrip は確認を求め、削除される項目のリストを表示します。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_db_explorer_delete_folder.png" alt="" class="wp-image-721048"/></figure>
+
+
+
+<h2 class="wp-block-heading"><em>Explain Plan</em> メニューとアクション</h2>
+
+
+
+<p>ユーザーからのフィードバックを受け、前回のリリースで廃止された raw 形式のアクションを復活させました。Explain Plan を raw 形式で開く場合は、<em>Query Plan</em>（クエリプラン）タブの左側ツールバーにある <em>Raw</em> ボタンをクリックしてください。<em>Raw</em> という内部タブが開きます。すでに raw 形式の Explain Plan が表示されている場合、このボタンは <em>Show Tree</em>（ツリーの表示）と表示され、<em>Operations Tree</em>（操作ツリー）という内部タブが開きます。<em>Explain Plan</em> のドロップダウンメニューに raw 形式のアクションを追加するには、<em>Settings</em>（設定） | <em>Appearance &amp; Behavior</em>（外観 &amp; 振る舞い） | <em>Menus and Toolbars</em>（メニューとツールバー） に移動し、<em>Explain Plan</em> を選択して <em>Add</em>（追加）をクリックします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_explain_plan_raw_button.png" alt="" class="wp-image-721081"/></figure>
+
+
+
+<h2 class="wp-block-heading">クエリファイルとコンソール</h2>
+
+
+
+<p>変数を使用することで、エディタータブのヘッダー内のクエリコンソール名に詳細情報を追加できるようになりました。たとえば、添付データソース、データベース、スキーマ、検索パスを追加できます。この機能を使用するには、<em>Settings</em>（設定）| <em>Database</em>（データベース）| <em>Query Files and Consoles</em>（クエリファイルとコンソール）の順に進みます。コンソール名に変数を追加する場合は、<em>Template</em>（テンプレート） フィールド内の挿入したい場所にキャレットを置き、対応する変数のボタンをクリックします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_query_customs_names_for_query_consoles-1.png" alt="" class="wp-image-720887"/></figure>
+
+
+
+<h2 class="wp-block-heading">コードエディター</h2>
+
+
+
+<p>コードエディター内の各クエリのすぐ横に実行時間が表示されるようになりました。クエリが実行されると、その実行時間が DataGrip 内のクエリの 1 行目に表示されます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/dg_20262_code_editor_execution_time.png" alt="" class="wp-image-720927"/></figure>
+
+
+
+<p>新しい構文、構文認識の向上、ClickHouse のクエリパラメーターや <code>SYSTEM</code> ステートメントなどの追加ステートメントと関数のサポート、Snowflake フローの操作、<code>DATABASE ROLE</code> 構文と <code>HASH</code> 関数などにより、ClickHouse と Snowflake の SQL サポートを大幅に拡充させました。</p>
+
+
+
+<p>DataGrip 2026.2 へのアップグレードにご関心がある場合や、ご質問やご提案がある場合は、以下の参考リンクをご覧ください。</p>
+
+
+
+<ul class="wp-block-list">
+<li><a href="https://www.jetbrains.com/ja-jp/datagrip/download/" target="_blank" rel="noreferrer noopener">DataGrip 2026.2 のダウンロード</a></li>
+
+
+
+<li>すべての改善点については、<a href="https://www.jetbrains.com/ja-jp/datagrip/whatsnew/" target="_blank" rel="noreferrer noopener">新機能ページ</a>をご覧ください。</li>
+
+
+
+<li><a href="https://twitter.com/datagrip" target="_blank" rel="noreferrer noopener">X</a> でお問い合わせいただけます。</li>
+
+
+
+<li><a href="https://youtrack.jetbrains.com/issues/DBE" target="_blank" rel="noreferrer noopener">課題トラッカー</a>でバグをご報告いただけます。</li>
+</ul>
+
+
+
+<p></p>
+
+
+
+<p>DataGrip チーム一同より</p>
+
+
+
+<p><strong>オリジナル（英語）ブログ投稿記事の作者：</strong></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2025/07/richie_mitish.png" alt="Richie Mitish" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Richie Mitish</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[zh-hans]]></code>
+                        <url>https://blog.jetbrains.com/zh-hans/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/datagrip/2026/07/17/datagrip-2026-2-ai-agent-skills-mcp-tools-and-cli-commands-for-data-source-management-bundled-jdbc-drivers-and-improved-session-control/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>チームと組織向けの JetBrains AI: 断片的な AI 活用から協調型ソフトウェア開発への移行</title>
+		<link>https://blog.jetbrains.com/ja/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Thu, 16 Jul 2026 02:01:39 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/07/JA_Featured_Blog_1280x720.png</featuredImage>		<product ><![CDATA[ai]]></product>
+		<category><![CDATA[agentic-ai]]></category>
+		<category><![CDATA[ai]]></category>
+		<category><![CDATA[eap]]></category>
+		<category><![CDATA[jetbrains-central]]></category>
+		<category><![CDATA[new-products]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[releases]]></category>
+		<category><![CDATA[ai-agent]]></category>
+		<category><![CDATA[new-product]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=blog&#038;p=723141</guid>
+
+					<description><![CDATA[ソフトウェア開発向けの共有コンテキスト、再利用可能なエージェントワークフロー、組織レベルのガバナンス、コスト管理を提供する新しい AI 機能一式の提供をまもなく開始します。 JetBrains IDE から Claude Code、Codex などターミナルベースのエージェント、その他の新興ソリューションに至るまで、開発者はタスクに応じて異なる AI ツールを使っています。選択の自由があるのは良いことです。チームが AI の恩恵を受けるために単一のベンダーに依存する必要はありません。 しかしながら、共通のシステムがない場合、その自由には代償が伴います。開発者個人の生産性が向上する一方で、組織は断片化したワークフローや孤立したコンテキスト、そして増大するコストを抱えることになってしまいます。AI のせいで組織が開発者の柔軟性と組織的なコントロールのどちらかを選ばざるを得なくなるようなことがあってはなりません。 そのため、当社はチームと組織向けの JetBrains AI の導入を進めています。これは、開発者がすでに使用している AI ツールを共有コンテキスト、再利用可能なエージェントワークフロー、組織全体のガバナンス、コスト管理と連携させるオープンでベンダー非依存の AI 機能一式です。 7 月から最初の機能を段階的に導入していきます。 新サービスを詳しく見る 最新 JetBrains AI ポートフォリオの概要 今季に登場する機能 今後数週間にわたり、チームや組織向けに以下の新機能を段階的に導入していく予定です。 チームでの自動化とクラウドエージェント 開発者がマネージドクラウド環境でエージェントを実行できるようになります。これにより、長時間を要するエンジニアリングタスクを個別に実行しながら、チームメンバー間で進捗状況を可視化して共有することが可能になります。リポジトリイベント、スケジュール設定、他のエンジニアリングワークフローなどに応じてクラウドエージェントを起動する自動化をチームで作成できるようになります。 自動化: イベントによる起動、スケジュール設定したワークフロー JetBrains Context JetBrains Context は複雑なコードベースをより効率的に理解するために必要なリポジトリインテリジェンスをエージェントに提供し、調査時間を減らして実行時間を増やせるようにします。リポジトリを横断してナレッジ、コード例、参考資料などに迅速にアクセスできるため、エージェントのターン数が減り、実行コストが削減され、コード品質が向上します。 JetBrains Central さまざまなエージェント開発ツールやサービスの利用がエンジニアリング組織全体に広がるにつれ、AI 導入の管理は困難になります。 JetBrains Central は AI 導入を組織全体で管理できるツールを提供し、エンジニアリングリーダーがチームで使用する AI ツールだけでなく、ガバナンス、アクセス管理、モデルやエージェントの制御、ポリシー、解析結果、チーム間でのコスト配分を一元的に把握できるようにします。 開発者が好みのツールで作業を続けながら、組織は AI の導入状況を [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p><strong>ソフトウェア開発向けの共有コンテキスト、再利用可能なエージェントワークフロー、組織レベルのガバナンス、コスト管理を提供する新しい AI 機能一式の提供をまもなく開始します。</strong></p>
+<p>JetBrains IDE から Claude Code、Codex などターミナルベースのエージェント、その他の新興ソリューションに至るまで、開発者はタスクに応じて異なる AI ツールを使っています。選択の自由があるのは良いことです。チームが AI の恩恵を受けるために単一のベンダーに依存する必要はありません。</p>
+<p>しかしながら、共通のシステムがない場合、その自由には代償が伴います。開発者個人の生産性が向上する一方で、組織は断片化したワークフローや孤立したコンテキスト、そして増大するコストを抱えることになってしまいます。AI のせいで組織が開発者の柔軟性と組織的なコントロールのどちらかを選ばざるを得なくなるようなことがあってはなりません。</p>
+<p>そのため、当社はチームと組織向けの JetBrains AI の導入を進めています。これは、開発者がすでに使用している AI ツールを共有コンテキスト、再利用可能なエージェントワークフロー、組織全体のガバナンス、コスト管理と連携させるオープンでベンダー非依存の AI 機能一式です。</p>
+<p>7 月から最初の機能を段階的に導入していきます。</p>
+<div class="buttons">
+<div class="buttons__row"><a class="btn " href="https://www.jetbrains.com/agentic-software-development/?utm_source=blog&amp;utm_medium=social&amp;utm_campaign=JetBrains-AITO" target="" rel="noopener">新サービスを詳しく見る</a></div>
+</div>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="alignnone wp-image-723142 size-full" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/JA_Blog_850.png" alt="" />
+<figcaption class="wp-element-caption"><em><em>最新 JetBrains AI ポートフォリオの概要</em></em></figcaption>
+</figure>
+<h2 class="wp-block-heading">今季に登場する機能</h2>
+<p>今後数週間にわたり、チームや組織向けに以下の新機能を段階的に導入していく予定です。</p>
+<p><strong>チームでの自動化とクラウドエージェント</strong></p>
+<p>開発者がマネージドクラウド環境でエージェントを実行できるようになります。これにより、長時間を要するエンジニアリングタスクを個別に実行しながら、チームメンバー間で進捗状況を可視化して共有することが可能になります。リポジトリイベント、スケジュール設定、他のエンジニアリングワークフローなどに応じてクラウドエージェントを起動する自動化をチームで作成できるようになります。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-719792" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-4.png" alt="" />
+<figcaption class="wp-element-caption"><em>自動化: イベントによる起動、スケジュール設定したワークフロー</em></figcaption>
+</figure>
+<p><strong>JetBrains Context</strong></p>
+<p>JetBrains Context は複雑なコードベースをより効率的に理解するために必要なリポジトリインテリジェンスをエージェントに提供し、調査時間を減らして実行時間を増やせるようにします。リポジトリを横断してナレッジ、コード例、参考資料などに迅速にアクセスできるため、エージェントのターン数が減り、実行コストが削減され、コード品質が向上します。</p>
+<p><strong>JetBrains Central</strong></p>
+<p>さまざまなエージェント開発ツールやサービスの利用がエンジニアリング組織全体に広がるにつれ、AI 導入の管理は困難になります。</p>
+<p>JetBrains Central は AI 導入を組織全体で管理できるツールを提供し、エンジニアリングリーダーがチームで使用する AI ツールだけでなく、ガバナンス、アクセス管理、モデルやエージェントの制御、ポリシー、解析結果、チーム間でのコスト配分を一元的に把握できるようにします。</p>
+<p>開発者が好みのツールで作業を続けながら、組織は AI の導入状況を 1 か所で把握して管理できるようになるのです。</p>
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" class="wp-image-719479" src="https://blog.jetbrains.com/wp-content/uploads/2026/07/image-2.png" alt="" />
+<figcaption class="wp-element-caption"><em>JetBrains Central: AI クレジット使用状況レポート</em></figcaption>
+</figure>
+<p><strong>JetBrains Central CLI</strong></p>
+<p>開発者は次第に Claude Code、Codex、Gemini CLI などの複数の異なる AI ツールを活用するようになってきています。JetBrains Central CLI はこれらのワークフローを同じ組織環境に導入し、ガバナンス、可視性、解析機能を提供しながら、開発者がすでに使い慣れたツールで作業を続けられるようにします。</p>
+<p><strong>オープンな統合</strong></p>
+<p>組織が単一の AI ツールに依存することはまれです。JetBrains AI for Teams and Organizations はベンダー非依存の設計になっており、外部ツールを MCP 経由、外部エージェントを ACP 経由で接続します。そのため、組織はガバナンスや開発者の選択肢を犠牲にすることなく、AI スタックを進化させることができます。</p>
+<h2 class="wp-block-heading">AI ライセンスから AI クレジットへの移行</h2>
+<p>JetBrains は企業が AI やエージェント型開発を大規模導入する場合、透明性が高く持続可能な価格設定が必要であると考えています。したがって、将来的に予期しないコスト増につながるような隠れ料金、大幅な補助金付きのプラン、プロキシ料金の設定などは一切ありません。</p>
+<p>そのため、新機能の提供と並行しながら、AI を活用したソフトウェア開発の支援を強化する商用モデルも進化させています。法人のお客様については、AI ライセンスから柔軟なオンデマンド型の AI クレジットへ移行を予定しています。</p>
+<p>AI クレジットを利用することで、組織の開発者間で AI 投資を再配分したり、長期にわたって管理したりしやすくなります。これは、クレジットのほうが有効期間が長い（1 か月ではなく 12 か月である）ためです。さらに、AI クレジットは最終的に LLM トークンの枠を超え、近い将来に導入予定の新サービスの支払いにも使用できるようになる予定です。</p>
+<p>AI リソースを含む IDE ライセンス（AI Free、All Products Pack、dotUltimate）は今後も内容はそのままに、さらに柔軟にお使いいただけるようになります。</p>
+<p>JetBrains Central の新たなガバナンス機能に加えて、この新しい商用モデルが JetBrains AI の法人のお客様に新たな付加価値をお届けできるものと確信しています。</p>
+<h2 class="wp-block-heading">段階的な展開</h2>
+<p>この新機能は初期の設計パートナーと共にテストしてきましたが、現在の市況を踏まえ、より幅広い顧客層に向けて公開を早めるべきだと判断しました。</p>
+<p>改良後の機能は 7 月から 8 月にかけて法人のお客様向けに段階的に提供していきます。現時点では、個人ユーザーや非商用ユーザーにこれらの変更や新機能が公開される可能性はほぼありません。</p>
+<h2 class="wp-block-heading">今後について</h2>
+<p>エンジニアリングチームに必要なのは最先端のモデルだけではありません。AI 導入をエンジニアリング組織全体に安全に拡大できるようにする共有ワークフロー、再利用可能なコンテキスト、管理された実行環境、組織全体の可視性、ガバナンスが必要です。</p>
+<p>当社は単一のモデルやインターフェース、ワークフローなどを顧客に強制することなく、開発者、AI エージェント、組織をつなぐオープンなシステムを構築することを目指しています。</p>
+<p>JetBrains IDE は開発者が最高のコーディングに没頭できる場であり続けます。当社は同製品群を中心とし、チームがリポジトリ、ターミナル、エージェント、クラウド実行環境を横断して AI 作業を調整するのに役立つサービスを構築しています。</p>
+<h2 class="wp-block-heading">詳細情報</h2>
+<p>チームと組織向けの JetBrains AI の新しいウェブサイトをご覧ください。各機能の詳細や展開スケジュールの確認、JetBrains チームへの相談依頼などが可能です。</p>
+<div class="buttons">
+<div class="buttons__row"><a class="btn " href="https://www.jetbrains.com/agentic-software-development/?utm_source=blog&amp;utm_medium=social&amp;utm_campaign=JetBrains-AITO" target="" rel="noopener">新サービスを詳しく見る</a></div>
+</div>
+
+
+<p><strong>オリジナル（英語）ブログ投稿記事の作者</strong>：</p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/03/IMG_1254-e1773921059893-200x200.jpeg" alt="Oleg Koverznev" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Oleg Koverznev</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/blog/2026/07/16/jetbrains-ai-for-teams-and-organizations-from-fragmented-ai-usage-to-coordinated-software-development/</url>
+                    </language>
+                	</item>
+		<item>
+		<title>YouTrack Helpdesk に顧客グループが追加されました</title>
+		<link>https://blog.jetbrains.com/ja/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</link>
+		
+		<dc:creator><![CDATA[Ryuji Owan]]></dc:creator>
+		<pubDate>Tue, 30 Jun 2026 08:52:23 +0000</pubDate>
+		<featuredImage>https://blog.jetbrains.com/wp-content/uploads/2026/06/Blog-Featured-1280x720-2.png</featuredImage>		<category><![CDATA[features]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[releases]]></category>
+		<category><![CDATA[helpdesk]]></category>
+		<category><![CDATA[release]]></category>
+		<category><![CDATA[youtrack-cloud]]></category>
+		<category><![CDATA[youtrack-server]]></category>
+		<guid isPermaLink="false">https://blog.jetbrains.com/?post_type=youtrack&#038;p=717742</guid>
+
+					<description><![CDATA[YouTrack 2026.2 では YouTrack Helpdesk に顧客グループが導入され、B2B サポートチームがさまざまな顧客に合わせてサポート体験を最適化できるようになりました。チームは会社、チーム、または組織別にチケットを管理し、複数の異なる SLA を管理し、特定グループにサポート担当者を割り当て、顧客固有のルールを適用できます。サポート担当者が関係者を個別に手動追加しなくても、同じグループの複数の報告者がチケットを共有し、更新情報とコメントを追い、最新情報を取得できます。 このリリースでは、YouTrack で作業するすべてのユーザーを対象にホワイトボードとガントチャートの更新が導入されています。ホワイトボードで自動レイアウトとウィジェットがサポートされ、プロジェクトのコンテンツの可視化と整理を行いやすくなりました。また、ガントチャートの再設計により、プロジェクトをより簡単に計画できるようになりました。 YouTrack の統合機能で AI ツールを利用するチーム向けの MCP 接続の改善が行われ、ClickUp または Asana から移行するチーム向けの新規インポートのオプションと JetBrains Marketplace の新しいアプリが追加されました。 YouTrack Helpdesk で B2B カスタマーサポートを整理する チームは外部顧客からのリクエストや社内サービスデスク、関連プロジェクト業務に YouTrack Helpdesk を活用しています。法人顧客向けのサポートを個々の報告者レベルだけでなく、会社レベルで調整する組織が増えつつあります。B2B サポートチームはそのような方法でプロセス、アクセス権限、サービスレベルを顧客ごとに最適化しています。顧客グループがサポート担当者、報告者、およびその他のチームメンバーにどのような機能を提供できるのかを見ていきましょう。 サポート担当者とサポートチームリーダーの場合 顧客グループ別にチケットを収集 サポートチームは YouTrack でメール、オンラインフォーム、ウェブサイト、および社内外のポータルからリクエストをチケットとして受け取ることができます。顧客グループを使用すると、このようなチケットが正しい顧客組織に関連付けられ、サポート担当者がそのグループが属する会社の情報に基づいてリクエストを処理できるようになります。管理者はメールドメインに基づいて報告者を手動または自動で顧客グループに追加できます。たとえば、同じ会社のメールドメインを使用している全員のリクエストが対象の顧客にグループ化できます。これにより、サポート担当者は受信したチケットを手作業で分類する必要がなくなります。 内部サービスデスクの場合、サポート担当者は報告者の代わりにオンラインフォームを使ってチケットを作成し、それと同時に顧客グループを割り当てることができます。これにより、通話、チャット、または組織内のその他の通信経路から受け取るリクエストを整理しながら、各チケットと適切な報告者との関連付けを維持できます。 顧客情報とチケットの関連付けを維持 顧客グループを使用すると、チームの複数のヘルプデスクプロジェクトで同じ顧客グループが使用されている場合でも、会社レベルの背景情報とチケットとの関連付けを維持できます。サポート担当者はチケットに取り組む際にグループの選択または更新を行い、それに続けて顧客グループ別にチケットを絞り込み、特定の顧客の組織、チーム、または部署からのすべてのリクエストを確認することができます。 顧客ごとに SLA、サポートチーム、およびルールを最適化 サポートチームは顧客ごとにサポートのワークフローを調整したり、YouTrack Helpdesk の既存の自動化機能を拡張したりできます。たとえば、サポートチームが複数のパートナー企業と協業している場合、各パートナーから受け取るチケットをその顧客の組織と合意した手順に従って処理できます。チームは割り当てられた顧客グループに基づき、異なる SLA の適用、専任のサポート担当者へのチケットの転送、顧客企業固有の情報の追加などを行えます。 顧客チームの場合 会社のチケットを 1 か所で閲覧 顧客グループにより、報告者の体験も改善されています。サポート担当者が各リクエストを手動で共有しなくても、同じグループに属する報告者が組織全体のチケットを閲覧できるようになりました。そのため、顧客側の担当者は組織に影響するリクエストに関する情報を常に得ることができます（元のリクエストを作成したのが他のチームメンバーでも構いません）。顧客側の担当者も未解決および解決済みのリクエストを明確に把握することができます。 情報の入力が必要な場合にコメントを追加して更新情報をフォロー 報告者は情報の入力が必要な場合に共有されたチケットにコメントを追加し、更新情報をフォローすることができます。たとえば、ある従業員が問題を報告し、別の従業員が技術情報を追加し、担当者がリクエストを承認するなど、同一顧客組織内の複数の人が同じサービスについてサポートチームに連絡する可能性があります。 [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/Blog-Featured-1280x720-2.png" alt="" class="wp-image-717998"/></figure>
+
+
+
+<p>YouTrack 2026.2 では YouTrack Helpdesk に顧客グループが導入され、B2B サポートチームがさまざまな顧客に合わせてサポート体験を最適化できるようになりました。チームは会社、チーム、または組織別にチケットを管理し、複数の異なる SLA を管理し、特定グループにサポート担当者を割り当て、顧客固有のルールを適用できます。サポート担当者が関係者を個別に手動追加しなくても、同じグループの複数の報告者がチケットを共有し、更新情報とコメントを追い、最新情報を取得できます。</p>
+
+
+
+<p>このリリースでは、YouTrack で作業するすべてのユーザーを対象にホワイトボードとガントチャートの更新が導入されています。ホワイトボードで自動レイアウトとウィジェットがサポートされ、プロジェクトのコンテンツの可視化と整理を行いやすくなりました。また、ガントチャートの再設計により、プロジェクトをより簡単に計画できるようになりました。</p>
+
+
+
+<p>YouTrack の統合機能で AI ツールを利用するチーム向けの MCP 接続の改善が行われ、ClickUp または Asana から移行するチーム向けの新規インポートのオプションと JetBrains Marketplace の新しいアプリが追加されました。</p>
+
+
+
+<h2 class="wp-block-heading"><strong>YouTrack Helpdesk で B2B カスタマーサポートを整理する</strong></h2>
+
+
+
+<p>チームは外部顧客からのリクエストや社内サービスデスク、関連プロジェクト業務に YouTrack Helpdesk を活用しています。法人顧客向けのサポートを個々の報告者レベルだけでなく、会社レベルで調整する組織が増えつつあります。B2B サポートチームはそのような方法でプロセス、アクセス権限、サービスレベルを顧客ごとに最適化しています。顧客グループがサポート担当者、報告者、およびその他のチームメンバーにどのような機能を提供できるのかを見ていきましょう。</p>
+
+
+
+<figure class="wp-block-video"><video controls loop poster="https://resources.jetbrains.com/storage/products/youtrack/video/all/preview/video-cover-helpdesk-2026-2_ja-jp.png" src="https://resources.jetbrains.com/storage/products/youtrack/video/all/helpdesk-2026-2_ja-jp.mp4" playsinline></video></figure>
+
+
+
+<h3 class="wp-block-heading">サポート担当者とサポートチームリーダーの場合</h3>
+
+
+
+<p><strong>顧客グループ別にチケットを収集</strong></p>
+
+
+
+<p>サポートチームは YouTrack でメール、オンラインフォーム、ウェブサイト、および社内外のポータルからリクエストをチケットとして受け取ることができます。顧客グループを使用すると、このようなチケットが正しい顧客組織に関連付けられ、サポート担当者がそのグループが属する会社の情報に基づいてリクエストを処理できるようになります。管理者はメールドメインに基づいて報告者を手動または自動で顧客グループに追加できます。たとえば、同じ会社のメールドメインを使用している全員のリクエストが対象の顧客にグループ化できます。これにより、サポート担当者は受信したチケットを手作業で分類する必要がなくなります。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/hd_groupsettings_ja-jp.png" alt="" class="wp-image-717745"/></figure>
+
+
+
+<p>内部サービスデスクの場合、サポート担当者は報告者の代わりにオンラインフォームを使ってチケットを作成し、それと同時に顧客グループを割り当てることができます。これにより、通話、チャット、または組織内のその他の通信経路から受け取るリクエストを整理しながら、各チケットと適切な報告者との関連付けを維持できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/hd_intform_ja-jp.png" alt="" class="wp-image-717756"/></figure>
+
+
+
+<p><strong>顧客情報とチケットの関連付けを維持</strong></p>
+
+
+
+<p>顧客グループを使用すると、チームの複数のヘルプデスクプロジェクトで同じ顧客グループが使用されている場合でも、会社レベルの背景情報とチケットとの関連付けを維持できます。サポート担当者はチケットに取り組む際にグループの選択または更新を行い、それに続けて顧客グループ別にチケットを絞り込み、特定の顧客の組織、チーム、または部署からのすべてのリクエストを確認することができます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/hd_groupfield_ja-jp.png" alt="" class="wp-image-717767"/></figure>
+
+
+
+<p><strong>顧客ごとに SLA、サポートチーム、およびルールを最適化</strong></p>
+
+
+
+<p>サポートチームは顧客ごとにサポートのワークフローを調整したり、YouTrack Helpdesk の既存の自動化機能を拡張したりできます。たとえば、サポートチームが複数のパートナー企業と協業している場合、各パートナーから受け取るチケットをその顧客の組織と合意した手順に従って処理できます。チームは割り当てられた顧客グループに基づき、異なる SLA の適用、専任のサポート担当者へのチケットの転送、顧客企業固有の情報の追加などを行えます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/hd_groupsla_en-us.png" alt="" class="wp-image-714045"/></figure>
+
+
+
+<h3 class="wp-block-heading">顧客チームの場合</h3>
+
+
+
+<p><strong>会社のチケットを 1 か所で閲覧</strong></p>
+
+
+
+<p>顧客グループにより、報告者の体験も改善されています。サポート担当者が各リクエストを手動で共有しなくても、同じグループに属する報告者が組織全体のチケットを閲覧できるようになりました。そのため、顧客側の担当者は組織に影響するリクエストに関する情報を常に得ることができます（元のリクエストを作成したのが他のチームメンバーでも構いません）。顧客側の担当者も未解決および解決済みのリクエストを明確に把握することができます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/hd_repview_ja-jp.gif" alt="" class="wp-image-717780"/></figure>
+
+
+
+<p><strong>情報の入力が必要な場合にコメントを追加して更新情報をフォロー</strong></p>
+
+
+
+<p>報告者は情報の入力が必要な場合に共有されたチケットにコメントを追加し、更新情報をフォローすることができます。たとえば、ある従業員が問題を報告し、別の従業員が技術情報を追加し、担当者がリクエストを承認するなど、同一顧客組織内の複数の人が同じサービスについてサポートチームに連絡する可能性があります。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/hd_input.gif" alt="" class="wp-image-714067"/></figure>
+
+
+    <div class="buttons">
+        <div class="buttons__row">
+                                                <a href="https://www.jetbrains.com/ja-jp/youtrack/helpdesk/" class="btn" target="_blank" rel="noopener">YouTrack Helpdesk を詳しく見る</a>
+                                <p>無制限の報告者数とサポート担当者 3 名まで無料</p>
+                    </div>
+    </div>
+
+
+
+
+
+
+
+<h2 class="wp-block-heading"><strong>改善されたホワイトボードと再設計されたガントチャートを使用してプロジェクトを具体化する</strong></h2>
+
+
+
+<h3 class="wp-block-heading">自動レイアウトとウィジェットを備えたホワイトボード&nbsp;&nbsp;</h3>
+
+
+
+<p>ホワイトボードにプロジェクトのコンテンツを可視化する方法が追加されました。空白のキャンバスでブレインストーミングを開始したり、進行中のプロジェクトをホワイトボードに頻繫にインポートしたりすると、あっという間にボードを操作しづらくなる可能性があります。自動レイアウトを使用すると、ブレインストーミングで得たアイデアやプロジェクトの項目をカードの依存関係に基づいて構造化されたレイアウトに配置し、散らばったメモを行動に移せる計画に変換できます。</p>
+
+
+
+<p>対話型ウィジェットを追加し、重要な情報にすぐにアクセス可能にすることもできます。テキストサイズの変更機能、複数カードのコマンド、取り消しおよびやり直しアクションなどの追加の改善により、日常の作業をより円滑に進めることができます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/wb_ja-jp.gif" alt="" class="wp-image-717794"/></figure>
+
+
+
+<h3 class="wp-block-heading">ガントチャートの設計変更&nbsp;</h3>
+
+
+
+<p>ガントチャートの再設計により、チームがプロジェクトの計画と追跡を行いやすくしました。使い勝手が刷新され、タイムラインの操作、進捗の監視、依存関係の管理をより簡単に行えるようになっています。パフォーマンスが向上し、複雑なプロジェクトでも変更を素早く適用できるようになりました。追加の改善により、タイムラインから直接タスクを作成し、検索を使用してバックログ項目を追加し、使用頻度の高いチャートにすぐにアクセスできるようになっています。</p>
+
+
+
+<p>進捗を監視するプロジェクトマネージャーもプロジェクトの概要ページからプロジェクト関連のガントチャートに移動したり、複数のプロジェクトでよく使用されているチャートをお気に入りに保存してすぐにアクセスしたりできます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/gantt_ja-jp.gif" alt="" class="wp-image-717805"/></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>簡略化された MCP のセットアップで AI エージェントを YouTrack に接続する</strong></h2>
+
+
+
+<h3 class="wp-block-heading">サインインして AI ツールを接続</h3>
+
+
+
+<p>YouTrack では AI を作業に取り入れることを強制していません。 チームで AI を使用する場合、Model Context Protocol（MCP）はエージェントに YouTrack のタスク、プロジェクト、記事、およびサポートチケットにアクセスして処理するための柔軟な手段を提供します。</p>
+
+
+
+<p>このリリースでは OAuth によって YouTrack MCP 接続のセットアップが簡略化され、さらに安全に使用できるようになりました。 管理者が永続トークンの作成やローカルでの保存をユーザーに依頼せずに MCP へのアクセスを構成できるようになりました。 その代わり、ユーザーは自分の YouTrack アカウントにサインインして接続を承認することにより、任意の AI ツールを YouTrack に接続できます。</p>
+
+
+
+<p>これにより、ローカルマシン上で動作するものだけでなく、ブラウザーベースのものも含む他の AI ツールで YouTrack を使用できるようになります。 チームは YouTrack を Claude、ChatGPT、Slack ボット、社内で使用している AI プラットフォーム、カスタムエージェントなどの AI アシスタントに接続し、それらのツールを使用している場所から質問をしたり、作業を開始したりできます。 たとえば、出勤中のチームメンバーがすでにスマートフォンで使用している AI アシスタントを開き、課題の変更内容、対応が必要なリクエスト、次の更新に向けて準備すべき内容などを質問できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/mcp-2.png" alt="" class="wp-image-717239"/></figure>
+
+
+
+<h3 class="wp-block-heading">YouTrack ユーザーによる AI ワークフローでの MCP の使用</h3>
+
+
+
+<p>AI ツールを MCP 経由で YouTrack に接続すると、プロジェクトとナレッジベースのコンテキストを AI ワークフローに取り込んだり、タスクと記事を操作するエージェントスキルを作成したり、自律型のカスタマーサポートプロセスを構築したりできます。 このようなワークフローでは、ブラウザーベースの AI アシスタントや Slack ボット、Claude Code や Codex CLI などのコーディングアシスタント、社内で使用している AI プラットフォームやカスタムエージェントなど、チームがすでに使用している AI ツールを YouTrack に接続することができます。</p>
+
+
+
+<p>YouTrack のユーザーはすでにタスクやチケットの管理、AI エージェントとプロジェクトのコンテキストの連携、および日常業務を中心としたカスタムワークフローの構築に MCP を使用しています。</p>
+
+
+
+<p><strong>Gurtam: YouTrack での日常業務用 AI エージェントの構築</strong></p>
+
+
+
+<p>複数の B2B ビジネス向けプラットフォームを構築している国際テレマティクスおよび IoT ソフトウェア開発会社の <a href="https://gurtam.com/" target="_blank" rel="noopener">Gurtam</a> は、社内の AI プラットフォームを YouTrack MCP に接続しました。統合のセットアップはわずか数分で完了し、すぐに社員間で最もよく使用されるツールの 1 つとなりました。現在、Gurtam では AI アシスタントとのチャットを通じたタスクの作成から AI エージェントによる担当者レベルの作業の支援に至る多くのワークフローにこのツールが使用されています。全社員がそれぞれに AI エージェントを作成し、MCP 経由で YouTrack プロジェクトに接続できています。</p>
+
+
+    <div class="blockquote">
+                    <blockquote><p>“AI agents help us review YouTrack requests, monitor backlog health, prepare changelogs, and turn manager notes into actionable tasks.”</p></blockquote>
+            <div class="blockquote__author">
+                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="blockquote__author-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/Artem-Filimonchyk.png" alt="">
+                                <div class="blockquote__author-info">
+                                            <strong class="blockquote__author-title">Artem Filimonchyk</strong>
+                                                                <span class="blockquote__author-subtitle">Head of Technical Care, Gurtam</span>
+                                    </div>
+            </div>
+            </div>
+
+
+
+<p><strong>Fullworks: タスク管理を AI エージェントに全面委任</strong></p>
+
+
+
+<p>Fullworks はイベント、セキュリティ、決済用途の WordPress プラグインの構築とサポートを行っています。同社の小規模チームは Jira と Freshdesk から YouTrack に移行し、12 個の WordPress プラグインと WhatsApp Business メッセージングプラットフォームである「<a href="http://getbroadcaster.com" target="_blank" rel="noopener">Broadcaster</a>」のヘルプデスクと開発作業を 1 つのプラットフォームで実現しています。&nbsp;</p>
+
+
+
+<p>元々は手動でタスクが管理されていましたが、今やその業務は AI ワークフローによって支えられています。現在の Fullworks チームは、プロジェクト管理の管理面を中心にプロダクトソリューションのオーケストレーターとしての役割をさらに強めています。</p>
+
+
+    <div class="blockquote">
+                    <blockquote><p>“YouTrack MCP with Claude Code allows our AI agents to create, update, and close tasks as part of our software development lifecycle.”</p></blockquote>
+            <div class="blockquote__author">
+                                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" class="blockquote__author-img" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/Alan-Fuller.png" alt="">
+                                <div class="blockquote__author-info">
+                                            <strong class="blockquote__author-title">Alan Fuller</strong>
+                                                                <span class="blockquote__author-subtitle">Product Developer and Business Owner, Fullworks</span>
+                                    </div>
+            </div>
+            </div>
+
+
+
+<p><strong>YouTrack Insiders: エージェントスキルが YouTrack サポートチームのチケット解決時間を短縮</strong></p>
+
+
+
+<p>AI ツールは日々のカスタマーサービス業務も支援することができます。YouTrack サポートチームは YouTrack からのチケットの取得、類似する過去のチケットや既知の問題の検索、関連ドキュメントやソースコードの確認、回答の下書き作成を行うためのエージェントスキルを作成しています。</p>
+
+
+
+<p>YouTrack の公開課題トラッカーには数年間のサポート履歴が蓄積されているため、返信を準備する際には過去の回答、課題に関する議論、および関連作業からのコメントを基にエージェントの下書きを得ることができます。これにより、サポートチームはチケットごとにゼロから返信を作成する代わりに、実績のあるコンテキストを再利用することができます。</p>
+
+
+
+<h2 class="wp-block-heading"><strong>ClickUp または Asana からのプロジェクトデータの移行</strong></h2>
+
+
+
+<p>組み込みのインポートツールを使用して YouTrack に移行できるようになりました。ClickUp と Asana の新規インポートのオプションにより、プロジェクト、タスク、ユーザー、コメント、添付ファイル、その他の作業データを YouTrack に取り込むことができます。移行中に継続的なインポートを行ってシステム間のデータを同期すると、進行中の作業を中断することなく自分のペースで移行しやすくなります。&nbsp;</p>
+
+
+
+<p>これらの移行オプションがインポートウィザードに追加されました。なお、同ウィザードではすでに Jira、Confluence、Jira Service Management、monday.com、Zendesk、GitHub、GitLab などがサポートされています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/imports_ja-jp.png" alt="" class="wp-image-717818"/></figure>
+
+
+
+<h2 class="wp-block-heading"><strong><strong>追加アプリによる YouTrack の機能拡張</strong></strong></h2>
+
+
+
+<h3 class="wp-block-heading">アプリクリエーター向けの機能強化</h3>
+
+
+
+<p>アプリを自分のチーム向けに構築している場合でも、JetBrains Marketplace での公開用に構築している場合でも、新しい <a href="pleiades.io/help/youtrack/devportal/apps-enhanced-dx-typescript.html">Enhanced Developer Experience</a> ツールキットで開発を容易に進めることができます。新しい TypeScript のサポートにより、npm create @jetbrains/youtrack-app@0.0.12 でプロジェクトを開始できるようになっています。また、新しい @jetbrains/youtrack-workflow-types パッケージにより、YouTrack ワークフロー環境向けの TypeScript 型定義が提供されます。</p>
+
+
+
+<h3 class="wp-block-heading">新しい YouTrack アプリ</h3>
+
+
+
+<p>YouTrack 認定パートナーと独立系の開発者は、スプリントの計画、テスト、タイムトラッキング、日々のタスクとチケットの処理など、より多様なチームの業務に対応したアプリを追加し続けています。ほとんどのアプリは無料ですが、より高度な機能が必要なチームには有料オプションも用意されています。</p>
+
+
+
+<p><strong>スプリントの計画とバックログ</strong></p>
+
+
+
+<p><strong>Letsrollamigo</strong> の <a href="https://plugins.jetbrains.com/plugin/31727-smart-sprint-planner" target="_blank" rel="noopener"><strong>Smart Sprint Planner</strong></a>: 複数の機能領域を横断する複雑なスプリントを計画し、タイムラインを可視化し、スプリント期間内のリソースを作業タイプ別に追跡できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_spplanner_ja-jp.png" alt="" class="wp-image-717829"/></figure>
+
+
+
+<p><strong>Adeptask</strong> の <a href="https://plugins.jetbrains.com/plugin/30500-adeptask-better-backlog" target="_blank" rel="noopener"><strong>Better Backlog</strong></a>: チームがバックログ項目を整理し、作業をスプリントに移動し、スプリントの進捗を追跡できる専用の計画ビューを追加します。このアプリは 10 ユーザーまで無料ですが、ユーザー数の制限がない 30 日間の無料体験期間が付属しています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_bbacklog_ja-jp-1.png" alt="" class="wp-image-717840"/></figure>
+
+
+
+<p><strong>テストと QA 作業の管理</strong></p>
+
+
+
+<p><strong>twenty20</strong> の <a href="https://plugins.jetbrains.com/plugin/31373-test-manager" target="_blank" rel="noopener"><strong>Test Manager</strong></a>: 手動テストを YouTrack 内で直接管理できるようにします。テストスイート、テストケース、ステップ、および実行のタスクを作成し、QA 作業とプロジェクトの連携を維持できるようにします。このアプリは有料ですが、30 日間の無料体験期間が付属しています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_testman_ja-jp.png" alt="" class="wp-image-717851"/></figure>
+
+
+
+<p><strong>タイムトラッキングの継続的な可視化</strong></p>
+
+
+
+<p><strong>msp AG</strong> の <a href="https://plugins.jetbrains.com/plugin/30515-msp-time-in-state-basic" target="_blank" rel="noopener"><strong>Time in State Basic</strong></a>: 管理者が構成した対応と解決に関する SLA タイミングなど、各ワークフローの状態でタスクとチケットの処理に要した時間を表示してボトルネックを特定できるようにします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_timeinstate_ja-jp.png" alt="" class="wp-image-717862"/></figure>
+
+
+
+<p><strong>Appfero</strong> の <a href="https://plugins.jetbrains.com/plugin/30765-time-in-status" target="_blank" rel="noopener"><strong>Time in Status</strong></a>: プロジェクト、スプリント、担当者、および報告者を横断するステータスの期間に関する詳細なレポートを提供し、チームがワークフローの効率をより明確に把握できるようにします。このアプリは有料ですが、30 日間の無料体験期間が付属しています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_timeinstatus_ja-jp.png" alt="" class="wp-image-717873"/></figure>
+
+
+
+<p><strong>タスクとチケットへのコンテキストの追加</strong></p>
+
+
+
+<p><strong>Appfero</strong> の <a href="https://plugins.jetbrains.com/plugin/31303-advanced-linked-issues--traceability" target="_blank" rel="noopener"><strong>Advanced Linked Issues and Traceability</strong></a>: 関連作業の解析、プロジェクト全体のトレーサビリティレポートの作成、マトリックス形式での関連タスクの比較、CSV または XLS 形式での結果のエクスポートを可能にします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_tracea_ja-jp.png" alt="" class="wp-image-717884"/></figure>
+
+
+
+<p><strong>Andrei Iasnikov</strong> の <a href="https://plugins.jetbrains.com/plugin/31702-linked-issues-timeline" target="_blank" rel="noopener"><strong>Linked Issues Timeline</strong></a>: 関連項目、ステータスの履歴、進捗タイムラインなど、表示中のタスクまたはチケットに関連する項目を表示できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_timeline_ja-jp.png" alt="" class="wp-image-717895"/></figure>
+
+
+
+<p><strong>mag1.cc</strong> の <a href="https://plugins.jetbrains.com/plugin/28787-adv-attachments" target="_blank" rel="noopener"><strong>Adv.Attachments</strong></a>: 添付ファイルをファイルプレビューでより簡単に操作できるようにします。YouTrack の添付ファイルと S3 でホストされているファイルの両方をサポートします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_s3attach_ja-jp.png" alt="" class="wp-image-717906"/></figure>
+
+
+
+<p><strong>Maksim Fedorov</strong> の <a href="https://plugins.jetbrains.com/plugin/31269-issue-participants" target="_blank" rel="noopener"><strong>Issue Participants</strong></a>: タスクまたはチケットの関係者全員をロールとアクティビティ別にグループ化した専用ビューを追加します。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_iparticipants_ja-jp.png" alt="" class="wp-image-717917"/></figure>
+
+
+
+<p><strong>ナレッジベースの機能拡張&nbsp;</strong></p>
+
+
+
+<p><strong>mag1.cc</strong> の <a href="https://plugins.jetbrains.com/plugin/30618-adv-docexporter" target="_blank" rel="noopener"><strong>Adv.DocExporter</strong></a>: ナレッジベースの記事とテーブルを DOCX 形式と XLSX 形式にエクスポートし、YouTrack 外部に共有しやすくします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_dexport_ja-jp.png" alt="" class="wp-image-717928"/></figure>
+
+
+
+<p><strong>twenty20</strong> の <a href="https://plugins.jetbrains.com/plugin/31600-edit-in-progress" target="_blank" rel="noopener"><strong>Edit in Progress</strong></a>: 記事の現在の編集状態と編集者を示すことにより、チームが編集の競合を回避できるようにします。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_editstatus_ja-jp.png" alt="" class="wp-image-717940"/></figure>
+
+
+
+<p><strong>YouTrack と接続できる</strong><strong>サードパーティ</strong><strong>ツールの追加</strong></p>
+
+
+
+<p><strong>Adeptask</strong> の <a href="https://plugins.jetbrains.com/plugin/28344-adeptask-sharepoint--onedrive-connector-for-youtrack" target="_blank" rel="noopener"><strong>SharePoint and OneDrive Connector</strong></a>: Microsoft 365 ドキュメントを YouTrack プロジェクトに連携させ、チームがタスク、チケット、および記事から関連するファイルにアクセスし、プレビューできるようにします。このアプリは 10 ユーザーまで無料ですが、ユーザー数の制限がない 30 日間の無料体験期間が付属しています。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_sharedrive_ja-jp.png" alt="" class="wp-image-717951"/></figure>
+
+
+
+<p><strong>JetBrains</strong> の <a href="https://plugins.jetbrains.com/plugin/29469-webhook-triggers" target="_blank" rel="noopener"><strong>Webhook Triggers</strong></a>: YouTrack プロジェクトのアクティビティを外部システムに関連付けます。プロジェクト管理者はイベント固有のエンドポイントとトークンベースの認証により、課題、コメント、作業項目、および添付ファイルを含むイベントの Webhook URL を構成できます。</p>
+
+
+
+<figure class="wp-block-image size-full"><img style="width:100% !important; height:auto !important; max-width:100% !important;" loading="lazy" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2026/06/apps_webhook.gif" alt="" class="wp-image-713710"/></figure>
+
+
+
+<h2 class="wp-block-heading"><strong>その他の機能強化&nbsp;</strong></h2>
+
+
+
+<p>このリリースには YouTrack の全体的なエクスペリエンスを改善する小さな更新も含まれています。通知センターのパフォーマンス改善、管理者とユーザーのオンボーディングエクスペリエンスの強化、GitHub VCS 統合用の GitHub App 認証の導入などが行われています。</p>
+
+
+
+<p>&nbsp;</p>
+
+
+
+<p>&nbsp;</p>
+
+
+
+<p>このリリースの詳細な技術情報と包括的なバグ修正・改善のリストについては、<a href="https://youtrack.jetbrains.com/releaseNotes?q=%23JT%20%23Resolved%20Released%20in%20build:%202026.2.16593&amp;title=YouTrack%202026.2.16593%20Release%20Notes" target="_blank" rel="noopener">リリースノート</a>をご覧ください。最新機能の構成に関する詳細は、<a href="pleiades.io/help/youtrack/">ドキュメント</a>をご覧ください。</p>
+
+
+
+<p>YouTrack Cloud をご利用の場合、YouTrack は JetBrains の<a href="pleiades.io/help/youtrack/cloud/youtrack-cloud-maintenance-calendar.html">メンテナンスカレンダー</a>に従って自動的に YouTrack 2026.2 にアップグレードされます。</p>
+
+
+
+<p>有効な YouTrack Server サブスクリプションをお持ちの場合は、今すぐ YouTrack 2026.2 に<a href="https://www.jetbrains.com/ja-jp/youtrack/download/get_youtrack.html#section=server" target="_blank" rel="noopener">アップグレード</a>できます。</p>
+
+
+
+<p>有効な YouTrack サブスクリプションをお持ちでない場合は、最大 10 ユーザーまで利用できる<a href="https://www.jetbrains.com/ja-jp/youtrack/download/get_youtrack.html#section=cloud" target="_blank" rel="noopener">無料の YouTrack</a> を使用して購入前に新しいバージョンをお試しください。</p>
+
+
+
+<p>YouTrack で利用可能なライセンスオプションに関する詳細は、<a href="https://www.jetbrains.com/ja-jp/youtrack/buy" target="_blank" rel="noopener">購入ページ</a>をご覧ください。</p>
+
+
+
+<p><em>YouTrack チーム一同より</em></p>
+
+
+
+<p><strong>オリジナル（英語）ブログ投稿記事の作者：</strong></p>
+
+
+    <div class="about-author ">
+        <div class="about-author__box">
+            <div class="row">
+                <div class="about-author__box-img">
+                    <img style="width:100% !important; height:auto !important; max-width:100% !important;" decoding="async" src="https://blog.jetbrains.com/wp-content/uploads/2023/09/photo-square-200x200.jpg" alt="Elena Pishkova" loading="lazy"  class="avatar avatar-200 wp-user-avatar wp-user-avatar-200 photo avatar-default">
+                </div>
+                <div class="about-author__box-text">
+                                            <h4>Elena Pishkova</h4>
+                                                        </div>
+            </div>
+        </div>
+    </div>
+]]></content:encoded>
+					
+		
+		
+		                    <language>
+                        <code><![CDATA[zh-hans]]></code>
+                        <url>https://blog.jetbrains.com/zh-hans/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[pt-br]]></code>
+                        <url>https://blog.jetbrains.com/pt-br/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[ko]]></code>
+                        <url>https://blog.jetbrains.com/ko/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[fr]]></code>
+                        <url>https://blog.jetbrains.com/fr/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[es]]></code>
+                        <url>https://blog.jetbrains.com/es/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[en]]></code>
+                        <url>https://blog.jetbrains.com/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                                    <language>
+                        <code><![CDATA[de]]></code>
+                        <url>https://blog.jetbrains.com/de/youtrack/2026/06/youtrack-helpdesk-now-includes-customer-groups/</url>
+                    </language>
+                	</item>
+	</channel>
+</rss>
