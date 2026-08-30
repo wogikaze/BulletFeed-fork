@@ -1,7 +1,7 @@
 {
   "harness_version": "m1-api-qualification-v1",
   "label_source": "constructed",
-  "mode": "fresh_api_testclient_database_per_persona",
+  "mode": "fresh_api_testclient_database_per_persona_worker_backed",
   "persona_count": 30,
   "attempted": 30,
   "failed_persona_ids": [],
@@ -17,6 +17,7 @@
     "discovery": 0,
     "activation": 0,
     "subscription": 0,
+    "worker_subscription": 0,
     "acquisition": 0,
     "feed": 0,
     "evidence": 0,
@@ -100,10 +101,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -218,10 +230,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -336,10 +359,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -454,10 +488,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -572,10 +617,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -690,10 +746,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -808,10 +875,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -926,10 +1004,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1044,10 +1133,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1162,10 +1262,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1280,10 +1391,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1398,10 +1520,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1516,10 +1649,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1634,10 +1778,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1752,10 +1907,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1870,10 +2036,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -1988,10 +2165,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2106,10 +2294,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2224,10 +2423,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2342,10 +2552,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2460,10 +2681,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2578,10 +2810,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2696,10 +2939,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2814,10 +3068,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -2932,10 +3197,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -3050,10 +3326,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -3168,10 +3455,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",
@@ -3286,10 +3584,21 @@
           "metrics": {}
         },
         {
+          "stage": "worker_subscription",
+          "ok": true,
+          "detail": "HTTP 201; kind=statuspage",
+          "metrics": {}
+        },
+        {
           "stage": "acquisition",
           "ok": true,
-          "detail": "HTTP 200; events=1",
-          "metrics": {}
+          "detail": "worker attempted=1; succeeded=1; failed=0; observations=2",
+          "metrics": {
+            "worker_attempted": 1,
+            "worker_succeeded": 1,
+            "worker_failed": 0,
+            "observation_count": 2
+          }
         },
         {
           "stage": "feed",

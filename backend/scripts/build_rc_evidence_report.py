@@ -95,7 +95,10 @@ def _m1_api_gate(report: dict[str, Any]) -> dict[str, Any]:
         "evidence_checks": checks,
         "execution_mode": report.get("mode", "unknown"),
         "metrics": report.get("metrics", {}),
-        "note": "API state transitions pass; Android surface and worker scheduling remain separate gates.",
+        "note": (
+            "API state transitions and deterministic worker orchestration pass; Android surface "
+            "breadth and live source transport remain separate gates."
+        ),
     }
 
 
@@ -254,11 +257,8 @@ def build_report() -> dict[str, Any]:
         "blind_read": False,
         "missions": missions,
         "unmet_gate_items": [
-            "M1 Android/worker-backed journey for all 30 personas",
-            (
-                "M3 timeout/conditional-304/robots/source-identity qualification and "
-                "observed-failure remediation"
-            ),
+            "M1 Android journey and cross-surface breadth for all 30 personas",
+            "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
             "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
             "M5 host-level disk-full and partial-write drill",
             "M6 production Top-3 remediation followed by one-shot blind evaluation",

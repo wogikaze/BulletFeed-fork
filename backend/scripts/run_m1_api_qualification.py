@@ -3,17 +3,23 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 import tempfile
+import time
 from pathlib import Path
 from statistics import median
 from typing import Any
+from unittest.mock import patch
 
 from cryptography.fernet import Fernet
 
+from app.config import get_settings
 from app.database import Database
 from app.evaluation.m1_zero_to_useful import M1Persona, built_in_personas
+from app.routers.acceptance_harness import _statuspage_summary
+from app.sync_worker import WatchSyncWorker
 
 BACKEND = Path(__file__).resolve().parents[1]
 STAGES = (
@@ -25,6 +31,7 @@ STAGES = (
     "discovery",
     "activation",
     "subscription",
+    "worker_subscription",
     "acquisition",
     "feed",
     "evidence",
@@ -269,18 +276,74 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
             ok=status == 200 and bool(subscriptions.get("items")),
             detail=f"HTTP {status}; subscriptions={len(subscriptions.get('items', []))}",
         )
-        status, seeded = _call(
+        status, worker_subscription = _call(
             client,
-            "/__acceptance__/seed-statuspage",
+            "/v1/me/sources",
             method="POST",
-            payload={"userId": user_id},
+            payload={"kind": "statuspage", "pageId": "abcd1234"},
+            access_token=auth,
         )
-        event_ids = seeded.get("eventIds", [])
+        _stage(
+            stages,
+            "worker_subscription",
+            ok=status in {200, 201} and worker_subscription.get("kind") == "statuspage",
+            detail=f"HTTP {status}; kind={worker_subscription.get('kind')}",
+        )
+        worker = WatchSyncWorker(
+            get_settings(),
+            database,
+            poll_interval_seconds=60,
+            batch_size=1,
+        )
+        worker_now = int(time.time())
+        with database.connect() as connection:
+            connection.execute(
+                """
+                UPDATE source_sync_jobs
+                SET next_run_at = ?, lease_until = 0, lease_token = NULL
+                WHERE NOT (source_type = 'statuspage' AND source_key = 'abcd1234')
+                """,
+                (worker_now + 3_600,),
+            )
+            connection.execute(
+                """
+                UPDATE source_sync_jobs
+                SET next_run_at = ?, lease_until = 0, lease_token = NULL
+                WHERE source_type = 'statuspage' AND source_key = 'abcd1234'
+                """,
+                (worker_now,),
+            )
+
+        async def fixture_statuspage_summary(settings, page_id: str) -> dict[str, Any]:
+            del settings, page_id
+            return _statuspage_summary()
+
+        with patch("app.services.statuspage.get_summary", new=fixture_statuspage_summary):
+            worker_result = asyncio.run(worker.run_once(now=worker_now))
+        with database.connect() as connection:
+            observation_count = connection.execute(
+                "SELECT COUNT(*) AS count FROM observations WHERE source_type = 'statuspage'"
+            ).fetchone()["count"]
         _stage(
             stages,
             "acquisition",
-            ok=status == 200 and bool(event_ids) and seeded.get("projectedItemCount", 0) > 0,
-            detail=f"HTTP {status}; events={len(event_ids)}",
+            ok=(
+                worker_result.attempted > 0
+                and worker_result.succeeded > 0
+                and worker_result.failed == 0
+                and observation_count > 0
+            ),
+            detail=(
+                f"worker attempted={worker_result.attempted}; "
+                f"succeeded={worker_result.succeeded}; failed={worker_result.failed}; "
+                f"observations={observation_count}"
+            ),
+            metrics={
+                "worker_attempted": worker_result.attempted,
+                "worker_succeeded": worker_result.succeeded,
+                "worker_failed": worker_result.failed,
+                "observation_count": int(observation_count),
+            },
         )
         status, feed = _call(client, "/v1/feed?limit=5", access_token=auth)
         items = feed.get("items", [])
@@ -452,7 +515,7 @@ def run_qualification(personas: tuple[M1Persona, ...]) -> dict[str, Any]:
     return {
         "harness_version": "m1-api-qualification-v1",
         "label_source": "constructed",
-        "mode": "fresh_api_testclient_database_per_persona",
+        "mode": "fresh_api_testclient_database_per_persona_worker_backed",
         "persona_count": len(reports),
         "attempted": len(reports),
         "failed_persona_ids": [
