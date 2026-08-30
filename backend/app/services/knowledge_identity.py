@@ -383,6 +383,112 @@ def replay_knowledge_state_for_identity(
     )
 
 
+
+def attach_knowledge_identity_for_claim(
+    connection: sqlite3.Connection,
+    *,
+    claim_id: str,
+    created_at: int | None = None,
+) -> tuple[KnowledgeIdentityMapping, ...]:
+    """Map one new claim without a full pairwise rebuild.
+
+    Prior same-slot merges are preserved via existing claim_knowledge_map rows.
+    Only the new claim is compared to peers (O(n) vs O(n^2) per ingest).
+    Uncertain comparisons stay split. Full rebuild remains for backfill.
+    """
+    target_rows = _load_claim_records(connection, (claim_id,))
+    if not target_rows:
+        return ()
+    target = target_rows[0]
+    peers = [row for row in _load_claim_records(connection, None) if row.slot == target.slot]
+    if len(peers) == 1:
+        return rebuild_knowledge_identities(
+            connection, claim_ids=(claim_id,), created_at=created_at
+        )
+
+    stamp = int(time.time()) if created_at is None else created_at
+    parent = {row.claim_id: row.claim_id for row in peers}
+
+    def find(node: str) -> str:
+        while parent[node] != node:
+            parent[node] = parent[parent[node]]
+            node = parent[node]
+        return node
+
+    def union(left_id: str, right_id: str) -> None:
+        left_root, right_root = find(left_id), find(right_id)
+        if left_root == right_root:
+            return
+        if left_root < right_root:
+            parent[right_root] = left_root
+        else:
+            parent[left_root] = right_root
+
+    existing = resolve_claim_knowledge_ids(connection, tuple(row.claim_id for row in peers))
+    by_knowledge: dict[str, list[str]] = {}
+    for mapped_id, mapping in existing.items():
+        by_knowledge.setdefault(mapping.knowledge_id, []).append(mapped_id)
+    for group in by_knowledge.values():
+        anchor = group[0]
+        for other in group[1:]:
+            union(anchor, other)
+
+    reasons: dict[str, tuple[str, str, str]] = {}
+    for peer in peers:
+        if peer.claim_id == claim_id:
+            continue
+        decision = compare_knowledge_identity(
+            target.value,
+            target.detail,
+            peer.value,
+            peer.detail,
+            left_slot=target.slot,
+            right_slot=peer.slot,
+        )
+        if decision.label != "same_target":
+            continue
+        union(claim_id, peer.claim_id)
+        for mapped_id in (claim_id, peer.claim_id):
+            reasons[mapped_id] = (decision.reason, decision.confidence, "equivalent")
+
+    root = find(claim_id)
+    members = [row for row in peers if find(row.claim_id) == root]
+    fingerprints = {
+        row.claim_id: fingerprint_claim(value=row.value, detail=row.detail, slot=row.slot)
+        for row in members
+    }
+    knowledge_id = min(fingerprints[row.claim_id].identity_id for row in members)
+    representative = next(
+        row for row in members if fingerprints[row.claim_id].identity_id == knowledge_id
+    )
+    persist_knowledge_identity(connection, fingerprints[representative.claim_id], created_at=stamp)
+    merged = len(members) > 1
+    mappings: list[KnowledgeIdentityMapping] = []
+    for member in members:
+        reason, confidence, decision = reasons.get(
+            member.claim_id,
+            ("no equivalent peer; claim-scoped identity", "high", "singleton"),
+        )
+        if not merged:
+            reason, confidence, decision = (
+                "no equivalent peer; claim-scoped identity",
+                "high",
+                "singleton",
+            )
+        mappings.append(
+            map_claim_to_knowledge(
+                connection,
+                claim_id=member.claim_id,
+                knowledge_id=knowledge_id,
+                reason=reason,
+                confidence=confidence,
+                decision=decision,
+                created_at=stamp,
+            )
+        )
+    return tuple(sorted(mappings, key=lambda item: item.claim_id))
+
+
 def rebuild_knowledge_identities(
     connection: sqlite3.Connection,
     *,
@@ -609,6 +715,7 @@ __all__ = (
     "list_knowledge_evidence_for_identity",
     "map_claim_to_knowledge",
     "persist_knowledge_identity",
+    "attach_knowledge_identity_for_claim",
     "rebuild_knowledge_identities",
     "replay_knowledge_state_for_identity",
     "resolve_claim_knowledge_id",

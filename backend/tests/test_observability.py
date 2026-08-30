@@ -211,3 +211,27 @@ async def test_worker_fetch_and_failure_use_source_key_digest(tmp_path, monkeypa
     assert all("acme/widget" not in json.dumps(row) for row in snapshot())
     assert all(row.get("source_type") in {"github_release", "dependency_security"} for row in fetch_rows)
     assert all(row.get("source_key_digest") for row in fetch_rows)
+
+
+def test_health_identity_exposes_release_and_feature_versions(tmp_path):
+    from fastapi.testclient import TestClient
+
+    from app.database import Database
+    from app.dependencies import get_database
+    from app.main import app
+
+    database = Database(tmp_path / "obs_health.db")
+    database.initialize()
+    app.dependency_overrides[get_database] = lambda: database
+    try:
+        client = TestClient(app)
+        response = client.get("/health/identity")
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["status"] == "ok"
+        release = payload["release"]
+        assert "gitSha" in release
+        assert "relationFeatureVersion" in release
+        assert "knowledgeIdentityVersion" in release
+    finally:
+        app.dependency_overrides.pop(get_database, None)

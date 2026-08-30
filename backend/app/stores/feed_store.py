@@ -228,6 +228,7 @@ def _source_candidate_from_feed_row(
         importance_level=row["importance_level"],
         identity_label=identity_label,
         identity_confidence=identity_confidence,
+        event_id=str(row["event_id"]) if "event_id" in keys and row["event_id"] else None,
     )
 
 

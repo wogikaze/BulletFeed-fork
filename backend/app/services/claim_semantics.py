@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections.abc import Mapping
+from functools import lru_cache
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
@@ -135,6 +136,21 @@ def canonicalize_claim(
 
 
 def canonicalize_text(
+    value: str,
+    *,
+    entity_aliases: Mapping[str, str] | None = None,
+) -> CanonicalText:
+    if entity_aliases:
+        return _canonicalize_text_uncached(value, entity_aliases=entity_aliases)
+    return _canonicalize_text_cached(value)
+
+
+@lru_cache(maxsize=8192)
+def _canonicalize_text_cached(value: str) -> CanonicalText:
+    return _canonicalize_text_uncached(value)
+
+
+def _canonicalize_text_uncached(
     value: str,
     *,
     entity_aliases: Mapping[str, str] | None = None,

@@ -16,6 +16,7 @@ from app.dependencies import get_database
 from app.errors import http_exception_handler, unhandled_exception_handler, validation_exception_handler
 from app.models import HealthResponse
 from app.observability import public_counters
+from app.release_identity import release_identity
 from app.routers import (
     auth,
     events,
@@ -83,6 +84,11 @@ def health() -> HealthResponse:
     return HealthResponse(github_auth_configured=settings.github_auth_configured)
 
 
+@app.get("/health/identity", tags=["system"])
+def health_identity() -> dict[str, object]:
+    return {"status": "ok", "release": release_identity()}
+
+
 @app.get("/health/ready", tags=["system"])
 def readiness(
     database: Annotated[Database, Depends(get_database)],
@@ -106,6 +112,8 @@ def readiness(
         "database": "ok",
         "sourceSyncWorker": "ok",
         "sourceIngestion": ingestion.as_public_dict(),
+        "release": release_identity(),
+        "pipeline": public_counters(),
     }
 
 
