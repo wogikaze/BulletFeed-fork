@@ -104,3 +104,36 @@ def claim_exposure_count(
             (user_id,),
         ).fetchone()
     return ExposureCountResponse(count=int(row["count"]) if row is not None else 0)
+
+
+@router.get("/__acceptance__/source-sync-jobs", response_model=ExposureCountResponse)
+def source_sync_job_count(
+    database: Annotated[Database, Depends(get_database)],
+    user_id: Annotated[str, Query(alias="userId")],
+    source_type: Annotated[str | None, Query(alias="sourceType")] = None,
+    source_key: Annotated[str | None, Query(alias="sourceKey")] = None,
+) -> ExposureCountResponse:
+    _require_user(database, user_id)
+    with database.connect() as connection:
+        if source_type and source_key:
+            row = connection.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM source_sync_jobs
+                WHERE source_type = ? AND source_key = ?
+                """,
+                (source_type, source_key),
+            ).fetchone()
+        else:
+            row = connection.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM source_sync_jobs AS jobs
+                JOIN source_sync_subscription_users AS users
+                  ON users.source_type = jobs.source_type
+                 AND users.source_key = jobs.source_key
+                WHERE users.user_id = ?
+                """,
+                (user_id,),
+            ).fetchone()
+    return ExposureCountResponse(count=int(row["count"]) if row is not None else 0)

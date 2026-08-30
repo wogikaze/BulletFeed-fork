@@ -89,5 +89,7 @@ class MockAppState {
             ),
         )
 
+    val sourceSubscriptions: MutableList<SourceSubscription> = mutableListOf()
+
     fun topicNames(): List<String> = topics.map { it.name }
 }

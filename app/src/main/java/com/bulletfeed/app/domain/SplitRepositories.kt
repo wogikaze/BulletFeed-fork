@@ -86,6 +86,14 @@ interface MeRepository {
     ): SourceRecommendation
 
     suspend fun getSourceSubscriptions(): List<SourceSubscription> = emptyList()
+
+    suspend fun addSourceSubscription(
+        kind: UserSourceKind,
+        url: String? = null,
+        pageId: String? = null,
+    ): SourceSubscription
+
+    suspend fun removeSourceSubscription(subscriptionId: String)
 }
 
 interface IntegrationRepository {

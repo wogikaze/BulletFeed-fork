@@ -184,10 +184,21 @@ data class SourceRecommendation(
     val publisher: SourcePublisher? = null,
 )
 
+enum class SourceSubscriptionState { PENDING, OK, FAILING }
+
+enum class UserSourceKind { STATUSPAGE, RSS_ATOM, JSON_FEED }
+
 data class SourceSubscription(
     val id: String,
     val kind: String,
     val canonicalUrl: String,
+    val pageId: String? = null,
+    val publisher: SourcePublisher? = null,
+    val selected: Boolean = true,
+    val state: SourceSubscriptionState = SourceSubscriptionState.PENDING,
+    val lastSuccessAt: String? = null,
+    val lastAttemptAt: String? = null,
+    val failureCount: Int = 0,
 )
 
 data class MeBootstrap(

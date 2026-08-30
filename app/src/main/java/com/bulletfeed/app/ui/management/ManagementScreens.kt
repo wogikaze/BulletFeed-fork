@@ -514,6 +514,11 @@ fun SettingsScreen(
     decidingRecommendationId: String? = null,
     onApproveRecommendation: (String) -> Unit = {},
     onIgnoreRecommendation: (String) -> Unit = {},
+    subscriptions: List<SourceSubscription> = emptyList(),
+    isSavingSubscription: Boolean = false,
+    subscriptionError: String? = null,
+    onAddSubscription: (UserSourceKind, String, String) -> Unit = { _, _, _ -> },
+    onRemoveSubscription: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -591,6 +596,14 @@ fun SettingsScreen(
                 }
             }
             Spacer(Modifier.height(28.dp))
+            SourceSubscriptionsSection(
+                subscriptions = subscriptions,
+                isSaving = isSavingSubscription,
+                errorMessage = subscriptionError,
+                onAdd = onAddSubscription,
+                onRemove = onRemoveSubscription,
+            )
+            Spacer(Modifier.height(28.dp))
             SourceRecommendationsSection(
                 recommendations = recommendations,
                 decidingRecommendationId = decidingRecommendationId,
@@ -598,6 +611,95 @@ fun SettingsScreen(
                 onIgnore = onIgnoreRecommendation,
             )
         }
+    }
+}
+
+@Composable
+private fun SourceSubscriptionsSection(
+    subscriptions: List<SourceSubscription>,
+    isSaving: Boolean,
+    errorMessage: String?,
+    onAdd: (UserSourceKind, String, String) -> Unit,
+    onRemove: (String) -> Unit,
+) {
+    var kind by rememberSaveable { mutableStateOf(UserSourceKind.RSS_ATOM.name) }
+    var url by rememberSaveable { mutableStateOf("") }
+    var pageId by rememberSaveable { mutableStateOf("") }
+    val selectedKind = UserSourceKind.valueOf(kind)
+
+    Text("購読中の情報源", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "Statuspage / RSS / JSON Feed を追加できます。失敗中の購読は状態を確認してください。",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color(0xFF655F69),
+    )
+    Spacer(Modifier.height(12.dp))
+    if (subscriptions.isEmpty()) {
+        Text("まだ購読はありません。", color = Color(0xFF655F69))
+    } else {
+        subscriptions.forEach { item ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(item.publisher?.displayName ?: item.canonicalUrl, fontWeight = FontWeight.Bold)
+                    Text(item.canonicalUrl, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+                    Text("種類: ${item.kindLabel()}")
+                    Text(
+                        "状態: ${item.state.label()}",
+                        color = if (item.state == SourceSubscriptionState.FAILING) Color(0xFFA6231C) else Color(0xFF655F69),
+                        fontWeight = if (item.state == SourceSubscriptionState.FAILING) FontWeight.Medium else FontWeight.Normal,
+                    )
+                    TextButton(
+                        onClick = { onRemove(item.id) },
+                        enabled = !isSaving,
+                    ) { Text("購読を削除") }
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+    Row {
+        UserSourceKind.entries.forEach { option ->
+            FilterChip(
+                selected = selectedKind == option,
+                onClick = { kind = option.name },
+                label = { Text(option.label()) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    if (selectedKind == UserSourceKind.STATUSPAGE) {
+        OutlinedTextField(
+            value = pageId,
+            onValueChange = { pageId = it },
+            label = { Text("Statuspage page ID") },
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            singleLine = true,
+        )
+    }
+    OutlinedTextField(
+        value = url,
+        onValueChange = { url = it },
+        label = { Text(if (selectedKind == UserSourceKind.STATUSPAGE) "または Statuspage URL" else "フィード URL") },
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+        singleLine = true,
+    )
+    if (errorMessage != null) {
+        Text(errorMessage, color = Color(0xFFA6231C), modifier = Modifier.padding(top = 8.dp))
+    }
+    Button(
+        onClick = { onAdd(selectedKind, url.trim(), pageId.trim()) },
+        enabled = !isSaving && (url.isNotBlank() || (selectedKind == UserSourceKind.STATUSPAGE && pageId.isNotBlank())),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+    ) {
+        if (isSaving) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(if (isSaving) "保存中" else "情報源を追加")
     }
 }
 
@@ -694,6 +796,28 @@ private fun SourceRecommendationCard(
         }
     }
 }
+
+private fun SourceSubscription.kindLabel(): String =
+    when (kind) {
+        "rss_atom" -> "RSS / Atom"
+        "json_feed" -> "JSON Feed"
+        "statuspage" -> "Statuspage"
+        else -> kind
+    }
+
+private fun SourceSubscriptionState.label(): String =
+    when (this) {
+        SourceSubscriptionState.PENDING -> "同期待ち"
+        SourceSubscriptionState.OK -> "正常"
+        SourceSubscriptionState.FAILING -> "失敗中"
+    }
+
+private fun UserSourceKind.label(): String =
+    when (this) {
+        UserSourceKind.STATUSPAGE -> "Statuspage"
+        UserSourceKind.RSS_ATOM -> "RSS"
+        UserSourceKind.JSON_FEED -> "JSON Feed"
+    }
 
 private fun SourceRecommendation.familyLabel(): String =
     when (family) {

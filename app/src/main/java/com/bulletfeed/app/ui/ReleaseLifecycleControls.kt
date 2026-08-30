@@ -89,6 +89,11 @@ fun SettingsScreen(
     decidingRecommendationId: String? = null,
     onApproveRecommendation: (String) -> Unit = {},
     onIgnoreRecommendation: (String) -> Unit = {},
+    subscriptions: List<SourceSubscription> = emptyList(),
+    isSavingSubscription: Boolean = false,
+    subscriptionError: String? = null,
+    onAddSubscription: (UserSourceKind, String, String) -> Unit = { _, _, _ -> },
+    onRemoveSubscription: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -101,6 +106,11 @@ fun SettingsScreen(
             decidingRecommendationId = decidingRecommendationId,
             onApproveRecommendation = onApproveRecommendation,
             onIgnoreRecommendation = onIgnoreRecommendation,
+            subscriptions = subscriptions,
+            isSavingSubscription = isSavingSubscription,
+            subscriptionError = subscriptionError,
+            onAddSubscription = onAddSubscription,
+            onRemoveSubscription = onRemoveSubscription,
             modifier = Modifier.weight(1f),
         )
         OutlinedButton(

@@ -101,5 +101,41 @@ class MockMeStore(
         return updated
     }
 
-    override suspend fun getSourceSubscriptions(): List<SourceSubscription> = emptyList()
+    override suspend fun getSourceSubscriptions(): List<SourceSubscription> = state.sourceSubscriptions.toList()
+
+    override suspend fun addSourceSubscription(
+        kind: UserSourceKind,
+        url: String?,
+        pageId: String?,
+    ): SourceSubscription {
+        val canonical =
+            when (kind) {
+                UserSourceKind.STATUSPAGE -> {
+                    val id = pageId?.trim().orEmpty().ifBlank { "abcd1234" }
+                    "https://$id.statuspage.io/api/v2/summary.json"
+                }
+                UserSourceKind.RSS_ATOM,
+                UserSourceKind.JSON_FEED,
+                -> url?.trim().orEmpty().ifBlank { "https://example.com/feed.xml" }
+            }
+        if (canonical == "https://invalid.example/feed") {
+            error("invalid source url")
+        }
+        val existing = state.sourceSubscriptions.firstOrNull { it.canonicalUrl == canonical }
+        if (existing != null) return existing
+        val created =
+            SourceSubscription(
+                id = "sub_${state.sourceSubscriptions.size}",
+                kind = kind.name.lowercase(),
+                canonicalUrl = canonical,
+                pageId = pageId?.trim()?.takeIf { it.isNotEmpty() },
+                state = SourceSubscriptionState.PENDING,
+            )
+        state.sourceSubscriptions += created
+        return created
+    }
+
+    override suspend fun removeSourceSubscription(subscriptionId: String) {
+        state.sourceSubscriptions.removeAll { it.id == subscriptionId }
+    }
 }

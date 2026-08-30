@@ -3,6 +3,7 @@ package com.bulletfeed.app
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -109,6 +110,47 @@ class RealBackendAcceptanceTest {
             assertTrue(repository.getSourceRecommendations().none { it.id == pending.id })
         }
 
+    @Test
+    fun `source subscription crud creates worker job and delete removes it`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val userId = sessionManager.userId!!
+
+            try {
+                repository.addSourceSubscription(
+                    kind = UserSourceKind.RSS_ATOM,
+                    url = "https://not-allowed.example/feed.xml",
+                )
+                fail("expected allowlist rejection")
+            } catch (error: HttpException) {
+                assertEquals(403, error.code())
+            }
+            assertTrue(repository.getSourceSubscriptions().isEmpty())
+
+            val created = repository.addSourceSubscription(
+                kind = UserSourceKind.STATUSPAGE,
+                pageId = "accptest131job",
+            )
+            assertEquals("statuspage", created.kind)
+            assertEquals(SourceSubscriptionState.PENDING, created.state)
+            assertEquals("accptest131job", created.pageId)
+            assertEquals(1, sourceSyncJobCount(baseUrl, userId, created.kind, "accptest131job"))
+
+            val listed = repository.getSourceSubscriptions()
+            assertEquals(1, listed.size)
+            assertEquals(created.id, listed.single().id)
+
+            repository.removeSourceSubscription(created.id)
+            assertTrue(repository.getSourceSubscriptions().isEmpty())
+            assertEquals(0, sourceSyncJobCount(baseUrl, userId, created.kind, "accptest131job"))
+        }
+
     private suspend fun assertApiFailureIsProductionError(repository: RemoteBulletFeedRepository) {
         try {
             repository.getEventDetail("evt_missing_acceptance")
@@ -143,6 +185,22 @@ class RealBackendAcceptanceTest {
             .post(body.toRequestBody(JSON_MEDIA))
             .build()
         return executeJson(request, AcceptanceSeedResponse.serializer())
+    }
+
+    private fun sourceSyncJobCount(
+        baseUrl: String,
+        userId: String,
+        sourceType: String,
+        sourceKey: String,
+    ): Int {
+        val url = (baseUrl.trimEnd('/') + "/__acceptance__/source-sync-jobs").toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("userId", userId)
+            .addQueryParameter("sourceType", sourceType)
+            .addQueryParameter("sourceKey", sourceKey)
+            .build()
+        val request = Request.Builder().url(url).get().build()
+        return executeJson(request, AcceptanceExposureCount.serializer()).count
     }
 
     private fun claimExposureCount(

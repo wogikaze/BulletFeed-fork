@@ -264,6 +264,23 @@ class RemoteMeRepository(
 
     override suspend fun getSourceSubscriptions(): List<SourceSubscription> =
         api.getSourceSubscriptions().items.map { it.toDomain() }
+
+    override suspend fun addSourceSubscription(
+        kind: UserSourceKind,
+        url: String?,
+        pageId: String?,
+    ): SourceSubscription =
+        api.addSourceSubscription(
+            SourceSubscriptionCreateDto(
+                kind = kind.name.lowercase(),
+                url = url?.trim()?.takeIf { it.isNotEmpty() },
+                pageId = pageId?.trim()?.takeIf { it.isNotEmpty() },
+            ),
+        ).toDomain()
+
+    override suspend fun removeSourceSubscription(subscriptionId: String) {
+        api.deleteSourceSubscription(subscriptionId)
+    }
 }
 
 class RemoteIntegrationRepository(
