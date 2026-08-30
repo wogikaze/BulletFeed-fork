@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
@@ -198,6 +199,8 @@ fun BulletFeedApp(
                         selectedVulnerabilityId = selectedVulnerabilityId,
                         notificationsOpen = notificationsOpen,
                         githubSetupOpen = githubSetupOpen,
+                        isOffline = uiState.isOffline,
+                        hasStaleFeed = uiState.hasStaleFeed,
                         onTabChange = { tabName = it.name },
                         onSelectEvent = { event ->
                             selectedVulnerabilityId = null
@@ -230,6 +233,7 @@ fun BulletFeedApp(
                         },
                         onNotificationsChange = { notificationsOpen = it },
                         onGithubSetupChange = { githubSetupOpen = it },
+                        onRetry = viewModel::refresh,
                         viewModel = viewModel,
                     )
                 else -> AppLoadingScreen()
@@ -247,6 +251,8 @@ private fun ReadyApplication(
     selectedVulnerabilityId: String?,
     notificationsOpen: Boolean,
     githubSetupOpen: Boolean,
+    isOffline: Boolean,
+    hasStaleFeed: Boolean,
     onTabChange: (AppTab) -> Unit,
     onSelectEvent: (FeedEvent) -> Unit,
     onSelectEventTarget: (String) -> Unit,
@@ -256,6 +262,7 @@ private fun ReadyApplication(
     onClearVulnerability: () -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
     onGithubSetupChange: (Boolean) -> Unit,
+    onRetry: () -> Unit,
     viewModel: BulletFeedViewModel,
 ) = Box(Modifier.fillMaxSize()) {
     when {
@@ -385,7 +392,46 @@ private fun ReadyApplication(
             onDismiss = viewModel::dismissKnowledgeBootstrapPrompt,
         )
     }
-    uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
+    if (isOffline) {
+        OfflineRecoveryBanner(
+            hasStaleFeed = hasStaleFeed,
+            onRetry = onRetry,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
+    } else {
+        uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
+    }
+}
+
+@Composable
+private fun OfflineRecoveryBanner(
+    hasStaleFeed: Boolean,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) = Card(
+    modifier = modifier.padding(12.dp).fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE3B3)),
+    shape = RoundedCornerShape(16.dp),
+) {
+    Column(Modifier.padding(14.dp)) {
+        Text("オフラインです", fontWeight = FontWeight.Bold, color = Color(0xFF5C3B00))
+        Text(
+            if (hasStaleFeed) {
+                "最後に読み込めたフィードを表示しています。再接続後に再試行してください。"
+            } else {
+                "フィードを読み込めませんでした。接続を確認して再試行してください。"
+            },
+            modifier = Modifier.padding(top = 4.dp),
+            color = Color(0xFF5C3B00),
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Button(
+            onClick = onRetry,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        ) {
+            Text("再試行")
+        }
+    }
 }
 
 @Composable
