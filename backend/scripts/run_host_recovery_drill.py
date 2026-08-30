@@ -21,6 +21,50 @@ BACKEND = Path(__file__).resolve().parents[1]
 COMPOSE_SOURCE = BACKEND / "compose.release.yml"
 DEFAULT_TIMEOUT_SECONDS = 120.0
 POLL_SECONDS = 1.0
+STORAGE_FAULT_PROBE = """
+from pathlib import Path
+from app.services.web_snapshots import (
+    RobotsDecision,
+    SnapshotStore,
+    WebSnapshot,
+    content_hash_for,
+    snapshot_id_for,
+)
+
+root = Path("/tmp/m5-snapshot-fault")
+store = SnapshotStore(root)
+body = b"x" * (128 * 1024)
+snapshot = WebSnapshot(
+    snapshot_id=snapshot_id_for(
+        canonical_url="https://fault.example/snapshot",
+        content_hash=content_hash_for(body),
+    ),
+    canonical_url="https://fault.example/snapshot",
+    retrieved_at="2026-08-30T00:00:00Z",
+    content_hash=content_hash_for(body),
+    status_code=200,
+    headers=(("content-type", "text/html"),),
+    body=body,
+    etag=None,
+    last_modified=None,
+    robots=RobotsDecision(
+        source_url="https://fault.example/snapshot",
+        robots_url=None,
+        allowed=True,
+        reason="fault_probe",
+        retrieved_at="2026-08-30T00:00:00Z",
+    ),
+    final_url="https://fault.example/snapshot",
+)
+try:
+    store.put(snapshot)
+except OSError:
+    assert store.list_ids() == ()
+    assert not any(path.name.startswith(".tmp-") for path in root.iterdir())
+else:
+    raise RuntimeError("expected the bounded tmpfs to reject the snapshot body")
+print("filesystem fault probe passed")
+""".strip()
 
 
 def _free_port() -> int:
@@ -66,6 +110,36 @@ def _run_compose(project: str, compose_file: Path, *arguments: str) -> None:
     suffix = detail[-1][:300] if detail else "no diagnostic output"
     joined = " ".join(arguments)
     raise RuntimeError(f"docker compose {joined} failed: {suffix}")
+
+
+def _run_filesystem_fault_probe(project: str, compose_file: Path) -> None:
+    images = _compose(project, compose_file, "images", "-q", "api")
+    if images.returncode != 0:
+        raise RuntimeError("docker compose could not resolve the built API image")
+    image = next((line.strip() for line in images.stdout.splitlines() if line.strip()), None)
+    if image is None:
+        raise RuntimeError("docker compose returned no built API image")
+    completed = subprocess.run(  # noqa: S603
+        (
+            _docker_executable(),
+            "run",
+            "--rm",
+            "--mount",
+            "type=tmpfs,destination=/tmp,tmpfs-size=65536,tmpfs-mode=1777",
+            image,
+            "python",
+            "-c",
+            STORAGE_FAULT_PROBE,
+        ),
+        cwd=BACKEND,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip().splitlines()
+        suffix = detail[-1][:300] if detail else "no diagnostic output"
+        raise RuntimeError(f"isolated ENOSPC probe failed: {suffix}")
 
 
 def _render_compose(path: Path, *, env_file: Path, port: int) -> None:
@@ -152,9 +226,10 @@ def run_drill(*, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> dict[str, 
         "worker_restart": False,
         "session_persisted": False,
         "ready_after_restart": False,
+        "filesystem_fault_injection": False,
         "status": "failed",
         "residual_risks": [
-            "disk-full and partial filesystem write require a host-specific fault drill"
+            "persistent-volume disk-full still requires a host-specific fault drill"
         ],
     }
     with tempfile.TemporaryDirectory(prefix="bulletfeed-m5-host-") as directory:
@@ -187,6 +262,9 @@ def run_drill(*, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> dict[str, 
             access_token = session.get("accessToken")
             if not isinstance(access_token, str) or not access_token:
                 raise RuntimeError("session response did not contain an access token")
+
+            _run_filesystem_fault_probe(project, compose_file)
+            result["filesystem_fault_injection"] = True
 
             _run_compose(project, compose_file, "restart", "api")
             _wait_for_status(

@@ -25,11 +25,11 @@ cd backend
 python scripts/run_host_recovery_drill.py --output tests/gold/recovery/v01/host_recovery_report.json
 ```
 
-このscriptは一時env/compose定義を生成し、fresh stackのreadiness、session作成、API restart、
-worker restart、restart後のsession lookupを検証してから、自分のprojectだけを削除する。生成env、
-token、database path、project名はreportへ出力しない。通常PR CIはDocker daemonやhost filesystem
-quotaに依存しないため、このhost drillを自動実行しない。
+このscriptは一時env/compose定義を生成し、fresh stackのreadiness、session作成、bounded tmpfs
+上のsnapshot ENOSPC cleanup、API restart、worker restart、restart後のsession lookupを検証して
+から、自分のprojectだけを削除する。生成env、token、database path、project名はreportへ出力しない。
+通常PR CIはDocker daemonやhost filesystem quotaに依存しないため、このhost drillを自動実行しない。
 
-Docker daemonが無い場合はcommand自体を失敗として記録し、passへ置き換えない。disk-fullそのもの
-はhost-specific fault injectionが必要であり、現時点ではsnapshot partial-write regressionと
-このprocess restart drillから独立した残課題として扱う。
+Docker daemonが無い場合はcommand自体を失敗として記録し、passへ置き換えない。bounded tmpfsの
+ENOSPCは自動検証するが、永続volumeの実disk-fullはhost-specific fault injectionが必要であり、
+独立した残課題として扱う。
