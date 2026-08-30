@@ -52,7 +52,7 @@
     {
       "filename": "backend/app/evaluation/real_world_validation.py",
       "test_id": "B608",
-      "line_number": 226,
+      "line_number": 227,
       "reason": "Bandit parses the interpolated validation error text 'event_update must set is_real_event=true' as SQL UPDATE/SET syntax; this line only constructs a ValueError message and performs no query or database operation."
     }
   ]
