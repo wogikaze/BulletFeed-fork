@@ -43,10 +43,19 @@ jobs:
         run: ./gradlew ktlintCheck lint testDebugUnitTest
 
       - name: Run real-backend Android acceptance
-        run: python backend/scripts/run_real_backend_android_acceptance.py
+        run: python backend/scripts/run_real_backend_android_acceptance.py --output "$RUNNER_TEMP/m4-android-acceptance.json"
 
       - name: Build Android release artifact
         run: ./gradlew assembleRelease -PBULLETFEED_RELEASE_BASE_URL=https://release.invalid/
+
+      - name: Upload Android RC evidence and release artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bulletfeed-android-rc-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/m4-android-acceptance.json
+            app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
 
   # Branch protection still requires this exact check name.
   lint-and-format-check:

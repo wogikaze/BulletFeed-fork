@@ -5,6 +5,8 @@ Does not read or print GitHub OAuth secrets, bearer tokens, or refresh tokens.
 
 from __future__ import annotations
 
+import argparse
+import json
 import os
 import socket
 import subprocess
@@ -54,7 +56,18 @@ def _gradle_command(root: Path) -> list[str]:
     return ["bash", str(root / "gradlew")]
 
 
-def main() -> int:
+def _emit(result: dict[str, object], output: Path | None) -> None:
+    payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload, encoding="utf-8")
+    print(payload, end="")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=None)
+    args = parser.parse_args(argv)
     root = _repo_root()
     backend = _backend_dir()
     port = _free_port()
@@ -88,10 +101,18 @@ def main() -> int:
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
+    result: dict[str, object] = {
+        "acceptance_version": "m4-real-backend-android-v1",
+        "mode": "fresh_ephemeral_backend",
+        "test_class": "com.bulletfeed.app.RealBackendAcceptanceTest",
+        "backend_health": "not_reached",
+        "gradle_exit_code": None,
+    }
     try:
         _wait_for_health(port)
+        result["backend_health"] = "passed"
         gradle = _gradle_command(root)
-        result = subprocess.run(  # noqa: S603
+        gradle_result = subprocess.run(  # noqa: S603
             [
                 *gradle,
                 ":app:testDebugUnitTest",
@@ -102,7 +123,14 @@ def main() -> int:
             cwd=str(root),
             check=False,
         )
-        return int(result.returncode)
+        result["gradle_exit_code"] = int(gradle_result.returncode)
+        result["status"] = "passed" if gradle_result.returncode == 0 else "failed"
+        _emit(result, args.output)
+        return int(gradle_result.returncode)
+    except Exception as exc:
+        result.update({"status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+        _emit(result, args.output)
+        return 1
     finally:
         process.terminate()
         try:
