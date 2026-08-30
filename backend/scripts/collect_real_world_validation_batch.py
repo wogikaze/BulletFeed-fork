@@ -41,6 +41,8 @@ ALLOWED_HOSTS = frozenset(
         "registry.npmjs.org",
         "techblog.lycorp.co.jp",
         "crates.io",
+        "status.npmjs.org",
+        "www.githubstatus.com",
     }
 )
 JAPANESE_RE = re.compile(r"[\u3040-\u30ff\u3400-\u9fff]")
@@ -188,6 +190,21 @@ RSS_FEEDS = (
     ("google-developers-jp", "https://developers-jp.googleblog.com/feeds/posts/default?alt=rss"),
     ("jetbrains-japan", "https://blog.jetbrains.com/ja/feed/"),
     ("lycorp-japan-engineering", "https://techblog.lycorp.co.jp/ja/feed/index.xml"),
+)
+
+STATUS_INCIDENT_FEEDS = (
+    (
+        "github-status",
+        "GitHub Status",
+        "https://www.githubstatus.com/api/v2/incidents.json",
+        "https://www.githubstatus.com",
+    ),
+    (
+        "npm-status",
+        "npm Status",
+        "https://status.npmjs.org/api/v2/incidents.json",
+        "https://status.npmjs.org",
+    ),
 )
 
 
@@ -560,6 +577,112 @@ def _rss_record(
     return source, event
 
 
+async def _status_incident_rows(
+    client: httpx.AsyncClient,
+    semaphore: asyncio.Semaphore,
+    limit: int,
+) -> list[tuple[dict[str, Any], dict[str, Any], bytes]]:
+    rows: list[tuple[dict[str, Any], dict[str, Any], bytes]] = []
+    for feed_slug, publisher, index_url, homepage in STATUS_INCIDENT_FEEDS:
+        index = await _get(client, semaphore, index_url, max_bytes=8 * 1024 * 1024)
+        if index is None:
+            continue
+        try:
+            incidents = json.loads(index.body).get("incidents", [])
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if not isinstance(incidents, list):
+            continue
+        for incident in incidents[:limit]:
+            if not isinstance(incident, dict):
+                continue
+            incident_id = incident.get("id")
+            if not isinstance(incident_id, str) or not incident_id:
+                continue
+            incident_url = f"{homepage}/api/v2/incidents/{quote(incident_id, safe='')}.json"
+            captured = await _get(client, semaphore, incident_url, max_bytes=1_048_576)
+            if captured is None:
+                continue
+            try:
+                payload = json.loads(captured.body)
+            except (TypeError, json.JSONDecodeError):
+                continue
+            detail = payload.get("incident", payload) if isinstance(payload, dict) else {}
+            if not isinstance(detail, dict):
+                continue
+            title = str(detail.get("name") or incident.get("name") or "").strip()
+            if not title:
+                continue
+            body_text = captured.body.decode("utf-8", errors="replace")
+            evidence = title if title in body_text else incident_id
+            if evidence not in body_text:
+                continue
+            suffix = _short_hash(f"{feed_slug}|{incident_id}")
+            source_id = f"src_batch_status_{_slug(feed_slug)}_{suffix}"
+            event_id = f"evt_batch_status_{_slug(feed_slug)}_{suffix}"
+            created_at = detail.get("created_at") or incident.get("created_at")
+            updated_at = detail.get("updated_at") or incident.get("updated_at")
+            language = _language(title.encode("utf-8"))
+            artifact = f"artifacts/{source_id}/body.bin"
+            source = {
+                "source_id": source_id,
+                "canonical_url": str(
+                    detail.get("shortlink")
+                    or incident.get("shortlink")
+                    or f"{homepage}/incidents/{incident_id}"
+                ),
+                "publisher": publisher,
+                "source_family": "statuspage",
+                "information_type": "incident",
+                "language": language,
+                "collected_at": captured.requested_at,
+                "content_hash": hashlib.sha256(captured.body).hexdigest(),
+                "evidence_locator": "json_pointer:/incident/name",
+                "event_id": event_id,
+                "split": "",
+                "source_role": "event_page",
+                "fetch": {
+                    "fetch_kind": "live_https",
+                    "url": incident_url,
+                    "requested_at": captured.requested_at,
+                    "http_status": captured.status,
+                    "content_type": captured.content_type,
+                    "final_url": captured.final_url,
+                    "etag": None,
+                    "last_modified": None,
+                    "artifact_relpath": artifact,
+                },
+                "evidence_text": evidence,
+                "normalized_evidence": f"{title} from {publisher} incident history",
+                "static_fetch_ok": True,
+                "static_normalize_insufficient": False,
+                "js_render_would_recover": False,
+            }
+            event = {
+                "event_id": event_id,
+                "split": "",
+                "title": title,
+                "information_type": "incident",
+                "language": language,
+                "redundancy_group": f"rg_{event_id}",
+                "mirror_group": f"mg_{event_id}",
+                "record_kind": "event_update",
+                "is_real_event": True,
+                "published_at": created_at,
+                "updated_at": updated_at,
+                "observed_at": captured.requested_at,
+                "effective_at": None,
+                "occurred_at": created_at,
+                "occurred_at_provenance": "statuspage.created_at" if created_at else None,
+                "occurred_at_basis": f"Statuspage incident timestamp from {incident_url}"
+                if created_at
+                else None,
+                "provenance": f"statuspage-api:{incident_url}",
+            }
+            rows.append((source, event, captured.body))
+    return rows
+
+
 def _load_array(path: Path) -> list[dict[str, Any]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, list):
@@ -673,6 +796,13 @@ async def _collect(args: argparse.Namespace) -> tuple[list[dict[str, Any]], list
                 if row is not None:
                     rss_rows.append((*row, captured.body))
         rows.extend(rss_rows)
+        rows.extend(
+            await _status_incident_rows(
+                client,
+                semaphore,
+                args.status_events,
+            )
+        )
     sources = [row[0] for row in rows]
     events = [row[1] for row in rows]
     artifacts = [row[2] for row in rows]
@@ -693,10 +823,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-root", type=Path, default=CORPUS)
     parser.add_argument("--package-events", type=int, default=500)
     parser.add_argument("--rss-events", type=int, default=20)
+    parser.add_argument("--status-events", type=int, default=50)
     parser.add_argument("--split-at", type=int, default=260)
     parser.add_argument("--concurrency", type=int, default=12)
     args = parser.parse_args(argv)
-    if args.package_events < 0 or args.rss_events < 1 or args.concurrency < 1:
+    if (
+        args.package_events < 0
+        or args.rss_events < 1
+        or args.status_events < 1
+        or args.concurrency < 1
+    ):
         raise ValueError("collection limits must be positive")
     args.output_root.mkdir(parents=True, exist_ok=True)
     sources, events = asyncio.run(_collect(args))

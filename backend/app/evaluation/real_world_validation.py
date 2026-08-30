@@ -102,6 +102,7 @@ ALLOWED_OCCURRED_AT_PROVENANCE = frozenset(
         "osv.published",
         "rss.published",
         "rss.updated",
+        "statuspage.created_at",
         "html_time_datetime",
         "html_visible_publish_date",
         "html_url_path_date",
