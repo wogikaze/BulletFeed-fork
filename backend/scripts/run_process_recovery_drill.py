@@ -39,9 +39,9 @@ def _request(
     headers = {"Content-Type": "application/json"} if body is not None else {}
     if access_token is not None:
         headers["Authorization"] = f"Bearer {access_token}"
-    request = urllib.request.Request(url, data=body, headers=headers, method=method)
+    request = urllib.request.Request(url, data=body, headers=headers, method=method)  # noqa: S310
     try:
-        with urllib.request.urlopen(request, timeout=2) as response:
+        with urllib.request.urlopen(request, timeout=2) as response:  # noqa: S310
             return response.status, response.read()
     except urllib.error.HTTPError as exc:
         return exc.code, exc.read()
