@@ -21,6 +21,7 @@ from app.services.github_release_pipeline import crawl_github_release_events
 from app.services.json_feed_pipeline import crawl_json_feed_events
 from app.services.rss_pipeline import crawl_feed_events
 from app.services.statuspage_crawler import crawl_statuspage_events
+from app.services.web_watch_pipeline import crawl_web_watch, utc_stamp
 
 SOURCE_TYPES = ("github_release", "dependency_security")
 FEED_SOURCE_TYPES = ("rss_atom", "json_feed")
@@ -292,6 +293,9 @@ class WatchSyncWorker:
         if job.source_type in FEED_SOURCE_TYPES:
             await self._run_feed_job(job, now=now)
             return
+        if job.source_type == "generic_web":
+            await self._run_web_job(job, now=now)
+            return
         if job.source_type not in SOURCE_TYPES:
             return
         owner, separator, repository = job.source_key.partition("/")
@@ -357,6 +361,16 @@ class WatchSyncWorker:
             self._database,
             url=job.source_key,
             retrieved_at=retrieved_at,
+        )
+
+    async def _run_web_job(self, job: SyncJob, *, now: int) -> None:
+        if not self._subscription_selected(job.source_type, job.source_key):
+            return
+        await crawl_web_watch(
+            self._settings,
+            self._database,
+            url=job.source_key,
+            retrieved_at=utc_stamp(now),
         )
 
     def _subscription_selected(self, source_type: str, source_key: str) -> bool:

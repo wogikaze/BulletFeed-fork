@@ -17,8 +17,9 @@ from app.services.rss import validate_feed_url
 from app.services.source_catalog import SourceKind
 from app.services.source_registry import SourceRegistry, canonicalize_url, endpoint_id
 from app.services.statuspage import PAGE_ID_PATTERN
+from app.services.web_snapshots import validate_web_url
 
-USER_SOURCE_TYPES = frozenset({"statuspage", "rss_atom", "json_feed"})
+USER_SOURCE_TYPES = frozenset({"statuspage", "rss_atom", "json_feed", "generic_web"})
 _STATUSPAGE_HOST_SUFFIX = ".statuspage.io"
 
 
@@ -251,7 +252,7 @@ def list_user_source_subscriptions(
               ON jobs.source_type = users.source_type
              AND jobs.source_key = users.source_key
             WHERE users.user_id = ?
-              AND users.source_type IN ('statuspage', 'rss_atom', 'json_feed')
+              AND users.source_type IN ('statuspage', 'rss_atom', 'json_feed', 'generic_web')
             ORDER BY users.source_type, users.source_key
             """,
             (user_id,),
@@ -275,7 +276,7 @@ def remove_user_source_subscription(
             SELECT source_type, source_key
             FROM source_sync_subscription_users
             WHERE user_id = ?
-              AND source_type IN ('statuspage', 'rss_atom', 'json_feed')
+              AND source_type IN ('statuspage', 'rss_atom', 'json_feed', 'generic_web')
             """,
             (user_id,),
         ).fetchall()
@@ -349,6 +350,18 @@ def resolve_user_source_identity(
 
     if not url or not url.strip():
         raise unprocessable("url is required")
+    if kind == "generic_web":
+        if not settings.web_hosts:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Web fetching is disabled")
+        validated = validate_web_url(url.strip(), settings.web_hosts)
+        try:
+            canonical = canonicalize_url(validated)
+        except ValueError as exc:
+            raise unprocessable(str(exc)) from exc
+        family = SourceKind.GENERIC_WEB
+        duplicate = registry.find_duplicate_endpoint(canonical, family=family)
+        endpoint = duplicate or registry.register_endpoint(url=canonical, family=family)
+        return kind, endpoint.canonical_url, endpoint.canonical_url, None
     if not settings.rss_hosts:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="RSS fetching is disabled")
     validated = validate_feed_url(url.strip(), settings.rss_hosts)
