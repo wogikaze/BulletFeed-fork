@@ -33,3 +33,8 @@ python scripts/run_host_recovery_drill.py --output tests/gold/recovery/v01/host_
 Docker daemonが無い場合はcommand自体を失敗として記録し、passへ置き換えない。bounded tmpfsの
 ENOSPCは自動検証するが、永続volumeの実disk-fullはhost-specific fault injectionが必要であり、
 独立した残課題として扱う。
+
+GitHub ActionsのDocker runnerで取得した成功結果は
+`backend/tests/gold/recovery/v01/host_recovery_report.json` に保存する。reportには実行した
+repository SHAとworkflow run IDを含め、restart後のAPI/worker readinessとsession persistenceを
+再現可能な証跡として結び付ける。
