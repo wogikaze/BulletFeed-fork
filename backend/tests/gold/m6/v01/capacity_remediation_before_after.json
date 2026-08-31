@@ -1,0 +1,948 @@
+{
+  "report_version": "m6-capacity-remediation-v1",
+  "status": "capacity_remediation_measured",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": false,
+  "blind_records_loaded": false,
+  "ranking_policy_version": "multiobjective-ranker-v2",
+  "capacity_policy_version": "capacity-policy-v1",
+  "production_ranking_contract": "app.services.multiobjective_ranker.rank_candidates",
+  "repository_sha": null,
+  "intended_metric": "display-frame unique product/kind coverage, freeze-case occupancy, and product-level IU recall at k=5/10/20. Not family item IU@10.",
+  "intended_metric_moved": true,
+  "intended_metric_deltas": [
+    "package_release_manager.unique_products@10",
+    "package_release_manager.unique_kinds@10",
+    "package_release_manager.product_iu_recall@10",
+    "rust_compiler_contributor.unique_products@10",
+    "rust_compiler_contributor.unique_kinds@10",
+    "rust_compiler_contributor.product_iu_recall@10",
+    "javascript_tooling_maintainer.unique_products@10",
+    "javascript_tooling_maintainer.unique_kinds@10",
+    "javascript_tooling_maintainer.freeze_hits@10",
+    "javascript_tooling_maintainer.product_iu_recall@10"
+  ],
+  "guards": {
+    "cards_to_first_important_unknown_not_worsened": true,
+    "hidden_count_not_increased": true,
+    "item_iu_recall_at_10_not_worsened": true,
+    "false_merge_unchanged": true,
+    "unknown_but_hidden_not_worsened": true
+  },
+  "false_merge": {
+    "before": 0,
+    "after": 0,
+    "note": "Capacity reorders scored candidates only. Identity / merge path is unchanged."
+  },
+  "policy_comparison": {
+    "off": {
+      "package_release_manager": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.018412,
+          "product_iu_recall": 0.078846,
+          "unique_products": 4.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1084,
+            "in_frame": 20
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.036824,
+          "product_iu_recall": 0.137692,
+          "unique_products": 7.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1064,
+            "in_frame": 40
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.073648,
+          "product_iu_recall": 0.284615,
+          "unique_products": 14.5,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 1024,
+            "in_frame": 80
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "profile_count": 8,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.517986,
+          "product_iu_recall": 0.558333,
+          "unique_products": 2.25,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 536,
+            "in_frame": 24
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.535971,
+          "product_iu_recall": 0.625,
+          "unique_products": 4.25,
+          "unique_sources": 1.25,
+          "unique_kinds": 1.25,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 516,
+            "in_frame": 44
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.571942,
+          "product_iu_recall": 0.733333,
+          "unique_products": 7.5,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 476,
+            "in_frame": 84
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.511364,
+          "product_iu_recall": 0.545455,
+          "unique_products": 4.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 430,
+            "in_frame": 10
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.522727,
+          "product_iu_recall": 0.575758,
+          "unique_products": 7.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 420,
+            "in_frame": 20
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.545455,
+          "product_iu_recall": 0.69697,
+          "unique_products": 12.75,
+          "unique_sources": 2.0,
+          "unique_kinds": 1.5,
+          "freeze_hits": 6,
+          "taxonomy": {
+            "capacity_miss": 400,
+            "in_frame": 40
+          }
+        }
+      }
+    },
+    "topic_cap": {
+      "package_release_manager": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.018412,
+          "product_iu_recall": 0.098077,
+          "unique_products": 5.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1084,
+            "in_frame": 20
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.036824,
+          "product_iu_recall": 0.196154,
+          "unique_products": 10.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1064,
+            "in_frame": 40
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.073648,
+          "product_iu_recall": 0.284615,
+          "unique_products": 14.5,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 1024,
+            "in_frame": 80
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "profile_count": 8,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.517986,
+          "product_iu_recall": 0.583333,
+          "unique_products": 3.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 536,
+            "in_frame": 24
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.535971,
+          "product_iu_recall": 0.666667,
+          "unique_products": 5.5,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 516,
+            "in_frame": 44
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.571942,
+          "product_iu_recall": 0.733333,
+          "unique_products": 7.5,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 476,
+            "in_frame": 84
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.511364,
+          "product_iu_recall": 0.575758,
+          "unique_products": 5.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 430,
+            "in_frame": 10
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.522727,
+          "product_iu_recall": 0.651515,
+          "unique_products": 10.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 420,
+            "in_frame": 20
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.545455,
+          "product_iu_recall": 0.69697,
+          "unique_products": 12.75,
+          "unique_sources": 2.0,
+          "unique_kinds": 1.5,
+          "freeze_hits": 6,
+          "taxonomy": {
+            "capacity_miss": 400,
+            "in_frame": 40
+          }
+        }
+      }
+    },
+    "reserved": {
+      "package_release_manager": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.018412,
+          "product_iu_recall": 0.078846,
+          "unique_products": 4.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1084,
+            "in_frame": 20
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.036824,
+          "product_iu_recall": 0.147308,
+          "unique_products": 7.5,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1064,
+            "in_frame": 40
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.073648,
+          "product_iu_recall": 0.294231,
+          "unique_products": 15.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 1024,
+            "in_frame": 80
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "profile_count": 8,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.517986,
+          "product_iu_recall": 0.558333,
+          "unique_products": 2.25,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 536,
+            "in_frame": 24
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.535971,
+          "product_iu_recall": 0.625,
+          "unique_products": 4.25,
+          "unique_sources": 1.25,
+          "unique_kinds": 1.25,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 516,
+            "in_frame": 44
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.571942,
+          "product_iu_recall": 0.733333,
+          "unique_products": 7.5,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 476,
+            "in_frame": 84
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.511364,
+          "product_iu_recall": 0.545455,
+          "unique_products": 4.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 430,
+            "in_frame": 10
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.522727,
+          "product_iu_recall": 0.590909,
+          "unique_products": 7.5,
+          "unique_sources": 2.0,
+          "unique_kinds": 2.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 420,
+            "in_frame": 20
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.545455,
+          "product_iu_recall": 0.69697,
+          "unique_products": 12.75,
+          "unique_sources": 2.5,
+          "unique_kinds": 2.0,
+          "freeze_hits": 6,
+          "taxonomy": {
+            "capacity_miss": 400,
+            "in_frame": 40
+          }
+        }
+      }
+    },
+    "source_cap": {
+      "package_release_manager": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.018412,
+          "product_iu_recall": 0.078846,
+          "unique_products": 4.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1084,
+            "in_frame": 20
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.0306,
+          "product_iu_recall": 0.117692,
+          "unique_products": 6.75,
+          "unique_sources": 2.5,
+          "unique_kinds": 2.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 640,
+            "in_frame": 34,
+            "ordering_miss": 430
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.067424,
+          "product_iu_recall": 0.274615,
+          "unique_products": 14.75,
+          "unique_sources": 2.5,
+          "unique_kinds": 2.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 680,
+            "in_frame": 74,
+            "ordering_miss": 350
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "profile_count": 8,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.517986,
+          "product_iu_recall": 0.558333,
+          "unique_products": 2.25,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 536,
+            "in_frame": 24
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.535971,
+          "product_iu_recall": 0.608333,
+          "unique_products": 3.75,
+          "unique_sources": 2.0,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 516,
+            "in_frame": 44
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.571942,
+          "product_iu_recall": 0.733333,
+          "unique_products": 7.5,
+          "unique_sources": 2.0,
+          "unique_kinds": 1.5,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 476,
+            "in_frame": 84
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.511364,
+          "product_iu_recall": 0.545455,
+          "unique_products": 4.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 430,
+            "in_frame": 10
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.522727,
+          "product_iu_recall": 0.560606,
+          "unique_products": 6.75,
+          "unique_sources": 2.25,
+          "unique_kinds": 2.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 420,
+            "in_frame": 20
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.545455,
+          "product_iu_recall": 0.651515,
+          "unique_products": 11.25,
+          "unique_sources": 2.5,
+          "unique_kinds": 2.0,
+          "freeze_hits": 6,
+          "taxonomy": {
+            "capacity_miss": 400,
+            "in_frame": 40
+          }
+        }
+      }
+    },
+    "two_stage": {
+      "package_release_manager": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.018412,
+          "product_iu_recall": 0.098077,
+          "unique_products": 5.0,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1084,
+            "in_frame": 20
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.036824,
+          "product_iu_recall": 0.196154,
+          "unique_products": 10.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 0,
+          "taxonomy": {
+            "capacity_miss": 1064,
+            "in_frame": 40
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.073648,
+          "product_iu_recall": 0.294231,
+          "unique_products": 15.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 1024,
+            "in_frame": 80
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "profile_count": 8,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.517986,
+          "product_iu_recall": 0.575,
+          "unique_products": 2.75,
+          "unique_sources": 1.0,
+          "unique_kinds": 1.0,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 536,
+            "in_frame": 24
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.535971,
+          "product_iu_recall": 0.658333,
+          "unique_products": 5.25,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 516,
+            "in_frame": 44
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.571942,
+          "product_iu_recall": 0.733333,
+          "unique_products": 7.5,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 476,
+            "in_frame": 84
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "profile_count": 4,
+        "hidden_count": 0,
+        "mean_cards_to_first_important_unknown": 1.0,
+        "at_5": {
+          "important_unknown_recall": 0.511364,
+          "product_iu_recall": 0.575758,
+          "unique_products": 5.0,
+          "unique_sources": 1.5,
+          "unique_kinds": 1.5,
+          "freeze_hits": 2,
+          "taxonomy": {
+            "capacity_miss": 430,
+            "in_frame": 10
+          }
+        },
+        "at_10": {
+          "important_unknown_recall": 0.522727,
+          "product_iu_recall": 0.651515,
+          "unique_products": 10.0,
+          "unique_sources": 2.0,
+          "unique_kinds": 2.0,
+          "freeze_hits": 4,
+          "taxonomy": {
+            "capacity_miss": 420,
+            "in_frame": 20
+          }
+        },
+        "at_20": {
+          "important_unknown_recall": 0.545455,
+          "product_iu_recall": 0.69697,
+          "unique_products": 12.75,
+          "unique_sources": 2.5,
+          "unique_kinds": 2.0,
+          "freeze_hits": 6,
+          "taxonomy": {
+            "capacity_miss": 400,
+            "in_frame": 40
+          }
+        }
+      }
+    }
+  },
+  "before": {
+    "capacity_policy_version": "off",
+    "persona_families": {
+      "package_release_manager": {
+        "summary": {
+          "profile_count": 4,
+          "hidden_count": 0,
+          "mean_cards_to_first_important_unknown": 1.0,
+          "at_5": {
+            "important_unknown_recall": 0.018412,
+            "product_iu_recall": 0.078846,
+            "unique_products": 4.0,
+            "unique_sources": 1.0,
+            "unique_kinds": 1.0,
+            "freeze_hits": 0,
+            "taxonomy": {
+              "capacity_miss": 1084,
+              "in_frame": 20
+            }
+          },
+          "at_10": {
+            "important_unknown_recall": 0.036824,
+            "product_iu_recall": 0.137692,
+            "unique_products": 7.0,
+            "unique_sources": 1.0,
+            "unique_kinds": 1.0,
+            "freeze_hits": 0,
+            "taxonomy": {
+              "capacity_miss": 1064,
+              "in_frame": 40
+            }
+          },
+          "at_20": {
+            "important_unknown_recall": 0.073648,
+            "product_iu_recall": 0.284615,
+            "unique_products": 14.5,
+            "unique_sources": 1.0,
+            "unique_kinds": 1.0,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 1024,
+              "in_frame": 80
+            }
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "summary": {
+          "profile_count": 8,
+          "hidden_count": 0,
+          "mean_cards_to_first_important_unknown": 1.0,
+          "at_5": {
+            "important_unknown_recall": 0.517986,
+            "product_iu_recall": 0.558333,
+            "unique_products": 2.25,
+            "unique_sources": 1.0,
+            "unique_kinds": 1.0,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 536,
+              "in_frame": 24
+            }
+          },
+          "at_10": {
+            "important_unknown_recall": 0.535971,
+            "product_iu_recall": 0.625,
+            "unique_products": 4.25,
+            "unique_sources": 1.25,
+            "unique_kinds": 1.25,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 516,
+              "in_frame": 44
+            }
+          },
+          "at_20": {
+            "important_unknown_recall": 0.571942,
+            "product_iu_recall": 0.733333,
+            "unique_products": 7.5,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 4,
+            "taxonomy": {
+              "capacity_miss": 476,
+              "in_frame": 84
+            }
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "summary": {
+          "profile_count": 4,
+          "hidden_count": 0,
+          "mean_cards_to_first_important_unknown": 1.0,
+          "at_5": {
+            "important_unknown_recall": 0.511364,
+            "product_iu_recall": 0.545455,
+            "unique_products": 4.0,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 430,
+              "in_frame": 10
+            }
+          },
+          "at_10": {
+            "important_unknown_recall": 0.522727,
+            "product_iu_recall": 0.575758,
+            "unique_products": 7.0,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 420,
+              "in_frame": 20
+            }
+          },
+          "at_20": {
+            "important_unknown_recall": 0.545455,
+            "product_iu_recall": 0.69697,
+            "unique_products": 12.75,
+            "unique_sources": 2.0,
+            "unique_kinds": 1.5,
+            "freeze_hits": 6,
+            "taxonomy": {
+              "capacity_miss": 400,
+              "in_frame": 40
+            }
+          }
+        }
+      }
+    }
+  },
+  "after": {
+    "capacity_policy_version": "capacity-policy-v1",
+    "persona_families": {
+      "package_release_manager": {
+        "summary": {
+          "profile_count": 4,
+          "hidden_count": 0,
+          "mean_cards_to_first_important_unknown": 1.0,
+          "at_5": {
+            "important_unknown_recall": 0.018412,
+            "product_iu_recall": 0.098077,
+            "unique_products": 5.0,
+            "unique_sources": 1.0,
+            "unique_kinds": 1.0,
+            "freeze_hits": 0,
+            "taxonomy": {
+              "capacity_miss": 1084,
+              "in_frame": 20
+            }
+          },
+          "at_10": {
+            "important_unknown_recall": 0.036824,
+            "product_iu_recall": 0.196154,
+            "unique_products": 10.0,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 0,
+            "taxonomy": {
+              "capacity_miss": 1064,
+              "in_frame": 40
+            }
+          },
+          "at_20": {
+            "important_unknown_recall": 0.073648,
+            "product_iu_recall": 0.294231,
+            "unique_products": 15.0,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 1024,
+              "in_frame": 80
+            }
+          }
+        }
+      },
+      "rust_compiler_contributor": {
+        "summary": {
+          "profile_count": 8,
+          "hidden_count": 0,
+          "mean_cards_to_first_important_unknown": 1.0,
+          "at_5": {
+            "important_unknown_recall": 0.517986,
+            "product_iu_recall": 0.575,
+            "unique_products": 2.75,
+            "unique_sources": 1.0,
+            "unique_kinds": 1.0,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 536,
+              "in_frame": 24
+            }
+          },
+          "at_10": {
+            "important_unknown_recall": 0.535971,
+            "product_iu_recall": 0.658333,
+            "unique_products": 5.25,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 516,
+              "in_frame": 44
+            }
+          },
+          "at_20": {
+            "important_unknown_recall": 0.571942,
+            "product_iu_recall": 0.733333,
+            "unique_products": 7.5,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 4,
+            "taxonomy": {
+              "capacity_miss": 476,
+              "in_frame": 84
+            }
+          }
+        }
+      },
+      "javascript_tooling_maintainer": {
+        "summary": {
+          "profile_count": 4,
+          "hidden_count": 0,
+          "mean_cards_to_first_important_unknown": 1.0,
+          "at_5": {
+            "important_unknown_recall": 0.511364,
+            "product_iu_recall": 0.575758,
+            "unique_products": 5.0,
+            "unique_sources": 1.5,
+            "unique_kinds": 1.5,
+            "freeze_hits": 2,
+            "taxonomy": {
+              "capacity_miss": 430,
+              "in_frame": 10
+            }
+          },
+          "at_10": {
+            "important_unknown_recall": 0.522727,
+            "product_iu_recall": 0.651515,
+            "unique_products": 10.0,
+            "unique_sources": 2.0,
+            "unique_kinds": 2.0,
+            "freeze_hits": 4,
+            "taxonomy": {
+              "capacity_miss": 420,
+              "in_frame": 20
+            }
+          },
+          "at_20": {
+            "important_unknown_recall": 0.545455,
+            "product_iu_recall": 0.69697,
+            "unique_products": 12.75,
+            "unique_sources": 2.5,
+            "unique_kinds": 2.0,
+            "freeze_hits": 6,
+            "taxonomy": {
+              "capacity_miss": 400,
+              "in_frame": 40
+            }
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "Ranking weights remain multiobjective-ranker-v2. Capacity is capacity-policy-v1.",
+    "Do not chase Top-3 family item IU@10 with ranker weights.",
+    "Display frame stays k=10; later ranks keep leftover candidates.",
+    "Correction/security hard priority is preserved.",
+    "source_cap is comparison-only; it pulled unrelated reference items and worsened item IU@10.",
+    "Production two_stage is topic cap plus related reserved slots. Weights unchanged.",
+    "Blind unread. Do not treat AI-silver as Human Gold."
+  ],
+  "blind_gate": {
+    "run": false,
+    "reason": "Intended display-frame metrics moved and guards passed, but #171 is not safely runnable here: production scoring must not open blind files, no evaluation-only M6 blind adapter exists, and freeze belongs on merged main."
+  }
+}

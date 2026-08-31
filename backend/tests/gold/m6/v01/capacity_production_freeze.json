@@ -1,0 +1,15 @@
+{
+  "freeze_version": "m6-capacity-production-freeze-v1",
+  "status": "frozen_on_branch_pending_main_merge",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": false,
+  "ranking_policy_version": "multiobjective-ranker-v2",
+  "capacity_policy_version": "capacity-policy-v1",
+  "relation_feature_version": "relation-features-v02",
+  "production_ranking_contract": "app.services.multiobjective_ranker.rank_candidates",
+  "weights_unchanged": true,
+  "oneshot_blind_ran": false,
+  "oneshot_blind_issue": 171,
+  "note": "Capacity policy is frozen for this remediation. #171 one-shot blind waits for merge to main and an evaluation-only loader that does not share the production-scoring import path."
+}
