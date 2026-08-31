@@ -1621,11 +1621,13 @@ private fun Throwable.apiValidationMessage(): String? {
     return when (message) {
         "topic limit reached" -> TOPIC_LIMIT_REACHED_MESSAGE
         "topic already exists" -> "すでに追跡中のテーマです。"
+        "topic name is required" -> "テーマ名を入力してください。"
         "url is required" -> "URLを入力してください。"
         "Unsupported source kind" -> "この種類の情報源は購読できません。"
         "Invalid Statuspage ID" -> "Statuspage の page ID が正しくありません。"
         "pageId or url is required for statuspage" -> "Statuspage は page ID または URL が必要です。"
         "Statuspage URL must use a statuspage.io page host" -> "Statuspage は statuspage.io のページURLを指定してください。"
+        "Statuspage URL must be HTTP or HTTPS" -> "Statuspage URL は HTTP または HTTPS で指定してください。"
         "RSS fetching is disabled" -> "RSS/JSON Feed の取得は現在無効です。"
         "Web fetching is disabled" -> "Webページの取得は現在無効です。"
         "RSS host is not in the allowlist" -> "このホストのフィードは許可されていません。"
