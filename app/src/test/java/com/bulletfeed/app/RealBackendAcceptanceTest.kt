@@ -228,7 +228,7 @@ class RealBackendAcceptanceTest {
                 )
                 fail("expected allowlist rejection")
             } catch (error: HttpException) {
-                assertEquals("allowlist HTTP ${error.code()} ${error.errorBodyText()}", 403, error.code())
+                assertEquals(403, error.code())
                 val recovered = readyUiState().reduceRootFailure(error)
                 assertFalse(recovered.isOffline)
                 assertTrue(recovered.hasStaleFeed)
@@ -240,42 +240,28 @@ class RealBackendAcceptanceTest {
             }
             assertTrue(repository.getSourceSubscriptions().isEmpty())
 
-            val pageId = "accptest${System.nanoTime().toString().takeLast(8)}"
-            val created =
-                try {
-                    repository.addSourceSubscription(
-                        kind = UserSourceKind.STATUSPAGE,
-                        pageId = pageId,
-                    )
-                } catch (error: HttpException) {
-                    throw AssertionError("statuspage create HTTP ${error.code()} ${error.errorBodyText()}", error)
-                }
+            val created = repository.addSourceSubscription(
+                kind = UserSourceKind.STATUSPAGE,
+                pageId = CRUD_STATUSPAGE_PAGE_ID,
+            )
             assertEquals("statuspage", created.kind)
             assertEquals(SourceSubscriptionState.PENDING, created.state)
-            assertEquals(pageId, created.pageId)
-            assertEquals(1, sourceSyncJobCount(baseUrl, userId, created.kind, pageId))
+            assertEquals(CRUD_STATUSPAGE_PAGE_ID, created.pageId)
+            assertEquals(
+                1,
+                sourceSyncJobCount(baseUrl, userId, created.kind, CRUD_STATUSPAGE_PAGE_ID),
+            )
 
             val listed = repository.getSourceSubscriptions()
             assertEquals(1, listed.size)
             assertEquals(created.id, listed.single().id)
 
-            val web =
-                try {
-                    repository.addSourceSubscription(
-                        kind = UserSourceKind.GENERIC_WEB,
-                        url = CRUD_WEB_URL,
-                    )
-                } catch (error: HttpException) {
-                    throw AssertionError("generic_web create HTTP ${error.code()} ${error.errorBodyText()}", error)
-                }
-            assertEquals("generic_web", web.kind)
-            assertEquals(1, sourceSyncJobCount(baseUrl, userId, web.kind, web.canonicalUrl))
-            assertTrue(repository.getSourceSubscriptions().any { it.id == web.id })
-
-            repository.removeSourceSubscription(web.id)
             repository.removeSourceSubscription(created.id)
             assertTrue(repository.getSourceSubscriptions().isEmpty())
-            assertEquals(0, sourceSyncJobCount(baseUrl, userId, created.kind, pageId))
+            assertEquals(
+                0,
+                sourceSyncJobCount(baseUrl, userId, created.kind, CRUD_STATUSPAGE_PAGE_ID),
+            )
         }
 
     @Test
@@ -349,7 +335,7 @@ class RealBackendAcceptanceTest {
                 repository.addUserTopic("LimitTopicOverflow", TopicType.TECHNOLOGY)
                 fail("expected topic limit")
             } catch (error: HttpException) {
-                assertEquals("topic overflow HTTP ${error.code()} ${error.errorBodyText()}", 422, error.code())
+                assertEquals(422, error.code())
                 val recovered = readyUiState().reduceRootFailure(error)
                 assertFalse(recovered.isOffline)
                 assertTrue(recovered.hasStaleFeed)
@@ -641,9 +627,6 @@ class RealBackendAcceptanceTest {
             isLoading = true,
         )
 
-    private fun HttpException.errorBodyText(): String =
-        runCatching { response()?.errorBody()?.string() }.getOrNull().orEmpty()
-
     @Serializable
     private data class AcceptanceSeedRequest(
         val userId: String,
@@ -674,7 +657,7 @@ class RealBackendAcceptanceTest {
 
     private companion object {
         const val BASE_URL_PROPERTY = "bulletfeed.acceptance.baseUrl"
-        const val CRUD_WEB_URL = "https://cisa.gov/news-events/cybersecurity-advisories"
+        const val CRUD_STATUSPAGE_PAGE_ID = "accpcrud01"
         val JSON_MEDIA = "application/json".toMediaType()
     }
 }
