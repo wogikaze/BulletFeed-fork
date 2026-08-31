@@ -1,4 +1,4 @@
-from scripts.build_rc_evidence_report import build_report
+from scripts.build_rc_evidence_report import _repository_sha, build_report
 
 
 def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch) -> None:
@@ -8,6 +8,10 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
 
     assert report["repository_sha"] == "test-sha"
     assert report["completion_gate_pass"] is False
+    assert report["field_eval"]["executed"] is False
+    assert report["field_eval"]["start_ok_with_one_person"] is True
+    assert report["field_eval"]["completion_target_participants"] == 5
+    assert report["field_eval"]["source_of_truth"] == "GET /v1/me/feed-sessions/metrics"
     assert set(report["missions"]) == {"m1", "m2", "m3", "m4", "m5", "m6", "m7"}
     assert report["missions"]["m1"]["evidence_checks"]["persona_count"] is True
     assert report["missions"]["m1"]["api_qualification"]["evidence_checks"]["stage_failures"] is True
@@ -42,3 +46,16 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     ] is True
     assert any("#171" in item for item in report["unmet_gate_items"])
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True
+    assert any("GitHub OAuth" in item for item in report["human_only_or_field_validation"])
+    assert any("#327" in item for item in report["human_only_or_field_validation"])
+
+
+def test_rc_evidence_report_resolves_git_sha_when_env_missing(monkeypatch) -> None:
+    monkeypatch.delenv("GITHUB_SHA", raising=False)
+    sha = _repository_sha()
+    assert sha
+    assert len(sha) >= 7
+    report = build_report()
+    assert report["repository_sha"] == sha
+    assert report["completion_gate_pass"] is False
+    assert report["status"] == "pre_field_release_candidate"
