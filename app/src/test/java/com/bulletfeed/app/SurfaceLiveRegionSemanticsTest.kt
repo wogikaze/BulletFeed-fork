@@ -4,8 +4,11 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +55,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("読み込みに失敗しました").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -61,6 +65,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("オフラインです").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
+        composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -70,6 +75,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("Alertを読み込み中").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
+        composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -81,6 +87,8 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("詳細を表示できません").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -90,6 +98,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("一時的なエラーです").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithContentDescription("閉じる").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

@@ -506,13 +506,17 @@ internal fun OfflineRecoveryBanner(
     modifier = modifier
         .padding(12.dp)
         .fillMaxWidth()
-        .testTag("offline-recovery-banner")
-        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        .testTag("offline-recovery-banner"),
     colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE3B3)),
     shape = RoundedCornerShape(16.dp),
 ) {
     Column(Modifier.padding(14.dp)) {
-        Text("オフラインです", fontWeight = FontWeight.Bold, color = Color(0xFF5C3B00))
+        Text(
+            "オフラインです",
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF5C3B00),
+        )
         Text(
             if (hasStaleFeed) {
                 "最後に読み込めたフィードを表示しています。再接続後に再試行してください。"
@@ -818,14 +822,16 @@ private fun AppTabPane(
 @Composable
 internal fun AppLoadingScreen() =
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator(color = Color(0xFFA6231C))
-        Text("データを読み込み中…", modifier = Modifier.padding(top = 16.dp), color = Color(0xFF655F69))
+        Text(
+            "データを読み込み中…",
+            modifier = Modifier.padding(top = 16.dp).semantics { liveRegion = LiveRegionMode.Polite },
+            color = Color(0xFF655F69),
+        )
     }
 
 @Composable
@@ -835,14 +841,16 @@ internal fun ReauthenticationScreen(
 ) = Column(
     modifier = Modifier
         .fillMaxSize()
-        .padding(32.dp)
-        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+        .padding(32.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
     Text(
         "同じアカウントへ再認証",
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier.semantics {
+            heading()
+            liveRegion = LiveRegionMode.Assertive
+        },
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
     )
@@ -869,16 +877,16 @@ internal fun GithubAuthorizationRequiredScreen(
 ) = Column(
     modifier = Modifier
         .fillMaxSize()
-        .padding(32.dp)
-        .semantics(mergeDescendants = true) {
-            liveRegion = if (errorMessage != null) LiveRegionMode.Assertive else LiveRegionMode.Polite
-        },
+        .padding(32.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
     Text(
         "GitHub連携を完了",
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier.semantics {
+            heading()
+            liveRegion = if (errorMessage != null) LiveRegionMode.Assertive else LiveRegionMode.Polite
+        },
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
     )
@@ -907,14 +915,16 @@ internal fun GithubReauthorizationRequiredScreen(
 ) = Column(
     modifier = Modifier
         .fillMaxSize()
-        .padding(32.dp)
-        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+        .padding(32.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
     Text(
         "GitHubの再認証が必要です",
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier.semantics {
+            heading()
+            liveRegion = LiveRegionMode.Assertive
+        },
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
     )
@@ -948,12 +958,16 @@ internal fun AppErrorScreen(message: String, onRetry: () -> Unit) =
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp)
-            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("読み込みに失敗しました", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            "読み込みに失敗しました",
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+        )
         Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
         AccessiblePrimaryButton(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) {
             Text("再試行")
@@ -965,13 +979,15 @@ internal fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp)
-            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator()
-        Text(title, modifier = Modifier.padding(top = 12.dp))
+        Text(
+            title,
+            modifier = Modifier.padding(top = 12.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        )
         AccessiblePrimaryButton(onClick = onBack, modifier = Modifier.padding(top = 18.dp)) {
             Text("戻る")
         }
@@ -985,14 +1001,16 @@ internal fun DetailErrorScreen(
 ) = Column(
     modifier = Modifier
         .fillMaxSize()
-        .padding(32.dp)
-        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+        .padding(32.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
     Text(
         "詳細を表示できません",
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier.semantics {
+            heading()
+            liveRegion = LiveRegionMode.Assertive
+        },
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
     )
@@ -1069,8 +1087,7 @@ internal fun TransientErrorBanner(
         .statusBarsPadding()
         .padding(12.dp)
         .fillMaxWidth()
-        .testTag("transient-error-banner")
-        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+        .testTag("transient-error-banner"),
     colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
 ) {
     RowWithDismiss(message, onDismiss)
@@ -1082,7 +1099,12 @@ private fun RowWithDismiss(message: String, onDismiss: () -> Unit) {
         modifier = Modifier.padding(start = 14.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(message, modifier = Modifier.weight(1f), color = Color.White, style = MaterialTheme.typography.bodySmall)
+        Text(
+            message,
+            modifier = Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Assertive },
+            color = Color.White,
+            style = MaterialTheme.typography.bodySmall,
+        )
         AccessibleIconButton(onClick = onDismiss) {
             Icon(Icons.Default.Close, contentDescription = "閉じる", tint = Color.White)
         }
