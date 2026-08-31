@@ -1,15 +1,15 @@
 """When to start a real isolated JS renderer (Source-08 / #64).
 
 Decision A+: the #114 contract may merge with the feature flag off.
-Issue #64 stays open until a real browser renderer exists.
-
-Source-09 ``dynamic_web`` gap is an intentional static-only visualization.
-It must not start Playwright. Synthetic Gold JS cases do not count.
 
 Start a real renderer only from live authoritative observations when either:
 
 1. five or more persistent primary sources need JS after a successful static fetch
 2. #72 important-unknown recall loses 5 percentage points to JS-only sources
+
+If a representative live qualification sample is below both floors, #64 is
+deferrable (`close_issue_64`) rather than permanently open. Reopen when a later
+sample meets a start floor. Synthetic Gold JS cases do not count.
 
 The implementation must be an isolated renderer service, not Playwright inside
 the FastAPI / sync-worker process.
@@ -23,9 +23,11 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-POLICY_VERSION = "real-renderer-gate-v1"
+POLICY_VERSION = "real-renderer-gate-v2"
 MIN_PERSISTENT_PRIMARY_SOURCES = 5
 MIN_E2E_RECALL_LOSS = 0.05
+MIN_QUALIFICATION_ENDPOINTS = 200
+MIN_QUALIFICATION_REPLAY = 1_000
 REQUIRED_ARCHITECTURE = "isolated_renderer_service"
 FORBIDDEN_ARCHITECTURES = frozenset(
     {
@@ -119,6 +121,8 @@ def evaluate_real_renderer_gate(
     *,
     source_coverage_static_gap_rate: float | None = None,
     proposed_architecture: str = REQUIRED_ARCHITECTURE,
+    live_endpoint_count: int | None = None,
+    replay_case_count: int | None = None,
 ) -> RendererGateDecision:
     """Return whether #64 should start a real isolated renderer.
 
@@ -149,7 +153,23 @@ def evaluate_real_renderer_gate(
             f"architecture {proposed_architecture} is not {REQUIRED_ARCHITECTURE}"
         )
         start = False
-    if not reasons:
+    sufficient = (
+        live_endpoint_count is not None
+        and replay_case_count is not None
+        and live_endpoint_count >= MIN_QUALIFICATION_ENDPOINTS
+        and replay_case_count >= MIN_QUALIFICATION_REPLAY
+    )
+    close_issue = (
+        not start
+        and sufficient
+        and need_count == 0
+        and recall_loss < MIN_E2E_RECALL_LOSS
+    )
+    if close_issue:
+        reasons.append(
+            "trigger_unmet_after_representative_qualification; defer_and_reopen_on_later_trigger"
+        )
+    elif not reasons:
         reasons.append("live evidence is below the real-renderer start floors")
     return RendererGateDecision(
         policy_version=POLICY_VERSION,
@@ -159,6 +179,6 @@ def evaluate_real_renderer_gate(
         e2e_js_only_recall_loss=recall_loss,
         source_coverage_gap_ignored=True,
         required_architecture=REQUIRED_ARCHITECTURE,
-        issue_64_remains_open=True,
-        close_issue_64=False,
+        issue_64_remains_open=not close_issue,
+        close_issue_64=close_issue,
     )
