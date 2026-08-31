@@ -14,12 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
@@ -286,6 +290,50 @@ class AppChromeComposeTest {
         assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
         assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
         composeRule.onNodeWithTag("app-chrome-tab-topics").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun configurationWidthChangeKeepsSelectedTab() {
+        var widthDp by mutableStateOf(360)
+        var tab by mutableStateOf(AppTab.FEED)
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(LocalConfiguration provides widthConfiguration(widthDp)) {
+                    key(widthDp) {
+                        AppChromeShellForWindow(
+                            tab = tab,
+                            securityActionCount = 0,
+                            onTabChange = { tab = it },
+                            content = { _ -> },
+                        )
+                    }
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("app-chrome-tab-search").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("app-chrome-tab-search").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, true),
+        )
+
+        composeRule.runOnIdle { widthDp = 800 }
+        composeRule.waitForIdle()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-search").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, true),
+        )
+        composeRule.onNodeWithTag("app-chrome-tab-feed").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, false),
+        )
+
+        composeRule.runOnIdle { widthDp = 360 }
+        composeRule.waitForIdle()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-search").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, true),
+        )
+        composeRule.onNodeWithTag("app-chrome-tab-search").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
