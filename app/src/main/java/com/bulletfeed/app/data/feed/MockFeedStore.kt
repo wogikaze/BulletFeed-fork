@@ -3,7 +3,12 @@ package com.bulletfeed.app
 class MockFeedStore(
     private val state: MockAppState,
 ) : FeedRepository {
-    override suspend fun getFeedItems(): List<FeedItem> = state.feedItems.filter { !it.dismissed }
+    override suspend fun getFeedItems(): List<FeedItem> =
+        if (state.topics.isEmpty()) {
+            emptyList()
+        } else {
+            state.feedItems.filter { !it.dismissed }
+        }
 
     override suspend fun markFeedItemRead(feedItemId: String) {
         applyFeedback(feedItemId, type = null, markRead = true)
@@ -46,9 +51,13 @@ class MockFeedStore(
     }
 
     fun getFeedEvents(): List<FeedEvent> =
-        state.feedItems
-            .filter { !it.dismissed }
-            .map { it.toFeedEvent(state.catalog[it.eventId]) }
+        if (state.topics.isEmpty()) {
+            emptyList()
+        } else {
+            state.feedItems
+                .filter { !it.dismissed }
+                .map { it.toFeedEvent(state.catalog[it.eventId]) }
+        }
 
     fun updateByEventId(
         eventId: String,

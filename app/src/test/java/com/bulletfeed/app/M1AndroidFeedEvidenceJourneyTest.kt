@@ -30,9 +30,25 @@ class M1AndroidFeedEvidenceJourneyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun mockFeedEvidenceIsTraceableForEveryPersona() =
+    fun mockFeedEvidenceIsTraceableForTopicPersonasAndEmptyForAbstention() =
         runTest {
-            for (persona in loadPersonas()) {
+            val personas = loadPersonas()
+            assertEquals(30, personas.size)
+            val abstaining = personas.filter { it.expectEmptyReason == "no_topics_abstention" }
+            assertEquals(listOf("m1p_29", "m1p_30"), abstaining.map { it.personaId })
+            for (persona in abstaining) {
+                val repository = MockBulletFeedRepository()
+                repository.completeOnboarding(
+                    profile = profileFor(persona),
+                    topics = persona.topics,
+                    connectGithub = true,
+                )
+                assertTrue(
+                    "${persona.personaId} intended abstention must not invent feed cards",
+                    repository.getFeedEvents().isEmpty(),
+                )
+            }
+            for (persona in personas.filter { it.expectEmptyReason.isEmpty() }) {
                 val repository = MockBulletFeedRepository()
                 repository.completeOnboarding(
                     profile = profileFor(persona),
@@ -60,9 +76,36 @@ class M1AndroidFeedEvidenceJourneyTest {
         }
 
     @Test
-    fun feedCardOpensEvidenceAndSendsAlreadyKnewForEveryPersona() {
-        val personas = loadPersonas()
-        assertEquals(30, personas.size)
+    fun abstentionPersonasShowEmptyFeedCopy() {
+        val persona = loadPersonas().first { it.expectEmptyReason == "no_topics_abstention" }
+        val events =
+            runBlocking {
+                val repository = MockBulletFeedRepository()
+                repository.completeOnboarding(
+                    profile = profileFor(persona),
+                    topics = persona.topics,
+                    connectGithub = true,
+                )
+                repository.getFeedEvents()
+            }
+        assertTrue(events.isEmpty())
+        composeRule.setContent {
+            MaterialTheme {
+                EmptyFeed(
+                    filter = FeedFilter.ALL,
+                    onFilterChange = {},
+                    onTopicsClick = {},
+                    onGithubClick = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("表示する変化はありません").assertExists()
+    }
+
+    @Test
+    fun feedCardOpensEvidenceAndSendsAlreadyKnewForTopicPersonas() {
+        val personas = loadPersonas().filter { it.expectEmptyReason.isEmpty() }
+        assertEquals(28, personas.size)
         var current by mutableStateOf(runBlocking { repositoryJourney(personas.first()) })
         var pane by mutableStateOf("card")
         var received: Feedback? = null
@@ -124,6 +167,7 @@ private data class M1FeedPersonaFixture(
     @SerialName("persona_id") val personaId: String,
     val language: String,
     val topics: List<String> = emptyList(),
+    @SerialName("expect_empty_reason") val expectEmptyReason: String = "",
 )
 
 private fun profileFor(persona: M1FeedPersonaFixture): UserProfile =

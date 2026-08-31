@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import retrofit2.HttpException
 
 class MockBulletFeedRepositoryTest {
     @Test
@@ -67,6 +68,35 @@ class MockBulletFeedRepositoryTest {
             assertEquals(profile, snapshot.profile)
             assertEquals(listOf("Kotlin", "GitHub"), snapshot.topics)
             assertTrue(repository.getGithubConnection())
+        }
+
+    @Test
+    fun completeOnboardingWithoutGithubRequiresMinimumTopics() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            try {
+                repository.completeOnboarding(
+                    profile = UserProfile("Webエンジニア", setOf("AI"), "日本"),
+                    topics = listOf("Kotlin"),
+                    connectGithub = false,
+                )
+                throw AssertionError("expected HTTP 422 when GitHub is off and topics are below the floor")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+            }
+        }
+
+    @Test
+    fun emptyTopicsDoNotSurfaceMockFeedCards() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            repository.completeOnboarding(
+                profile = UserProfile("Webエンジニア", setOf("AI"), "日本"),
+                topics = emptyList(),
+                connectGithub = true,
+            )
+            assertTrue(repository.getFeedEvents().isEmpty())
+            assertTrue(repository.getFeedItems().isEmpty())
         }
 
     @Test
