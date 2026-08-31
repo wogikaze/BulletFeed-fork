@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "9625982d28fe1f0e5d8aec4e23da711500a67aa3",
+  "repository_sha": "15b022451f238cfb111d21d291de60ec2d4463f2",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -147,6 +147,19 @@
           "statuspage": 90
         },
         "note": "This is a recorded live sample; deterministic replay remains the CI qualification."
+      },
+      "observed_failure_remediation": {
+        "status": "partial",
+        "decision": "remediation_not_required",
+        "observed_failure_count": 0,
+        "failure_dimensions": {},
+        "evidence_checks": {
+          "live_sample_success": true,
+          "replay_failures": true,
+          "observed_failure_count_recorded": true,
+          "remediation_not_required": true
+        },
+        "note": "No live failure cluster was observed; #164 is completed as `remediation_not_required`. Any future longitudinal failure belongs to #283 and reopens concrete remediation."
       }
     },
     "m4": {
@@ -231,7 +244,7 @@
   },
   "unmet_gate_items": [
     "M1 Android journey and cross-surface breadth for all 30 personas",
-    "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
+    "M3 longitudinal per-source update evidence (#283) and #64 trigger evidence",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
     "M5 persistent-volume disk-full fault injection",
     "M6 production Top-3 remediation followed by one-shot blind evaluation",
