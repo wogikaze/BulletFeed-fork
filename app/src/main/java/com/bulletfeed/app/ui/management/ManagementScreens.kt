@@ -764,14 +764,24 @@ private fun SourceSubscriptionsSection(
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
+    val failingCount = subscriptions.count { it.state == SourceSubscriptionState.FAILING }
+    if (failingCount > 0) {
+        Spacer(Modifier.height(8.dp))
+        SourcePartialFailureStatus(failingCount)
+    }
     Spacer(Modifier.height(12.dp))
     if (subscriptions.isEmpty()) {
         PoliteEmptyStatus("まだ購読はありません。")
     } else {
         subscriptions.forEach { item ->
+            val failing = item.state == SourceSubscriptionState.FAILING
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                        .testTag(if (failing) "source-subscription-failing" else "source-subscription-ok"),
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(item.publisher?.displayName ?: item.canonicalUrl, fontWeight = FontWeight.Bold)
@@ -779,9 +789,16 @@ private fun SourceSubscriptionsSection(
                     Text("種類: ${item.kindLabel()}")
                     Text(
                         "状態: ${item.state.label()}",
-                        color = if (item.state == SourceSubscriptionState.FAILING) Color(0xFFA6231C) else Color(0xFF655F69),
-                        fontWeight = if (item.state == SourceSubscriptionState.FAILING) FontWeight.Medium else FontWeight.Normal,
+                        color = if (failing) Color(0xFFA6231C) else Color(0xFF655F69),
+                        fontWeight = if (failing) FontWeight.Medium else FontWeight.Normal,
                     )
+                    if (failing && item.failureCount > 0) {
+                        Text(
+                            "連続失敗 ${item.failureCount}回",
+                            color = Color(0xFFA6231C),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     AccessibleTextButton(
                         onClick = { onRemove(item.id) },
                         enabled = !isSaving,
@@ -852,6 +869,19 @@ internal fun SourceSubscriptionErrorStatus(message: String) {
         modifier = Modifier
             .padding(top = 8.dp)
             .semantics { liveRegion = LiveRegionMode.Assertive },
+    )
+}
+
+@Composable
+internal fun SourcePartialFailureStatus(failingCount: Int) {
+    Text(
+        "${failingCount}件の情報源が失敗中です。他の購読とフィードはそのまま使えます。",
+        color = Color(0xFFA6231C),
+        style = MaterialTheme.typography.bodyMedium,
+        modifier =
+            Modifier
+                .testTag("source-subscription-partial-failure")
+                .semantics { liveRegion = LiveRegionMode.Polite },
     )
 }
 
