@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -559,7 +560,6 @@ private fun MainNavigation(
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
 ) {
-    val chrome = AppChromeLayout.fromWidthDp(LocalConfiguration.current.screenWidthDp)
     val pane: @Composable (PaddingValues) -> Unit = { innerPadding ->
         AppTabPane(
             uiState = uiState,
@@ -592,8 +592,7 @@ private fun MainNavigation(
             onVisibleFeedItems = onVisibleFeedItems,
         )
     }
-    AppChromeShell(
-        chrome = chrome,
+    AppChromeShellForWindow(
         tab = tab,
         securityActionCount = uiState.securityActionCount,
         onTabChange = onTabChange,
@@ -618,6 +617,30 @@ internal fun AppListDetailSplit(
 }
 
 @Composable
+internal fun AppChromeShellForWindow(
+    tab: AppTab,
+    securityActionCount: Int,
+    onTabChange: (AppTab) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    AppChromeShell(
+        chrome = AppChromeLayout.fromWidthDp(LocalConfiguration.current.screenWidthDp),
+        tab = tab,
+        securityActionCount = securityActionCount,
+        onTabChange = onTabChange,
+        content = content,
+    )
+}
+
+private fun appChromeTabModifier(item: AppTab): Modifier =
+    Modifier
+        .testTag("app-chrome-tab-${item.name.lowercase()}")
+        .defaultMinSize(
+            minWidth = AppReadability.MIN_TOUCH_TARGET_DP.dp,
+            minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp,
+        )
+
+@Composable
 internal fun AppChromeShell(
     chrome: AppChromeLayout,
     tab: AppTab,
@@ -639,6 +662,7 @@ internal fun AppChromeShell(
                         onClick = { onTabChange(item) },
                         icon = { AppTabNavIcon(item, securityActionCount) },
                         label = { Text(item.label) },
+                        modifier = appChromeTabModifier(item),
                     )
                 }
             }
@@ -657,6 +681,7 @@ internal fun AppChromeShell(
                             onClick = { onTabChange(item) },
                             icon = { AppTabNavIcon(item, securityActionCount) },
                             label = { Text(item.label) },
+                            modifier = appChromeTabModifier(item),
                         )
                     }
                 }
