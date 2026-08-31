@@ -154,17 +154,7 @@ fun FeedScreen(
             }
         }
         if (loadMoreError != null) {
-            item {
-                Text(
-                    loadMoreError,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
-                        .semantics { liveRegion = LiveRegionMode.Assertive },
-                    color = Color(0xFF8F1D18),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
+            item { FeedLoadMoreError(loadMoreError) }
         }
         if (nextCursor != null) {
             item {
@@ -275,13 +265,16 @@ private fun FeedHeading(filter: FeedFilter, count: Int) =
     }
 
 @Composable
-private fun EmptyFeed(
+internal fun EmptyFeed(
     filter: FeedFilter,
     onFilterChange: (FeedFilter) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
 ) = Column(
-    Modifier.fillMaxWidth().padding(30.dp).semantics { liveRegion = LiveRegionMode.Polite },
+    Modifier
+        .fillMaxWidth()
+        .padding(30.dp)
+        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     horizontalAlignment = Alignment.CenterHorizontally,
 ) {
     Text("表示する変化はありません", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -305,6 +298,19 @@ private fun EmptyFeed(
     Button(onClick = onTopicsClick, modifier = Modifier.fillMaxWidth()) { Text("テーマを追加する") }
     Spacer(Modifier.height(8.dp))
     OutlinedButton(onClick = onGithubClick, modifier = Modifier.fillMaxWidth()) { Text("GitHubを連携・設定する") }
+}
+
+@Composable
+internal fun FeedLoadMoreError(message: String) {
+    Text(
+        message,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .semantics { liveRegion = LiveRegionMode.Assertive },
+        color = Color(0xFF8F1D18),
+        style = MaterialTheme.typography.bodySmall,
+    )
 }
 
 @Composable
