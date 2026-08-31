@@ -1,0 +1,773 @@
+{
+  "report_version": "m6-oneshot-blind-aggregate-v1",
+  "status": "oneshot_blind_recorded",
+  "aggregate_status": "not_scorable",
+  "dataset_version": "real-world-validation-v0.2",
+  "contract_version": "real-world-validation-contract-v1.2",
+  "metrics_version": "m6-oneshot-blind-scoring-v1",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": true,
+  "blind_records_loaded": true,
+  "oneshot": true,
+  "retune": false,
+  "production_code_unchanged": true,
+  "repository_sha": "b1befc9ee4ab04eefe64820ca27332438f8946ce",
+  "ranking_policy_version": "multiobjective-ranker-v2",
+  "capacity_policy_version": "capacity-policy-v1",
+  "relation_feature_version": "relation-features-v02",
+  "production_ranking_contract": "app.services.multiobjective_ranker.rank_personalization_corpus",
+  "holdout": {
+    "split": "blind",
+    "events": 4,
+    "real_events": 3,
+    "profiles": 15,
+    "judgments": 1,
+    "scored_real_events": 3,
+    "scored_judgments": 0,
+    "persona_families": [
+      "android_app_developer",
+      "ml_infrastructure_engineer",
+      "python_backend_developer",
+      "rust_compiler_contributor",
+      "security_conscious_oss_maintainer",
+      "self_hosting_enthusiast",
+      "student_learning_compilers",
+      "web_frontend_engineer"
+    ]
+  },
+  "sample": {
+    "profile_count": 15,
+    "real_event_count": 3,
+    "judgment_count": 0,
+    "persona_family_count": 8
+  },
+  "headline": {
+    "include_ambiguous": {
+      "at_5": {
+        "sample_count": 0,
+        "judgment_count": 0,
+        "precision_at_5": null,
+        "recall_at_5": null,
+        "ndcg_at_5": null,
+        "redundancy_at_5": null,
+        "important_unknown_recall_at_5": null,
+        "unknown_but_hidden_rate": null,
+        "known_but_reshown_rate": null
+      },
+      "at_10": {
+        "sample_count": 0,
+        "judgment_count": 0,
+        "precision_at_10": null,
+        "recall_at_10": null,
+        "ndcg_at_10": null,
+        "redundancy_at_10": null,
+        "important_unknown_recall_at_10": null,
+        "unknown_but_hidden_rate": null,
+        "known_but_reshown_rate": null
+      }
+    },
+    "exclude_ambiguous": {
+      "at_5": {
+        "sample_count": 0,
+        "judgment_count": 0,
+        "precision_at_5": null,
+        "recall_at_5": null,
+        "ndcg_at_5": null,
+        "redundancy_at_5": null,
+        "important_unknown_recall_at_5": null,
+        "unknown_but_hidden_rate": null,
+        "known_but_reshown_rate": null
+      },
+      "at_10": {
+        "sample_count": 0,
+        "judgment_count": 0,
+        "precision_at_10": null,
+        "recall_at_10": null,
+        "ndcg_at_10": null,
+        "redundancy_at_10": null,
+        "important_unknown_recall_at_10": null,
+        "unknown_but_hidden_rate": null,
+        "known_but_reshown_rate": null
+      }
+    }
+  },
+  "segments": {
+    "cohort": {
+      "cold_start": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "history_rich": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      }
+    },
+    "persona_family": {
+      "android_app_developer": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "ml_infrastructure_engineer": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "python_backend_developer": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "rust_compiler_contributor": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "security_conscious_oss_maintainer": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "self_hosting_enthusiast": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "student_learning_compilers": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "web_frontend_engineer": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      }
+    },
+    "language": {
+      "en": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      }
+    },
+    "source_family": {
+      "github_advisory": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "github_release": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "osv": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      }
+    },
+    "information_type": {
+      "release": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      },
+      "security": {
+        "at_5": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_5": null,
+          "recall_at_5": null,
+          "ndcg_at_5": null,
+          "redundancy_at_5": null,
+          "important_unknown_recall_at_5": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        },
+        "at_10": {
+          "sample_count": 0,
+          "judgment_count": 0,
+          "precision_at_10": null,
+          "recall_at_10": null,
+          "ndcg_at_10": null,
+          "redundancy_at_10": null,
+          "important_unknown_recall_at_10": null,
+          "unknown_but_hidden_rate": null,
+          "known_but_reshown_rate": null
+        }
+      }
+    }
+  },
+  "uncertainty": {
+    "method": "persona-family-cluster-bootstrap-percentile",
+    "cluster_unit": "persona_family",
+    "replicates": 200,
+    "seed": 20260830,
+    "headline": {
+      "at_5": {
+        "status": "not_available",
+        "sample_count": 0
+      },
+      "at_10": {
+        "status": "not_available",
+        "sample_count": 0
+      }
+    },
+    "segments": {
+      "cohort": {
+        "cold_start": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "history_rich": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        }
+      },
+      "persona_family": {
+        "android_app_developer": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "ml_infrastructure_engineer": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "python_backend_developer": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "rust_compiler_contributor": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "security_conscious_oss_maintainer": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "self_hosting_enthusiast": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "student_learning_compilers": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "web_frontend_engineer": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        }
+      },
+      "language": {
+        "en": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        }
+      },
+      "source_family": {
+        "github_advisory": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "github_release": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "osv": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        }
+      },
+      "information_type": {
+        "release": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        },
+        "security": {
+          "at_5": {
+            "status": "not_available",
+            "sample_count": 0
+          },
+          "at_10": {
+            "status": "not_available",
+            "sample_count": 0
+          }
+        }
+      }
+    }
+  },
+  "failure_taxonomy": {
+    "status": "available",
+    "covered_stage": "ranking",
+    "failure_counts": {},
+    "by_dimension": {
+      "important_unknown_missed": {
+        "persona_family": {},
+        "cohort": {},
+        "language": {},
+        "source_family": {},
+        "information_type": {}
+      },
+      "unknown_but_hidden": {
+        "persona_family": {},
+        "cohort": {},
+        "language": {},
+        "source_family": {},
+        "information_type": {}
+      },
+      "known_but_reshown": {
+        "persona_family": {},
+        "cohort": {},
+        "language": {},
+        "source_family": {},
+        "information_type": {}
+      }
+    },
+    "representative_clusters": [],
+    "representative_cluster_minimum": 20,
+    "stage_attribution": {
+      "status": "partial",
+      "earliest_stage_for_recorded_failures": "ranking",
+      "failure_count": 0,
+      "by_stage": {
+        "ranking": 0
+      },
+      "uncovered_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "note": "These are misses in the production ranking replay. Acquisition, projection, and evidence failures require full journey traces and are not inferred here."
+    }
+  },
+  "stage_attribution": {
+    "status": "partial",
+    "earliest_stage_for_recorded_failures": "ranking",
+    "failure_count": 0,
+    "by_stage": {
+      "ranking": 0
+    },
+    "uncovered_stages": [
+      "acquisition",
+      "projection",
+      "evidence"
+    ],
+    "note": "These are misses in the production ranking replay. Acquisition, projection, and evidence failures require full journey traces and are not inferred here."
+  },
+  "top3_persona_families": {
+    "package_release_manager": {
+      "present_in_holdout_profiles": false,
+      "scored": false,
+      "at_10": null
+    },
+    "rust_compiler_contributor": {
+      "present_in_holdout_profiles": true,
+      "scored": false,
+      "at_10": {
+        "sample_count": 0,
+        "judgment_count": 0,
+        "precision_at_10": null,
+        "recall_at_10": null,
+        "ndcg_at_10": null,
+        "redundancy_at_10": null,
+        "important_unknown_recall_at_10": null,
+        "unknown_but_hidden_rate": null,
+        "known_but_reshown_rate": null
+      }
+    },
+    "javascript_tooling_maintainer": {
+      "present_in_holdout_profiles": false,
+      "scored": false,
+      "at_10": null
+    }
+  },
+  "notes": [
+    "One-shot blind aggregate on frozen production SHA b1befc9ee4ab04eefe64820ca27332438f8946ce.",
+    "Capacity policy remains capacity-policy-v1. Ranker weights unchanged.",
+    "Production scoring still never opens blind files.",
+    "AI-silver labels are not Human Gold.",
+    "Do not retune ranking, capacity, or relation against this holdout.",
+    "Holdout inventory is thin versus the M2 10k-judgment floor; record and stop.",
+    "The reserved blind split has one judgment, and the frozen real-event item construction scored zero judgments. Headline metrics are null. This is recorded, not retuned."
+  ]
+}
