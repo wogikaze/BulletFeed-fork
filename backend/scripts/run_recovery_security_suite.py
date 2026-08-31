@@ -16,6 +16,7 @@ SELECTORS = (
     "tests/test_web_snapshots.py",
     "tests/test_user_source_subscriptions.py",
     "tests/test_user_interest.py::test_tenant_isolation_and_reset",
+    "tests/test_integrated_source_faults.py",
 )
 
 
