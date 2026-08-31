@@ -1,7 +1,11 @@
 package com.bulletfeed.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -68,6 +72,31 @@ class AppChromeComposeTest {
         assertEquals(1, composeRule.onAllNodesWithTag("app-list-detail").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithTag("app-list-pane").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithTag("app-detail-pane").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("list-pane").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("detail-pane").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun listDetailKeepsOfflineRecoveryBannerOverlay() {
+        composeRule.setContent {
+            MaterialTheme {
+                Box(Modifier.fillMaxSize()) {
+                    AppListDetailSplit(
+                        list = { Text("list-pane") },
+                        detail = { Text("detail-pane") },
+                    )
+                    OfflineRecoveryBanner(
+                        hasStaleFeed = true,
+                        onRetry = {},
+                        modifier = Modifier.align(Alignment.TopCenter),
+                    )
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-list-detail").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithTag("offline-recovery-banner").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("オフラインです").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("list-pane").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("detail-pane").fetchSemanticsNodes().size)
     }

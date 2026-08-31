@@ -495,6 +495,7 @@ internal fun OfflineRecoveryBanner(
     modifier = modifier
         .padding(12.dp)
         .fillMaxWidth()
+        .testTag("offline-recovery-banner")
         .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE3B3)),
     shape = RoundedCornerShape(16.dp),
@@ -511,7 +512,7 @@ internal fun OfflineRecoveryBanner(
             color = Color(0xFF5C3B00),
             style = MaterialTheme.typography.bodySmall,
         )
-        Button(
+        AccessiblePrimaryButton(
             onClick = onRetry,
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         ) {
@@ -815,7 +816,7 @@ internal fun ReauthenticationScreen(
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
-    Button(
+    AccessiblePrimaryButton(
         onClick = onReauthenticate,
         enabled = !isAuthorizing,
         modifier = Modifier.padding(top = 18.dp),
@@ -852,7 +853,7 @@ internal fun GithubAuthorizationRequiredScreen(
         color = Color(0xFF655F69),
     )
     errorMessage?.let { Text(it, modifier = Modifier.padding(top = 12.dp), color = Color(0xFF8F1D18)) }
-    Button(
+    AccessiblePrimaryButton(
         onClick = onAuthorize,
         enabled = !isAuthorizing,
         modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
@@ -889,7 +890,7 @@ internal fun GithubReauthorizationRequiredScreen(
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
-    Button(
+    AccessiblePrimaryButton(
         onClick = onAuthorize,
         enabled = !isAuthorizing,
         modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
@@ -897,7 +898,11 @@ internal fun GithubReauthorizationRequiredScreen(
         Text(if (isAuthorizing) "認可完了を確認中" else "GitHubを再認証")
     }
     if (showBack) {
-        Button(onClick = onBack, enabled = !isAuthorizing, modifier = Modifier.padding(top = 8.dp)) {
+        AccessiblePrimaryButton(
+            onClick = onBack,
+            enabled = !isAuthorizing,
+            modifier = Modifier.padding(top = 8.dp),
+        ) {
             Text("戻る")
         }
     }
@@ -915,7 +920,9 @@ internal fun AppErrorScreen(message: String, onRetry: () -> Unit) =
     ) {
         Text("読み込みに失敗しました", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
-        Button(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) { Text("再試行") }
+        AccessiblePrimaryButton(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) {
+            Text("再試行")
+        }
     }
 
 @Composable
@@ -930,7 +937,9 @@ internal fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
     ) {
         CircularProgressIndicator()
         Text(title, modifier = Modifier.padding(top = 12.dp))
-        Button(onClick = onBack, modifier = Modifier.padding(top = 18.dp)) { Text("戻る") }
+        AccessiblePrimaryButton(onClick = onBack, modifier = Modifier.padding(top = 18.dp)) {
+            Text("戻る")
+        }
     }
 
 @Composable
@@ -953,8 +962,12 @@ internal fun DetailErrorScreen(
         fontWeight = FontWeight.Bold,
     )
     Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
-    Button(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) { Text("再試行") }
-    Button(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) { Text("戻る") }
+    AccessiblePrimaryButton(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) {
+        Text("再試行")
+    }
+    AccessiblePrimaryButton(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) {
+        Text("戻る")
+    }
 }
 
 @Composable
