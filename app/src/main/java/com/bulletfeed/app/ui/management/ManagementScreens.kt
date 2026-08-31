@@ -367,10 +367,10 @@ fun GithubConnectionScreen(
         LazyColumn(Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp)) {
             item {
                 Spacer(Modifier.height(12.dp))
-                Text(
+                SectionHeading(
                     if (connection.connected) "GitHubを連携済みです" else "GitHubを連携する",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    tag = "github-connection-heading",
                 )
                 connection.accountLogin?.let {
                     Text("$it として連携中", color = Color(0xFF006A67), modifier = Modifier.padding(top = 5.dp))
@@ -431,7 +431,7 @@ fun GithubConnectionScreen(
                 }
             } else {
                 item {
-                    Text("監視するrepository", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    SectionHeading("監視するrepository", tag = "github-repositories-heading")
                     Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         AccessibleOutlinedTextField(
                             value = searchQuery,
@@ -679,7 +679,11 @@ private fun KnowledgeBootstrapSection(
     isSaving: Boolean,
     onReset: () -> Unit,
 ) {
-    Text("既存知識の登録", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    SectionHeading(
+        "既存知識の登録",
+        style = MaterialTheme.typography.headlineSmall,
+        tag = "settings-knowledge-heading",
+    )
     Spacer(Modifier.height(8.dp))
     Text(
         "BulletFeed 外ですでに知っている現在状態を、Event / Topic の確認から登録できます。Claim ID を手入力する画面はありません。低信頼の推定（inferred）は非表示に使いません。",
@@ -749,7 +753,11 @@ private fun SourceSubscriptionsSection(
     var pageId by rememberSaveable { mutableStateOf("") }
     val selectedKind = UserSourceKind.valueOf(kind)
 
-    Text("購読中の情報源", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    SectionHeading(
+        "購読中の情報源",
+        style = MaterialTheme.typography.headlineSmall,
+        tag = "settings-subscriptions-heading",
+    )
     Spacer(Modifier.height(8.dp))
     Text(
         "Statuspage / RSS / JSON Feed / Web を追加できます。失敗中の購読は状態を確認してください。",
@@ -854,7 +862,11 @@ private fun SourceRecommendationsSection(
     onApprove: (String) -> Unit,
     onIgnore: (String) -> Unit,
 ) {
-    Text("情報源の候補", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    SectionHeading(
+        "情報源の候補",
+        style = MaterialTheme.typography.headlineSmall,
+        tag = "settings-recommendations-heading",
+    )
     Spacer(Modifier.height(8.dp))
     Text(
         "興味・テーマから見つけた候補です。承認すると購読できる系統だけが同期されます。",

@@ -198,7 +198,7 @@ internal fun SecurityShortcut(actionCount: Int, onClick: () -> Unit) =
     }
 
 @Composable
-private fun TodaySummary(
+internal fun TodaySummary(
     urgentEvents: List<FeedEvent>,
     directUnreadCount: Int,
     onEventClick: (FeedEvent) -> Unit,
@@ -222,9 +222,16 @@ private fun TodaySummary(
         urgentEvents.firstOrNull()?.let { event ->
             Spacer(Modifier.height(14.dp))
             Column(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.12f)).clickable {
-                    onEventClick(event)
-                }.padding(13.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+                    .testTag("today-priority-event")
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.12f))
+                    .clickable {
+                        onEventClick(event)
+                    }
+                    .padding(13.dp),
             ) {
                 Text("${event.importance.label} · ${event.relation.label}", color = Color(0xFFFFD8A8), style = MaterialTheme.typography.labelMedium)
                 ReadableTitle(
