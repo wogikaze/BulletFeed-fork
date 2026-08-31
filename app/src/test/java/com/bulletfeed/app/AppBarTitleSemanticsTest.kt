@@ -62,4 +62,34 @@ class AppBarTitleSemanticsTest {
 
         composeRule.onNodeWithTag("security-shortcut").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun searchScreenPageHeadingExposesHeadingSemantics() {
+        composeRule.setContent {
+            MaterialTheme {
+                SearchScreen(events = emptyList(), onEventClick = {})
+            }
+        }
+
+        composeRule.onNodeWithTag("section-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
+
+    @Test
+    fun settingsProfileHeadingExposesHeadingSemantics() {
+        composeRule.setContent {
+            MaterialTheme {
+                SettingsScreen(
+                    profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                    isSaving = false,
+                    onSaveProfile = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("section-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
 }

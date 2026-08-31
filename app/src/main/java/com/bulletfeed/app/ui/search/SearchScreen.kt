@@ -64,7 +64,7 @@ fun SearchScreen(
         LazyColumn(modifier = modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp)) {
             item {
                 Spacer(Modifier.height(12.dp))
-                Text("追跡中の変化を探す", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                SectionHeading("追跡中の変化を探す", style = MaterialTheme.typography.headlineSmall)
                 Text("テーマ、企業、技術、イベント内容、情報源から検索できます。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 6.dp))
                 Spacer(Modifier.height(16.dp))
                 AccessibleOutlinedTextField(
