@@ -28,6 +28,15 @@ class AppChromeLayoutTest {
     }
 
     @Test
+    fun landscapePhoneUsesRailWithoutListDetail() {
+        assertEquals(AppChromeLayout.NAVIGATION_RAIL, AppChromeLayout.fromWidthDp(800))
+        assertFalse(AppChromeLayout.usesListDetail(800))
+        assertFalse(
+            AppChromeLayout.showsEventListDetail(800, AppTab.FEED, "event-1", overlayOpen = false),
+        )
+    }
+
+    @Test
     fun eventListDetailRequiresExpandedFeedOrSearch() {
         assertTrue(
             AppChromeLayout.showsEventListDetail(840, AppTab.FEED, "event-1", overlayOpen = false),
