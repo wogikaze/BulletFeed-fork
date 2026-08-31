@@ -317,27 +317,51 @@ internal fun EventActionBar(
     onFollow: () -> Unit,
     onDismiss: () -> Unit,
 ) = Surface(tonalElevation = 4.dp, shadowElevation = 8.dp, color = Color.White) {
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (hasFeedContext) {
-            AccessibleTextButton(onClick = onDismiss) {
-                Text("不要", color = Color(0xFF655F69))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (hasFeedContext) {
+                AccessibleTextButton(onClick = onDismiss) {
+                    Text("不要", color = Color(0xFF655F69))
+                }
+            }
+            AccessibleOutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) {
+                Icon(
+                    imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text(if (following) "フォロー中" else "フォロー", modifier = Modifier.padding(start = 5.dp))
+            }
+            if (hasFeedContext) {
+                AccessiblePrimaryButton(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Default.StarBorder, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Text("重要", modifier = Modifier.padding(start = 5.dp))
+                }
             }
         }
-        AccessibleOutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) {
-            Icon(
-                imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-            )
-            Text(if (following) "フォロー中" else "フォロー", modifier = Modifier.padding(start = 5.dp))
-        }
         if (hasFeedContext) {
-            AccessiblePrimaryButton(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Default.StarBorder, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text("重要", modifier = Modifier.padding(start = 5.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                AccessibleOutlinedButton(
+                    onClick = { onFeedback(Feedback.ALREADY_KNEW) },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text("知っていた")
+                }
+                AccessibleOutlinedButton(
+                    onClick = { onFeedback(Feedback.LEARNED_NOW) },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text("今知った")
+                }
             }
         }
     }

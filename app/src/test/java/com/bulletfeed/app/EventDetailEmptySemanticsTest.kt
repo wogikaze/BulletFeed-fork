@@ -56,6 +56,8 @@ class EventDetailEmptySemanticsTest {
         composeRule.onNodeWithText("不要").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("フォロー").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("重要").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("知っていた").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("今知った").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
