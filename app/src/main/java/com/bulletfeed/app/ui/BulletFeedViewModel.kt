@@ -159,8 +159,7 @@ class BulletFeedViewModel(
                     try {
                         repository.getVulnerabilityAlerts()
                     } catch (error: Throwable) {
-                        if (error.isUnauthorized()) throw error
-                        softError = error.toUserMessage()
+                        softError = error.rememberSoftSubsystemError(softError)
                         emptyList()
                     }
                 } else {
@@ -170,8 +169,7 @@ class BulletFeedViewModel(
                     try {
                         repository.getNotifications()
                     } catch (error: Throwable) {
-                        if (error.isUnauthorized()) throw error
-                        softError = softError ?: error.toUserMessage()
+                        softError = error.rememberSoftSubsystemError(softError)
                         emptyList()
                     }
                 } else {
@@ -181,8 +179,7 @@ class BulletFeedViewModel(
                     try {
                         repository.getSourceRecommendations()
                     } catch (error: Throwable) {
-                        if (error.isUnauthorized()) throw error
-                        softError = softError ?: error.toUserMessage()
+                        softError = error.rememberSoftSubsystemError(softError)
                         emptyList()
                     }
                 } else {
@@ -192,8 +189,7 @@ class BulletFeedViewModel(
                     try {
                         repository.getSourceSubscriptions()
                     } catch (error: Throwable) {
-                        if (error.isUnauthorized()) throw error
-                        softError = softError ?: error.toUserMessage()
+                        softError = error.rememberSoftSubsystemError(softError)
                         emptyList()
                     }
                 } else {
@@ -202,16 +198,14 @@ class BulletFeedViewModel(
                 val topicRecs = try {
                     repository.getTopicRecommendations(includeFollowed = false)
                 } catch (error: Throwable) {
-                    if (error.isUnauthorized()) throw error
-                    softError = softError ?: error.toUserMessage()
+                    softError = error.rememberSoftSubsystemError(softError)
                     TopicRecommendationPage("", emptyList(), emptyList(), "", "")
                 }
                 val bootstrap = if (ready) {
                     try {
                         repository.getKnowledgeBootstrap()
                     } catch (error: Throwable) {
-                        if (error.isUnauthorized()) throw error
-                        softError = softError ?: error.toUserMessage()
+                        softError = error.rememberSoftSubsystemError(softError)
                         KnowledgeBootstrapSummary(version = "", explicitKnownFactCount = 0, inferredFactCount = 0)
                     }
                 } else {
@@ -1506,6 +1500,11 @@ internal fun BulletFeedUiState.beginRefresh(): BulletFeedUiState =
         errorMessage = null,
         feedLoadMoreError = null,
     )
+
+internal fun Throwable.rememberSoftSubsystemError(existing: String?): String {
+    if (isUnauthorized() || this is SessionRecoveryRequiredException) throw this
+    return existing ?: toUserMessage()
+}
 
 internal fun BulletFeedUiState.reduceRootFailure(error: Throwable): BulletFeedUiState {
     val unauthorized = error.isUnauthorized() || error is SessionRecoveryRequiredException
