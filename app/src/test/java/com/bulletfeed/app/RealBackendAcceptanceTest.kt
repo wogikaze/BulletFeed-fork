@@ -228,7 +228,7 @@ class RealBackendAcceptanceTest {
                 )
                 fail("expected allowlist rejection")
             } catch (error: HttpException) {
-                assertEquals(403, error.code())
+                assertEquals("allowlist HTTP ${error.code()} ${error.errorBodyText()}", 403, error.code())
                 val recovered = readyUiState().reduceRootFailure(error)
                 assertFalse(recovered.isOffline)
                 assertTrue(recovered.hasStaleFeed)
@@ -240,34 +240,42 @@ class RealBackendAcceptanceTest {
             }
             assertTrue(repository.getSourceSubscriptions().isEmpty())
 
-            val created = repository.addSourceSubscription(
-                kind = UserSourceKind.STATUSPAGE,
-                pageId = "accptest131job",
-            )
+            val pageId = "accptest${System.nanoTime().toString().takeLast(8)}"
+            val created =
+                try {
+                    repository.addSourceSubscription(
+                        kind = UserSourceKind.STATUSPAGE,
+                        pageId = pageId,
+                    )
+                } catch (error: HttpException) {
+                    throw AssertionError("statuspage create HTTP ${error.code()} ${error.errorBodyText()}", error)
+                }
             assertEquals("statuspage", created.kind)
             assertEquals(SourceSubscriptionState.PENDING, created.state)
-            assertEquals("accptest131job", created.pageId)
-            assertEquals(1, sourceSyncJobCount(baseUrl, userId, created.kind, "accptest131job"))
+            assertEquals(pageId, created.pageId)
+            assertEquals(1, sourceSyncJobCount(baseUrl, userId, created.kind, pageId))
 
             val listed = repository.getSourceSubscriptions()
             assertEquals(1, listed.size)
             assertEquals(created.id, listed.single().id)
 
-            val web = repository.addSourceSubscription(
-                kind = UserSourceKind.GENERIC_WEB,
-                url = "https://react.dev/learn",
-            )
+            val web =
+                try {
+                    repository.addSourceSubscription(
+                        kind = UserSourceKind.GENERIC_WEB,
+                        url = CRUD_WEB_URL,
+                    )
+                } catch (error: HttpException) {
+                    throw AssertionError("generic_web create HTTP ${error.code()} ${error.errorBodyText()}", error)
+                }
             assertEquals("generic_web", web.kind)
-            assertEquals(
-                1,
-                sourceSyncJobCount(baseUrl, userId, web.kind, "https://react.dev/learn"),
-            )
+            assertEquals(1, sourceSyncJobCount(baseUrl, userId, web.kind, web.canonicalUrl))
             assertTrue(repository.getSourceSubscriptions().any { it.id == web.id })
 
             repository.removeSourceSubscription(web.id)
             repository.removeSourceSubscription(created.id)
             assertTrue(repository.getSourceSubscriptions().isEmpty())
-            assertEquals(0, sourceSyncJobCount(baseUrl, userId, created.kind, "accptest131job"))
+            assertEquals(0, sourceSyncJobCount(baseUrl, userId, created.kind, pageId))
         }
 
     @Test
@@ -332,14 +340,16 @@ class RealBackendAcceptanceTest {
             val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
             val repository = RemoteBulletFeedRepository(api, sessionManager)
             repository.initialize()
-            repeat(MAX_TRACKED_TOPICS) { index ->
-                repository.addUserTopic("LimitTopic$index", TopicType.TECHNOLOGY)
-            }
+            repository.completeOnboarding(
+                profile = UserProfile("Androidエンジニア", setOf("モバイル"), "東京"),
+                topics = (0 until MAX_TRACKED_TOPICS).map { index -> "LimitTopic$index" },
+                connectGithub = false,
+            )
             try {
                 repository.addUserTopic("LimitTopicOverflow", TopicType.TECHNOLOGY)
                 fail("expected topic limit")
             } catch (error: HttpException) {
-                assertEquals(422, error.code())
+                assertEquals("topic overflow HTTP ${error.code()} ${error.errorBodyText()}", 422, error.code())
                 val recovered = readyUiState().reduceRootFailure(error)
                 assertFalse(recovered.isOffline)
                 assertTrue(recovered.hasStaleFeed)
@@ -631,6 +641,9 @@ class RealBackendAcceptanceTest {
             isLoading = true,
         )
 
+    private fun HttpException.errorBodyText(): String =
+        runCatching { response()?.errorBody()?.string() }.getOrNull().orEmpty()
+
     @Serializable
     private data class AcceptanceSeedRequest(
         val userId: String,
@@ -661,6 +674,7 @@ class RealBackendAcceptanceTest {
 
     private companion object {
         const val BASE_URL_PROPERTY = "bulletfeed.acceptance.baseUrl"
+        const val CRUD_WEB_URL = "https://cisa.gov/news-events/cybersecurity-advisories"
         val JSON_MEDIA = "application/json".toMediaType()
     }
 }
