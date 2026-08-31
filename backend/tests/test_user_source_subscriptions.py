@@ -388,6 +388,28 @@ def test_invalid_and_unlisted_urls_are_rejected_before_persist(
     assert _count_jobs(database) == 0
 
 
+def test_missing_source_identity_is_validation_not_generic(
+    client: TestClient,
+    auth_headers: dict[str, str],
+) -> None:
+    missing_url = client.post(
+        "/v1/me/sources",
+        headers=auth_headers,
+        json={"kind": "rss_atom"},
+    )
+    assert missing_url.status_code == 422
+    assert missing_url.json()["error"]["code"] == "validation_error"
+    assert missing_url.json()["error"]["message"] == "url is required"
+
+    missing_statuspage = client.post(
+        "/v1/me/sources",
+        headers=auth_headers,
+        json={"kind": "statuspage"},
+    )
+    assert missing_statuspage.status_code == 422
+    assert missing_statuspage.json()["error"]["message"] == "pageId or url is required for statuspage"
+
+
 def test_private_ip_feed_is_rejected_before_persist(
     client: TestClient,
     database: Database,
