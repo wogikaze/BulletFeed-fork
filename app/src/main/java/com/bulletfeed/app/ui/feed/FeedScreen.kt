@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -230,7 +232,13 @@ private fun TodaySummary(
                 }.padding(13.dp),
             ) {
                 Text("${event.importance.label} · ${event.relation.label}", color = Color(0xFFFFD8A8), style = MaterialTheme.typography.labelMedium)
-                Text(event.title, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(
+                    event.title,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = AppReadability.titleMaxLines(LocalDensity.current.fontScale),
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }
@@ -247,6 +255,7 @@ private fun FilterRow(selected: FeedFilter, currentCount: Int, onSelect: (FeedFi
             FilterChip(
                 selected = selected == item,
                 onClick = { onSelect(item) },
+                modifier = Modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
                 label = { Text(if (selected == item) "${item.label} $currentCount" else item.label) },
             )
         }
@@ -316,9 +325,23 @@ private fun EventCard(
                 if (!event.read) Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFB42318)))
             }
             Spacer(Modifier.height(12.dp))
-            Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, lineHeight = 23.sp)
+            val fontScale = LocalDensity.current.fontScale
+            Text(
+                event.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 23.sp,
+                maxLines = AppReadability.titleMaxLines(fontScale),
+                overflow = TextOverflow.Ellipsis,
+            )
             Spacer(Modifier.height(7.dp))
-            Text(event.summary, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF49454F), maxLines = 3, overflow = TextOverflow.Ellipsis)
+            Text(
+                event.summary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF49454F),
+                maxLines = AppReadability.summaryMaxLines(fontScale),
+                overflow = TextOverflow.Ellipsis,
+            )
             Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = Color(0xFFEAE5EC))
             Spacer(Modifier.height(8.dp))
