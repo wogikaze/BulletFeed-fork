@@ -9,11 +9,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -194,6 +197,78 @@ class AppChromeComposeTest {
         assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
         assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
         composeRule.onNodeWithTag("app-chrome-tab-security").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsCompactTabTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalConfiguration provides widthConfiguration(360),
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    AppChromeShellForWindow(
+                        tab = AppTab.FEED,
+                        securityActionCount = 0,
+                        onTabChange = {},
+                        content = { _ -> },
+                    )
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-feed").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("app-chrome-tab-settings").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsRailTabTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalConfiguration provides widthConfiguration(840),
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    AppChromeShellForWindow(
+                        tab = AppTab.SECURITY,
+                        securityActionCount = 3,
+                        onTabChange = {},
+                        content = { _ -> },
+                    )
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-feed").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("app-chrome-tab-security").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsListDetailOfflineRetryTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    Box(Modifier.fillMaxSize()) {
+                        AppListDetailSplit(
+                            list = { Text("list-pane") },
+                            detail = { Text("detail-pane") },
+                        )
+                        OfflineRecoveryBanner(
+                            hasStaleFeed = true,
+                            onRetry = {},
+                            modifier = Modifier.align(Alignment.TopCenter),
+                        )
+                    }
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-list-detail").fetchSemanticsNodes().size)
+        composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 }
 
