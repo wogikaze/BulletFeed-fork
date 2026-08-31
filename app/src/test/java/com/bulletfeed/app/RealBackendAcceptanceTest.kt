@@ -242,14 +242,15 @@ class RealBackendAcceptanceTest {
             assertTrue(repository.getSourceSubscriptions().isEmpty())
 
             val pageId = uniqueStatuspagePageId()
-            val created =
+            val created: SourceSubscription =
                 try {
                     repository.addSourceSubscription(
                         kind = UserSourceKind.STATUSPAGE,
                         pageId = pageId,
                     )
                 } catch (error: HttpException) {
-                    fail("statuspage create HTTP ${error.code()} ${error.response()?.errorBody()?.string().orEmpty()}")
+                    val body = error.response()?.errorBody()?.string().orEmpty()
+                    throw AssertionError("statuspage create HTTP ${error.code()} $body")
                 }
             assertEquals("statuspage", created.kind)
             assertEquals(SourceSubscriptionState.PENDING, created.state)
