@@ -8,14 +8,18 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import retrofit2.HttpException
+import retrofit2.Response
 import java.io.IOException
 import java.net.ServerSocket
 
@@ -87,6 +91,60 @@ class RealBackendAcceptanceTest {
 
             assertApiFailureIsProductionError(repository)
             assertNetworkFailureIsProductionError()
+        }
+
+    @Test
+    fun `unauthenticated feed is session expiry not offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            try {
+                repository.getFeedPage(limit = 1)
+                fail("expected unauthorized feed")
+            } catch (error: HttpException) {
+                assertEquals(401, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertTrue(recovered.sessionExpired)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.events.isEmpty())
+                assertNull(recovered.errorMessage)
+            }
+        }
+
+    @Test
+    fun `worker-not-ready is not classified as offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val request = Request.Builder()
+                .url(baseUrl.trimEnd('/') + "/health/ready")
+                .get()
+                .build()
+            OkHttpClient().newCall(request).execute().use { response ->
+                val payload = response.body?.string().orEmpty()
+                when (response.code) {
+                    200 -> assertTrue(payload.isNotBlank())
+                    503 -> {
+                        val recovered = readyUiState().reduceRootFailure(
+                            HttpException(
+                                Response.error<Any>(
+                                    503,
+                                    payload.toResponseBody("application/json".toMediaType()),
+                                ),
+                            ),
+                        )
+                        assertFalse(recovered.isOffline)
+                        assertTrue(recovered.hasStaleFeed)
+                        assertTrue(recovered.errorMessage?.contains("ワーカー") == true)
+                    }
+                    else -> fail("unexpected /health/ready HTTP ${response.code}: $payload")
+                }
+            }
         }
 
     @Test
@@ -369,6 +427,34 @@ class RealBackendAcceptanceTest {
             return json.decodeFromString(deserializer, payload)
         }
     }
+
+    private fun readyUiState(): BulletFeedUiState =
+        BulletFeedUiState(
+            events = listOf(
+                FeedEvent(
+                    id = "event-1",
+                    title = "Release",
+                    summary = "Summary",
+                    importance = Importance.MEDIUM,
+                    importanceReason = "reason",
+                    relation = Relation.DIRECT,
+                    relationReason = "reason",
+                    announcedAt = "2026-08-30T00:00:00Z",
+                    sourceCount = 1,
+                    before = "",
+                    after = "new",
+                    explicitImpact = "impact",
+                    inferredImpact = null,
+                    sources = emptyList(),
+                    timeline = emptyList(),
+                    feedItemId = "feed-1",
+                ),
+            ),
+            feedDeliveryIds = mapOf("feed-1" to "delivery-1"),
+            feedNextCursor = "cursor-1",
+            onboardingState = OnboardingState.READY,
+            isLoading = true,
+        )
 
     @Serializable
     private data class AcceptanceSeedRequest(
