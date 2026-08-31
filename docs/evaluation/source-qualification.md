@@ -34,6 +34,20 @@ live sampleの`failure_dimensions={}`は「失敗を見落とした」ことで�
 failureが0件なら#164はそのqualificationに対してclose可能であり、将来の再取得で実failureが
 発生した場合は#283から具体的なremediationへ戻す。
 
+## longitudinal protocol（#283）
+
+`tests/gold/source_qualification/v01/longitudinal_protocol.json` は live 200 sample
+から family ごとに最大3件を固定した t0 集合である。t1 の live 再取得は
+
+```text
+python scripts/run_longitudinal_t1.py --live --output tests/gold/source_qualification/v01/longitudinal_t1_report.json
+```
+
+で行い、通常 PR CI では実行しない。classifier は欠測 t1 を `updated` にせず
+`unavailable` / `collection_incomplete` とする。timeout・5xx・identity change が
+観測されたときだけ `remediation=required` になる。成果物は hash / URL / content-type
+/ validator header のみで、page body は保存しない。
+
 ## runtime verification metadata
 
 `SourceRegistry.record_verification` は endpoint ID/URL/lineage を変更せず、

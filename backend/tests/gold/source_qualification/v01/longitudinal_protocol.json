@@ -1,0 +1,175 @@
+{
+  "protocol_version": "m3-longitudinal-protocol-v1",
+  "parent_issue": 283,
+  "t0_source": "m3-live-source-qualification-v1",
+  "windows": [
+    "t0_recorded_live_sample",
+    "t1_repeat_fetch"
+  ],
+  "minimum_observations_per_source": 2,
+  "per_family_cap": 3,
+  "sample_count": 16,
+  "source_family_counts": {
+    "github_advisory": 2,
+    "github_release": 2,
+    "official_changelog": 2,
+    "osv": 1,
+    "package_registry": 3,
+    "rss_atom": 3,
+    "statuspage": 3
+  },
+  "rules": [
+    "Do not synthesize an update from a missing second fetch.",
+    "Preserve acquisition time, final URL, content type, content hash, and validator headers.",
+    "Do not store full public page bodies in this artifact.",
+    "Keep live t1 collection out of ordinary PR CI.",
+    "Observed timeout/5xx/identity-change belong to remediation.",
+    "Zero observed failures are remediation_not_required."
+  ],
+  "sample": [
+    {
+      "source_id": "src_rw_p_ghsa",
+      "source_family": "github_advisory",
+      "fetch_url": "https://api.github.com/advisories/GHSA-7rjr-3q55-vv33",
+      "t0_final_url": "https://api.github.com/advisories/GHSA-7rjr-3q55-vv33",
+      "t0_content_hash": "d8e84fe01029a62958117d5cbbb25705c3e15849858759fea6178c83a918ebd3",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_rw_d_advisory",
+      "source_family": "github_advisory",
+      "fetch_url": "https://api.github.com/advisories/GHSA-p6mc-m468-83gw",
+      "t0_final_url": "https://api.github.com/advisories/GHSA-p6mc-m468-83gw",
+      "t0_content_hash": "ada810989b6a36f5dcda07d16b7e2935a81489f582ce20be28bf036cf6d205bf",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_rw_d_go123",
+      "source_family": "github_release",
+      "fetch_url": "https://api.github.com/repos/golang/go/git/commits/6885bad7dd86880be6929c02085e5c7a67ff2887",
+      "t0_final_url": "https://api.github.com/repos/golang/go/git/commits/6885bad7dd86880be6929c02085e5c7a67ff2887",
+      "t0_content_hash": "30bfa388680291bfd5914fa32f38d2db147417bcc7decc3047d940dfa9d69691",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_rw_p_rust180",
+      "source_family": "github_release",
+      "fetch_url": "https://api.github.com/repos/rust-lang/rust/releases/tags/1.80.0",
+      "t0_final_url": "https://api.github.com/repos/rust-lang/rust/releases/tags/1.80.0",
+      "t0_content_hash": "820498d2b0cdf12ec1b2db2b7588899a32af9456f973a5aba57ebd5c055ec247",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_rw_d_rustblog",
+      "source_family": "official_changelog",
+      "fetch_url": "https://blog.rust-lang.org/2024/06/13/Rust-1.79.0/",
+      "t0_final_url": "https://blog.rust-lang.org/2024/06/13/Rust-1.79.0/",
+      "t0_content_hash": "9e9439fa4626681b687a0525de09beeda567f6161550ab8499ddb0206587d8d7",
+      "t0_content_type": "text/html; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_rw_d_react",
+      "source_family": "official_changelog",
+      "fetch_url": "https://react.dev/blog/2024/12/05/react-19",
+      "t0_final_url": "https://react.dev/blog/2024/12/05/react-19",
+      "t0_content_hash": "e0921ac48246cde4211805c70e5512a9143a004a65f60fca2051dc524149b1c3",
+      "t0_content_type": "text/html; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_rw_p_osv",
+      "source_family": "osv",
+      "fetch_url": "https://api.osv.dev/v1/vulns/CVE-2023-4863",
+      "t0_final_url": "https://api.osv.dev/v1/vulns/CVE-2023-4863",
+      "t0_content_hash": "ad9b73b928a053989b7c831348a03d495725b71956d8e97b67e170fee0f61020",
+      "t0_content_type": "application/json",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_npm_angular_core_2bbe5b022674",
+      "source_family": "package_registry",
+      "fetch_url": "https://registry.npmjs.org/@angular/core/20.3.30",
+      "t0_final_url": "https://registry.npmjs.org/@angular/core/20.3.30",
+      "t0_content_hash": "e0f4245fad7941139db483becc0e2b8eed34115b58e85960b5fea15fd5b177d3",
+      "t0_content_type": "application/json",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_npm_angular_core_6b31e51bbc2c",
+      "source_family": "package_registry",
+      "fetch_url": "https://registry.npmjs.org/@angular/core/21.2.22",
+      "t0_final_url": "https://registry.npmjs.org/@angular/core/21.2.22",
+      "t0_content_hash": "65dd75e8f528817dafb4956f99c274295f2b2a2b5d9e267491be621661c74a47",
+      "t0_content_type": "application/json",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_npm_angular_core_40e0c16c5393",
+      "source_family": "package_registry",
+      "fetch_url": "https://registry.npmjs.org/@angular/core/22.1.4",
+      "t0_final_url": "https://registry.npmjs.org/@angular/core/22.1.4",
+      "t0_content_hash": "79524af6ca7402cf03566310b35111c98e02e5dcb0e7e62c7ba295871e0a7b21",
+      "t0_content_type": "application/json",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_rss_aws_japan_whats_new_f8b39abaf3a0",
+      "source_family": "rss_atom",
+      "fetch_url": "https://aws.amazon.com/jp/about-aws/whats-new/recent/feed/",
+      "t0_final_url": "https://aws.amazon.com/jp/about-aws/whats-new/recent/feed/",
+      "t0_content_hash": "a1a604536ea1858c1c74c83fca254d4736e71689c9237428d38ec35659eb7b49",
+      "t0_content_type": "application/rss+xml;charset=UTF-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_rss_aws_japan_security_97ceac01a97d",
+      "source_family": "rss_atom",
+      "fetch_url": "https://aws.amazon.com/jp/security/security-bulletins/rss/feed/",
+      "t0_final_url": "https://aws.amazon.com/jp/security/security-bulletins/rss/feed/",
+      "t0_content_hash": "f99aebfbe44c6235c887b042181a8a6b651c64f2a95948efb8d4c116f8248e3a",
+      "t0_content_type": "application/rss+xml;charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_rss_jetbrains_japan_a2ef2d821c1c",
+      "source_family": "rss_atom",
+      "fetch_url": "https://blog.jetbrains.com/ja/feed/",
+      "t0_final_url": "https://blog.jetbrains.com/ja/feed/",
+      "t0_content_hash": "1e8b00d6393608064826c828d6fefdec301350d169b31c262e3d3181511d5212",
+      "t0_content_type": "application/rss+xml; charset=UTF-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_status_npm_status_acdfefb6ed28",
+      "source_family": "statuspage",
+      "fetch_url": "https://status.npmjs.org/api/v2/incidents/13qztnk1l4dh.json",
+      "t0_final_url": "https://status.npmjs.org/api/v2/incidents/13qztnk1l4dh.json",
+      "t0_content_hash": "ab613537cf7f77e2d72e88c4c4944c12dfd791c64386aac68658c1c30dbe6693",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_status_npm_status_5862c952148c",
+      "source_family": "statuspage",
+      "fetch_url": "https://status.npmjs.org/api/v2/incidents/25b12z1q22nq.json",
+      "t0_final_url": "https://status.npmjs.org/api/v2/incidents/25b12z1q22nq.json",
+      "t0_content_hash": "969d5a416dd3002a5bcb0333ec2fc4bed9293726fb20e6003c1401b9354324a6",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    },
+    {
+      "source_id": "src_batch_status_npm_status_83fb892258f7",
+      "source_family": "statuspage",
+      "fetch_url": "https://status.npmjs.org/api/v2/incidents/2cfxmzw4mqt6.json",
+      "t0_final_url": "https://status.npmjs.org/api/v2/incidents/2cfxmzw4mqt6.json",
+      "t0_content_hash": "fa4aad8615519828b48940760eaa8ddc936c786db6aef121505fe2d3f2ffa5f9",
+      "t0_content_type": "application/json; charset=utf-8",
+      "t0_status_code": 200
+    }
+  ]
+}
