@@ -6,11 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +65,7 @@ fun FeedScreen(
         onGithubClick = onGithubClick,
         modifier = Modifier.fillMaxSize(),
     )
-    OutlinedButton(
+    AccessibleOutlinedButton(
         onClick = onRefresh,
         enabled = !isFiltering,
         modifier = Modifier.align(Alignment.TopEnd).padding(top = 68.dp, end = 20.dp),
@@ -123,7 +120,7 @@ fun SettingsScreen(
             onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
             modifier = Modifier.weight(1f),
         )
-        OutlinedButton(
+        AccessibleOutlinedButton(
             onClick = { confirmDelete = true },
             enabled = !isDeletingAccount,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
@@ -143,7 +140,7 @@ fun SettingsScreen(
                 Text("プロフィール、テーマ、feedback、knownness、GitHub連携、通知など、このBulletFeed userに紐づく保存データを削除します。")
             },
             confirmButton = {
-                Button(
+                AccessiblePrimaryButton(
                     onClick = {
                         confirmDelete = false
                         onDeleteAccount()
@@ -152,7 +149,7 @@ fun SettingsScreen(
                 ) { Text("削除する") }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = false }, enabled = !isDeletingAccount) {
+                AccessibleTextButton(onClick = { confirmDelete = false }, enabled = !isDeletingAccount) {
                     Text("キャンセル")
                 }
             },

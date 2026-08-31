@@ -137,4 +137,118 @@ class AccessibleFilterChipSemanticsTest {
 
         composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun notificationsMarkAllReadMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                NotificationsScreen(
+                    notifications =
+                        listOf(
+                            AppNotification(
+                                id = "n1",
+                                title = "CVE-2026-0001",
+                                summary = "依存関係の更新が必要です。",
+                                category = NotificationCategory.SECURITY,
+                                priority = NotificationPriority.HIGH,
+                                occurredAt = "2026-08-31T00:00:00Z",
+                                targetType = NotificationTargetType.EVENT,
+                                targetId = "e1",
+                                read = false,
+                            ),
+                        ),
+                    onBack = {},
+                    onNotificationClick = {},
+                    onMarkAllRead = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("すべて既読").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun vulnerabilityActionBarMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                VulnerabilityDetailScreen(
+                    alert =
+                        VulnerabilityAlert(
+                            id = "v1",
+                            advisoryId = "GHSA-xxxx",
+                            cve = "CVE-2026-0001",
+                            title = "依存関係の脆弱性",
+                            summary = "更新してください。",
+                            severity = VulnerabilitySeverity.HIGH,
+                            status = VulnerabilityStatus.OPEN,
+                            repository = "owner/repo",
+                            packageName = "example",
+                            currentVersion = "1.0.0",
+                            fixedVersion = "1.0.1",
+                            dependencyType = DependencyType.DIRECT,
+                            detectedAt = "2026-08-31T00:00:00Z",
+                            source = "github",
+                            evidence = "advisory",
+                            recommendation = "1.0.1 に更新",
+                            cvssScore = 8.1,
+                        ),
+                    onBack = {},
+                    onStatusChange = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("対象外").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("対応を開始").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun githubAuthorizeButtonMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                GithubConnectionScreen(
+                    connection = GithubConnection(connected = false),
+                    repositories = emptyList(),
+                    nextCursor = null,
+                    query = "",
+                    isLoading = false,
+                    isLoadingMore = false,
+                    isSaving = false,
+                    isAuthorizing = false,
+                    errorMessage = null,
+                    onBack = {},
+                    onConnect = {},
+                    onSearch = {},
+                    onLoadMore = {},
+                    onToggleRepository = {},
+                    onSaveRepositories = {},
+                    onImportRepo = {},
+                    onDisconnect = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("GitHubで認可する").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun onboardingNextButtonMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(
+                    initialProfile =
+                        UserProfile(
+                            role = "Androidエンジニア",
+                            interests = setOf("モバイル"),
+                            region = "東京",
+                        ),
+                    initialTopics = emptyList(),
+                    isSaving = false,
+                    onComplete = { _, _, _ -> },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("次へ").assertHeightIsAtLeast(48.dp)
+    }
 }
