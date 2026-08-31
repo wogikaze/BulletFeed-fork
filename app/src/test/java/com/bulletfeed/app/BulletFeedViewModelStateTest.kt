@@ -53,6 +53,58 @@ class BulletFeedViewModelStateTest {
         assertTrue(recovered.errorMessage?.contains("サーバー") == true)
     }
 
+    @Test
+    fun clientForbiddenRetainsStaleFeedAndDoesNotClaimOffline() {
+        val recovered = readyState().reduceRootFailure(httpError(403))
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertFalse(recovered.sessionExpired)
+        assertTrue(recovered.errorMessage?.contains("アクセス権") == true)
+    }
+
+    @Test
+    fun notFoundRetainsStaleFeed() {
+        val recovered = readyState().reduceRootFailure(httpError(404))
+
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("削除") == true)
+    }
+
+    @Test
+    fun rateLimitRetainsStaleFeedAndAsksToRetryLater() {
+        val recovered = readyState().reduceRootFailure(httpError(429))
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("集中") == true)
+    }
+
+    @Test
+    fun staleWorkerHeartbeatIsNotGenericServerOrOffline() {
+        val recovered = readyState().reduceRootFailure(
+            httpError(
+                503,
+                """{"detail":"Source sync worker heartbeat is stale or missing"}""",
+            ),
+        )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("ワーカー") == true)
+        assertFalse(recovered.errorMessage?.contains("サーバー") == true)
+    }
+
+    @Test
+    fun databaseNotReadyKeepsStaleFeed() {
+        val recovered = readyState().reduceRootFailure(
+            httpError(503, """{"detail":"Database is not ready"}"""),
+        )
+
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("データベース") == true)
+    }
+
     private fun readyState(): BulletFeedUiState =
         BulletFeedUiState(
             events = listOf(
@@ -81,11 +133,11 @@ class BulletFeedViewModelStateTest {
             isLoading = true,
         )
 
-    private fun httpError(code: Int): HttpException =
+    private fun httpError(code: Int, body: String = ""): HttpException =
         HttpException(
             Response.error<Any>(
                 code,
-                "".toResponseBody("text/plain".toMediaType()),
+                body.toResponseBody("application/json".toMediaType()),
             ),
         )
 }

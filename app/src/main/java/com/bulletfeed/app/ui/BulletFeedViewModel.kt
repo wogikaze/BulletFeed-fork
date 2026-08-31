@@ -1587,9 +1587,28 @@ private fun Throwable.toUserMessage(): String {
         httpCode() == 409 -> "サーバー上の状態が更新されています。再読み込みしてからやり直してください。"
         httpCode() == 422 -> "入力または要求がAPI契約を満たしていません。内容を確認してください。"
         httpCode() == 429 -> "リクエストが集中しています。少し後に再試行してください。"
-        (httpCode() ?: 0) >= 500 -> "サーバーで処理できませんでした。再試行してください。"
+        (httpCode() ?: 0) >= 500 -> serviceUnavailableMessage()
         else -> "処理を完了できませんでした。再試行してください。"
     }
+}
+
+private fun Throwable.serviceUnavailableMessage(): String {
+    val detail = fastApiDetail()?.lowercase().orEmpty()
+    return when {
+        "worker" in detail || "heartbeat" in detail ->
+            "情報源の同期ワーカーが応答していません。再試行してください。"
+        "database" in detail ->
+            "データベースの準備ができていません。再試行してください。"
+        else -> "サーバーで処理できませんでした。再試行してください。"
+    }
+}
+
+private fun Throwable.fastApiDetail(): String? {
+    val httpError = this as? HttpException ?: return null
+    val body = runCatching { httpError.response()?.errorBody()?.string() }.getOrNull() ?: return null
+    return runCatching { apiErrorJson.decodeFromString<FastApiDetailEnvelope>(body).detail }
+        .getOrNull()
+        ?.takeIf { it.isNotBlank() }
 }
 
 private fun Throwable.apiValidationMessage(): String? {
@@ -1611,6 +1630,11 @@ private fun Throwable.apiValidationMessage(): String? {
         else -> message?.takeIf { it.isNotBlank() && it.length <= 180 }
     }
 }
+
+@Serializable
+private data class FastApiDetailEnvelope(
+    val detail: String? = null,
+)
 
 @Serializable
 private data class ApiErrorEnvelope(
