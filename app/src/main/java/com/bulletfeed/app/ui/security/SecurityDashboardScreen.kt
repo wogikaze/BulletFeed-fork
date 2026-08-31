@@ -39,12 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,21 +204,10 @@ private fun VulnerabilityCard(
             }
         }
         Spacer(Modifier.height(11.dp))
-        val fontScale = LocalDensity.current.fontScale
-        Text(
-            alert.title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            maxLines = AppReadability.titleMaxLines(fontScale),
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
+        ReadableTitle(alert.title)
+        ReadableSummary(
             alert.summary,
             modifier = Modifier.padding(top = 6.dp),
-            color = Color(0xFF49454F),
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = AppReadability.summaryMaxLines(fontScale),
-            overflow = TextOverflow.Ellipsis,
         )
         Spacer(Modifier.height(12.dp))
         Row(

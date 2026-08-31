@@ -30,12 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,21 +121,8 @@ private fun SearchResultCard(
             StatusPill(event.relation.label, event.relation.color, pale = true)
         }
         Spacer(Modifier.height(10.dp))
-        val fontScale = LocalDensity.current.fontScale
-        Text(
-            event.title,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = AppReadability.titleMaxLines(fontScale),
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            event.summary,
-            modifier = Modifier.padding(top = 5.dp),
-            maxLines = AppReadability.summaryMaxLines(fontScale),
-            overflow = TextOverflow.Ellipsis,
-            color = Color(0xFF49454F),
-        )
+        ReadableTitle(event.title)
+        ReadableSummary(event.summary, modifier = Modifier.padding(top = 5.dp))
         Text(
             searchResultMeta(event),
             modifier = Modifier.padding(top = 10.dp),
