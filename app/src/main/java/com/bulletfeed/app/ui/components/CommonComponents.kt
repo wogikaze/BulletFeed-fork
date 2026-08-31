@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -143,6 +145,8 @@ internal fun AccessibleOutlinedTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
     shape: Shape = OutlinedTextFieldDefaults.shape,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
     OutlinedTextField(
         value = value,
@@ -152,6 +156,8 @@ internal fun AccessibleOutlinedTextField(
         leadingIcon = leadingIcon,
         singleLine = singleLine,
         shape = shape,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
     )
 }
 
