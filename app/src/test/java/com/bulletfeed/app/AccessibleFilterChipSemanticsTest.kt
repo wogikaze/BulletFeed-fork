@@ -16,6 +16,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
@@ -348,5 +349,40 @@ class AccessibleFilterChipSemanticsTest {
         }
 
         composeRule.onNodeWithText("次へ").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("onboarding-continue-button").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsOnboardingContinueAndBackTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    OnboardingScreen(
+                        initialProfile =
+                            UserProfile(
+                                role = "Androidエンジニア",
+                                interests = setOf("モバイル"),
+                                region = "東京",
+                            ),
+                        initialTopics = emptyList(),
+                        isSaving = false,
+                        onComplete = { _, _, _ -> },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("onboarding-continue-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("onboarding-continue-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("onboarding-continue-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("GitHubから自動設定を始める").assertHeightIsAtLeast(48.dp)
     }
 }
