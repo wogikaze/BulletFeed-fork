@@ -39,6 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -295,8 +298,15 @@ private fun KnowledgeBootstrapCard(
 }
 
 @Composable
-private fun EmptyDetailSection(text: String) =
-    Text(text, modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp), color = Color(0xFF655F69))
+internal fun EmptyDetailSection(text: String) =
+    Text(
+        text,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 14.dp)
+            .semantics { liveRegion = LiveRegionMode.Polite },
+        color = Color(0xFF655F69),
+    )
 
 @Composable
 private fun SectionTitle(text: String) =
