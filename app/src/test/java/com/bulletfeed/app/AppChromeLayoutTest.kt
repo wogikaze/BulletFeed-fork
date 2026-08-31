@@ -1,6 +1,8 @@
 package com.bulletfeed.app
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AppChromeLayoutTest {
@@ -15,5 +17,66 @@ class AppChromeLayoutTest {
         assertEquals(AppChromeLayout.NAVIGATION_RAIL, AppChromeLayout.fromWidthDp(600))
         assertEquals(AppChromeLayout.NAVIGATION_RAIL, AppChromeLayout.fromWidthDp(840))
         assertEquals(AppChromeLayout.NAVIGATION_RAIL, AppChromeLayout.fromWidthDp(1280))
+    }
+
+    @Test
+    fun listDetailStartsAtExpandedWidth() {
+        assertFalse(AppChromeLayout.usesListDetail(600))
+        assertFalse(AppChromeLayout.usesListDetail(839))
+        assertTrue(AppChromeLayout.usesListDetail(840))
+        assertTrue(AppChromeLayout.usesListDetail(1280))
+    }
+
+    @Test
+    fun eventListDetailRequiresExpandedFeedOrSearch() {
+        assertTrue(
+            AppChromeLayout.showsEventListDetail(840, AppTab.FEED, "event-1", overlayOpen = false),
+        )
+        assertTrue(
+            AppChromeLayout.showsEventListDetail(840, AppTab.SEARCH, "event-1", overlayOpen = false),
+        )
+        assertFalse(
+            AppChromeLayout.showsEventListDetail(840, AppTab.SETTINGS, "event-1", overlayOpen = false),
+        )
+        assertFalse(
+            AppChromeLayout.showsEventListDetail(839, AppTab.FEED, "event-1", overlayOpen = false),
+        )
+        assertFalse(
+            AppChromeLayout.showsEventListDetail(840, AppTab.FEED, "event-1", overlayOpen = true),
+        )
+        assertFalse(
+            AppChromeLayout.showsEventListDetail(840, AppTab.FEED, null, overlayOpen = false),
+        )
+    }
+
+    @Test
+    fun vulnerabilityListDetailRequiresExpandedSecurityWithoutEvent() {
+        assertTrue(
+            AppChromeLayout.showsVulnerabilityListDetail(
+                840,
+                AppTab.SECURITY,
+                selectedEventId = null,
+                selectedVulnerabilityId = "alert-1",
+                overlayOpen = false,
+            ),
+        )
+        assertFalse(
+            AppChromeLayout.showsVulnerabilityListDetail(
+                840,
+                AppTab.SECURITY,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = "alert-1",
+                overlayOpen = false,
+            ),
+        )
+        assertFalse(
+            AppChromeLayout.showsVulnerabilityListDetail(
+                840,
+                AppTab.FEED,
+                selectedEventId = null,
+                selectedVulnerabilityId = "alert-1",
+                overlayOpen = false,
+            ),
+        )
     }
 }

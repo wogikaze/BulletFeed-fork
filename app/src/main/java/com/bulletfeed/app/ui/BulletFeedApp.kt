@@ -39,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -275,44 +276,96 @@ private fun ReadyApplication(
     onRetry: () -> Unit,
     viewModel: BulletFeedViewModel,
 ) = Box(Modifier.fillMaxSize()) {
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    val overlayOpen = notificationsOpen || githubSetupOpen
+    val eventListDetail =
+        AppChromeLayout.showsEventListDetail(widthDp, tab, selectedEventId, overlayOpen)
+    val vulnerabilityListDetail =
+        AppChromeLayout.showsVulnerabilityListDetail(
+            widthDp,
+            tab,
+            selectedEventId,
+            selectedVulnerabilityId,
+            overlayOpen,
+        )
+    val mainNavigation: @Composable () -> Unit = {
+        MainNavigation(
+            uiState = uiState,
+            tab = tab,
+            onTabChange = onTabChange,
+            onFilterChange = viewModel::setFeedFilter,
+            onEventSelect = onSelectEvent,
+            onVulnerabilitySelect = onSelectVulnerability,
+            onNotificationsOpen = { onNotificationsChange(true) },
+            onGithubSetupOpen = { onGithubSetupChange(true) },
+            onEventFeedback = viewModel::updateEventFeedback,
+            onFollow = viewModel::toggleFollowing,
+            onAddTopic = viewModel::addTopic,
+            onRemoveTopic = viewModel::removeTopic,
+            onSearchTopics = viewModel::searchTopics,
+            onAddTopicSearchResult = viewModel::addTopicSearchResult,
+            onPriorityChange = viewModel::updateTopicPriority,
+            onReorderTopics = viewModel::reorderTopics,
+            onAddRecommendedTopic = viewModel::addRecommendedTopic,
+            onIgnoreTopicRecommendation = viewModel::ignoreTopicRecommendation,
+            onSaveProfile = viewModel::saveProfile,
+            onDeleteAccount = viewModel::deleteAccount,
+            onApproveRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.APPROVED) },
+            onIgnoreRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.IGNORED) },
+            onAddSubscription = viewModel::addSourceSubscription,
+            onRemoveSubscription = viewModel::removeSourceSubscription,
+            onResetKnowledgeBootstrap = viewModel::resetKnowledgeBootstrap,
+            onLoadMoreFeed = viewModel::loadMoreFeed,
+            onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
+        )
+    }
     when {
-        selectedEventId != null -> {
-            val detail = uiState.eventDetail.takeIf { uiState.eventDetailId == selectedEventId }
-            val feedContext = uiState.events.firstOrNull { it.id == selectedEventId }
-            when {
-                detail != null -> EventDetailScreen(
-                    event = detail,
-                    feedContext = feedContext,
-                    onBack = onClearEvent,
-                    onFeedback = { feedback -> viewModel.updateEventFeedback(selectedEventId, feedback) },
-                    onFollow = { viewModel.toggleFollowing(selectedEventId) },
-                    onMarkCurrentStateKnown = { catchUp -> viewModel.markEventCurrentStateKnown(selectedEventId, catchUp) },
-                    isSavingKnowledgeBootstrap = uiState.isSavingKnowledgeBootstrap,
-                )
-                uiState.isEventDetailLoading -> DetailLoadingScreen("Eventを読み込み中", onClearEvent)
-                else -> DetailErrorScreen(
-                    message = uiState.eventDetailError ?: "Eventを表示できません。",
-                    onBack = onClearEvent,
-                    onRetry = { viewModel.loadEventDetail(selectedEventId, selectedFeedItemId) },
-                )
+        eventListDetail -> {
+            Row(Modifier.fillMaxSize().testTag("app-list-detail")) {
+                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-list-pane")) {
+                    mainNavigation()
+                }
+                VerticalDivider()
+                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-detail-pane")) {
+                    SelectedEventPane(
+                        uiState = uiState,
+                        selectedEventId = checkNotNull(selectedEventId),
+                        selectedFeedItemId = selectedFeedItemId,
+                        onClearEvent = onClearEvent,
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
-        selectedVulnerabilityId != null -> {
-            val alert = uiState.vulnerabilityDetail.takeIf { uiState.vulnerabilityDetailId == selectedVulnerabilityId }
-            when {
-                alert != null -> VulnerabilityDetailScreen(
-                    alert = alert,
-                    onBack = onClearVulnerability,
-                    onStatusChange = { viewModel.updateVulnerabilityStatus(selectedVulnerabilityId, it) },
-                )
-                uiState.isVulnerabilityDetailLoading -> DetailLoadingScreen("Alertを読み込み中", onClearVulnerability)
-                else -> DetailErrorScreen(
-                    message = uiState.vulnerabilityDetailError ?: "Alertを表示できません。",
-                    onBack = onClearVulnerability,
-                    onRetry = { viewModel.loadVulnerabilityDetail(selectedVulnerabilityId) },
-                )
+        vulnerabilityListDetail -> {
+            Row(Modifier.fillMaxSize().testTag("app-list-detail")) {
+                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-list-pane")) {
+                    mainNavigation()
+                }
+                VerticalDivider()
+                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-detail-pane")) {
+                    SelectedVulnerabilityPane(
+                        uiState = uiState,
+                        selectedVulnerabilityId = checkNotNull(selectedVulnerabilityId),
+                        onClearVulnerability = onClearVulnerability,
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
+        selectedEventId != null -> SelectedEventPane(
+            uiState = uiState,
+            selectedEventId = selectedEventId,
+            selectedFeedItemId = selectedFeedItemId,
+            onClearEvent = onClearEvent,
+            viewModel = viewModel,
+        )
+        selectedVulnerabilityId != null -> SelectedVulnerabilityPane(
+            uiState = uiState,
+            selectedVulnerabilityId = selectedVulnerabilityId,
+            onClearVulnerability = onClearVulnerability,
+            viewModel = viewModel,
+        )
         notificationsOpen -> NotificationsScreen(
             notifications = uiState.notifications,
             onBack = { onNotificationsChange(false) },
@@ -362,35 +415,7 @@ private fun ReadyApplication(
             onImportRepo = viewModel::importFromPublicRepo,
             onDisconnect = viewModel::disconnectGithub,
         )
-        else -> MainNavigation(
-            uiState = uiState,
-            tab = tab,
-            onTabChange = onTabChange,
-            onFilterChange = viewModel::setFeedFilter,
-            onEventSelect = onSelectEvent,
-            onVulnerabilitySelect = onSelectVulnerability,
-            onNotificationsOpen = { onNotificationsChange(true) },
-            onGithubSetupOpen = { onGithubSetupChange(true) },
-            onEventFeedback = viewModel::updateEventFeedback,
-            onFollow = viewModel::toggleFollowing,
-            onAddTopic = viewModel::addTopic,
-            onRemoveTopic = viewModel::removeTopic,
-            onSearchTopics = viewModel::searchTopics,
-            onAddTopicSearchResult = viewModel::addTopicSearchResult,
-            onPriorityChange = viewModel::updateTopicPriority,
-            onReorderTopics = viewModel::reorderTopics,
-            onAddRecommendedTopic = viewModel::addRecommendedTopic,
-            onIgnoreTopicRecommendation = viewModel::ignoreTopicRecommendation,
-            onSaveProfile = viewModel::saveProfile,
-            onDeleteAccount = viewModel::deleteAccount,
-            onApproveRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.APPROVED) },
-            onIgnoreRecommendation = { viewModel.decideSourceRecommendation(it, SourceRecommendationDecision.IGNORED) },
-            onAddSubscription = viewModel::addSourceSubscription,
-            onRemoveSubscription = viewModel::removeSourceSubscription,
-            onResetKnowledgeBootstrap = viewModel::resetKnowledgeBootstrap,
-            onLoadMoreFeed = viewModel::loadMoreFeed,
-            onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
-        )
+        else -> mainNavigation()
     }
     uiState.knowledgeBootstrapPrompt?.let { prompt ->
         KnowledgeBootstrapPromptDialog(
@@ -409,6 +434,60 @@ private fun ReadyApplication(
         )
     } else {
         uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
+    }
+}
+
+@Composable
+private fun SelectedEventPane(
+    uiState: BulletFeedUiState,
+    selectedEventId: String,
+    selectedFeedItemId: String?,
+    onClearEvent: () -> Unit,
+    viewModel: BulletFeedViewModel,
+) {
+    val detail = uiState.eventDetail.takeIf { uiState.eventDetailId == selectedEventId }
+    val feedContext = uiState.events.firstOrNull { it.id == selectedEventId }
+    when {
+        detail != null -> EventDetailScreen(
+            event = detail,
+            feedContext = feedContext,
+            onBack = onClearEvent,
+            onFeedback = { feedback -> viewModel.updateEventFeedback(selectedEventId, feedback) },
+            onFollow = { viewModel.toggleFollowing(selectedEventId) },
+            onMarkCurrentStateKnown = { catchUp ->
+                viewModel.markEventCurrentStateKnown(selectedEventId, catchUp)
+            },
+            isSavingKnowledgeBootstrap = uiState.isSavingKnowledgeBootstrap,
+        )
+        uiState.isEventDetailLoading -> DetailLoadingScreen("Eventを読み込み中", onClearEvent)
+        else -> DetailErrorScreen(
+            message = uiState.eventDetailError ?: "Eventを表示できません。",
+            onBack = onClearEvent,
+            onRetry = { viewModel.loadEventDetail(selectedEventId, selectedFeedItemId) },
+        )
+    }
+}
+
+@Composable
+private fun SelectedVulnerabilityPane(
+    uiState: BulletFeedUiState,
+    selectedVulnerabilityId: String,
+    onClearVulnerability: () -> Unit,
+    viewModel: BulletFeedViewModel,
+) {
+    val alert = uiState.vulnerabilityDetail.takeIf { uiState.vulnerabilityDetailId == selectedVulnerabilityId }
+    when {
+        alert != null -> VulnerabilityDetailScreen(
+            alert = alert,
+            onBack = onClearVulnerability,
+            onStatusChange = { viewModel.updateVulnerabilityStatus(selectedVulnerabilityId, it) },
+        )
+        uiState.isVulnerabilityDetailLoading -> DetailLoadingScreen("Alertを読み込み中", onClearVulnerability)
+        else -> DetailErrorScreen(
+            message = uiState.vulnerabilityDetailError ?: "Alertを表示できません。",
+            onBack = onClearVulnerability,
+            onRetry = { viewModel.loadVulnerabilityDetail(selectedVulnerabilityId) },
+        )
     }
 }
 
