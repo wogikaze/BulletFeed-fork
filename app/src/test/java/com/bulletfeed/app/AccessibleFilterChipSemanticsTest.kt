@@ -43,4 +43,22 @@ class AccessibleFilterChipSemanticsTest {
 
         composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun outlinedButtonMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            AccessibleOutlinedButton(onClick = {}) { Text("フォロー") }
+        }
+
+        composeRule.onNodeWithText("フォロー").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun textButtonMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            AccessibleTextButton(onClick = {}) { Text("不要") }
+        }
+
+        composeRule.onNodeWithText("不要").assertHeightIsAtLeast(48.dp)
+    }
 }

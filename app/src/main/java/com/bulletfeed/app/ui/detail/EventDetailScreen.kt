@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,11 +27,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -234,7 +231,7 @@ private fun EventSourceCard(source: EventSource) {
                 color = Color(0xFF655F69),
                 style = MaterialTheme.typography.labelSmall,
             )
-            TextButton(onClick = { runCatching { uriHandler.openUri(source.url) } }) {
+            AccessibleTextButton(onClick = { runCatching { uriHandler.openUri(source.url) } }) {
                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
                 Text("元ソースを開く", modifier = Modifier.padding(start = 5.dp))
             }
@@ -243,7 +240,7 @@ private fun EventSourceCard(source: EventSource) {
 }
 
 @Composable
-private fun KnowledgeBootstrapCard(
+internal fun KnowledgeBootstrapCard(
     currentState: CurrentState,
     following: Boolean,
     isSaving: Boolean,
@@ -280,14 +277,14 @@ private fun KnowledgeBootstrapCard(
                 color = Color(0xFF655F69),
             )
         }
-        Button(
+        AccessiblePrimaryButton(
             onClick = { onMarkCurrentStateKnown(false) },
             enabled = !isSaving,
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         ) {
             Text("この現在状態はすでに知っている")
         }
-        OutlinedButton(
+        AccessibleOutlinedButton(
             onClick = { onMarkCurrentStateKnown(true) },
             enabled = !isSaving,
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
@@ -313,7 +310,7 @@ private fun SectionTitle(text: String) =
     Text(text, modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
 
 @Composable
-private fun EventActionBar(
+internal fun EventActionBar(
     following: Boolean,
     hasFeedContext: Boolean,
     onFeedback: (Feedback) -> Unit,
@@ -325,9 +322,11 @@ private fun EventActionBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (hasFeedContext) {
-            TextButton(onClick = onDismiss) { Text("不要", color = Color(0xFF655F69)) }
+            AccessibleTextButton(onClick = onDismiss) {
+                Text("不要", color = Color(0xFF655F69))
+            }
         }
-        OutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) {
+        AccessibleOutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) {
             Icon(
                 imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
                 contentDescription = null,
@@ -336,7 +335,7 @@ private fun EventActionBar(
             Text(if (following) "フォロー中" else "フォロー", modifier = Modifier.padding(start = 5.dp))
         }
         if (hasFeedContext) {
-            Button(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) {
+            AccessiblePrimaryButton(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) {
                 Icon(Icons.Default.StarBorder, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text("重要", modifier = Modifier.padding(start = 5.dp))
             }
