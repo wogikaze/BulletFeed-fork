@@ -150,6 +150,38 @@ class BulletFeedViewModelStateTest {
         assertTrue(retrying.isLoading)
     }
 
+    @Test
+    fun firstSoftSubsystemErrorWinsWithoutClaimingOffline() {
+        val first = IOException("network down").rememberSoftSubsystemError(null)
+        val second = httpError(503).rememberSoftSubsystemError(first)
+
+        assertTrue(first.contains("通信"))
+        assertEquals(first, second)
+        val state = readyState().copy(isLoading = false, isOffline = false, errorMessage = first)
+        assertFalse(state.isOffline)
+        assertFalse(state.sessionExpired)
+        assertEquals(readyState().events, state.events)
+    }
+
+    @Test
+    fun unauthorizedIsNotSwallowedAsSoftSubsystemError() {
+        try {
+            httpError(401).rememberSoftSubsystemError(null)
+            throw AssertionError("expected 401 to rethrow")
+        } catch (error: HttpException) {
+            assertEquals(401, error.code())
+        }
+    }
+
+    @Test
+    fun sessionRecoveryIsNotSwallowedAsSoftSubsystemError() {
+        try {
+            SessionRecoveryRequiredException().rememberSoftSubsystemError("kept")
+            throw AssertionError("expected session recovery to rethrow")
+        } catch (_: SessionRecoveryRequiredException) {
+        }
+    }
+
     private fun readyState(): BulletFeedUiState =
         BulletFeedUiState(
             events = listOf(
