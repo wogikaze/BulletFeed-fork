@@ -17,6 +17,8 @@ from typing import Any
 
 from cryptography.fernet import Fernet
 
+from scripts.run_persistent_volume_disk_full import run_loop_ext4_drill
+
 BACKEND = Path(__file__).resolve().parents[1]
 COMPOSE_SOURCE = BACKEND / "compose.release.yml"
 DEFAULT_TIMEOUT_SECONDS = 120.0
@@ -227,9 +229,10 @@ def run_drill(*, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> dict[str, 
         "session_persisted": False,
         "ready_after_restart": False,
         "filesystem_fault_injection": False,
+        "persistent_volume_disk_full": False,
         "status": "failed",
         "residual_risks": [
-            "persistent-volume disk-full still requires a host-specific fault drill"
+            "persistent-volume disk-full still requires a host-specific ext4-loop fault drill"
         ],
     }
     repository_sha = os.environ.get("GITHUB_SHA")
@@ -271,6 +274,19 @@ def run_drill(*, timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS) -> dict[str, 
 
             _run_filesystem_fault_probe(project, compose_file)
             result["filesystem_fault_injection"] = True
+
+            pv = run_loop_ext4_drill()
+            result["persistent_volume_disk_full_report"] = pv
+            if pv.get("status") == "passed":
+                result["persistent_volume_disk_full"] = True
+                result["residual_risks"] = []
+            elif pv.get("status") == "skipped":
+                result["persistent_volume_skip_reason"] = pv.get("skip_reason")
+            else:
+                raise RuntimeError(
+                    "persistent-volume disk-full drill failed: "
+                    + str(pv.get("error") or pv.get("status"))
+                )
 
             _run_compose(project, compose_file, "restart", "api")
             _wait_for_status(
