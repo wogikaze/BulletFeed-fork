@@ -249,7 +249,7 @@ class RealBackendAcceptanceTest {
                         pageId = pageId,
                     )
                 } catch (error: HttpException) {
-                    throw AssertionError("statuspage create HTTP ${error.code()}", error)
+                    fail("statuspage create HTTP ${error.code()} ${error.response()?.errorBody()?.string().orEmpty()}")
                 }
             assertEquals("statuspage", created.kind)
             assertEquals(SourceSubscriptionState.PENDING, created.state)
