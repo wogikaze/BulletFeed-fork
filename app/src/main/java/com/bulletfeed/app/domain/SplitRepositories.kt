@@ -111,6 +111,8 @@ interface MeRepository {
         pageId: String? = null,
     ): SourceSubscription
 
+    suspend fun discoverSiteFeeds(url: String): SiteFeedDiscoverResult
+
     suspend fun removeSourceSubscription(subscriptionId: String)
 
     suspend fun getKnowledgeBootstrap(): KnowledgeBootstrapSummary =

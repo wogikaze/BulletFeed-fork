@@ -157,6 +157,37 @@ class MockMeStore(
         return created
     }
 
+    override suspend fun discoverSiteFeeds(url: String): SiteFeedDiscoverResult {
+        val site = url.trim().ifBlank { "https://notes.example.com/" }
+        val feedUrl = site.trimEnd('/') + "/feed.xml"
+        return SiteFeedDiscoverResult(
+            version = "site-feed-discover-v1",
+            siteUrl = site,
+            canonicalSiteUrl = site,
+            preferredFamily = "rss_atom",
+            items =
+                listOf(
+                    SiteFeedDiscoverItem(
+                        id = "discover_rss",
+                        endpointId = "ep_discover_rss",
+                        canonicalUrl = feedUrl,
+                        family = "rss_atom",
+                        discoveryMethod = "html_link",
+                        discoveryProvenance = "site_html_link",
+                        title = "Example feed",
+                        preferred = true,
+                        evidenceEligible = false,
+                        discoveryOnly = true,
+                        actionability = SourceActionability.SUBSCRIBE,
+                        verificationStatus = "unverified",
+                        authorityStatus = "unknown",
+                        explanation = "Discovered from the site; not evidence until subscribed.",
+                        siteUrl = site,
+                    ),
+                ),
+        )
+    }
+
     override suspend fun removeSourceSubscription(subscriptionId: String) {
         state.sourceSubscriptions.removeAll { it.id == subscriptionId }
     }

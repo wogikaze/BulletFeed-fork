@@ -209,6 +209,11 @@ interface BulletFeedApi {
         @Body body: SourceSubscriptionCreateDto,
     ): SourceSubscriptionDto
 
+    @POST("v1/me/sources/discover")
+    suspend fun discoverSiteFeeds(
+        @Body body: SiteFeedDiscoverRequestDto,
+    ): SiteFeedDiscoverResultDto
+
     @DELETE("v1/me/sources/{subscriptionId}")
     suspend fun deleteSourceSubscription(
         @Path("subscriptionId") subscriptionId: String,
@@ -691,6 +696,40 @@ data class SourceSubscriptionCreateDto(
     val url: String? = null,
     val pageId: String? = null,
     val catchUp: Boolean = false,
+)
+
+@Serializable
+data class SiteFeedDiscoverRequestDto(
+    val url: String,
+)
+
+@Serializable
+data class SiteFeedDiscoverItemDto(
+    val id: String,
+    val endpointId: String,
+    val canonicalUrl: String,
+    val family: String,
+    val discoveryMethod: String,
+    val discoveryProvenance: String,
+    val title: String,
+    val preferred: Boolean,
+    val evidenceEligible: Boolean,
+    val discoveryOnly: Boolean,
+    val actionability: String = "unsupported",
+    val verificationStatus: String,
+    val authorityStatus: String,
+    val explanation: String,
+    val siteUrl: String,
+    val publisher: SourcePublisherDto? = null,
+)
+
+@Serializable
+data class SiteFeedDiscoverResultDto(
+    val version: String,
+    val siteUrl: String,
+    val canonicalSiteUrl: String,
+    val preferredFamily: String? = null,
+    val items: List<SiteFeedDiscoverItemDto> = emptyList(),
 )
 
 @Serializable

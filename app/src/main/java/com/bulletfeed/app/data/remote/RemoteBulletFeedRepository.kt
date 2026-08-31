@@ -291,6 +291,9 @@ class RemoteMeRepository(
             ),
         ).toDomain()
 
+    override suspend fun discoverSiteFeeds(url: String): SiteFeedDiscoverResult =
+        api.discoverSiteFeeds(SiteFeedDiscoverRequestDto(url = url.trim())).toDomain()
+
     override suspend fun removeSourceSubscription(subscriptionId: String) {
         api.deleteSourceSubscription(subscriptionId)
     }
