@@ -1,7 +1,8 @@
 """Production-scoring metrics for the M2 real-world validation corpus.
 
-This module adapts the M2 corpus records to the existing production ranking
-contract and scores the resulting rankings without opening blind records.
+This module adapts the M2 corpus records to the production GET /feed ranker
+(``rank_candidates`` / topic occupancy) and scores those rankings without
+opening blind records. Rec-12 ``rank_user_items`` stays on its own contract.
 Labels remain AI-silver evaluation data; this module never rewrites them.
 """
 
@@ -27,8 +28,11 @@ from app.evaluation.personalization_gold import (
 from app.evaluation.personalization_gold import (
     ProfileRecord as PersonalizationProfile,
 )
-from app.evaluation.ranking_benchmark import rank_user_items
 from app.evaluation.real_world_validation import ValidationCorpus
+from app.services.multiobjective_ranker import (
+    RANKING_POLICY_VERSION,
+    rank_personalization_corpus,
+)
 
 METRICS_VERSION = "m2-production-scoring-v1"
 LABEL_SOURCE = "AI-silver"
@@ -156,17 +160,7 @@ def evaluate_m2_production_scoring(
         (row.profile_id, row.event_id): row.known_before
         for row in corpus.judgments
     }
-    items = adapted.item_by_id()
-    predicted = {
-        user.user_id: rank_user_items(
-            user,
-            [
-                items[judgment.item_id]
-                for judgment in adapted.judgments_for_user(user.user_id)
-            ],
-        )
-        for user in adapted.users
-    }
+    predicted = rank_personalization_corpus(adapted)
     headline = {
         "include_ambiguous": _metric_bundle(
             adapted,
@@ -222,7 +216,10 @@ def evaluate_m2_production_scoring(
         "label_source": LABEL_SOURCE,
         "human_gold": False,
         "blind_records_loaded": False,
-        "production_ranking_contract": "app.evaluation.ranking_benchmark.rank_user_items",
+        "production_ranking_contract": (
+            "app.services.multiobjective_ranker.rank_personalization_corpus"
+        ),
+        "ranking_policy_version": RANKING_POLICY_VERSION,
         "sample": {
             "profile_count": len(adapted.users),
             "real_event_count": len(adapted.items),

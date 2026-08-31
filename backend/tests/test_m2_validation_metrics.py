@@ -6,6 +6,7 @@ from app.evaluation.m2_validation_metrics import (
     build_personalization_corpus,
     evaluate_m2_production_scoring,
 )
+from app.services.multiobjective_ranker import RANKING_POLICY_VERSION, rank_personalization_corpus
 
 
 def _corpus(*, include_blind: bool = False) -> SimpleNamespace:
@@ -111,6 +112,133 @@ def test_m2_production_metrics_use_shared_ranker_without_blind_records() -> None
     assert report["uncertainty"]["headline"]["at_10"]["status"] == "not_available"
     assert report["failure_taxonomy"]["covered_stage"] == "ranking"
     assert report["stage_attribution"]["status"] == "partial"
+    assert (
+        report["production_ranking_contract"]
+        == "app.services.multiobjective_ranker.rank_personalization_corpus"
+    )
+    assert report["ranking_policy_version"] == RANKING_POLICY_VERSION
+
+
+def _occupancy_corpus() -> SimpleNamespace:
+    """Five eslint releases plus one typescript release for one JS maintainer."""
+    events = []
+    sources = []
+    judgments = []
+    for index in range(5):
+        event_id = f"evt_eslint_{index}"
+        events.append(
+            SimpleNamespace(
+                event_id=event_id,
+                split="pilot",
+                title=f"eslint {index}.0.0",
+                information_type="release",
+                language="en",
+                redundancy_group=f"rg_eslint_{index}",
+                is_real_event=True,
+            )
+        )
+        sources.append(
+            SimpleNamespace(
+                event_id=event_id,
+                source_id=f"src_eslint_{index}",
+                source_role="event_page",
+                source_family="package_registry",
+                publisher="npm registry / eslint",
+                canonical_url=f"https://registry.npmjs.org/eslint/{index}.0.0",
+                normalized_evidence=f"eslint {index}.0.0",
+                fetch=SimpleNamespace(content_type="application/json"),
+            )
+        )
+        judgments.append(
+            SimpleNamespace(
+                judgment_id=f"jdg_eslint_{index}",
+                profile_id="prf_js",
+                event_id=event_id,
+                split="pilot",
+                relevance=3,
+                importance_to_user=3,
+                known_before=False,
+                should_surface=True,
+                rationale="followed package",
+                provenance="AI-silver; test",
+                ambiguous=False,
+                stratum="clear_positive",
+                label_protocol_version="label-protocol-v1",
+                dataset_version="real-world-validation-v0.2",
+            )
+        )
+    events.append(
+        SimpleNamespace(
+            event_id="evt_typescript",
+            split="pilot",
+            title="typescript 5.0.0",
+            information_type="release",
+            language="en",
+            redundancy_group="rg_typescript",
+            is_real_event=True,
+        )
+    )
+    sources.append(
+        SimpleNamespace(
+            event_id="evt_typescript",
+            source_id="src_typescript",
+            source_role="event_page",
+            source_family="package_registry",
+            publisher="npm registry / typescript",
+            canonical_url="https://registry.npmjs.org/typescript/5.0.0",
+            normalized_evidence="typescript 5.0.0",
+            fetch=SimpleNamespace(content_type="application/json"),
+        )
+    )
+    judgments.append(
+        SimpleNamespace(
+            judgment_id="jdg_typescript",
+            profile_id="prf_js",
+            event_id="evt_typescript",
+            split="pilot",
+            relevance=3,
+            importance_to_user=3,
+            known_before=False,
+            should_surface=True,
+            rationale="adjacent language package",
+            provenance="AI-silver; test",
+            ambiguous=False,
+            stratum="clear_positive",
+            label_protocol_version="label-protocol-v1",
+            dataset_version="real-world-validation-v0.2",
+        )
+    )
+    profile = SimpleNamespace(
+        profile_id="prf_js",
+        split="pilot",
+        cohort="cold_start",
+        persona_template="javascript_tooling_maintainer",
+        language_focus="en",
+        explicit_interests=["JavaScript", "eslint"],
+        selected_repositories=[],
+        prior_feedback=[],
+        followed_products=["eslint"],
+        security_sensitivity="low",
+    )
+    return SimpleNamespace(
+        manifest=SimpleNamespace(
+            dataset_version="real-world-validation-v0.2",
+            label_protocol_version="label-protocol-v1",
+        ),
+        events=events,
+        sources=sources,
+        profiles=[profile],
+        judgments=judgments,
+    )
+
+
+def test_m2_adapted_corpus_applies_production_topic_occupancy() -> None:
+    adapted, metadata = build_personalization_corpus(_occupancy_corpus())
+    assert metadata["evt_eslint_0"].source_family == "package_registry"
+    ranked = rank_personalization_corpus(adapted)["prf_js"]
+    top4 = ranked[:4]
+    assert "evt_typescript" in top4
+    assert sum(1 for item_id in top4 if item_id.startswith("evt_eslint_")) < 4
 
 
 def test_m2_production_metrics_reject_blind_input() -> None:
