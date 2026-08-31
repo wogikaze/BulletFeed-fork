@@ -25,4 +25,8 @@ fresh ephemeral backendへ接続して実行する。結果は
 
 この backend harness の source acquisition は deterministic acceptance fixture を
 使う。live OAuth、実ユーザー登録、公開 HTTPS backend 上の field validation は
-意図的に含めず、最終 RC 判定では別の blocker として扱う。
+意図的に含めず、最終 RC 判定では別の blocker として扱う。1週間の field 手順と
+人間ブロッカーは `docs/evaluation/field-eval-protocol.md` と
+`docs/operations/field-eval-human-blockers.md` を正とする。current SHA の RC
+bundle 再生成は `docs/operations/rc-evidence.md`。field を回しても
+`completion_gate_pass` は自動では true にならない。

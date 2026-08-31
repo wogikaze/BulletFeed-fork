@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -40,6 +42,27 @@ def _load(path: Path) -> dict[str, Any]:
 
 def _relative(path: Path) -> str:
     return path.relative_to(BACKEND).as_posix()
+
+
+def _repository_sha() -> str | None:
+    env_sha = os.environ.get("GITHUB_SHA")
+    if env_sha:
+        return env_sha
+    git = shutil.which("git")
+    if git is None:
+        return None
+    try:
+        completed = subprocess.run(  # noqa: S603
+            [git, "rev-parse", "HEAD"],
+            cwd=BACKEND.parent,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return None
+    sha = completed.stdout.strip()
+    return sha or None
 
 
 def _m1_gate(report: dict[str, Any]) -> dict[str, Any]:
@@ -385,15 +408,30 @@ def build_report() -> dict[str, Any]:
     }
     return {
         "report_version": REPORT_VERSION,
-        "repository_sha": os.environ.get("GITHUB_SHA"),
+        "repository_sha": _repository_sha(),
         "status": "pre_field_release_candidate",
         "completion_gate_pass": False,
         "blind_read": False,
         "missions": missions,
         "unmet_gate_items": _unmet_gate_items(missions),
+        "field_eval": {
+            "protocol": "docs/evaluation/field-eval-protocol.md",
+            "human_blockers": "docs/operations/field-eval-human-blockers.md",
+            "source_of_truth": "GET /v1/me/feed-sessions/metrics",
+            "start_ok_with_one_person": True,
+            "completion_target_participants": 5,
+            "executed": False,
+        },
         "human_only_or_field_validation": [
             "live OAuth and real-user enrollment are excluded from automated clean-room evidence",
             "public HTTPS field validation is not replaced by local fixtures",
+            "public HTTPS backend, domain, and certificates are a human-only blocker",
+            "GitHub OAuth client secret is a human-only production secret",
+            "paid hosting is a human-only paid-service commitment",
+            (
+                "enrolling users other than the operator requires real-user consent; "
+                "start is allowed with 1 person; #327 completion target is >=5"
+            ),
         ],
     }
 
