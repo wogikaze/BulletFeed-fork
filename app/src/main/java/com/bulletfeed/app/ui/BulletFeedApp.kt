@@ -5,6 +5,9 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -44,7 +49,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -381,7 +388,6 @@ private fun ReadyApplication(
             onAddSubscription = viewModel::addSourceSubscription,
             onRemoveSubscription = viewModel::removeSourceSubscription,
             onResetKnowledgeBootstrap = viewModel::resetKnowledgeBootstrap,
-            onRefresh = viewModel::refresh,
             onLoadMoreFeed = viewModel::loadMoreFeed,
             onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
         )
@@ -467,38 +473,135 @@ private fun MainNavigation(
     onAddSubscription: (UserSourceKind, String, String) -> Unit,
     onRemoveSubscription: (String) -> Unit,
     onResetKnowledgeBootstrap: () -> Unit,
-    onRefresh: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
-) = Scaffold(
-    bottomBar = {
-        NavigationBar(containerColor = Color(0xFFF6EFEB)) {
-            AppTab.entries.forEach { item ->
-                NavigationBarItem(
-                    selected = tab == item,
-                    onClick = { onTabChange(item) },
-                    icon = {
-                        val icon = when (item) {
-                            AppTab.FEED -> Icons.Default.Home
-                            AppTab.SECURITY -> Icons.Default.Security
-                            AppTab.SEARCH -> Icons.Default.Search
-                            AppTab.TOPICS -> Icons.AutoMirrored.Filled.List
-                            AppTab.SETTINGS -> Icons.Default.Settings
-                        }
-                        if (item == AppTab.SECURITY && uiState.securityActionCount > 0) {
-                            BadgedBox(badge = { Badge { Text("${uiState.securityActionCount}") } }) {
-                                Icon(icon, contentDescription = item.label)
-                            }
-                        } else {
-                            Icon(icon, contentDescription = item.label)
-                        }
-                    },
-                    label = { Text(item.label) },
-                )
+) {
+    val chrome = AppChromeLayout.fromWidthDp(LocalConfiguration.current.screenWidthDp)
+    val pane: @Composable (PaddingValues) -> Unit = { innerPadding ->
+        AppTabPane(
+            uiState = uiState,
+            tab = tab,
+            innerPadding = innerPadding,
+            onTabChange = onTabChange,
+            onFilterChange = onFilterChange,
+            onEventSelect = onEventSelect,
+            onVulnerabilitySelect = onVulnerabilitySelect,
+            onNotificationsOpen = onNotificationsOpen,
+            onGithubSetupOpen = onGithubSetupOpen,
+            onEventFeedback = onEventFeedback,
+            onFollow = onFollow,
+            onAddTopic = onAddTopic,
+            onRemoveTopic = onRemoveTopic,
+            onSearchTopics = onSearchTopics,
+            onAddTopicSearchResult = onAddTopicSearchResult,
+            onPriorityChange = onPriorityChange,
+            onReorderTopics = onReorderTopics,
+            onAddRecommendedTopic = onAddRecommendedTopic,
+            onIgnoreTopicRecommendation = onIgnoreTopicRecommendation,
+            onSaveProfile = onSaveProfile,
+            onDeleteAccount = onDeleteAccount,
+            onApproveRecommendation = onApproveRecommendation,
+            onIgnoreRecommendation = onIgnoreRecommendation,
+            onAddSubscription = onAddSubscription,
+            onRemoveSubscription = onRemoveSubscription,
+            onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
+            onLoadMoreFeed = onLoadMoreFeed,
+            onVisibleFeedItems = onVisibleFeedItems,
+        )
+    }
+    if (chrome == AppChromeLayout.NAVIGATION_RAIL) {
+        Row(Modifier.fillMaxSize()) {
+            NavigationRail(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .testTag("app-chrome-navigation-rail"),
+                containerColor = Color(0xFFF6EFEB),
+            ) {
+                AppTab.entries.forEach { item ->
+                    NavigationRailItem(
+                        selected = tab == item,
+                        onClick = { onTabChange(item) },
+                        icon = { AppTabNavIcon(item, uiState.securityActionCount) },
+                        label = { Text(item.label) },
+                    )
+                }
             }
+            Scaffold(modifier = Modifier.weight(1f), content = pane)
         }
-    },
-) { innerPadding ->
+    } else {
+        Scaffold(
+            bottomBar = {
+                NavigationBar(
+                    modifier = Modifier.testTag("app-chrome-bottom-bar"),
+                    containerColor = Color(0xFFF6EFEB),
+                ) {
+                    AppTab.entries.forEach { item ->
+                        NavigationBarItem(
+                            selected = tab == item,
+                            onClick = { onTabChange(item) },
+                            icon = { AppTabNavIcon(item, uiState.securityActionCount) },
+                            label = { Text(item.label) },
+                        )
+                    }
+                }
+            },
+            content = pane,
+        )
+    }
+}
+
+@Composable
+private fun AppTabNavIcon(
+    item: AppTab,
+    securityActionCount: Int,
+) {
+    val tabIcon = when (item) {
+        AppTab.FEED -> Icons.Default.Home
+        AppTab.SECURITY -> Icons.Default.Security
+        AppTab.SEARCH -> Icons.Default.Search
+        AppTab.TOPICS -> Icons.AutoMirrored.Filled.List
+        AppTab.SETTINGS -> Icons.Default.Settings
+    }
+    if (item == AppTab.SECURITY && securityActionCount > 0) {
+        BadgedBox(badge = { Badge { Text("$securityActionCount") } }) {
+            Icon(tabIcon, contentDescription = item.label)
+        }
+    } else {
+        Icon(tabIcon, contentDescription = item.label)
+    }
+}
+
+@Composable
+private fun AppTabPane(
+    uiState: BulletFeedUiState,
+    tab: AppTab,
+    innerPadding: PaddingValues,
+    onTabChange: (AppTab) -> Unit,
+    onFilterChange: (FeedFilter) -> Unit,
+    onEventSelect: (FeedEvent) -> Unit,
+    onVulnerabilitySelect: (VulnerabilityAlert) -> Unit,
+    onNotificationsOpen: () -> Unit,
+    onGithubSetupOpen: () -> Unit,
+    onEventFeedback: (String, Feedback) -> Unit,
+    onFollow: (String) -> Unit,
+    onAddTopic: (String, TopicType) -> Unit,
+    onRemoveTopic: (String) -> Unit,
+    onSearchTopics: (String) -> Unit,
+    onAddTopicSearchResult: (UserTopic) -> Unit,
+    onPriorityChange: (String, TopicPriority) -> Unit,
+    onReorderTopics: (List<String>) -> Unit,
+    onAddRecommendedTopic: (TopicRecommendation) -> Unit,
+    onIgnoreTopicRecommendation: (String) -> Unit,
+    onSaveProfile: (UserProfile) -> Unit,
+    onDeleteAccount: () -> Unit,
+    onApproveRecommendation: (String) -> Unit,
+    onIgnoreRecommendation: (String) -> Unit,
+    onAddSubscription: (UserSourceKind, String, String) -> Unit,
+    onRemoveSubscription: (String) -> Unit,
+    onResetKnowledgeBootstrap: () -> Unit,
+    onLoadMoreFeed: () -> Unit,
+    onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
+) {
     when (tab) {
         AppTab.FEED -> FeedScreen(
             events = uiState.events,
@@ -515,7 +618,6 @@ private fun MainNavigation(
             isLoadingMore = uiState.isFeedLoadingMore,
             isFiltering = uiState.isFeedFiltering,
             loadMoreError = uiState.feedLoadMoreError,
-            onRefresh = onRefresh,
             onLoadMore = onLoadMoreFeed,
             onVisibleFeedItems = onVisibleFeedItems,
             onTopicsClick = { onTabChange(AppTab.TOPICS) },
