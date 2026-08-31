@@ -371,4 +371,45 @@ class AppChromeLayoutTest {
             ),
         )
     }
+
+    @Test
+    fun notificationsOverlayOutranksGithubSetup() {
+        assertEquals(
+            AppReadyPane.NOTIFICATIONS,
+            AppReadyPane.resolve(
+                widthDp = 360,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = true,
+                githubSetupOpen = true,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.NOTIFICATIONS,
+            AppReadyPane.resolve(
+                widthDp = 840,
+                tab = AppTab.SEARCH,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = true,
+                githubSetupOpen = true,
+            ),
+        )
+    }
+
+    @Test
+    fun githubOverlayOutranksSearchListDetail() {
+        assertEquals(
+            AppReadyPane.GITHUB,
+            AppReadyPane.resolve(
+                widthDp = 840,
+                tab = AppTab.SEARCH,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = false,
+                githubSetupOpen = true,
+            ),
+        )
+    }
 }
