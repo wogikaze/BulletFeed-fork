@@ -1,15 +1,27 @@
 {
   "drill_version": "m5-host-recovery-v1",
-  "repository_sha": "86fc9b9be98379f9cebc22d080689fc1628f7c55",
-  "workflow_run_id": 33341437966,
   "runtime": "docker-compose",
   "api_restart": true,
   "worker_restart": true,
   "session_persisted": true,
   "ready_after_restart": true,
   "filesystem_fault_injection": true,
+  "persistent_volume_disk_full": true,
   "status": "passed",
-  "residual_risks": [
-    "persistent-volume disk-full still requires a host-specific fault drill"
-  ]
+  "residual_risks": [],
+  "repository_sha": "ac35f68c8300175e86f42f7ee70785aeb1539bc3",
+  "workflow_run_id": 33349754487,
+  "persistent_volume_disk_full_report": {
+    "drill_version": "m5-persistent-volume-disk-full-v1",
+    "medium": "ext4_loop",
+    "tmpfs_substituted": false,
+    "status": "passed",
+    "write_failed": true,
+    "error": "OSError:28:ENOSPC",
+    "protected_snapshot_survived": true,
+    "partial_tmp_cleaned": true,
+    "db_consistent": true,
+    "lineage_protected": true,
+    "volume_size_bytes": 8388608
+  }
 }
