@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -862,7 +863,10 @@ private fun AppErrorScreen(message: String, onRetry: () -> Unit) =
 @Composable
 private fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
     Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp)
+            .semantics { liveRegion = LiveRegionMode.Polite },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -877,11 +881,19 @@ private fun DetailErrorScreen(
     onBack: () -> Unit,
     onRetry: () -> Unit,
 ) = Column(
-    modifier = Modifier.fillMaxSize().padding(32.dp),
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(32.dp)
+        .semantics { liveRegion = LiveRegionMode.Assertive },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
-    Text("詳細を表示できません", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+    Text(
+        "詳細を表示できません",
+        modifier = Modifier.semantics { heading() },
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+    )
     Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
     Button(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) { Text("再試行") }
     Button(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) { Text("戻る") }
@@ -938,7 +950,11 @@ private fun KnowledgeBootstrapPromptDialog(
 @Composable
 private fun TransientErrorBanner(message: String, onDismiss: () -> Unit) =
     Card(
-        modifier = Modifier.statusBarsPadding().padding(12.dp).fillMaxWidth(),
+        modifier = Modifier
+            .statusBarsPadding()
+            .padding(12.dp)
+            .fillMaxWidth()
+            .semantics { liveRegion = LiveRegionMode.Assertive },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
     ) {
         RowWithDismiss(message, onDismiss)
