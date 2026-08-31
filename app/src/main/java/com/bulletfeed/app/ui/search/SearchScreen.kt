@@ -19,7 +19,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -67,11 +67,15 @@ fun SearchScreen(
                 Text("追跡中の変化を探す", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("テーマ、企業、技術、イベント内容、情報源から検索できます。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 6.dp))
                 Spacer(Modifier.height(16.dp))
-                OutlinedTextField(query, {
-                    query = it
-                }, Modifier.fillMaxWidth(), singleLine = true, label = {
-                    Text("例: Cloudflare、料金、Kotlin")
-                }, leadingIcon = { Icon(Icons.Default.Search, contentDescription = "検索") }, shape = RoundedCornerShape(18.dp))
+                AccessibleOutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth().testTag("search-query-field"),
+                    singleLine = true,
+                    label = { Text("例: Cloudflare、料金、Kotlin") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "検索") },
+                    shape = RoundedCornerShape(18.dp),
+                )
                 Spacer(Modifier.height(16.dp))
                 Text(
                     if (query.isBlank()) "最近のイベント" else "${results.size}件の検索結果",

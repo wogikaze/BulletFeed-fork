@@ -91,4 +91,13 @@ class SurfaceLiveRegionSemanticsTest {
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
     }
+
+    @Test
+    fun sourceSubscriptionErrorAnnouncesAssertiveLiveRegion() {
+        composeRule.setContent { SourceSubscriptionErrorStatus("許可リスト外の URL です") }
+
+        composeRule.onNodeWithText("許可リスト外の URL です").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+    }
 }

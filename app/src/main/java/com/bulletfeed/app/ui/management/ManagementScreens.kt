@@ -52,6 +52,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -765,7 +768,7 @@ private fun SourceSubscriptionsSection(
                         color = if (item.state == SourceSubscriptionState.FAILING) Color(0xFFA6231C) else Color(0xFF655F69),
                         fontWeight = if (item.state == SourceSubscriptionState.FAILING) FontWeight.Medium else FontWeight.Normal,
                     )
-                    TextButton(
+                    AccessibleTextButton(
                         onClick = { onRemove(item.id) },
                         enabled = !isSaving,
                     ) { Text("購読を削除") }
@@ -788,7 +791,7 @@ private fun SourceSubscriptionsSection(
         }
     }
     if (selectedKind == UserSourceKind.STATUSPAGE) {
-        OutlinedTextField(
+        AccessibleOutlinedTextField(
             value = pageId,
             onValueChange = { pageId = it },
             label = { Text("Statuspage page ID") },
@@ -796,7 +799,7 @@ private fun SourceSubscriptionsSection(
             singleLine = true,
         )
     }
-    OutlinedTextField(
+    AccessibleOutlinedTextField(
         value = url,
         onValueChange = { url = it },
         label = {
@@ -812,9 +815,9 @@ private fun SourceSubscriptionsSection(
         singleLine = true,
     )
     if (errorMessage != null) {
-        Text(errorMessage, color = Color(0xFFA6231C), modifier = Modifier.padding(top = 8.dp))
+        SourceSubscriptionErrorStatus(errorMessage)
     }
-    Button(
+    AccessiblePrimaryButton(
         onClick = { onAdd(selectedKind, url.trim(), pageId.trim()) },
         enabled = !isSaving && (url.isNotBlank() || (selectedKind == UserSourceKind.STATUSPAGE && pageId.isNotBlank())),
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
@@ -825,6 +828,17 @@ private fun SourceSubscriptionsSection(
         }
         Text(if (isSaving) "保存中" else "情報源を追加")
     }
+}
+
+@Composable
+internal fun SourceSubscriptionErrorStatus(message: String) {
+    Text(
+        message,
+        color = Color(0xFFA6231C),
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .semantics { liveRegion = LiveRegionMode.Assertive },
+    )
 }
 
 @Composable
