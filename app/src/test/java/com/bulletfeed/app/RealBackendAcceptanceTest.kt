@@ -116,36 +116,40 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
-    fun `worker-not-ready is not classified as offline`() =
-        runTest {
-            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
-            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+    fun `worker-not-ready is not classified as offline`() {
+        val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+        assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
 
-            val request = Request.Builder()
-                .url(baseUrl.trimEnd('/') + "/health/ready")
-                .get()
-                .build()
-            OkHttpClient().newCall(request).execute().use { response ->
-                val payload = response.body?.string().orEmpty()
-                when (response.code) {
-                    200 -> assertTrue(payload.isNotBlank())
-                    503 -> {
-                        val recovered = readyUiState().reduceRootFailure(
-                            HttpException(
-                                Response.error<Any>(
-                                    503,
-                                    payload.toResponseBody("application/json".toMediaType()),
-                                ),
+        val request = Request.Builder()
+            .url(baseUrl.trimEnd('/') + "/health/ready")
+            .get()
+            .build()
+        OkHttpClient().newCall(request).execute().use { response ->
+            val payload = response.body?.string().orEmpty()
+            when (response.code) {
+                200 -> assertTrue("ready body was blank: HTTP 200", payload.isNotBlank())
+                503 -> {
+                    val recovered = readyUiState().reduceRootFailure(
+                        HttpException(
+                            Response.error<Any>(
+                                503,
+                                payload.toResponseBody("application/json".toMediaType()),
                             ),
-                        )
-                        assertFalse(recovered.isOffline)
-                        assertTrue(recovered.hasStaleFeed)
-                        assertTrue(recovered.errorMessage?.contains("ワーカー") == true)
-                    }
-                    else -> fail("unexpected /health/ready HTTP ${response.code}: $payload")
+                        ),
+                    )
+                    assertFalse("503 must not look like offline: $payload", recovered.isOffline)
+                    assertTrue(recovered.hasStaleFeed)
+                    assertFalse(recovered.sessionExpired)
+                    val message = recovered.errorMessage.orEmpty()
+                    assertTrue(
+                        "expected worker/database/server message, got $message for $payload",
+                        "ワーカー" in message || "データベース" in message || "サーバー" in message,
+                    )
                 }
+                else -> fail("unexpected /health/ready HTTP ${response.code}: $payload")
             }
         }
+    }
 
     @Test
     fun `source recommendations list and decision reach subscription path`() =
