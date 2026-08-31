@@ -536,7 +536,11 @@ private fun StepTitle(
         icon()
     }
     Spacer(Modifier.height(14.dp))
-    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    SectionHeading(
+        title,
+        style = MaterialTheme.typography.headlineSmall,
+        tag = "onboarding-step-heading",
+    )
     Text(
         description,
         modifier = Modifier.padding(top = 7.dp),
