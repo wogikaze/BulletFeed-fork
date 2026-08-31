@@ -165,6 +165,42 @@ class BulletFeedViewModelStateTest {
     }
 
     @Test
+    fun sourceUrlRequiredIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"url is required"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("URLを入力") == true)
+    }
+
+    @Test
+    fun unsupportedSourceKindIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Unsupported source kind"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("購読できません") == true)
+    }
+
+    @Test
+    fun invalidStatuspageIdIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Invalid Statuspage ID"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("page ID") == true)
+    }
+
+    @Test
     fun genericClientErrorRetainsStaleFeedAndAsksToRetry() {
         val recovered = readyState().reduceRootFailure(httpError(400))
 
