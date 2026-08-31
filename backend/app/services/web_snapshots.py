@@ -251,9 +251,7 @@ class SnapshotStore:
         existing = self.get(snapshot.snapshot_id)
         if existing is not None:
             if not _snapshots_equivalent(existing, snapshot):
-                raise SnapshotImmutabilityError(
-                    f"refusing to mutate stored snapshot {snapshot.snapshot_id}"
-                )
+                raise SnapshotImmutabilityError(f"refusing to mutate stored snapshot {snapshot.snapshot_id}")
             return existing
         directory = self.root / snapshot.snapshot_id
         tmp = self.root / f".tmp-{snapshot.snapshot_id}-{secrets.token_hex(8)}"
@@ -308,18 +306,14 @@ class SnapshotStore:
     def list_ids(self) -> tuple[str, ...]:
         return tuple(
             sorted(
-                path.name
-                for path in self.root.iterdir()
-                if path.is_dir() and path.name.startswith("snap_")
+                path.name for path in self.root.iterdir() if path.is_dir() and path.name.startswith("snap_")
             )
         )
 
     def storage_stats(self) -> SnapshotStorageStats:
         entries = self._snapshot_entries()
         temporary_count = sum(
-            1
-            for path in self.root.iterdir()
-            if path.is_dir() and path.name.startswith(".tmp-")
+            1 for path in self.root.iterdir() if path.is_dir() and path.name.startswith(".tmp-")
         )
         return SnapshotStorageStats(
             snapshot_count=len(entries),
@@ -474,6 +468,7 @@ async def fetch_web_snapshot(
             retrieved_at=stamp,
             allow_http=allow_http,
             user_agent=user_agent,
+            allowed_hosts=settings.web_hosts,
         )
         if check_robots
         else RobotsDecision(
@@ -498,6 +493,7 @@ async def fetch_web_snapshot(
         previous=prior,
         allow_http=allow_http,
         user_agent=user_agent,
+        allowed_hosts=settings.web_hosts,
     )
     if downloaded.status_code == 304:
         if prior is None:
@@ -545,6 +541,78 @@ async def fetch_web_snapshot(
     return store.put(snapshot)
 
 
+async def fetch_html_page(
+    settings: Settings,
+    url: str,
+    *,
+    allowed_hosts: set[str] | None = None,
+    allow_http: bool = False,
+    check_robots: bool = True,
+    user_agent: str | None = None,
+) -> tuple[bytes, str, RobotsDecision]:
+    """Fetch HTML for discovery. Does not persist snapshots or Observations."""
+    hosts = settings.web_hosts if allowed_hosts is None else allowed_hosts
+    if not hosts:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Web fetching is disabled")
+    user_agent = user_agent or settings.crawler_user_agent
+    validated = validate_web_url(url, hosts, allow_http=allow_http)
+    stamp = _utc_now()
+    robots = (
+        await _robots_decision(
+            settings,
+            validated,
+            retrieved_at=stamp,
+            allow_http=allow_http,
+            user_agent=user_agent,
+            allowed_hosts=hosts,
+        )
+        if check_robots
+        else RobotsDecision(
+            source_url=validated,
+            robots_url=None,
+            allowed=True,
+            reason="robots_unchecked",
+            retrieved_at=stamp,
+        )
+    )
+    if not robots.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Web fetch is disallowed by robots/crawl policy",
+        )
+    downloaded = await _download_web_page(
+        settings,
+        validated,
+        previous=None,
+        allow_http=allow_http,
+        user_agent=user_agent,
+        allowed_hosts=hosts,
+    )
+    return downloaded.body, canonicalize_url(downloaded.final_url), robots
+
+
+async def evaluate_robots(
+    settings: Settings,
+    url: str,
+    *,
+    allowed_hosts: set[str] | None = None,
+    allow_http: bool = False,
+    user_agent: str | None = None,
+) -> RobotsDecision:
+    """Robots decision for a URL. Does not persist anything."""
+    hosts = settings.web_hosts if allowed_hosts is None else allowed_hosts
+    user_agent = user_agent or settings.crawler_user_agent
+    validated = validate_web_url(url, hosts, allow_http=allow_http)
+    return await _robots_decision(
+        settings,
+        validated,
+        retrieved_at=_utc_now(),
+        allow_http=allow_http,
+        user_agent=user_agent,
+        allowed_hosts=hosts,
+    )
+
+
 @dataclass(frozen=True)
 class _DownloadedPage:
     status_code: int
@@ -562,8 +630,10 @@ async def _download_web_page(
     previous: WebSnapshot | None,
     allow_http: bool,
     user_agent: str,
+    allowed_hosts: set[str] | None = None,
 ) -> _DownloadedPage:
-    current_url = validate_web_url(url, settings.web_hosts, allow_http=allow_http)
+    hosts = settings.web_hosts if allowed_hosts is None else allowed_hosts
+    current_url = validate_web_url(url, hosts, allow_http=allow_http)
     headers = {
         "User-Agent": user_agent,
         "Accept-Encoding": "identity",
@@ -594,7 +664,7 @@ async def _download_web_page(
                             )
                         current_url = validate_web_url(
                             urljoin(current_url, location),
-                            settings.web_hosts,
+                            hosts,
                             allow_http=allow_http,
                         )
                         continue
@@ -641,11 +711,13 @@ async def _robots_decision(
     retrieved_at: str,
     allow_http: bool,
     user_agent: str,
+    allowed_hosts: set[str] | None = None,
 ) -> RobotsDecision:
+    hosts = settings.web_hosts if allowed_hosts is None else allowed_hosts
     parsed = urlparse(page_url)
     robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
     try:
-        validate_web_url(robots_url, settings.web_hosts, allow_http=allow_http)
+        validate_web_url(robots_url, hosts, allow_http=allow_http)
     except HTTPException:
         return RobotsDecision(
             source_url=page_url,
