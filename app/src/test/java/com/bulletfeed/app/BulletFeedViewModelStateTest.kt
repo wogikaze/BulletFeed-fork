@@ -105,6 +105,51 @@ class BulletFeedViewModelStateTest {
         assertTrue(recovered.errorMessage?.contains("データベース") == true)
     }
 
+    @Test
+    fun conflictRetainsStaleFeedAndAsksToReload() {
+        val state = readyState()
+        val recovered = state.reduceRootFailure(httpError(409))
+
+        assertEquals(state.events, recovered.events)
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertFalse(recovered.sessionExpired)
+        assertTrue(recovered.errorMessage?.contains("再読み込み") == true)
+    }
+
+    @Test
+    fun unprocessableRetainsStaleFeedAndDoesNotClaimOffline() {
+        val recovered = readyState().reduceRootFailure(httpError(422))
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("API契約") == true)
+    }
+
+    @Test
+    fun genericClientErrorRetainsStaleFeedAndAsksToRetry() {
+        val recovered = readyState().reduceRootFailure(httpError(400))
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertFalse(recovered.sessionExpired)
+        assertTrue(recovered.errorMessage?.contains("再試行") == true)
+    }
+
+    @Test
+    fun retryClearsOfflineBannerWithoutDroppingStaleEvents() {
+        val offline = readyState().reduceRootFailure(IOException("network down"))
+
+        val retrying = offline.beginRefresh()
+
+        assertEquals(offline.events, retrying.events)
+        assertFalse(retrying.isOffline)
+        assertFalse(retrying.hasStaleFeed)
+        assertFalse(retrying.sessionExpired)
+        assertNull(retrying.errorMessage)
+        assertTrue(retrying.isLoading)
+    }
+
     private fun readyState(): BulletFeedUiState =
         BulletFeedUiState(
             events = listOf(
