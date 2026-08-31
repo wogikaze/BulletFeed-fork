@@ -127,6 +127,44 @@ class BulletFeedViewModelStateTest {
     }
 
     @Test
+    fun topicLimitReachedIsNotOfflineOrSessionExpiry() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"topic limit reached"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertFalse(recovered.sessionExpired)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("最大") == true)
+        assertTrue(recovered.errorMessage?.contains("${MAX_TRACKED_TOPICS}") == true)
+    }
+
+    @Test
+    fun topicAlreadyExistsIsConflictNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(409, """{"error":{"message":"topic already exists"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("すでに追跡中") == true)
+    }
+
+    @Test
+    fun rssHostNotAllowlistedIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"RSS host is not in the allowlist"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("許可されていません") == true)
+    }
+
+    @Test
     fun genericClientErrorRetainsStaleFeedAndAsksToRetry() {
         val recovered = readyState().reduceRootFailure(httpError(400))
 
