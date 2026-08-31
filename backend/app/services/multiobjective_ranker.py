@@ -29,6 +29,7 @@ from app.services.knowledge_evidence import (
     VisibilityAction,
 )
 from app.services.ranking import evaluate_importance
+from app.services.ranking_capacity import CAPACITY_POLICY_VERSION, apply_capacity_policy
 from app.services.relation import evaluate_relation_from_state
 from app.services.user_interest import state_from_personalization_user
 
@@ -128,6 +129,7 @@ class RankedItem:
     hidden: bool = False
     suppression_reason: str = ""
     suppression_version: str = ""
+    capacity_policy_version: str = ""
 
 
 @dataclass
@@ -151,16 +153,24 @@ def rank_candidates(
     candidates: Sequence[RankerCandidate],
     *,
     policy_version: str = RANKING_POLICY_VERSION,
+    capacity_policy_version: str = CAPACITY_POLICY_VERSION,
 ) -> list[RankedItem]:
-    """Rank candidates with inspectable axes and greedy diversity penalties.
+    """Rank candidates, then apply display-frame capacity.
 
-    The same inputs and ``policy_version`` always produce the same order.
-    Items are never dropped for redundancy. Hide only follows decide_suppression.
+    Ranking weights stay on ``policy_version``. Occupancy / reserved slots stay
+    on ``capacity_policy_version``. Items are never dropped for redundancy.
+    Hide only follows decide_suppression.
     """
     if policy_version != RANKING_POLICY_VERSION:
         raise ValueError(f"unknown ranking policy {policy_version}")
     scored = [_score_independent(candidate) for candidate in candidates]
-    return _diversify(scored, policy_version=policy_version)
+    ranked = _diversify(scored, policy_version=policy_version)
+    by_id = {candidate.item_id: candidate for candidate in candidates}
+    return apply_capacity_policy(
+        ranked,
+        by_id,
+        policy_version=capacity_policy_version,
+    )
 
 
 def score_axes(candidate: RankerCandidate) -> RankerAxes:
@@ -273,7 +283,11 @@ def paginate_ranked(
     return page, next_cursor
 
 
-def rank_personalization_corpus(corpus: PersonalizationGoldCorpus) -> dict[str, list[str]]:
+def rank_personalization_corpus(
+    corpus: PersonalizationGoldCorpus,
+    *,
+    capacity_policy_version: str = CAPACITY_POLICY_VERSION,
+) -> dict[str, list[str]]:
     """Rank Gold items from Relation + impact + redundancy. Does not read labels."""
     items = corpus.item_by_id()
     rankings: dict[str, list[str]] = {}
@@ -282,7 +296,7 @@ def rank_personalization_corpus(corpus: PersonalizationGoldCorpus) -> dict[str, 
         candidates = [
             candidate_from_gold_item(user, items[item_id]) for item_id in judged_ids if item_id in items
         ]
-        ranked = rank_candidates(candidates)
+        ranked = rank_candidates(candidates, capacity_policy_version=capacity_policy_version)
         rankings[user.user_id] = [item.item_id for item in ranked]
     return rankings
 
