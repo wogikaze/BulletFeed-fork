@@ -251,6 +251,19 @@ data class FeedItemDto(
     val deliveryId: String,
     val sources: List<EventSourceDto> = emptyList(),
     val additionalSources: List<EventSourceDto> = emptyList(),
+    val displayReason: DisplayReasonDto? = null,
+)
+
+@Serializable
+data class DisplayReasonDto(
+    val policyVersion: String,
+    val rankingPolicyVersion: String,
+    val primaryCode: String,
+    val text: String,
+    val codes: List<String> = emptyList(),
+    val matchKind: String,
+    val deltaKind: String,
+    val independentEvidenceCount: Int = 1,
 )
 
 @Serializable

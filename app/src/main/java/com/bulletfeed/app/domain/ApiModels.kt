@@ -78,6 +78,19 @@ data class EventSource(
     val evidence: String,
 )
 
+data class DisplayReason(
+    val policyVersion: String,
+    val rankingPolicyVersion: String,
+    val primaryCode: String,
+    val text: String,
+    val codes: List<String> = emptyList(),
+    val matchKind: String,
+    val deltaKind: String,
+    val independentEvidenceCount: Int = 1,
+)
+
+fun DisplayReason.userFacingTextOrNull(): String? = text.trim().takeIf { it.isNotEmpty() }
+
 data class FeedItem(
     val id: String,
     val eventId: String,
@@ -91,6 +104,7 @@ data class FeedItem(
     val deliveryId: String,
     val sources: List<EventSource> = emptyList(),
     val additionalSources: List<EventSource> = emptyList(),
+    val displayReason: DisplayReason? = null,
     val markedImportant: Boolean = false,
     val dismissed: Boolean = false,
 )

@@ -50,6 +50,7 @@ fun FeedEvent.toFeedItem(): FeedItem {
         },
         markedImportant = markedImportant,
         dismissed = dismissed,
+        displayReason = displayReason,
     )
 }
 
@@ -87,6 +88,7 @@ fun FeedItem.toFeedEvent(base: FeedEvent? = null): FeedEvent {
         sources = sourceMetadata,
         before = delta.before,
         after = delta.after,
+        displayReason = displayReason,
     )
 }
 

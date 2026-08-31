@@ -7,9 +7,13 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,4 +101,100 @@ class FeedScreenSemanticsTest {
 
         composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun eventCardShowsApiDisplayReasonTextAndKeepsCodesOffScreen() {
+        composeRule.setContent {
+            MaterialTheme {
+                EventCard(
+                    event = feedEventWithReason(
+                        DisplayReason(
+                            policyVersion = "display-reason-v1",
+                            rankingPolicyVersion = "ranking-v1",
+                            primaryCode = "relation.direct_topic",
+                            text = "フォロー中のRustに関連。まだ見ていない可能性が高い。",
+                            codes = listOf("relation.direct_topic", "novelty.possibly_unread"),
+                            matchKind = "direct",
+                            deltaKind = "new_fact",
+                        ),
+                    ),
+                    onClick = {},
+                    onFeedback = { _, _ -> },
+                    onFollow = {},
+                )
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithText("フォロー中のRustに関連。まだ見ていない可能性が高い。").fetchSemanticsNodes().size)
+        assertEquals(
+            1,
+            composeRule.onAllNodesWithContentDescription("表示理由: フォロー中のRustに関連。まだ見ていない可能性が高い。")
+                .fetchSemanticsNodes()
+                .size,
+        )
+        assertEquals(0, composeRule.onAllNodesWithText("relation.direct_topic").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithText("novelty.possibly_unread").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithText("未読です").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithText("知っている").fetchSemanticsNodes().size)
+        composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun displayReasonLineHidesBlankApiTextAndDoesNotShowCodes() {
+        composeRule.setContent {
+            MaterialTheme {
+                FeedDisplayReasonLine(
+                    DisplayReason(
+                        policyVersion = "display-reason-v1",
+                        rankingPolicyVersion = "ranking-v1",
+                        primaryCode = "relation.direct_topic",
+                        text = "   ",
+                        codes = listOf("relation.direct_topic"),
+                        matchKind = "direct",
+                        deltaKind = "new_fact",
+                    ),
+                )
+            }
+        }
+
+        assertEquals(0, composeRule.onAllNodesWithTag("feed-display-reason").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithText("relation.direct_topic").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun eventCardOmitsReasonLineWhenDisplayReasonIsMissing() {
+        composeRule.setContent {
+            MaterialTheme {
+                EventCard(
+                    event = feedEventWithReason(null),
+                    onClick = {},
+                    onFeedback = { _, _ -> },
+                    onFollow = {},
+                )
+            }
+        }
+
+        assertEquals(0, composeRule.onAllNodesWithTag("feed-display-reason").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithText("表示理由", substring = true).fetchSemanticsNodes().size)
+    }
+
+    private fun feedEventWithReason(reason: DisplayReason?) = FeedEvent(
+        id = "event-1",
+        title = "Release",
+        summary = "Summary",
+        importance = Importance.MEDIUM,
+        importanceReason = "reason",
+        relation = Relation.DIRECT,
+        relationReason = "reason",
+        announcedAt = "2026-08-30T00:00:00Z",
+        sourceCount = 1,
+        before = "",
+        after = "new",
+        explicitImpact = "impact",
+        inferredImpact = null,
+        sources = emptyList(),
+        timeline = emptyList(),
+        feedItemId = "feed-1",
+        displayReason = reason,
+    )
 }
