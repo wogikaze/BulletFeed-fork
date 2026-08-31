@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -100,6 +102,7 @@ fun NotificationsScreen(
                         FilterChip(
                             selected = filter == item,
                             onClick = { filter = item },
+                            modifier = Modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
                             label = { Text("${item.label} $count") },
                         )
                     }
@@ -192,18 +195,21 @@ private fun NotificationCard(
                 Spacer(Modifier.weight(1f))
                 Text(notification.occurredAt, color = Color(0xFF655F69), style = MaterialTheme.typography.labelSmall)
             }
+            val fontScale = LocalDensity.current.fontScale
             Text(
                 notification.title,
                 modifier = Modifier.padding(top = 5.dp),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
+                maxLines = AppReadability.titleMaxLines(fontScale),
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
                 notification.summary,
                 modifier = Modifier.padding(top = 5.dp),
                 color = Color(0xFF49454F),
                 style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
+                maxLines = AppReadability.summaryMaxLines(fontScale),
                 overflow = TextOverflow.Ellipsis,
             )
             HorizontalDivider(modifier = Modifier.padding(top = 11.dp, bottom = 7.dp), color = Color(0xFFEAE5EC))
