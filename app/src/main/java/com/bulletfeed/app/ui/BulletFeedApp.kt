@@ -345,8 +345,8 @@ private fun ReadyApplication(
                         onClearVulnerability = onClearVulnerability,
                         viewModel = viewModel,
                     )
-                }
-            }
+                },
+            )
         }
         selectedEventId != null -> SelectedEventPane(
             uiState = uiState,
