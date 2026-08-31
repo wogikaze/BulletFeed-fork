@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sqlite3
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from app.database import Database
 from app.db.migrations import KNOWN_REVISIONS
+from app.db.release_lifecycle import record_worker_heartbeat
 from app.services.relation import RELATION_FEATURE_VERSION
 from app.services.statuspage_pipeline import StatuspagePipeline
 from app.services.web_snapshots import (
@@ -299,6 +301,50 @@ def test_backup_restore_reproduces_observation_claim_lineage(tmp_path: Path) -> 
         retrieved_at="2026-08-22T00:02:00Z",
     )
     assert _lineage(restored_db) == before
+
+
+def test_backup_retention_prunes_old_copies_and_restores_kept_lineage(tmp_path: Path) -> None:
+    live = tmp_path / "retention.db"
+    database = Database(live)
+    database.initialize()
+    StatuspagePipeline(database).ingest_summary(
+        page_id="abcd1234",
+        summary=_statuspage_summary(),
+        retrieved_at="2026-08-22T00:01:00Z",
+    )
+    before = _lineage(database)
+    backup_dir = tmp_path / "backups"
+    first = backup_sqlite(live, backup_dir, retention_days=14)
+    expired = backup_dir / "bulletfeed-20200101T000000Z.db"
+    first.rename(expired)
+    stale_mtime = (datetime.now(tz=UTC) - timedelta(days=20)).timestamp()
+    os.utime(expired, (stale_mtime, stale_mtime))
+    kept = backup_sqlite(live, backup_dir, retention_days=14)
+    assert not expired.exists()
+    assert kept.exists()
+    assert set(backup_dir.glob("bulletfeed-*.db")) == {kept}
+
+    restored = tmp_path / "retention-restored.db"
+    _restore_sqlite(kept, restored)
+    restored_db = Database(restored)
+    restored_db.initialize()
+    assert _lineage(restored_db) == before
+
+
+def test_operator_health_check_fails_when_worker_heartbeat_is_stale(
+    tmp_path: Path, monkeypatch
+) -> None:
+    import check_worker_health  # noqa: E402
+
+    live = tmp_path / "heartbeat.db"
+    database = Database(live)
+    database.initialize()
+    record_worker_heartbeat(database, now=1, detail="stale")
+    monkeypatch.setenv("BULLETFEED_DATABASE_PATH", str(live))
+    monkeypatch.setenv("BULLETFEED_WORKER_HEALTH_MAX_AGE_SECONDS", "30")
+    assert check_worker_health.main() == 1
+    record_worker_heartbeat(database, detail="fresh")
+    assert check_worker_health.main() == 0
 
 
 def test_duplicate_delivery_does_not_rewrite_observation_or_claim_ids(
