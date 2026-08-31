@@ -41,4 +41,45 @@ enum class AppChromeLayout {
     }
 }
 
+/** Which ready-state pane wins. Overlays outrank a still-selected event/alert. */
+enum class AppReadyPane {
+    EVENT_LIST_DETAIL,
+    VULNERABILITY_LIST_DETAIL,
+    NOTIFICATIONS,
+    GITHUB,
+    EVENT_STACKED,
+    VULNERABILITY_STACKED,
+    MAIN,
+    ;
+
+    companion object {
+        fun resolve(
+            widthDp: Int,
+            tab: AppTab,
+            selectedEventId: String?,
+            selectedVulnerabilityId: String?,
+            notificationsOpen: Boolean,
+            githubSetupOpen: Boolean,
+        ): AppReadyPane {
+            val overlayOpen = notificationsOpen || githubSetupOpen
+            return when {
+                AppChromeLayout.showsEventListDetail(widthDp, tab, selectedEventId, overlayOpen) ->
+                    EVENT_LIST_DETAIL
+                AppChromeLayout.showsVulnerabilityListDetail(
+                    widthDp,
+                    tab,
+                    selectedEventId,
+                    selectedVulnerabilityId,
+                    overlayOpen,
+                ) -> VULNERABILITY_LIST_DETAIL
+                notificationsOpen -> NOTIFICATIONS
+                githubSetupOpen -> GITHUB
+                selectedEventId != null -> EVENT_STACKED
+                selectedVulnerabilityId != null -> VULNERABILITY_STACKED
+                else -> MAIN
+            }
+        }
+    }
+}
+
 private val EVENT_LIST_DETAIL_TABS = setOf(AppTab.FEED, AppTab.SEARCH)

@@ -280,17 +280,14 @@ private fun ReadyApplication(
     onRetry: () -> Unit,
     viewModel: BulletFeedViewModel,
 ) = Box(Modifier.fillMaxSize()) {
-    val widthDp = LocalConfiguration.current.screenWidthDp
-    val overlayOpen = notificationsOpen || githubSetupOpen
-    val eventListDetail =
-        AppChromeLayout.showsEventListDetail(widthDp, tab, selectedEventId, overlayOpen)
-    val vulnerabilityListDetail =
-        AppChromeLayout.showsVulnerabilityListDetail(
-            widthDp,
-            tab,
-            selectedEventId,
-            selectedVulnerabilityId,
-            overlayOpen,
+    val pane =
+        AppReadyPane.resolve(
+            widthDp = LocalConfiguration.current.screenWidthDp,
+            tab = tab,
+            selectedEventId = selectedEventId,
+            selectedVulnerabilityId = selectedVulnerabilityId,
+            notificationsOpen = notificationsOpen,
+            githubSetupOpen = githubSetupOpen,
         )
     val mainNavigation: @Composable () -> Unit = {
         MainNavigation(
@@ -323,8 +320,8 @@ private fun ReadyApplication(
             onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
         )
     }
-    when {
-        eventListDetail -> {
+    when (pane) {
+        AppReadyPane.EVENT_LIST_DETAIL -> {
             AppListDetailSplit(
                 list = { mainNavigation() },
                 detail = {
@@ -338,7 +335,7 @@ private fun ReadyApplication(
                 },
             )
         }
-        vulnerabilityListDetail -> {
+        AppReadyPane.VULNERABILITY_LIST_DETAIL -> {
             AppListDetailSplit(
                 list = { mainNavigation() },
                 detail = {
@@ -351,20 +348,20 @@ private fun ReadyApplication(
                 },
             )
         }
-        selectedEventId != null -> SelectedEventPane(
+        AppReadyPane.EVENT_STACKED -> SelectedEventPane(
             uiState = uiState,
-            selectedEventId = selectedEventId,
+            selectedEventId = checkNotNull(selectedEventId),
             selectedFeedItemId = selectedFeedItemId,
             onClearEvent = onClearEvent,
             viewModel = viewModel,
         )
-        selectedVulnerabilityId != null -> SelectedVulnerabilityPane(
+        AppReadyPane.VULNERABILITY_STACKED -> SelectedVulnerabilityPane(
             uiState = uiState,
-            selectedVulnerabilityId = selectedVulnerabilityId,
+            selectedVulnerabilityId = checkNotNull(selectedVulnerabilityId),
             onClearVulnerability = onClearVulnerability,
             viewModel = viewModel,
         )
-        notificationsOpen -> NotificationsScreen(
+        AppReadyPane.NOTIFICATIONS -> NotificationsScreen(
             notifications = uiState.notifications,
             onBack = { onNotificationsChange(false) },
             onNotificationClick = { notification ->
@@ -380,7 +377,7 @@ private fun ReadyApplication(
             },
             onMarkAllRead = viewModel::markAllNotificationsRead,
         )
-        githubSetupOpen && uiState.githubReauthorizationRequired -> GithubReauthorizationRequiredScreen(
+        AppReadyPane.GITHUB if uiState.githubReauthorizationRequired -> GithubReauthorizationRequiredScreen(
             accountLogin = uiState.githubConnection.accountLogin,
             isAuthorizing = uiState.isGithubAuthorizing,
             showBack = true,
@@ -390,7 +387,7 @@ private fun ReadyApplication(
             },
             onAuthorize = viewModel::connectGithub,
         )
-        githubSetupOpen -> GithubConnectionScreen(
+        AppReadyPane.GITHUB -> GithubConnectionScreen(
             connection = uiState.githubConnection,
             repositories = uiState.githubRepositories,
             nextCursor = uiState.githubNextCursor,
@@ -413,7 +410,7 @@ private fun ReadyApplication(
             onImportRepo = viewModel::importFromPublicRepo,
             onDisconnect = viewModel::disconnectGithub,
         )
-        else -> mainNavigation()
+        AppReadyPane.MAIN -> mainNavigation()
     }
     uiState.knowledgeBootstrapPrompt?.let { prompt ->
         KnowledgeBootstrapPromptDialog(
