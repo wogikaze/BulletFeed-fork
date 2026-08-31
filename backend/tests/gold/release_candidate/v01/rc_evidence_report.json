@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "8ba511bc6d0ee1a8accf4e263b45ae196ef7d621",
+  "repository_sha": "e0fd83588be3869db4943b3d381dcc6c78006d9d",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -206,12 +206,13 @@
     "m6": {
       "artifact": "tests/gold/m6/v01/top3_selection.json",
       "root_cause_artifact": "tests/gold/m6/v01/root_cause_report.json",
+      "capacity_artifact": "tests/gold/m6/v01/top3_capacity_diagnosis.json",
       "status": "partial",
       "evidence_checks": {
         "top3_selected": true,
         "representative_case_floor": true
       },
-      "note": "Selection is complete; production remediation and blind one-shot evaluation are not.",
+      "note": "Top-3 family IU@10 is k=10 capacity after identity/recency/production ranker. Do not run #171 to chase family IU@10.",
       "root_cause_analysis": {
         "status": "partial",
         "evidence_checks": {
@@ -226,6 +227,15 @@
           "javascript_tooling_maintainer": "ranking_priority_or_capacity: the cases receive a non-reference relation signal but remain outside the top-10 ordering"
         },
         "note": "Root-cause analysis is ranking-only; no production remediation or blind tuning was performed."
+      },
+      "capacity_diagnosis": {
+        "status": "partial",
+        "evidence_checks": {
+          "not_blind": true,
+          "package_saturated": true,
+          "javascript_capacity_mix": true
+        },
+        "note": "Saturated users already fill top-10 with important-unknown. Vacuous IU recall 1.0 for empty IU sets is the existing metric contract."
       }
     },
     "m7": {
@@ -246,8 +256,7 @@
     "M1 Android journey and cross-surface breadth for all 30 personas",
     "M3 longitudinal per-source update evidence (#283)",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-    "M5 long-running snapshot backup/retention and stale-heartbeat/source-outage/rate-limit drills",
-    "M6 production Top-3 remediation followed by one-shot blind evaluation",
+    "M6 one-shot blind aggregate evaluation (#171) after production freeze",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
   ],
   "human_only_or_field_validation": [

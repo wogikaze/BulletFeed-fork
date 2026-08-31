@@ -29,4 +29,12 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m6"]["root_cause_analysis"]["evidence_checks"][
         "responsible_paths_identified"
     ] is True
+    assert report["missions"]["m6"]["capacity_diagnosis"]["evidence_checks"][
+        "javascript_capacity_mix"
+    ] is True
+    assert report["missions"]["m6"]["capacity_diagnosis"]["evidence_checks"][
+        "package_saturated"
+    ] is True
+    assert "M5 long-running snapshot" not in " ".join(report["unmet_gate_items"])
+    assert any("#171" in item for item in report["unmet_gate_items"])
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True
