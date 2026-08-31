@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -78,6 +80,21 @@ internal fun AccessibleAssistChip(
         modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
         label = { Text(label) },
         colors = AssistChipDefaults.assistChipColors(labelColor = labelColor),
+    )
+}
+
+@Composable
+internal fun AccessiblePrimaryButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
+        content = content,
     )
 }
 

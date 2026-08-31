@@ -1,5 +1,6 @@
 package com.bulletfeed.app
 
+import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -32,5 +33,14 @@ class AccessibleFilterChipSemanticsTest {
         }
 
         composeRule.onNodeWithText("高").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun primaryRetryButtonMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            AccessiblePrimaryButton(onClick = {}) { Text("再試行") }
+        }
+
+        composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 }

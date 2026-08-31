@@ -152,6 +152,30 @@ class RealBackendAcceptanceTest {
     }
 
     @Test
+    fun `live feed still works after closed-port offline classification`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val userId = sessionManager.userId!!
+            seedStatuspage(baseUrl, userId)
+
+            val before = repository.getFeedPage(limit = 1)
+            assertTrue(before.items.isNotEmpty())
+            assertTrue(before.items.first().id.isNotBlank())
+
+            assertNetworkFailureIsProductionError()
+
+            val after = repository.getFeedPage(limit = 1)
+            assertTrue(after.items.isNotEmpty())
+            assertTrue(after.items.first().id.isNotBlank())
+        }
+
+    @Test
     fun `source recommendations list and decision reach subscription path`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
