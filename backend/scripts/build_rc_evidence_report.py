@@ -149,6 +149,37 @@ def _m3_live_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m3_observed_failure_gate(
+    replay_report: dict[str, Any],
+    live_report: dict[str, Any],
+) -> dict[str, Any]:
+    live_failure_dimensions = live_report.get("failure_dimensions", {})
+    observed_failure_count = sum(
+        int(value)
+        for value in live_failure_dimensions.values()
+        if isinstance(value, int | float)
+    )
+    remediation_required = observed_failure_count > 0
+    checks = {
+        "live_sample_success": live_report.get("success_rate") == 1.0,
+        "replay_failures": replay_report.get("replay_failed_count", 1) == 0,
+        "observed_failure_count_recorded": isinstance(live_failure_dimensions, dict),
+        "remediation_not_required": not remediation_required,
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "decision": "remediation_required" if remediation_required else "remediation_not_required",
+        "observed_failure_count": observed_failure_count,
+        "failure_dimensions": live_failure_dimensions,
+        "evidence_checks": checks,
+        "note": (
+            "No live failure cluster was observed; #164 is completed as "
+            "`remediation_not_required`. Any future longitudinal failure belongs to #283 "
+            "and reopens concrete remediation."
+        ),
+    }
+
+
 def _m5_gate(report: dict[str, Any]) -> dict[str, Any]:
     checks = {
         "status": report.get("status") == "passed",
@@ -251,6 +282,10 @@ def build_report() -> dict[str, Any]:
             "live_artifact": _relative(ARTIFACTS["m3_live"]),
             **_m3_gate(loaded["m3"]),
             "live_sample": _m3_live_gate(loaded["m3_live"]),
+            "observed_failure_remediation": _m3_observed_failure_gate(
+                loaded["m3"],
+                loaded["m3_live"],
+            ),
         },
         "m4": {
             "artifact": _relative(ARTIFACTS["m4_android"]),
@@ -282,7 +317,7 @@ def build_report() -> dict[str, Any]:
         "missions": missions,
         "unmet_gate_items": [
             "M1 Android journey and cross-surface breadth for all 30 personas",
-            "M3 observed-failure remediation, per-source update rate, and #64 trigger evidence",
+            "M3 longitudinal per-source update evidence (#283) and #64 trigger evidence",
             "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
             "M5 persistent-volume disk-full fault injection",
             "M6 production Top-3 remediation followed by one-shot blind evaluation",
