@@ -1,8 +1,8 @@
 # ADR-0021 上限付き動的 Web レンダリング v1
 
 状態: Accepted  
-版: `bounded-dynamic-web-v1` / `real-renderer-gate-v1`  
-Issue: #64 (Source-08) — **open のまま。本 ADR の契約だけでは close しない**
+版: `bounded-dynamic-web-v1` / `real-renderer-gate-v2`  
+Issue: #64 (Source-08) — **trigger 未達のため defer close。再open 条件は決定成果物を正とする**
 
 ## Context
 
@@ -32,7 +32,8 @@ Source-09 の `dynamic_web` は split ごとに JS 必須ケースを必ず含�
 - HTTP と rendered snapshot の provenance を分離する。
 - `BULLETFEED_DYNAMIC_WEB_ENABLED` は false のまま。
 - Source-09 は静的ギャップ測定のまま。`js_rendering_implemented` を立てない。
-- Issue #64 は close しない。`Part of #64`。
+- Issue #64 は trigger 未達なら defer close してよい。再open は live 開始条件のみ。
+  決定成果物: `backend/tests/gold/source_qualification/v01/renderer_gate_decision.json`
 
 実レンダ開始条件（`real_renderer_gate.py`、live 観測のみ）:
 
@@ -57,7 +58,7 @@ rendered snapshot → #61 → #62 → #63
 
 ## Consequences
 
-フラグ OFF なら本番 attack surface はほぼ増えない。将来必要性が証明されたとき、既存の `RendererEngine` 境界に isolated service を足せる。#64 は実ブラウザ未実装のまま open。
+フラグ OFF なら本番 attack surface はほぼ増えない。将来必要性が証明されたとき、既存の `RendererEngine` 境界に isolated service を足せる。#64 は trigger 未達なら defer し、Playwright を入れない。
 
 ## Rollback
 
