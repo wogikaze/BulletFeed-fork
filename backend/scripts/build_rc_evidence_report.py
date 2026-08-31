@@ -202,6 +202,12 @@ def _m5_host_gate(report: dict[str, Any]) -> dict[str, Any]:
         "session_persisted": report.get("session_persisted") is True,
         "ready_after_restart": report.get("ready_after_restart") is True,
         "filesystem_fault_injection": report.get("filesystem_fault_injection") is True,
+        "persistent_volume_disk_full": report.get("persistent_volume_disk_full") is True,
+        "ext4_loop_not_tmpfs": (
+            isinstance(report.get("persistent_volume_disk_full_report"), dict)
+            and report["persistent_volume_disk_full_report"].get("medium") == "ext4_loop"
+            and report["persistent_volume_disk_full_report"].get("tmpfs_substituted") is False
+        ),
     }
     return {
         "status": "partial" if all(checks.values()) else "fail",
@@ -317,9 +323,10 @@ def build_report() -> dict[str, Any]:
         "missions": missions,
         "unmet_gate_items": [
             "M1 Android journey and cross-surface breadth for all 30 personas",
-            "M3 longitudinal per-source update evidence (#283) and #64 trigger evidence",
+            "M3 longitudinal per-source update evidence (#283)",
             "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-            "M5 persistent-volume disk-full fault injection",
+            "M5 long-running snapshot backup/retention and "
+            "stale-heartbeat/source-outage/rate-limit drills",
             "M6 production Top-3 remediation followed by one-shot blind evaluation",
             "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
         ],

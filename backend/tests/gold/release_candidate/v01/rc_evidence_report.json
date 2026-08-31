@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "15b022451f238cfb111d21d291de60ec2d4463f2",
+  "repository_sha": "8ba511bc6d0ee1a8accf4e263b45ae196ef7d621",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -194,13 +194,13 @@
           "worker_restart": true,
           "session_persisted": true,
           "ready_after_restart": true,
-          "filesystem_fault_injection": true
+          "filesystem_fault_injection": true,
+          "persistent_volume_disk_full": true,
+          "ext4_loop_not_tmpfs": true
         },
-        "repository_sha": "86fc9b9be98379f9cebc22d080689fc1628f7c55",
-        "workflow_run_id": 33341437966,
-        "residual_risks": [
-          "persistent-volume disk-full still requires a host-specific fault drill"
-        ]
+        "repository_sha": "ac35f68c8300175e86f42f7ee70785aeb1539bc3",
+        "workflow_run_id": 33349754487,
+        "residual_risks": []
       }
     },
     "m6": {
@@ -244,9 +244,9 @@
   },
   "unmet_gate_items": [
     "M1 Android journey and cross-surface breadth for all 30 personas",
-    "M3 longitudinal per-source update evidence (#283) and #64 trigger evidence",
+    "M3 longitudinal per-source update evidence (#283)",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-    "M5 persistent-volume disk-full fault injection",
+    "M5 long-running snapshot backup/retention and stale-heartbeat/source-outage/rate-limit drills",
     "M6 production Top-3 remediation followed by one-shot blind evaluation",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
   ],

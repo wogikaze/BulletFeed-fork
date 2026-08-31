@@ -26,15 +26,18 @@ python scripts/run_host_recovery_drill.py --output tests/gold/recovery/v01/host_
 ```
 
 このscriptは一時env/compose定義を生成し、fresh stackのreadiness、session作成、bounded tmpfs
-上のsnapshot ENOSPC cleanup、API restart、worker restart、restart後のsession lookupを検証して
-から、自分のprojectだけを削除する。生成env、token、database path、project名はreportへ出力しない。
+上のsnapshot ENOSPC cleanup、ext4 loop の persistent-volume disk-full、API restart、
+worker restart、restart後のsession lookupを検証してから、自分のprojectだけを削除する。生成env、
+token、database path、project名はreportへ出力しない。
 通常PR CIはDocker daemonやhost filesystem quotaに依存しないため、このhost drillを自動実行しない。
 
 Docker daemonが無い場合はcommand自体を失敗として記録し、passへ置き換えない。bounded tmpfsの
-ENOSPCは自動検証するが、永続volumeの実disk-fullはhost-specific fault injectionが必要であり、
-独立した残課題として扱う。
+ENOSPCは filesystem fault probe であり、永続volumeの disk-full ではない。永続volume側は
+同じ host drill 内の ext4 loop（`tmpfs_substituted=false`）で ENOSPC・保護snapshot生存・
+partial tmp cleanup・DB consistency を検証する。#168 の残課題は long-running
+backup/retention/recovery と stale-heartbeat/source-outage/rate-limit の統合故障証跡である。
 
 GitHub ActionsのDocker runnerで取得した成功結果は
 `backend/tests/gold/recovery/v01/host_recovery_report.json` に保存する。reportには実行した
-repository SHAとworkflow run IDを含め、restart後のAPI/worker readinessとsession persistenceを
-再現可能な証跡として結び付ける。
+repository SHAとworkflow run IDを含め、restart後のAPI/worker readiness、session persistence、
+ext4-loop persistent-volume disk-full を再現可能な証跡として結び付ける。
