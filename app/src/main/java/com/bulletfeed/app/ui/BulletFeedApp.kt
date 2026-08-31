@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,11 +33,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -983,7 +980,7 @@ internal fun DetailErrorScreen(
 }
 
 @Composable
-private fun KnowledgeBootstrapPromptDialog(
+internal fun KnowledgeBootstrapPromptDialog(
     prompt: KnowledgeBootstrapPrompt,
     isSaving: Boolean,
     onAlreadyKnew: () -> Unit,
@@ -1019,12 +1016,18 @@ private fun KnowledgeBootstrapPromptDialog(
             }
         },
         confirmButton = {
-            Button(onClick = onAlreadyKnew, enabled = !isSaving) { Text("この現在状態は知っている") }
+            AccessiblePrimaryButton(onClick = onAlreadyKnew, enabled = !isSaving) {
+                Text("この現在状態は知っている")
+            }
         },
         dismissButton = {
             Column {
-                OutlinedButton(onClick = onCatchUp, enabled = !isSaving) { Text("これから追う") }
-                TextButton(onClick = onDismiss, enabled = !isSaving) { Text("あとで") }
+                AccessibleOutlinedButton(onClick = onCatchUp, enabled = !isSaving) {
+                    Text("これから追う")
+                }
+                AccessibleTextButton(onClick = onDismiss, enabled = !isSaving) {
+                    Text("あとで")
+                }
             }
         },
     )

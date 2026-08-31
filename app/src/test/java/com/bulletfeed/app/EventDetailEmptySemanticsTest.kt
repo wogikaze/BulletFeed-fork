@@ -79,4 +79,28 @@ class EventDetailEmptySemanticsTest {
         composeRule.onNodeWithText("この現在状態はすでに知っている").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("これから追う（過去は既知にしない）").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun knowledgeBootstrapPromptDialogButtonsMeetMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                KnowledgeBootstrapPromptDialog(
+                    prompt = KnowledgeBootstrapPrompt(
+                        subjectKind = BootstrapSubjectKind.EVENT,
+                        subjectId = "event-1",
+                        title = "Release 1.2.0",
+                        currentStateSummary = "1.2.0 が利用可能",
+                    ),
+                    isSaving = false,
+                    onAlreadyKnew = {},
+                    onCatchUp = {},
+                    onDismiss = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("この現在状態は知っている").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("これから追う").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("あとで").assertHeightIsAtLeast(48.dp)
+    }
 }

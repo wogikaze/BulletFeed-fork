@@ -87,5 +87,14 @@ class AppChromeLayoutTest {
                 overlayOpen = false,
             ),
         )
+        assertFalse(
+            AppChromeLayout.showsVulnerabilityListDetail(
+                840,
+                AppTab.SECURITY,
+                selectedEventId = null,
+                selectedVulnerabilityId = "alert-1",
+                overlayOpen = true,
+            ),
+        )
     }
 }
