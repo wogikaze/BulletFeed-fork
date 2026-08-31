@@ -1,6 +1,12 @@
 package com.bulletfeed.app
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -10,6 +16,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -132,6 +139,76 @@ class SiteFeedDiscoverSettingsTest {
         )
         composeRule.onNodeWithTag("site-feed-discover-subscribe").assertHeightIsAtLeast(48.dp)
         assertEquals(1, composeRule.onAllNodesWithText("Webとして追加").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun discoverErrorAnnouncesAssertiveAndDoesNotLookOffline() {
+        composeRule.setContent {
+            MaterialTheme {
+                SettingsScreen(
+                    profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                    isSaving = false,
+                    onSaveProfile = {},
+                    siteFeedDiscoverError = "URLを入力してください。",
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("URLを入力してください。").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+        assertEquals(0, composeRule.onAllNodesWithText("オフラインです").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("offline-recovery-banner").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun emptyDiscoverResultAnnouncesPoliteEmptyWithoutCandidates() {
+        composeRule.setContent {
+            MaterialTheme {
+                SettingsScreen(
+                    profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                    isSaving = false,
+                    onSaveProfile = {},
+                    siteFeedDiscoverResult =
+                        SiteFeedDiscoverResult(
+                            version = "site-feed-discover-v1",
+                            siteUrl = "https://empty.example.com/",
+                            canonicalSiteUrl = "https://empty.example.com/",
+                            preferredFamily = "rss_atom",
+                            items = emptyList(),
+                        ),
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("このサイトから購読できるフィードは見つかりませんでした。下の Web として追加できます。").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+        assertEquals(0, composeRule.onAllNodesWithTag("site-feed-discover-item").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("site-feed-discover-preferred").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithText("オフラインです").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun largeFontScaleKeepsDiscoverTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    SettingsScreen(
+                        profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                        isSaving = false,
+                        onSaveProfile = {},
+                        siteFeedDiscoverResult = sampleDiscoverResult(),
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("site-feed-discover-url", useUnmergedTree = true).assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("site-feed-discover-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("site-feed-discover-subscribe").assertHeightIsAtLeast(48.dp)
     }
 }
 
