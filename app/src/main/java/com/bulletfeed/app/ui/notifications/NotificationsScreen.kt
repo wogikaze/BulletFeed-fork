@@ -237,9 +237,12 @@ private fun NotificationCard(
 }
 
 @Composable
-private fun NotificationEmptyState(filter: NotificationFilter) =
+internal fun NotificationEmptyState(filter: NotificationFilter) =
     Column(
-        modifier = Modifier.fillMaxWidth().padding(48.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(48.dp)
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(Icons.Default.DoneAll, contentDescription = null, tint = Color(0xFF006A67), modifier = Modifier.size(44.dp))
