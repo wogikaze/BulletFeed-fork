@@ -175,6 +175,70 @@ class BulletFeedViewModelStateTest {
     }
 
     @Test
+    fun rssHostNotAllowlistedForbiddenIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(403, """{"error":{"message":"RSS host is not in the allowlist"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertFalse(recovered.sessionExpired)
+        assertTrue(recovered.errorMessage?.contains("許可されていません") == true)
+    }
+
+    @Test
+    fun rssFetchingDisabledForbiddenIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(403, """{"error":{"message":"RSS fetching is disabled"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("現在無効") == true)
+    }
+
+    @Test
+    fun webFetchingDisabledForbiddenIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(403, """{"error":{"message":"Web fetching is disabled"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("Webページ") == true)
+    }
+
+    @Test
+    fun pydanticValueErrorUrlRequiredIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Value error, url is required"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("URLを入力") == true)
+    }
+
+    @Test
+    fun pydanticValueErrorStatuspageIdentityIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(
+                    422,
+                    """{"error":{"message":"Value error, pageId or url is required for statuspage"}}""",
+                ),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("page ID または URL") == true)
+    }
+
+    @Test
     fun retryClearsOfflineBannerWithoutDroppingStaleEvents() {
         val offline = readyState().reduceRootFailure(IOException("network down"))
 

@@ -229,6 +229,14 @@ class RealBackendAcceptanceTest {
                 fail("expected allowlist rejection")
             } catch (error: HttpException) {
                 assertEquals(403, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.hasStaleFeed)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(
+                    recovered.errorMessage?.contains("許可") == true ||
+                        recovered.errorMessage?.contains("アクセス権") == true,
+                )
             }
             assertTrue(repository.getSourceSubscriptions().isEmpty())
 
@@ -288,6 +296,113 @@ class RealBackendAcceptanceTest {
             val hide = selected.items.first { !it.alreadyFollowed }
             val afterIgnore = repository.ignoreTopicRecommendation(hide.id)
             assertTrue(afterIgnore.items.none { it.id == hide.id })
+        }
+
+    @Test
+    fun `duplicate topic is conflict not offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            repository.addUserTopic("React", TopicType.TECHNOLOGY)
+            try {
+                repository.addUserTopic("React", TopicType.TECHNOLOGY)
+                fail("expected duplicate topic conflict")
+            } catch (error: HttpException) {
+                assertEquals(409, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.hasStaleFeed)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(recovered.errorMessage?.contains("すでに追跡中") == true)
+            }
+        }
+
+    @Test
+    fun `invalid statuspage id is validation not offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            try {
+                repository.addSourceSubscription(
+                    kind = UserSourceKind.STATUSPAGE,
+                    pageId = "not-a-valid-id",
+                )
+                fail("expected invalid Statuspage ID")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.hasStaleFeed)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(recovered.errorMessage?.contains("page ID") == true)
+            }
+        }
+
+    @Test
+    fun `statuspage without page id or url is validation not offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            try {
+                repository.addSourceSubscription(
+                    kind = UserSourceKind.STATUSPAGE,
+                    url = null,
+                    pageId = null,
+                )
+                fail("expected Statuspage pageId or url")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.hasStaleFeed)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(recovered.errorMessage?.contains("page ID または URL") == true)
+            }
+        }
+
+    @Test
+    fun `rss without url is validation not offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            try {
+                repository.addSourceSubscription(
+                    kind = UserSourceKind.RSS_ATOM,
+                    url = null,
+                )
+                fail("expected url is required")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.hasStaleFeed)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(
+                    recovered.errorMessage?.contains("URLを入力") == true ||
+                        recovered.errorMessage?.contains("url is required") == true ||
+                        recovered.errorMessage?.contains("入力または要求") == true,
+                )
+            }
         }
 
     @Test
