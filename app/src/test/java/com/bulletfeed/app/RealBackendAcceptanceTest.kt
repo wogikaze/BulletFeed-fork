@@ -348,6 +348,11 @@ class RealBackendAcceptanceTest {
             fail("expected production API error type")
         } catch (error: HttpException) {
             assertEquals(404, error.code())
+            val recovered = readyUiState().reduceRootFailure(error)
+            assertFalse(recovered.isOffline)
+            assertTrue(recovered.hasStaleFeed)
+            assertFalse(recovered.sessionExpired)
+            assertTrue(recovered.errorMessage?.contains("削除") == true)
         }
     }
 
@@ -360,9 +365,14 @@ class RealBackendAcceptanceTest {
             deadRepository.getFeedPage(limit = 1)
             fail("expected production network error type")
         } catch (error: IOException) {
-            assertTrue(error::class.simpleName != null)
+            val recovered = readyUiState().reduceRootFailure(error)
+            assertTrue(recovered.isOffline)
+            assertTrue(recovered.hasStaleFeed)
+            assertFalse(recovered.sessionExpired)
         } catch (error: HttpException) {
             assertTrue(error.code() >= 400)
+            val recovered = readyUiState().reduceRootFailure(error)
+            assertFalse(recovered.isOffline)
         }
     }
 
