@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,9 +34,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -116,7 +113,7 @@ fun FeedScreen(
             TopAppBar(
                 title = { AppBarTitle("BulletFeed") },
                 actions = {
-                    IconButton(onClick = onNotificationsClick) {
+                    AccessibleIconButton(onClick = onNotificationsClick) {
                         if (unreadNotificationCount > 0) {
                             BadgedBox(badge = { Badge { Text(unreadNotificationCount.coerceAtMost(99).toString()) } }) {
                                 Icon(Icons.Default.Notifications, contentDescription = "通知を開く")
@@ -154,7 +151,7 @@ fun FeedScreen(
         }
         if (nextCursor != null) {
             item {
-                Button(
+                AccessiblePrimaryButton(
                     onClick = onLoadMore,
                     enabled = !isLoadingMore && !isFiltering,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
@@ -265,11 +262,15 @@ internal fun EmptyFeed(
 ) = Column(
     Modifier
         .fillMaxWidth()
-        .padding(30.dp)
-        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        .padding(30.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
 ) {
-    Text("表示する変化はありません", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+    Text(
+        "表示する変化はありません",
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+    )
     Spacer(Modifier.height(6.dp))
     Text(
         if (filter == FeedFilter.ALL) {
@@ -282,14 +283,14 @@ internal fun EmptyFeed(
     )
     Spacer(Modifier.height(16.dp))
     if (filter != FeedFilter.ALL) {
-        OutlinedButton(onClick = { onFilterChange(FeedFilter.ALL) }, modifier = Modifier.fillMaxWidth()) {
+        AccessibleOutlinedButton(onClick = { onFilterChange(FeedFilter.ALL) }, modifier = Modifier.fillMaxWidth()) {
             Text("すべての変化を見る")
         }
         Spacer(Modifier.height(8.dp))
     }
-    Button(onClick = onTopicsClick, modifier = Modifier.fillMaxWidth()) { Text("テーマを追加する") }
+    AccessiblePrimaryButton(onClick = onTopicsClick, modifier = Modifier.fillMaxWidth()) { Text("テーマを追加する") }
     Spacer(Modifier.height(8.dp))
-    OutlinedButton(onClick = onGithubClick, modifier = Modifier.fillMaxWidth()) { Text("GitHubを連携・設定する") }
+    AccessibleOutlinedButton(onClick = onGithubClick, modifier = Modifier.fillMaxWidth()) { Text("GitHubを連携・設定する") }
 }
 
 @Composable
@@ -306,7 +307,7 @@ internal fun FeedLoadMoreError(message: String) {
 }
 
 @Composable
-private fun EventCard(
+internal fun EventCard(
     event: FeedEvent,
     onClick: (FeedEvent) -> Unit,
     onFeedback: (String, Feedback) -> Unit,
@@ -340,7 +341,7 @@ private fun EventCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(event.announcedAt, modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = Color(0xFF655F69), maxLines = 2)
                 Box {
-                    IconButton(onClick = { menuExpanded = true }) {
+                    AccessibleIconButton(onClick = { menuExpanded = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "Event操作")
                     }
                     DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
