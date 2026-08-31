@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "b1befc9ee4ab04eefe64820ca27332438f8946ce",
+  "repository_sha": "90ebf3380e61eaa5400c275c673ccd8eb1e3e7e8",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -248,6 +248,7 @@
       "artifact": "tests/gold/m6/v01/top3_selection.json",
       "root_cause_artifact": "tests/gold/m6/v01/root_cause_report.json",
       "capacity_artifact": "tests/gold/m6/v01/top3_capacity_diagnosis.json",
+      "oneshot_blind_artifact": "tests/gold/m6/v01/oneshot_blind_aggregate.json",
       "status": "partial",
       "evidence_checks": {
         "top3_selected": true,
@@ -277,6 +278,30 @@
           "javascript_capacity_mix": true
         },
         "note": "Saturated users already fill top-10 with important-unknown. Vacuous IU recall 1.0 for empty IU sets is the existing metric contract."
+      },
+      "oneshot_blind": {
+        "status": "not_scorable",
+        "evidence_checks": {
+          "ran_once": true,
+          "not_retuned": true,
+          "production_code_unchanged": true,
+          "not_human_gold": true,
+          "aggregate_recorded": true,
+          "not_claimed_pass": true
+        },
+        "aggregate_status": "not_scorable",
+        "oneshot": true,
+        "retune": false,
+        "frozen_sha": "b1befc9ee4ab04eefe64820ca27332438f8946ce",
+        "thin_holdout": true,
+        "holdout": {
+          "events": 4,
+          "real_events": 3,
+          "profiles": 15,
+          "judgments": 1,
+          "scored_judgments": 0
+        },
+        "note": "#171 ran once after production freeze. aggregate_status is not_scorable because the reserved holdout is thin (1 judgment, 0 scored). This is not M6 blind PASS. Do not retune or expand the holdout."
       }
     },
     "m7": {
@@ -296,7 +321,7 @@
   "unmet_gate_items": [
     "M1 Android journey and cross-surface breadth for all 30 personas",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-    "M6 one-shot blind aggregate evaluation (#171) after production freeze",
+    "M6 one-shot blind (#171) ran once after freeze; aggregate_status=not_scorable (thin holdout); not PASS",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
   ],
   "field_eval": {
