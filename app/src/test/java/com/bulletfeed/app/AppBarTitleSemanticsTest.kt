@@ -91,5 +91,80 @@ class AppBarTitleSemanticsTest {
         composeRule.onNodeWithTag("section-heading").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )
+        composeRule.onNodeWithTag("settings-knowledge-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+        composeRule.onNodeWithTag("settings-subscriptions-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+        composeRule.onNodeWithTag("settings-recommendations-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
+
+    @Test
+    fun githubConnectionHeadingExposesHeadingSemantics() {
+        composeRule.setContent {
+            MaterialTheme {
+                GithubConnectionScreen(
+                    connection = GithubConnection(connected = false),
+                    repositories = emptyList(),
+                    nextCursor = null,
+                    query = "",
+                    isLoading = false,
+                    isLoadingMore = false,
+                    isSaving = false,
+                    isAuthorizing = false,
+                    errorMessage = null,
+                    onBack = {},
+                    onConnect = {},
+                    onSearch = {},
+                    onLoadMore = {},
+                    onToggleRepository = {},
+                    onSaveRepositories = {},
+                    onImportRepo = {},
+                    onDisconnect = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("github-connection-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
+
+    @Test
+    fun todayPriorityEventMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                TodaySummary(
+                    urgentEvents =
+                        listOf(
+                            FeedEvent(
+                                id = "event-1",
+                                title = "Breaking release",
+                                summary = "Summary",
+                                importance = Importance.HIGH,
+                                importanceReason = "reason",
+                                relation = Relation.DIRECT,
+                                relationReason = "reason",
+                                announcedAt = "2026-08-30T00:00:00Z",
+                                sourceCount = 1,
+                                before = "",
+                                after = "new",
+                                explicitImpact = "impact",
+                                inferredImpact = null,
+                                sources = emptyList(),
+                                timeline = emptyList(),
+                                feedItemId = "feed-1",
+                            ),
+                        ),
+                    directUnreadCount = 1,
+                    onEventClick = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("today-priority-event").assertHeightIsAtLeast(48.dp)
     }
 }

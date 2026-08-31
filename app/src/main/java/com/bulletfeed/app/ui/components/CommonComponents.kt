@@ -238,10 +238,11 @@ internal fun SectionHeading(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.titleLarge,
+    tag: String = "section-heading",
 ) {
     Text(
         text,
-        modifier = modifier.testTag("section-heading").semantics { heading() },
+        modifier = modifier.testTag(tag).semantics { heading() },
         style = style,
         fontWeight = FontWeight.Bold,
     )
