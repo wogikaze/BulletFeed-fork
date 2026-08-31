@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -504,11 +505,16 @@ fun GithubConnectionScreen(
 }
 
 @Composable
-private fun RepositoryChoiceCard(
+internal fun RepositoryChoiceCard(
     repository: GithubRepositoryChoice,
     onToggle: (String) -> Unit,
 ) = Card(
-    modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable { onToggle(repository.id) },
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 6.dp)
+        .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+        .testTag("github-repository-card")
+        .clickable { onToggle(repository.id) },
     shape = RoundedCornerShape(16.dp),
     colors = CardDefaults.cardColors(containerColor = Color.White),
 ) {
