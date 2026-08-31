@@ -55,6 +55,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -278,7 +281,10 @@ private fun EmptyFeed(
     onFilterChange: (FeedFilter) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
-) = Column(Modifier.fillMaxWidth().padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+) = Column(
+    Modifier.fillMaxWidth().padding(30.dp).semantics { liveRegion = LiveRegionMode.Polite },
+    horizontalAlignment = Alignment.CenterHorizontally,
+) {
     Text("表示する変化はありません", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(6.dp))
     Text(

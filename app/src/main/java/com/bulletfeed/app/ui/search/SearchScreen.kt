@@ -31,6 +31,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -80,7 +83,15 @@ fun SearchScreen(
                 Spacer(Modifier.height(4.dp))
             }
             if (results.isEmpty()) {
-                item { Text("一致するイベントはありません。別の言葉で検索してください。", color = Color(0xFF655F69), modifier = Modifier.padding(vertical = 28.dp)) }
+                item {
+                    Text(
+                        "一致するイベントはありません。別の言葉で検索してください。",
+                        color = Color(0xFF655F69),
+                        modifier = Modifier.padding(vertical = 28.dp).semantics {
+                            liveRegion = LiveRegionMode.Polite
+                        },
+                    )
+                }
             } else {
                 items(results, key = { it.id }) { event -> SearchResultCard(event) { onEventClick(event) } }
             }
