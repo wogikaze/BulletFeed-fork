@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -185,11 +187,16 @@ private fun SecurityFilterRow(
 }
 
 @Composable
-private fun VulnerabilityCard(
+internal fun VulnerabilityCard(
     alert: VulnerabilityAlert,
     onClick: () -> Unit,
 ) = Card(
-    modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp).fillMaxWidth().clickable(onClick = onClick),
+    modifier = Modifier
+        .padding(horizontal = 20.dp, vertical = 6.dp)
+        .fillMaxWidth()
+        .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+        .testTag("vulnerability-card")
+        .clickable(onClick = onClick),
     shape = RoundedCornerShape(20.dp),
     colors = CardDefaults.cardColors(containerColor = Color.White),
     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -469,13 +470,17 @@ internal fun OnboardingCustomTopicRow(
 }
 
 @Composable
-private fun GithubChoiceCard(
+internal fun GithubChoiceCard(
     selected: Boolean,
     title: String,
     description: String,
     onClick: () -> Unit,
 ) = Card(
-    modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+    modifier = Modifier
+        .fillMaxWidth()
+        .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+        .testTag("onboarding-github-choice")
+        .clickable(onClick = onClick),
     colors = CardDefaults.cardColors(containerColor = if (selected) Color(0xFFE8F3F1) else Color.White),
     shape = RoundedCornerShape(20.dp),
     border =

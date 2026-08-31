@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -110,11 +111,16 @@ internal fun searchResultMeta(event: FeedEvent): String =
         ?: event.announcedAt
 
 @Composable
-private fun SearchResultCard(
+internal fun SearchResultCard(
     event: FeedEvent,
     onClick: () -> Unit,
 ) = Card(
-    modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp).clickable(onClick = onClick),
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 6.dp)
+        .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+        .testTag("search-result-card")
+        .clickable(onClick = onClick),
     colors = CardDefaults.cardColors(containerColor = Color.White),
     shape = RoundedCornerShape(18.dp),
     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
