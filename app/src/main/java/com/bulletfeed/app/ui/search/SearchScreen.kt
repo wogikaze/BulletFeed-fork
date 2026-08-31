@@ -83,20 +83,23 @@ fun SearchScreen(
                 Spacer(Modifier.height(4.dp))
             }
             if (results.isEmpty()) {
-                item {
-                    Text(
-                        "一致するイベントはありません。別の言葉で検索してください。",
-                        color = Color(0xFF655F69),
-                        modifier = Modifier.padding(vertical = 28.dp).semantics {
-                            liveRegion = LiveRegionMode.Polite
-                        },
-                    )
-                }
+                item { SearchEmptyResults() }
             } else {
                 items(results, key = { it.id }) { event -> SearchResultCard(event) { onEventClick(event) } }
             }
         }
     }
+}
+
+@Composable
+internal fun SearchEmptyResults() {
+    Text(
+        "一致するイベントはありません。別の言葉で検索してください。",
+        color = Color(0xFF655F69),
+        modifier = Modifier.padding(vertical = 28.dp).semantics {
+            liveRegion = LiveRegionMode.Polite
+        },
+    )
 }
 
 internal fun searchResultMeta(event: FeedEvent): String =

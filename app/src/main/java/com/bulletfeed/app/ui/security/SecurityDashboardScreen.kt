@@ -268,9 +268,12 @@ private fun VulnerabilityStatusPill(status: VulnerabilityStatus) {
 }
 
 @Composable
-private fun SecurityEmptyState(filter: SecurityFilter) =
+internal fun SecurityEmptyState(filter: SecurityFilter) =
     Column(
-        modifier = Modifier.fillMaxWidth().padding(40.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(40.dp)
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(Icons.Default.Security, contentDescription = null, tint = Color(0xFF006A67), modifier = Modifier.size(42.dp))

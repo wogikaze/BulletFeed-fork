@@ -493,7 +493,7 @@ private fun SelectedVulnerabilityPane(
 }
 
 @Composable
-private fun OfflineRecoveryBanner(
+internal fun OfflineRecoveryBanner(
     hasStaleFeed: Boolean,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
@@ -501,7 +501,7 @@ private fun OfflineRecoveryBanner(
     modifier = modifier
         .padding(12.dp)
         .fillMaxWidth()
-        .semantics { liveRegion = LiveRegionMode.Polite },
+        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE3B3)),
     shape = RoundedCornerShape(16.dp),
 ) {
@@ -849,9 +849,12 @@ private fun GithubReauthorizationRequiredScreen(
 }
 
 @Composable
-private fun AppErrorScreen(message: String, onRetry: () -> Unit) =
+internal fun AppErrorScreen(message: String, onRetry: () -> Unit) =
     Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp)
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -861,12 +864,12 @@ private fun AppErrorScreen(message: String, onRetry: () -> Unit) =
     }
 
 @Composable
-private fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
+internal fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(32.dp)
-            .semantics { liveRegion = LiveRegionMode.Polite },
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -876,7 +879,7 @@ private fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
     }
 
 @Composable
-private fun DetailErrorScreen(
+internal fun DetailErrorScreen(
     message: String,
     onBack: () -> Unit,
     onRetry: () -> Unit,
@@ -884,7 +887,7 @@ private fun DetailErrorScreen(
     modifier = Modifier
         .fillMaxSize()
         .padding(32.dp)
-        .semantics { liveRegion = LiveRegionMode.Assertive },
+        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
@@ -948,13 +951,13 @@ private fun KnowledgeBootstrapPromptDialog(
 }
 
 @Composable
-private fun TransientErrorBanner(message: String, onDismiss: () -> Unit) =
+internal fun TransientErrorBanner(message: String, onDismiss: () -> Unit) =
     Card(
         modifier = Modifier
             .statusBarsPadding()
             .padding(12.dp)
             .fillMaxWidth()
-            .semantics { liveRegion = LiveRegionMode.Assertive },
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
     ) {
         RowWithDismiss(message, onDismiss)

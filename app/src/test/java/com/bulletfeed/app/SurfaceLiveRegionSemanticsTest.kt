@@ -1,0 +1,94 @@
+package com.bulletfeed.app
+
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
+
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class SurfaceLiveRegionSemanticsTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    @Test
+    fun searchEmptyResultsAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { SearchEmptyResults() }
+
+        composeRule.onNodeWithText("一致するイベントはありません。別の言葉で検索してください。").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
+
+    @Test
+    fun securityEmptyStateAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { SecurityEmptyState(SecurityFilter.ALL) }
+
+        composeRule.onNodeWithText("すべての項目はありません").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
+
+    @Test
+    fun notificationEmptyStateAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { NotificationEmptyState(NotificationFilter.ALL) }
+
+        composeRule.onNodeWithText("通知はありません").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
+
+    @Test
+    fun appErrorAnnouncesAssertiveLiveRegion() {
+        composeRule.setContent { AppErrorScreen("接続を確認してください", onRetry = {}) }
+
+        composeRule.onNodeWithText("読み込みに失敗しました").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+    }
+
+    @Test
+    fun offlineBannerAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { OfflineRecoveryBanner(hasStaleFeed = false, onRetry = {}) }
+
+        composeRule.onNodeWithText("オフラインです").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
+
+    @Test
+    fun detailLoadingAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { DetailLoadingScreen("Alertを読み込み中", onBack = {}) }
+
+        composeRule.onNodeWithText("Alertを読み込み中").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
+
+    @Test
+    fun detailErrorAnnouncesAssertiveLiveRegion() {
+        composeRule.setContent {
+            DetailErrorScreen(message = "Alertを表示できません。", onBack = {}, onRetry = {})
+        }
+
+        composeRule.onNodeWithText("詳細を表示できません").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+    }
+
+    @Test
+    fun transientErrorBannerAnnouncesAssertiveLiveRegion() {
+        composeRule.setContent { TransientErrorBanner("一時的なエラーです", onDismiss = {}) }
+
+        composeRule.onNodeWithText("一時的なエラーです").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+    }
+}
