@@ -322,12 +322,9 @@ private fun ReadyApplication(
     }
     when {
         eventListDetail -> {
-            Row(Modifier.fillMaxSize().testTag("app-list-detail")) {
-                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-list-pane")) {
-                    mainNavigation()
-                }
-                VerticalDivider()
-                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-detail-pane")) {
+            AppListDetailSplit(
+                list = { mainNavigation() },
+                detail = {
                     SelectedEventPane(
                         uiState = uiState,
                         selectedEventId = checkNotNull(selectedEventId),
@@ -335,16 +332,13 @@ private fun ReadyApplication(
                         onClearEvent = onClearEvent,
                         viewModel = viewModel,
                     )
-                }
-            }
+                },
+            )
         }
         vulnerabilityListDetail -> {
-            Row(Modifier.fillMaxSize().testTag("app-list-detail")) {
-                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-list-pane")) {
-                    mainNavigation()
-                }
-                VerticalDivider()
-                Box(Modifier.weight(1f).fillMaxHeight().testTag("app-detail-pane")) {
+            AppListDetailSplit(
+                list = { mainNavigation() },
+                detail = {
                     SelectedVulnerabilityPane(
                         uiState = uiState,
                         selectedVulnerabilityId = checkNotNull(selectedVulnerabilityId),
@@ -589,6 +583,39 @@ private fun MainNavigation(
             onVisibleFeedItems = onVisibleFeedItems,
         )
     }
+    AppChromeShell(
+        chrome = chrome,
+        tab = tab,
+        securityActionCount = uiState.securityActionCount,
+        onTabChange = onTabChange,
+        content = pane,
+    )
+}
+
+@Composable
+internal fun AppListDetailSplit(
+    list: @Composable () -> Unit,
+    detail: @Composable () -> Unit,
+) {
+    Row(Modifier.fillMaxSize().testTag("app-list-detail")) {
+        Box(Modifier.weight(1f).fillMaxHeight().testTag("app-list-pane")) {
+            list()
+        }
+        VerticalDivider()
+        Box(Modifier.weight(1f).fillMaxHeight().testTag("app-detail-pane")) {
+            detail()
+        }
+    }
+}
+
+@Composable
+internal fun AppChromeShell(
+    chrome: AppChromeLayout,
+    tab: AppTab,
+    securityActionCount: Int,
+    onTabChange: (AppTab) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     if (chrome == AppChromeLayout.NAVIGATION_RAIL) {
         Row(Modifier.fillMaxSize()) {
             NavigationRail(
@@ -601,12 +628,12 @@ private fun MainNavigation(
                     NavigationRailItem(
                         selected = tab == item,
                         onClick = { onTabChange(item) },
-                        icon = { AppTabNavIcon(item, uiState.securityActionCount) },
+                        icon = { AppTabNavIcon(item, securityActionCount) },
                         label = { Text(item.label) },
                     )
                 }
             }
-            Scaffold(modifier = Modifier.weight(1f), content = pane)
+            Scaffold(modifier = Modifier.weight(1f), content = content)
         }
     } else {
         Scaffold(
@@ -619,13 +646,13 @@ private fun MainNavigation(
                         NavigationBarItem(
                             selected = tab == item,
                             onClick = { onTabChange(item) },
-                            icon = { AppTabNavIcon(item, uiState.securityActionCount) },
+                            icon = { AppTabNavIcon(item, securityActionCount) },
                             label = { Text(item.label) },
                         )
                     }
                 }
             },
-            content = pane,
+            content = content,
         )
     }
 }
