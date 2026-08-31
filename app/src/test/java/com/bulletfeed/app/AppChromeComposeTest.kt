@@ -2,11 +2,10 @@ package com.bulletfeed.app
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,8 +32,8 @@ class AppChromeComposeTest {
             }
         }
 
-        composeRule.onNodeWithTag("app-chrome-bottom-bar").assertExists()
-        composeRule.onNodeWithTag("app-chrome-navigation-rail").assertDoesNotExist()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -51,8 +50,8 @@ class AppChromeComposeTest {
             }
         }
 
-        composeRule.onNodeWithTag("app-chrome-navigation-rail").assertExists()
-        composeRule.onNodeWithTag("app-chrome-bottom-bar").assertDoesNotExist()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -66,10 +65,10 @@ class AppChromeComposeTest {
             }
         }
 
-        composeRule.onNodeWithTag("app-list-detail").assertExists()
-        composeRule.onNodeWithTag("app-list-pane").assertExists()
-        composeRule.onNodeWithTag("app-detail-pane").assertExists()
-        composeRule.onNodeWithText("list-pane").assertExists()
-        composeRule.onNodeWithText("detail-pane").assertExists()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-list-detail").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithTag("app-list-pane").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithTag("app-detail-pane").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("list-pane").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("detail-pane").fetchSemanticsNodes().size)
     }
 }
