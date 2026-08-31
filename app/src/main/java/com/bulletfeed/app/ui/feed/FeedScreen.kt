@@ -325,7 +325,12 @@ internal fun EventCard(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     Card(
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp).fillMaxWidth().clickable { onClick(event) },
+        modifier = Modifier
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+            .testTag("event-card")
+            .clickable { onClick(event) },
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = if (event.read) Color(0xFFF8F6F4) else Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = if (event.read) 0.dp else 1.dp),

@@ -237,11 +237,12 @@ fun AppBarTitle(
 internal fun SectionHeading(
     text: String,
     modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.titleLarge,
 ) {
     Text(
         text,
         modifier = modifier.testTag("section-heading").semantics { heading() },
-        style = MaterialTheme.typography.titleLarge,
+        style = style,
         fontWeight = FontWeight.Bold,
     )
 }

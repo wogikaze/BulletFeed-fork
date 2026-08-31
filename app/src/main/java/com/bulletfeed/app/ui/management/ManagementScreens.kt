@@ -113,7 +113,7 @@ fun TopicsScreen(
         ) {
             item {
                 Spacer(Modifier.height(12.dp))
-                Text("追跡中のテーマ", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                SectionHeading("追跡中のテーマ", style = MaterialTheme.typography.headlineSmall)
                 Spacer(Modifier.height(6.dp))
                 Text("優先度をタップして切り替え · ${topics.size}/$MAX_TRACKED_TOPICS", color = Color(0xFF655F69))
                 if (topicLimitReached) {
@@ -579,7 +579,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp),
         ) {
-            Text("あなたの情報", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            SectionHeading("あなたの情報", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(16.dp))
             if (!editing) {
                 InfoBlock("職種", profile.role.ifBlank { "未設定" })

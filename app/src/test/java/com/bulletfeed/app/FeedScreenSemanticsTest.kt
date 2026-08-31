@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
@@ -100,6 +101,7 @@ class FeedScreenSemanticsTest {
         }
 
         composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("event-card").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
