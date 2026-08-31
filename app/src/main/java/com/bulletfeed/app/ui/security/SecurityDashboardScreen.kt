@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -178,6 +180,7 @@ private fun SecurityFilterRow(
         FilterChip(
             selected = selected == filter,
             onClick = { onSelect(filter) },
+            modifier = Modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
             label = { Text("${filter.label} $count") },
         )
     }
@@ -203,13 +206,20 @@ private fun VulnerabilityCard(
             }
         }
         Spacer(Modifier.height(11.dp))
-        Text(alert.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        val fontScale = LocalDensity.current.fontScale
+        Text(
+            alert.title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            maxLines = AppReadability.titleMaxLines(fontScale),
+            overflow = TextOverflow.Ellipsis,
+        )
         Text(
             alert.summary,
             modifier = Modifier.padding(top = 6.dp),
             color = Color(0xFF49454F),
             style = MaterialTheme.typography.bodyMedium,
-            maxLines = 2,
+            maxLines = AppReadability.summaryMaxLines(fontScale),
             overflow = TextOverflow.Ellipsis,
         )
         Spacer(Modifier.height(12.dp))
