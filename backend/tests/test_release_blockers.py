@@ -149,6 +149,21 @@ def test_readiness_requires_fresh_worker_heartbeat(
     assert "owner/" not in serialized
 
 
+def test_readiness_rejects_stale_worker_heartbeat(
+    client: TestClient,
+    database: Database,
+) -> None:
+    record_worker_heartbeat(database, now=1, detail="stale")
+    stale = client.get("/health/ready")
+    assert stale.status_code == 503
+    assert "stale" in stale.text.lower()
+
+    record_worker_heartbeat(database, detail="fresh")
+    ready = client.get("/health/ready")
+    assert ready.status_code == 200
+    assert ready.json()["sourceSyncWorker"] == "ok"
+
+
 def test_worker_watch_revocation_requires_github_reauthorization(database: Database) -> None:
     now = int(time.time())
     install_release_lifecycle_guards(database, now=now)
