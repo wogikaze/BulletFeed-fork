@@ -780,9 +780,11 @@ private fun AppTabPane(
 }
 
 @Composable
-private fun AppLoadingScreen() =
+internal fun AppLoadingScreen() =
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -791,15 +793,23 @@ private fun AppLoadingScreen() =
     }
 
 @Composable
-private fun ReauthenticationScreen(
+internal fun ReauthenticationScreen(
     isAuthorizing: Boolean,
     onReauthenticate: () -> Unit,
 ) = Column(
-    modifier = Modifier.fillMaxSize().padding(32.dp),
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(32.dp)
+        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
-    Text("同じアカウントへ再認証", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+    Text(
+        "同じアカウントへ再認証",
+        modifier = Modifier.semantics { heading() },
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+    )
     Text(
         "期限切れの保護データは画面から破棄しました。refresh tokenを回転し、利用できない場合はGitHub identityで既存のBulletFeed userを復旧します。新しい匿名userは作成しません。",
         modifier = Modifier.padding(top = 10.dp),
@@ -816,16 +826,26 @@ private fun ReauthenticationScreen(
 }
 
 @Composable
-private fun GithubAuthorizationRequiredScreen(
+internal fun GithubAuthorizationRequiredScreen(
     isAuthorizing: Boolean,
     errorMessage: String?,
     onAuthorize: () -> Unit,
 ) = Column(
-    modifier = Modifier.fillMaxSize().padding(32.dp),
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(32.dp)
+        .semantics(mergeDescendants = true) {
+            liveRegion = if (errorMessage != null) LiveRegionMode.Assertive else LiveRegionMode.Polite
+        },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
-    Text("GitHub連携を完了", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Text(
+        "GitHub連携を完了",
+        modifier = Modifier.semantics { heading() },
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+    )
     Text(
         "GitHubを使うonboardingは、OAuth成功とrepository選択が完了するまでreadyになりません。",
         modifier = Modifier.padding(top = 10.dp),
@@ -842,18 +862,26 @@ private fun GithubAuthorizationRequiredScreen(
 }
 
 @Composable
-private fun GithubReauthorizationRequiredScreen(
+internal fun GithubReauthorizationRequiredScreen(
     accountLogin: String?,
     isAuthorizing: Boolean,
     showBack: Boolean,
     onBack: () -> Unit,
     onAuthorize: () -> Unit,
 ) = Column(
-    modifier = Modifier.fillMaxSize().padding(32.dp),
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(32.dp)
+        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
-    Text("GitHubの再認証が必要です", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+    Text(
+        "GitHubの再認証が必要です",
+        modifier = Modifier.semantics { heading() },
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+    )
     Text(
         accountLogin?.let {
             "$it のGitHub credentialが失効したか、repository accessが失われました。BulletFeed userは維持したまま再認証します。"
