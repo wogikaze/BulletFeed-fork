@@ -26,8 +26,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -317,12 +315,10 @@ private fun TopicManagementCard(
             Text(topic.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(topic.type.label(), color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
         }
-        AssistChip(
+        AccessibleAssistChip(
+            label = topic.priority.label(),
             onClick = { onPriorityChange(topic.id, topic.priority.next()) },
-            label = { Text(topic.priority.label()) },
-            colors = AssistChipDefaults.assistChipColors(
-                labelColor = topic.priority.chipColor(),
-            ),
+            labelColor = topic.priority.chipColor(),
         )
         TextButton(onClick = { onRemoveTopic(topic.id) }) { Text("削除", color = Color(0xFF8F1D18)) }
     }

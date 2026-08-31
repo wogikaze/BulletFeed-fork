@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -61,6 +63,21 @@ internal fun AccessibleFilterChip(
         modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
         label = { Text(label) },
         leadingIcon = leadingIcon,
+    )
+}
+
+@Composable
+internal fun AccessibleAssistChip(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    labelColor: Color = Color.Unspecified,
+) {
+    AssistChip(
+        onClick = onClick,
+        modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
+        label = { Text(label) },
+        colors = AssistChipDefaults.assistChipColors(labelColor = labelColor),
     )
 }
 

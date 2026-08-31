@@ -24,4 +24,13 @@ class AccessibleFilterChipSemanticsTest {
 
         composeRule.onNodeWithText("すべて 0").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun assistChipMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            AccessibleAssistChip(label = "高", onClick = {})
+        }
+
+        composeRule.onNodeWithText("高").assertHeightIsAtLeast(48.dp)
+    }
 }
