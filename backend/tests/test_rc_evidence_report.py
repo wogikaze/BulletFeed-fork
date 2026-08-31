@@ -14,6 +14,10 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m2"]["evidence_checks"]["blind_isolation"] is True
     assert report["missions"]["m3"]["evidence_checks"]["replay_failures"] is True
     assert report["missions"]["m3"]["live_sample"]["evidence_checks"]["success_rate"] is True
+    assert (
+        report["missions"]["m3"]["observed_failure_remediation"]["decision"]
+        == "remediation_not_required"
+    )
     assert report["missions"]["m4"]["evidence_checks"]["acceptance_gradle"] is True
     assert report["missions"]["m5"]["evidence_checks"]["session_persisted"] is True
     assert report["missions"]["m5"]["host_recovery"]["evidence_checks"]["ready_after_restart"] is True

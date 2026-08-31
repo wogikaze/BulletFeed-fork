@@ -29,6 +29,10 @@ conditional 304、robots disallow、redirect後のsource identity changeを各1�
 一回fetchだけのcorpusでは per-source update rate を推定せず `not_recorded` と明示するが、
 別snapshot pairによる update detection contract は `scenario_counts.update_detection=1` として
 検証する。
+live sampleの`failure_dimensions={}`は「失敗を見落とした」ことではなく、
+`observed_failure_remediation.decision=remediation_not_required` として記録する。観測された
+failureが0件なら#164はそのqualificationに対してclose可能であり、将来の再取得で実failureが
+発生した場合は#283から具体的なremediationへ戻す。
 
 ## runtime verification metadata
 
