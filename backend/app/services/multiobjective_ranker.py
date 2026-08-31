@@ -331,7 +331,7 @@ def candidate_from_gold_item(
         knownness_confidence=knownness_confidence,
         delta_type=record["delta_type"],
         source_type=record["source_type"],
-        updated_at="",
+        updated_at=item.occurred_at or "",
     )
 
 

@@ -113,6 +113,7 @@ def build_personalization_corpus(
                 lexical_traps_for=(),
                 adjacent_products=(),
                 ambiguous_for=(),
+                occurred_at=getattr(event, "occurred_at", None),
             )
         )
         metadata[event.event_id] = _ItemMetadata(

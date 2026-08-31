@@ -132,6 +132,7 @@ class PersonalizationItem:
     lexical_traps_for: tuple[str, ...]
     adjacent_products: tuple[str, ...]
     ambiguous_for: tuple[str, ...]
+    occurred_at: str | None = None
 
 
 @dataclass(frozen=True)

@@ -2,7 +2,7 @@
   "benchmark_version": "ranking-benchmark-v0.1",
   "dataset_version": "personalization-v0.1",
   "label_protocol_version": "personalization-label-v1",
-  "ranking_contract_version": "feed-order-v4",
+  "ranking_contract_version": "feed-order-v5",
   "gold_corpus": "tests/gold/personalization/v01",
   "labels_rewritten": false,
   "observation_history": "fixed synthetic Observation ids derived from gold item_id; no live fetch",
