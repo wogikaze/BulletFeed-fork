@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import Field
 
 from app.schemas.common import (
@@ -9,6 +11,29 @@ from app.schemas.common import (
     Relation,
     SourceEvidence,
 )
+
+DisplayMatchKind = Literal["direct", "adjacent", "inferred", "reference"]
+DisplayDeltaKind = Literal[
+    "new_fact",
+    "additional",
+    "state_update",
+    "correction",
+    "conflict",
+    "duplicate",
+]
+
+
+class DisplayReason(ApiModel):
+    """User-facing card explanation computed from the live ranker/projection inputs."""
+
+    policy_version: str
+    ranking_policy_version: str
+    primary_code: str
+    text: str
+    codes: list[str] = Field(default_factory=list)
+    match_kind: DisplayMatchKind
+    delta_kind: DisplayDeltaKind
+    independent_evidence_count: int = 1
 
 
 class PublicFeedItem(ApiModel):
@@ -24,6 +49,7 @@ class PublicFeedItem(ApiModel):
     delivery_id: str
     sources: list[SourceEvidence] = Field(default_factory=list)
     additional_sources: list[SourceEvidence] = Field(default_factory=list)
+    display_reason: DisplayReason | None = None
 
 
 class FeedPage(ApiModel):
