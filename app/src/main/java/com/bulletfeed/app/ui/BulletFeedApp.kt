@@ -165,7 +165,13 @@ fun BulletFeedApp(
                             recommendedTopics = uiState.topicRecommendations,
                             onIgnoreRecommendation = viewModel::ignoreTopicRecommendation,
                         )
-                        uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
+                        uiState.errorMessage?.let {
+                            TransientErrorBanner(
+                                it,
+                                viewModel::clearError,
+                                modifier = Modifier.align(Alignment.TopCenter),
+                            )
+                        }
                     }
                 uiState.onboardingState == OnboardingState.GITHUB_PENDING ->
                     GithubAuthorizationRequiredScreen(
@@ -428,7 +434,13 @@ private fun ReadyApplication(
             modifier = Modifier.align(Alignment.TopCenter),
         )
     } else {
-        uiState.errorMessage?.let { TransientErrorBanner(it, viewModel::clearError) }
+        uiState.errorMessage?.let {
+            TransientErrorBanner(
+                it,
+                viewModel::clearError,
+                modifier = Modifier.align(Alignment.TopCenter),
+            )
+        }
     }
 }
 
@@ -1019,17 +1031,21 @@ private fun KnowledgeBootstrapPromptDialog(
 }
 
 @Composable
-internal fun TransientErrorBanner(message: String, onDismiss: () -> Unit) =
-    Card(
-        modifier = Modifier
-            .statusBarsPadding()
-            .padding(12.dp)
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
-    ) {
-        RowWithDismiss(message, onDismiss)
-    }
+internal fun TransientErrorBanner(
+    message: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) = Card(
+    modifier = modifier
+        .statusBarsPadding()
+        .padding(12.dp)
+        .fillMaxWidth()
+        .testTag("transient-error-banner")
+        .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Assertive },
+    colors = CardDefaults.cardColors(containerColor = Color(0xFF8F1D18)),
+) {
+    RowWithDismiss(message, onDismiss)
+}
 
 @Composable
 private fun RowWithDismiss(message: String, onDismiss: () -> Unit) {

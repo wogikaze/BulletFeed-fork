@@ -100,4 +100,29 @@ class AppChromeComposeTest {
         assertEquals(1, composeRule.onAllNodesWithText("list-pane").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("detail-pane").fetchSemanticsNodes().size)
     }
+
+    @Test
+    fun listDetailKeepsTransientErrorBannerOverlay() {
+        composeRule.setContent {
+            MaterialTheme {
+                Box(Modifier.fillMaxSize()) {
+                    AppListDetailSplit(
+                        list = { Text("list-pane") },
+                        detail = { Text("detail-pane") },
+                    )
+                    TransientErrorBanner(
+                        message = "一時的なエラーです",
+                        onDismiss = {},
+                        modifier = Modifier.align(Alignment.TopCenter),
+                    )
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-list-detail").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithTag("transient-error-banner").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("一時的なエラーです").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("list-pane").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("detail-pane").fetchSemanticsNodes().size)
+    }
 }
