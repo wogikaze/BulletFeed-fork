@@ -20,6 +20,7 @@ ARTIFACTS = {
     "m2": EVIDENCE_ROOT / "real_world_validation" / "v01" / "m2_readiness_report.json",
     "m3": EVIDENCE_ROOT / "source_qualification" / "v01" / "report.json",
     "m3_live": EVIDENCE_ROOT / "source_qualification" / "v01" / "live_sample_200_report.json",
+    "m3_t1": EVIDENCE_ROOT / "source_qualification" / "v01" / "longitudinal_t1_report.json",
     "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
     "m5": EVIDENCE_ROOT / "recovery" / "v01" / "process_recovery_report.json",
     "m5_host": EVIDENCE_ROOT / "recovery" / "v01" / "host_recovery_report.json",
@@ -147,6 +148,29 @@ def _m3_live_gate(report: dict[str, Any]) -> dict[str, Any]:
         "outcome_counts": report.get("outcome_counts", {}),
         "source_family_counts": report.get("source_family_counts", {}),
         "note": "This is a recorded live sample; deterministic replay remains the CI qualification.",
+    }
+
+
+def _m3_t1_gate(report: dict[str, Any]) -> dict[str, Any]:
+    checks = {
+        "live_collected": report.get("live_collected") is True,
+        "complete_pairs": report.get("pair_count") == 16
+        and report.get("complete_pair_count") == 16,
+        "no_unavailable": report.get("unavailable_count") == 0,
+        "no_observed_failures": report.get("observed_failure_count") == 0,
+        "remediation_not_required": report.get("remediation") == "remediation_not_required",
+        "missing_t1_not_updated": report.get("missing_second_fetch_not_counted_as_update")
+        is True,
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "outcome_counts": report.get("outcome_counts", {}),
+        "by_source_family": report.get("by_source_family", {}),
+        "note": (
+            "Recorded live t1 hashes/headers only; bodies are not stored. "
+            "Ordinary PR CI does not re-fetch live sources."
+        ),
     }
 
 
@@ -297,6 +321,23 @@ def _m7_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _unmet_gate_items(missions: dict[str, Any]) -> list[str]:
+    unmet = [
+        "M1 Android journey and cross-surface breadth for all 30 personas",
+    ]
+    t1 = missions.get("m3", {}).get("longitudinal_t1", {})
+    if t1.get("status") != "partial":
+        unmet.append("M3 longitudinal per-source update evidence (#283)")
+    unmet.extend(
+        [
+            "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
+            "M6 one-shot blind aggregate evaluation (#171) after production freeze",
+            "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
+        ]
+    )
+    return unmet
+
+
 def build_report() -> dict[str, Any]:
     loaded = {name: _load(path) for name, path in ARTIFACTS.items()}
     missions = {
@@ -310,12 +351,14 @@ def build_report() -> dict[str, Any]:
         "m3": {
             "artifact": _relative(ARTIFACTS["m3"]),
             "live_artifact": _relative(ARTIFACTS["m3_live"]),
+            "longitudinal_t1_artifact": _relative(ARTIFACTS["m3_t1"]),
             **_m3_gate(loaded["m3"]),
             "live_sample": _m3_live_gate(loaded["m3_live"]),
             "observed_failure_remediation": _m3_observed_failure_gate(
                 loaded["m3"],
                 loaded["m3_live"],
             ),
+            "longitudinal_t1": _m3_t1_gate(loaded["m3_t1"]),
         },
         "m4": {
             "artifact": _relative(ARTIFACTS["m4_android"]),
@@ -347,13 +390,7 @@ def build_report() -> dict[str, Any]:
         "completion_gate_pass": False,
         "blind_read": False,
         "missions": missions,
-        "unmet_gate_items": [
-            "M1 Android journey and cross-surface breadth for all 30 personas",
-            "M3 longitudinal per-source update evidence (#283)",
-            "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-            "M6 one-shot blind aggregate evaluation (#171) after production freeze",
-            "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
-        ],
+        "unmet_gate_items": _unmet_gate_items(missions),
         "human_only_or_field_validation": [
             "live OAuth and real-user enrollment are excluded from automated clean-room evidence",
             "public HTTPS field validation is not replaced by local fixtures",

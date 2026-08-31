@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "e0fd83588be3869db4943b3d381dcc6c78006d9d",
+  "repository_sha": "fab22aa6e5836ce016d51ad83ed47918e0143ca6",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -82,6 +82,7 @@
     "m3": {
       "artifact": "tests/gold/source_qualification/v01/report.json",
       "live_artifact": "tests/gold/source_qualification/v01/live_sample_200_report.json",
+      "longitudinal_t1_artifact": "tests/gold/source_qualification/v01/longitudinal_t1_report.json",
       "status": "partial",
       "evidence_checks": {
         "live_endpoint_floor": true,
@@ -160,6 +161,46 @@
           "remediation_not_required": true
         },
         "note": "No live failure cluster was observed; #164 is completed as `remediation_not_required`. Any future longitudinal failure belongs to #283 and reopens concrete remediation."
+      },
+      "longitudinal_t1": {
+        "status": "partial",
+        "evidence_checks": {
+          "live_collected": true,
+          "complete_pairs": true,
+          "no_unavailable": true,
+          "no_observed_failures": true,
+          "remediation_not_required": true,
+          "missing_t1_not_updated": true
+        },
+        "outcome_counts": {
+          "unchanged": 11,
+          "updated": 5
+        },
+        "by_source_family": {
+          "github_advisory": {
+            "unchanged": 2
+          },
+          "github_release": {
+            "unchanged": 2
+          },
+          "official_changelog": {
+            "unchanged": 2
+          },
+          "osv": {
+            "updated": 1
+          },
+          "package_registry": {
+            "unchanged": 3
+          },
+          "rss_atom": {
+            "unchanged": 2,
+            "updated": 1
+          },
+          "statuspage": {
+            "updated": 3
+          }
+        },
+        "note": "Recorded live t1 hashes/headers only; bodies are not stored. Ordinary PR CI does not re-fetch live sources."
       }
     },
     "m4": {
@@ -254,7 +295,6 @@
   },
   "unmet_gate_items": [
     "M1 Android journey and cross-surface breadth for all 30 personas",
-    "M3 longitudinal per-source update evidence (#283)",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
     "M6 one-shot blind aggregate evaluation (#171) after production freeze",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
