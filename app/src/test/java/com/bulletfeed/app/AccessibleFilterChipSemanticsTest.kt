@@ -1,17 +1,22 @@
 package com.bulletfeed.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -139,6 +144,26 @@ class AccessibleFilterChipSemanticsTest {
     }
 
     @Test
+    fun largeFontScaleKeepsNotificationsBackTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    NotificationsScreen(
+                        notifications = emptyList(),
+                        onBack = {},
+                        onNotificationClick = {},
+                        onMarkAllRead = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
     fun notificationsMarkAllReadMeetsMinimumTouchTargetHeight() {
         composeRule.setContent {
             MaterialTheme {
@@ -228,7 +253,80 @@ class AccessibleFilterChipSemanticsTest {
             }
         }
 
-        composeRule.onNodeWithText("GitHubで認可する").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-authorize-button").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsGithubAuthorizeTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    GithubConnectionScreen(
+                        connection = GithubConnection(connected = false),
+                        repositories = emptyList(),
+                        nextCursor = null,
+                        query = "",
+                        isLoading = false,
+                        isLoadingMore = false,
+                        isSaving = false,
+                        isAuthorizing = false,
+                        errorMessage = null,
+                        onBack = {},
+                        onConnect = {},
+                        onSearch = {},
+                        onLoadMore = {},
+                        onToggleRepository = {},
+                        onSaveRepositories = {},
+                        onImportRepo = {},
+                        onDisconnect = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("github-authorize-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-import-repo-field").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsGithubSaveAndDisconnectTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    Box(Modifier.requiredSize(width = 400.dp, height = 2000.dp)) {
+                        GithubConnectionScreen(
+                            connection = GithubConnection(connected = true, accountLogin = "octocat"),
+                            repositories = emptyList(),
+                            nextCursor = null,
+                            query = "",
+                            isLoading = false,
+                            isLoadingMore = false,
+                            isSaving = false,
+                            isAuthorizing = false,
+                            errorMessage = null,
+                            onBack = {},
+                            onConnect = {},
+                            onSearch = {},
+                            onLoadMore = {},
+                            onToggleRepository = {},
+                            onSaveRepositories = {},
+                            onImportRepo = {},
+                            onDisconnect = {},
+                        )
+                    }
+                }
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-repo-search-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-save-repositories-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-disconnect-button").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

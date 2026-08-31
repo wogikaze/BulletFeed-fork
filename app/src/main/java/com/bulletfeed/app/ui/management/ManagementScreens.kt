@@ -400,7 +400,7 @@ fun GithubConnectionScreen(
                     AccessiblePrimaryButton(
                         onClick = onConnect,
                         enabled = !isAuthorizing,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().testTag("github-authorize-button"),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF24292F)),
                     ) {
                         if (isAuthorizing) {
@@ -441,7 +441,10 @@ fun GithubConnectionScreen(
                             singleLine = true,
                         )
                         Spacer(Modifier.width(8.dp))
-                        AccessiblePrimaryButton(onClick = { onSearch(searchQuery) }) { Text("検索") }
+                        AccessiblePrimaryButton(
+                            onClick = { onSearch(searchQuery) },
+                            modifier = Modifier.testTag("github-repo-search-button"),
+                        ) { Text("検索") }
                     }
                     Spacer(Modifier.height(10.dp))
                 }
@@ -464,7 +467,7 @@ fun GithubConnectionScreen(
                         AccessibleOutlinedButton(
                             onClick = onLoadMore,
                             enabled = !isLoadingMore,
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("github-load-more-button"),
                         ) {
                             if (isLoadingMore) {
                                 CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
@@ -478,7 +481,7 @@ fun GithubConnectionScreen(
                     AccessiblePrimaryButton(
                         onClick = onSaveRepositories,
                         enabled = !isSaving,
-                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp).testTag("github-save-repositories-button"),
                     ) {
                         if (isSaving) {
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
@@ -494,7 +497,10 @@ fun GithubConnectionScreen(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
-                    AccessibleTextButton(onClick = onDisconnect, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                    AccessibleTextButton(
+                        onClick = onDisconnect,
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("github-disconnect-button"),
+                    ) {
                         Text("GitHub連携を解除", color = Color(0xFF8F1D18))
                     }
                     Spacer(Modifier.height(24.dp))
