@@ -42,6 +42,14 @@ def test_feed_returns_public_items_and_cursor(
     assert first["delta"]["id"]
     assert first["deliveryId"]
     assert "observation" not in first
+    reason = first["displayReason"]
+    assert reason["policyVersion"]
+    assert reason["rankingPolicyVersion"]
+    assert reason["primaryCode"]
+    assert reason["text"]
+    assert reason["codes"]
+    assert reason["matchKind"]
+    assert reason["deltaKind"]
 
     page_two = client.get("/v1/feed", headers=auth_headers, params={"cursor": body["nextCursor"], "limit": 2})
     assert page_two.status_code == 200

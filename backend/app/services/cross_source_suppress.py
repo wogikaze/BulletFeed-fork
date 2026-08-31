@@ -103,6 +103,7 @@ class AdditionalSource:
             published_at=self.published_at,
             retrieved_at=self.retrieved_at,
             evidence=self.evidence,
+            role=self.role,
         )
 
 
