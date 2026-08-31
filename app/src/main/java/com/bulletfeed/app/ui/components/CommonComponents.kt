@@ -21,7 +21,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,6 +93,36 @@ internal fun AccessiblePrimaryButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
+        content = content,
+    )
+}
+
+@Composable
+internal fun AccessibleOutlinedButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
+        content = content,
+    )
+}
+
+@Composable
+internal fun AccessibleTextButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    TextButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
