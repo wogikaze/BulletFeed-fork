@@ -1,0 +1,23 @@
+{
+  "decision_version": "real-renderer-gate-v2",
+  "label_source": "live_qualification",
+  "human_gold": false,
+  "blind_read": false,
+  "live_endpoint_count": 619,
+  "replay_case_count": 3825,
+  "replay_failed_count": 0,
+  "js_render_would_recover_count": 0,
+  "start_real_renderer": false,
+  "close_issue_64": true,
+  "issue_64_remains_open": false,
+  "persistent_primary_need_count": 0,
+  "e2e_js_only_recall_loss": 0.0,
+  "reasons": [
+    "trigger_unmet_after_representative_qualification; defer_and_reopen_on_later_trigger"
+  ],
+  "reopen_when": [
+    ">=5 recurring live primary sources need JS after successful static fetch",
+    "or JS-only misses lower important-unknown recall by >=5 percentage points"
+  ],
+  "browser_not_introduced": true
+}

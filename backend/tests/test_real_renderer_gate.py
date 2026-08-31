@@ -163,6 +163,24 @@ def test_e2e_loss_floor() -> None:
     assert decision.e2e_js_only_recall_loss >= MIN_E2E_RECALL_LOSS
 
 
+def test_representative_qualification_without_js_need_defers_issue_64() -> None:
+    decision = evaluate_real_renderer_gate(
+        (),
+        live_endpoint_count=619,
+        replay_case_count=3825,
+    )
+    assert decision.start_real_renderer is False
+    assert decision.close_issue_64 is True
+    assert decision.issue_64_remains_open is False
+    assert any("defer_and_reopen" in reason for reason in decision.reasons)
+
+
+def test_small_sample_does_not_close_issue_64() -> None:
+    decision = evaluate_real_renderer_gate((), live_endpoint_count=50, replay_case_count=100)
+    assert decision.close_issue_64 is False
+    assert decision.issue_64_remains_open is True
+
+
 def test_in_process_playwright_is_rejected_even_when_floors_pass() -> None:
     gaps = [_gap(f"src-{index}") for index in range(5)]
     decision = evaluate_real_renderer_gate(
