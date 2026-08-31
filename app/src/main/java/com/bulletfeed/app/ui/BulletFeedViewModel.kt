@@ -140,16 +140,7 @@ class BulletFeedViewModel(
         filterFeedJob?.cancel()
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isLoading = true,
-                    sessionExpired = false,
-                    isOffline = false,
-                    hasStaleFeed = false,
-                    errorMessage = null,
-                    feedLoadMoreError = null,
-                )
-            }
+            _uiState.update { it.beginRefresh() }
             try {
                 repository.initialize()
                 val pendingAuthorization = runCatching { repository.pollGithubAuthorization() }.getOrNull()
@@ -1505,6 +1496,16 @@ class BulletFeedViewModel(
         }
     }
 }
+
+internal fun BulletFeedUiState.beginRefresh(): BulletFeedUiState =
+    copy(
+        isLoading = true,
+        sessionExpired = false,
+        isOffline = false,
+        hasStaleFeed = false,
+        errorMessage = null,
+        feedLoadMoreError = null,
+    )
 
 internal fun BulletFeedUiState.reduceRootFailure(error: Throwable): BulletFeedUiState {
     val unauthorized = error.isUnauthorized() || error is SessionRecoveryRequiredException
