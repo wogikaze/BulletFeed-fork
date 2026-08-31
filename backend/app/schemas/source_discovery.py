@@ -43,3 +43,34 @@ class SourceRecommendationList(ApiModel):
 
 class SourceRecommendationDecisionRequest(ApiModel):
     decision: SourceRecommendationDecision = Field(min_length=1)
+
+
+class SiteFeedDiscoverRequest(ApiModel):
+    url: str = Field(min_length=8, max_length=2_048)
+
+
+class SiteFeedDiscoverItem(ApiModel):
+    id: str
+    endpoint_id: str
+    canonical_url: str
+    family: str
+    discovery_method: str
+    discovery_provenance: str
+    title: str
+    preferred: bool
+    evidence_eligible: bool
+    discovery_only: bool
+    actionability: str
+    verification_status: str
+    authority_status: str
+    explanation: str
+    site_url: str
+    publisher: SourceSubscriptionPublisher | None = None
+
+
+class SiteFeedDiscoverResult(ApiModel):
+    version: str
+    site_url: str
+    canonical_site_url: str
+    preferred_family: str | None = None
+    items: list[SiteFeedDiscoverItem]
