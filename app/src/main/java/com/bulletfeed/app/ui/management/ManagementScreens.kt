@@ -132,7 +132,7 @@ fun TopicsScreen(
             }
             if (orderedTopics.isEmpty()) {
                 item {
-                    Text("追跡テーマはまだありません。候補検索か自由入力から追加してください。", color = Color(0xFF655F69))
+                    PoliteEmptyStatus("追跡テーマはまだありません。候補検索か自由入力から追加してください。")
                 }
             } else {
                 items(orderedTopics, key = { it.id }) { topic ->
@@ -162,7 +162,7 @@ fun TopicsScreen(
                     style = MaterialTheme.typography.bodySmall,
                 )
                 if (recommendedTopics.isEmpty()) {
-                    Text("いま出せる推薦はありません。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 8.dp))
+                    PoliteEmptyStatus("いま出せる推薦はありません。", modifier = Modifier.padding(top = 8.dp))
                 }
             }
             items(recommendedTopics, key = { "rec-${it.id}" }) { item ->
@@ -455,7 +455,7 @@ fun GithubConnectionScreen(
                         }
                     }
                 } else if (repositories.isEmpty()) {
-                    item { Text("該当するrepositoryはありません。", modifier = Modifier.padding(vertical = 24.dp), color = Color(0xFF655F69)) }
+                    item { PoliteEmptyStatus("該当するrepositoryはありません。", modifier = Modifier.padding(vertical = 24.dp)) }
                 } else {
                     items(repositories, key = { it.id }) { repository ->
                         RepositoryChoiceCard(repository, onToggleRepository)
@@ -694,7 +694,7 @@ private fun KnowledgeBootstrapSection(
     InfoBlock("推定（非表示には未使用）", "${summary.inferredFactCount} 件")
     Spacer(Modifier.height(12.dp))
     if (summary.checkpoints.isEmpty()) {
-        Text("まだ checkpoint はありません。Event 詳細または初回フォローで登録できます。", color = Color(0xFF655F69))
+        PoliteEmptyStatus("まだ checkpoint はありません。Event 詳細または初回フォローで登録できます。")
     } else {
         summary.checkpoints.forEach { item ->
             Card(
@@ -754,7 +754,7 @@ private fun SourceSubscriptionsSection(
     )
     Spacer(Modifier.height(12.dp))
     if (subscriptions.isEmpty()) {
-        Text("まだ購読はありません。", color = Color(0xFF655F69))
+        PoliteEmptyStatus("まだ購読はありません。")
     } else {
         subscriptions.forEach { item ->
             Card(
@@ -848,7 +848,7 @@ private fun SourceRecommendationsSection(
     )
     Spacer(Modifier.height(12.dp))
     if (recommendations.isEmpty()) {
-        Text("いま表示できる候補はありません。テーマを追加すると候補が増えます。", color = Color(0xFF655F69))
+        PoliteEmptyStatus("いま表示できる候補はありません。テーマを追加すると候補が増えます。")
         return
     }
     recommendations.forEach { item ->
