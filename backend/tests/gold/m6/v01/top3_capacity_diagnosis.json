@@ -1,0 +1,287 @@
+{
+  "report_version": "m6-top3-capacity-diagnosis-v1",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": false,
+  "k": 10,
+  "ranking_policy_version": "multiobjective-ranker-v2",
+  "repository_sha": null,
+  "persona_families": {
+    "package_release_manager": {
+      "profile_count": 4,
+      "vacuous_perfect_recall_profiles": 0,
+      "k10_saturated_profiles": 4,
+      "mean_important_unknown_recall_at_10": 0.036824,
+      "profiles": [
+        {
+          "user_id": "prf_m2_p_package_release_manager_00",
+          "cohort": "cold_start",
+          "judgment_count": 311,
+          "important_unknown_count": 311,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.03215434083601286,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 10
+          }
+        },
+        {
+          "user_id": "prf_m2_p_package_release_manager_01",
+          "cohort": "cold_start",
+          "judgment_count": 311,
+          "important_unknown_count": 311,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.03215434083601286,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 10
+          }
+        },
+        {
+          "user_id": "prf_m2_d_package_release_manager_02",
+          "cohort": "history_rich",
+          "judgment_count": 250,
+          "important_unknown_count": 241,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.04149377593360996,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 10
+          }
+        },
+        {
+          "user_id": "prf_m2_d_package_release_manager_03",
+          "cohort": "history_rich",
+          "judgment_count": 248,
+          "important_unknown_count": 241,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.04149377593360996,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 10
+          }
+        }
+      ]
+    },
+    "rust_compiler_contributor": {
+      "profile_count": 8,
+      "vacuous_perfect_recall_profiles": 0,
+      "k10_saturated_profiles": 4,
+      "mean_important_unknown_recall_at_10": 0.535971,
+      "profiles": [
+        {
+          "user_id": "prf_rw_p08",
+          "cohort": "cold_start",
+          "judgment_count": 1,
+          "important_unknown_count": 1,
+          "top10_important_unknown": 1,
+          "top10_useful": 1,
+          "precision_at_10": 0.1,
+          "important_unknown_recall_at_10": 1.0,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": false,
+          "top10_relation": {
+            "adjacent": 1
+          }
+        },
+        {
+          "user_id": "prf_rw_p16",
+          "cohort": "cold_start",
+          "judgment_count": 1,
+          "important_unknown_count": 1,
+          "top10_important_unknown": 1,
+          "top10_useful": 1,
+          "precision_at_10": 0.1,
+          "important_unknown_recall_at_10": 1.0,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": false,
+          "top10_relation": {
+            "adjacent": 1
+          }
+        },
+        {
+          "user_id": "prf_m2_p_rust_compiler_contributor_00",
+          "cohort": "cold_start",
+          "judgment_count": 1,
+          "important_unknown_count": 1,
+          "top10_important_unknown": 1,
+          "top10_useful": 1,
+          "precision_at_10": 0.1,
+          "important_unknown_recall_at_10": 1.0,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": false,
+          "top10_relation": {
+            "adjacent": 1
+          }
+        },
+        {
+          "user_id": "prf_m2_p_rust_compiler_contributor_01",
+          "cohort": "cold_start",
+          "judgment_count": 1,
+          "important_unknown_count": 1,
+          "top10_important_unknown": 1,
+          "top10_useful": 1,
+          "precision_at_10": 0.1,
+          "important_unknown_recall_at_10": 1.0,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": false,
+          "top10_relation": {
+            "adjacent": 1
+          }
+        },
+        {
+          "user_id": "prf_rw_d24",
+          "cohort": "cold_start",
+          "judgment_count": 152,
+          "important_unknown_count": 139,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.07194244604316546,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 10
+          }
+        },
+        {
+          "user_id": "prf_rw_d32",
+          "cohort": "history_rich",
+          "judgment_count": 156,
+          "important_unknown_count": 139,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.07194244604316546,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 10
+          }
+        },
+        {
+          "user_id": "prf_m2_d_rust_compiler_contributor_02",
+          "cohort": "history_rich",
+          "judgment_count": 143,
+          "important_unknown_count": 139,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.07194244604316546,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 6,
+            "direct": 4
+          }
+        },
+        {
+          "user_id": "prf_m2_d_rust_compiler_contributor_03",
+          "cohort": "history_rich",
+          "judgment_count": 146,
+          "important_unknown_count": 139,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.07194244604316546,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 6,
+            "direct": 4
+          }
+        }
+      ]
+    },
+    "javascript_tooling_maintainer": {
+      "profile_count": 4,
+      "vacuous_perfect_recall_profiles": 2,
+      "k10_saturated_profiles": 2,
+      "mean_important_unknown_recall_at_10": 0.522727,
+      "profiles": [
+        {
+          "user_id": "prf_m2_p_javascript_tooling_maintainer_00",
+          "cohort": "cold_start",
+          "judgment_count": 220,
+          "important_unknown_count": 220,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.045454545454545456,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 4,
+            "direct": 6
+          }
+        },
+        {
+          "user_id": "prf_m2_p_javascript_tooling_maintainer_01",
+          "cohort": "cold_start",
+          "judgment_count": 220,
+          "important_unknown_count": 220,
+          "top10_important_unknown": 10,
+          "top10_useful": 10,
+          "precision_at_10": 1.0,
+          "important_unknown_recall_at_10": 0.045454545454545456,
+          "vacuous_perfect_recall": false,
+          "k10_saturated": true,
+          "top10_relation": {
+            "adjacent": 4,
+            "direct": 6
+          }
+        },
+        {
+          "user_id": "prf_m2_d_javascript_tooling_maintainer_02",
+          "cohort": "history_rich",
+          "judgment_count": 12,
+          "important_unknown_count": 0,
+          "top10_important_unknown": 0,
+          "top10_useful": 0,
+          "precision_at_10": 0.0,
+          "important_unknown_recall_at_10": 1.0,
+          "vacuous_perfect_recall": true,
+          "k10_saturated": false,
+          "top10_relation": {
+            "reference": 10
+          }
+        },
+        {
+          "user_id": "prf_m2_d_javascript_tooling_maintainer_03",
+          "cohort": "history_rich",
+          "judgment_count": 19,
+          "important_unknown_count": 0,
+          "top10_important_unknown": 0,
+          "top10_useful": 0,
+          "precision_at_10": 0.0,
+          "important_unknown_recall_at_10": 1.0,
+          "vacuous_perfect_recall": true,
+          "k10_saturated": false,
+          "top10_relation": {
+            "reference": 10
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    "IU recall for a user with zero important-unknown judgments is 1.0 (existing metric contract).",
+    "Users with P@10=1.0 and IU count >> k are saturated at k=10; ranking order cannot raise IU@10.",
+    "javascript family mean mixes saturated pilot users with vacuous-perfect dev users.",
+    "Identity, recency, and production occupancy did not move Top-3 family IU@10.",
+    "Do not run #171 to chase Top-3 family IU@10.",
+    "Do not revert rank_user_items to hide headline movement."
+  ]
+}
