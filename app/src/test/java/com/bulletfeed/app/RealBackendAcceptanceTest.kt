@@ -397,11 +397,7 @@ class RealBackendAcceptanceTest {
                 assertFalse(recovered.isOffline)
                 assertTrue(recovered.hasStaleFeed)
                 assertFalse(recovered.sessionExpired)
-                assertTrue(
-                    recovered.errorMessage?.contains("URLを入力") == true ||
-                        recovered.errorMessage?.contains("url is required") == true ||
-                        recovered.errorMessage?.contains("入力または要求") == true,
-                )
+                assertTrue(recovered.errorMessage?.contains("URLを入力") == true)
             }
         }
 
