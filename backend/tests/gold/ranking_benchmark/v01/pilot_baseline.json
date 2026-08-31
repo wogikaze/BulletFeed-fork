@@ -113,7 +113,7 @@
   "dataset_version": "personalization-v0.1",
   "label_source": "personalization-v0.1",
   "labels_rewritten": false,
-  "ranking_contract_version": "feed-order-v4",
+  "ranking_contract_version": "feed-order-v5",
   "snapshot": {
     "benchmark_version": "ranking-benchmark-v0.1",
     "cold_start_policy_version": "cold-start-v1",
@@ -155,7 +155,7 @@
       "obs:pgold-p-i-15",
       "obs:pgold-p-i-16"
     ],
-    "ranking_contract_version": "feed-order-v4",
+    "ranking_contract_version": "feed-order-v5",
     "relation_feature_version": "relation-features-v02",
     "split": "pilot",
     "user_ids": [

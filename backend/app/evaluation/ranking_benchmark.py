@@ -29,12 +29,12 @@ from app.services.relation import RELATION_FEATURE_VERSION, evaluate_relation_fr
 from app.services.user_interest import semantic_match, state_from_personalization_user
 
 BENCHMARK_VERSION = "ranking-benchmark-v0.1"
-RANKING_CONTRACT_VERSION = "feed-order-v4"
+RANKING_CONTRACT_VERSION = "feed-order-v5"
 LABEL_SOURCE = "personalization-v0.1"
 IMPORTANT_MIN = 2
 
-# FeedStore ORDER BY knownness_rank DESC, importance_rank DESC, relation_rank DESC,
-# personalization_rank DESC. Short-session users have no knowledge evidence.
+# Production ranker last keys are updated_at then item_id. Evaluation uses
+# source-grounded occurred_at when present and never invents a timestamp.
 _IMPORTANCE_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1}
 _RELATION_RANK = {"direct": 3, "adjacent": 2, "reference": 1}
 UNKNOWN_KNOWNNESS_RANK = 2
@@ -71,6 +71,7 @@ class AxisScores:
     interest_score: float
     importance_level: str
     relation_level: str
+    occurred_at: str
 
 
 @dataclass(frozen=True)
@@ -207,16 +208,18 @@ def score_item_axes(user: PersonalizationUser, item: PersonalizationItem, state)
         interest_score=interest.score,
         importance_level=importance.level,
         relation_level=relation.level,
+        occurred_at=item.occurred_at or "",
     )
 
 
-def feed_sort_key(axis: AxisScores) -> tuple[int, int, int, int, str]:
-    """Same axis order as FeedStore v4. Gold item_id is the stable tie-break."""
+def feed_sort_key(axis: AxisScores) -> tuple[int, int, int, int, str, str]:
+    """Match production ranker recency before the stable item_id tie-break."""
     return (
         axis.knownness_rank,
         axis.importance_rank,
         axis.relation_rank,
         axis.personalization_rank,
+        axis.occurred_at,
         axis.item_id,
     )
 
