@@ -159,6 +159,35 @@ class MockMeStore(
 
     override suspend fun discoverSiteFeeds(url: String): SiteFeedDiscoverResult {
         val site = url.trim().ifBlank { "https://notes.example.com/" }
+        val host = site.substringAfter("://").substringBefore("/").lowercase()
+        if (host == "plain.example.com") {
+            return SiteFeedDiscoverResult(
+                version = "site-feed-discover-v1",
+                siteUrl = site,
+                canonicalSiteUrl = site,
+                preferredFamily = "generic_web",
+                items =
+                    listOf(
+                        SiteFeedDiscoverItem(
+                            id = "discover_web",
+                            endpointId = "ep_discover_web",
+                            canonicalUrl = site,
+                            family = "generic_web",
+                            discoveryMethod = "site_url_fallback",
+                            discoveryProvenance = "website_feed",
+                            title = "Page watch",
+                            preferred = true,
+                            evidenceEligible = false,
+                            discoveryOnly = true,
+                            actionability = SourceActionability.SUBSCRIBE,
+                            verificationStatus = "unverified",
+                            authorityStatus = "unknown",
+                            explanation = "No feed was found; generic web watch only.",
+                            siteUrl = site,
+                        ),
+                    ),
+            )
+        }
         val feedUrl = site.trimEnd('/') + "/feed.xml"
         return SiteFeedDiscoverResult(
             version = "site-feed-discover-v1",

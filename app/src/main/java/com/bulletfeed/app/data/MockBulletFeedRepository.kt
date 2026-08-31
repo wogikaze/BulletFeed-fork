@@ -8,6 +8,7 @@ class MockBulletFeedRepository(
     private val eventStore: MockEventStore = MockEventStore(state),
     private val meStore: MockMeStore = MockMeStore(state),
     private val integrationStore: MockIntegrationStore = MockIntegrationStore(state),
+    private val discoverSiteFeedsOverride: (suspend (String) -> SiteFeedDiscoverResult)? = null,
 ) : BulletFeedRepository,
     FeedRepository by feedStore,
     EventRepository by eventStore,
@@ -75,6 +76,9 @@ class MockBulletFeedRepository(
     override suspend fun markAllNotificationsRead(): List<AppNotification> = integrationStore.markAllNotificationsRead()
 
     override suspend fun setGithubConnected(connected: Boolean): Boolean = integrationStore.setGithubConnected(connected)
+
+    override suspend fun discoverSiteFeeds(url: String): SiteFeedDiscoverResult =
+        discoverSiteFeedsOverride?.invoke(url) ?: meStore.discoverSiteFeeds(url)
 
     private suspend fun simulateNetworkDelay() {
         delay(250)

@@ -570,6 +570,10 @@ fun SettingsScreen(
     subscriptionError: String? = null,
     onAddSubscription: (UserSourceKind, String, String) -> Unit = { _, _, _ -> },
     onRemoveSubscription: (String) -> Unit = {},
+    siteFeedDiscoverResult: SiteFeedDiscoverResult? = null,
+    isDiscoveringSiteFeeds: Boolean = false,
+    siteFeedDiscoverError: String? = null,
+    onDiscoverSiteFeeds: (String) -> Unit = {},
     knowledgeBootstrap: KnowledgeBootstrapSummary = KnowledgeBootstrapSummary(
         version = "",
         explicitKnownFactCount = 0,
@@ -654,6 +658,15 @@ fun SettingsScreen(
                     Text("キャンセル")
                 }
             }
+            Spacer(Modifier.height(28.dp))
+            SiteFeedDiscoverSection(
+                result = siteFeedDiscoverResult,
+                isDiscovering = isDiscoveringSiteFeeds,
+                errorMessage = siteFeedDiscoverError,
+                isSavingSubscription = isSavingSubscription,
+                onDiscover = onDiscoverSiteFeeds,
+                onSubscribe = onAddSubscription,
+            )
             Spacer(Modifier.height(28.dp))
             SourceSubscriptionsSection(
                 subscriptions = subscriptions,
@@ -744,6 +757,144 @@ private fun KnowledgeBootstrapSection(
         Text(if (isSaving) "リセット中" else "bootstrap だけをリセット")
     }
 }
+
+@Composable
+private fun SiteFeedDiscoverSection(
+    result: SiteFeedDiscoverResult?,
+    isDiscovering: Boolean,
+    errorMessage: String?,
+    isSavingSubscription: Boolean,
+    onDiscover: (String) -> Unit,
+    onSubscribe: (UserSourceKind, String, String) -> Unit,
+) {
+    var siteUrl by rememberSaveable { mutableStateOf("") }
+    SectionHeading(
+        "サイトからフィードを探す",
+        style = MaterialTheme.typography.headlineSmall,
+        tag = "settings-site-feed-discover-heading",
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "ブログや公式サイトのトップURLだけを入れると、RSS / Atom / JSON Feed の候補を探します。発見しただけでは購読にも証拠にもなりません。",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color(0xFF655F69),
+    )
+    AccessibleOutlinedTextField(
+        value = siteUrl,
+        onValueChange = { siteUrl = it },
+        label = { Text("サイト URL") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp)
+            .testTag("site-feed-discover-url"),
+        singleLine = true,
+    )
+    if (errorMessage != null) {
+        SourceSubscriptionErrorStatus(errorMessage)
+    }
+    AccessiblePrimaryButton(
+        onClick = { onDiscover(siteUrl.trim()) },
+        enabled = !isDiscovering && siteUrl.isNotBlank(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
+            .testTag("site-feed-discover-button"),
+    ) {
+        if (isDiscovering) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(if (isDiscovering) "探しています" else "フィードを探す")
+    }
+    when {
+        result == null -> Unit
+        result.items.isEmpty() -> {
+            Spacer(Modifier.height(12.dp))
+            PoliteEmptyStatus("このサイトから購読できるフィードは見つかりませんでした。下の Web として追加できます。")
+        }
+        else -> {
+            if (result.preferredFamily == "generic_web" || result.items.all { it.family == "generic_web" }) {
+                Spacer(Modifier.height(12.dp))
+                PoliteEmptyStatus("RSS / Atom / JSON Feed は見つかりませんでした。ページ監視の候補だけを表示しています。")
+            }
+            result.items.forEach { item ->
+                SiteFeedDiscoverCandidateCard(
+                    item = item,
+                    enabled = !isDiscovering && !isSavingSubscription,
+                    onSubscribe = onSubscribe,
+                )
+                Spacer(Modifier.height(10.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SiteFeedDiscoverCandidateCard(
+    item: SiteFeedDiscoverItem,
+    enabled: Boolean,
+    onSubscribe: (UserSourceKind, String, String) -> Unit,
+) {
+    val kind = item.subscriptionKindOrNull()
+    val canSubscribe = item.actionability == SourceActionability.SUBSCRIBE
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6EFEB)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(if (item.preferred) "site-feed-discover-preferred" else "site-feed-discover-item"),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                item.title.ifBlank { item.canonicalUrl },
+                fontWeight = FontWeight.Bold,
+            )
+            Text(item.canonicalUrl, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+            Text("種類: ${item.familyLabel()}")
+            if (item.preferred) {
+                Text("優先候補", fontWeight = FontWeight.Medium)
+            }
+            if (item.discoveryOnly) {
+                Text("発見のみ。購読するまで証拠には使いません。")
+            }
+            if (!item.evidenceEligible) {
+                Text("証拠には未使用", style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+            }
+            if (item.explanation.isNotBlank()) {
+                Text(item.explanation, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+            }
+            if (kind != null && canSubscribe) {
+                AccessiblePrimaryButton(
+                    onClick = { onSubscribe(kind, item.canonicalUrl, "") },
+                    enabled = enabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .testTag("site-feed-discover-subscribe"),
+                ) {
+                    Text(if (kind == UserSourceKind.GENERIC_WEB) "Webとして追加" else "このフィードを購読")
+                }
+            }
+        }
+    }
+}
+
+internal fun SiteFeedDiscoverItem.subscriptionKindOrNull(): UserSourceKind? =
+    when (family) {
+        "rss_atom" -> UserSourceKind.RSS_ATOM
+        "json_feed" -> UserSourceKind.JSON_FEED
+        "generic_web" -> UserSourceKind.GENERIC_WEB
+        "statuspage" -> UserSourceKind.STATUSPAGE
+        else -> null
+    }
+
+private fun SiteFeedDiscoverItem.familyLabel(): String =
+    when (family) {
+        "rss_atom" -> "RSS / Atom"
+        "json_feed" -> "JSON Feed"
+        "statuspage" -> "Statuspage"
+        "generic_web" -> "Web"
+        else -> family
+    }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

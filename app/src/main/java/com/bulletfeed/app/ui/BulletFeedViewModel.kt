@@ -70,6 +70,9 @@ data class BulletFeedUiState(
     val sourceSubscriptions: List<SourceSubscription> = emptyList(),
     val isSavingSourceSubscription: Boolean = false,
     val sourceSubscriptionError: String? = null,
+    val siteFeedDiscoverResult: SiteFeedDiscoverResult? = null,
+    val isDiscoveringSiteFeeds: Boolean = false,
+    val siteFeedDiscoverError: String? = null,
     val knowledgeBootstrap: KnowledgeBootstrapSummary = KnowledgeBootstrapSummary(
         version = "",
         explicitKnownFactCount = 0,
@@ -1065,6 +1068,46 @@ class BulletFeedViewModel(
                         it.copy(
                             decidingRecommendationId = null,
                             errorMessage = error.toUserMessage(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun discoverSiteFeeds(url: String) {
+        val trimmed = url.trim()
+        if (_uiState.value.isDiscoveringSiteFeeds) return
+        if (trimmed.isEmpty()) {
+            _uiState.update {
+                it.copy(
+                    siteFeedDiscoverError = "URLを入力してください。",
+                    isDiscoveringSiteFeeds = false,
+                )
+            }
+            return
+        }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isDiscoveringSiteFeeds = true, siteFeedDiscoverError = null) }
+            try {
+                val discovered = repository.discoverSiteFeeds(trimmed)
+                _uiState.update {
+                    it.copy(
+                        isDiscoveringSiteFeeds = false,
+                        siteFeedDiscoverResult = discovered,
+                        siteFeedDiscoverError = null,
+                    )
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                if (error.isUnauthorized()) {
+                    handleRootFailure(error)
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isDiscoveringSiteFeeds = false,
+                            siteFeedDiscoverError = error.toUserMessage(),
                         )
                     }
                 }
