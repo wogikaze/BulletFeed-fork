@@ -1,5 +1,8 @@
 package com.bulletfeed.app
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -7,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -74,5 +78,42 @@ class SessionRecoverySemanticsTest {
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
         composeRule.onNodeWithText("GitHubで認可する").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsReauthenticationButtonTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    ReauthenticationScreen(isAuthorizing = false, onReauthenticate = {})
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("アカウントを復旧").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsGithubReauthorizationButtonTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    GithubReauthorizationRequiredScreen(
+                        accountLogin = "octocat",
+                        isAuthorizing = false,
+                        showBack = true,
+                        onBack = {},
+                        onAuthorize = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("GitHubを再認証").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
     }
 }
