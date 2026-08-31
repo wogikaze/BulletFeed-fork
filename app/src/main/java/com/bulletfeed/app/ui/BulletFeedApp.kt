@@ -377,39 +377,44 @@ private fun ReadyApplication(
             },
             onMarkAllRead = viewModel::markAllNotificationsRead,
         )
-        AppReadyPane.GITHUB if uiState.githubReauthorizationRequired -> GithubReauthorizationRequiredScreen(
-            accountLogin = uiState.githubConnection.accountLogin,
-            isAuthorizing = uiState.isGithubAuthorizing,
-            showBack = true,
-            onBack = {
-                onGithubSetupChange(false)
-                viewModel.refresh()
-            },
-            onAuthorize = viewModel::connectGithub,
-        )
-        AppReadyPane.GITHUB -> GithubConnectionScreen(
-            connection = uiState.githubConnection,
-            repositories = uiState.githubRepositories,
-            nextCursor = uiState.githubNextCursor,
-            query = uiState.githubQuery,
-            isLoading = uiState.isGithubRepositoriesLoading,
-            isLoadingMore = uiState.isGithubLoadingMore,
-            isSaving = uiState.isGithubSaving,
-            isAuthorizing = uiState.isGithubAuthorizing,
-            errorMessage = uiState.githubRepositoryError,
-            topicSyncMessage = uiState.githubTopicSyncMessage,
-            onBack = {
-                onGithubSetupChange(false)
-                viewModel.refresh()
-            },
-            onConnect = viewModel::connectGithub,
-            onSearch = { viewModel.loadGithubRepositories(query = it) },
-            onLoadMore = viewModel::loadMoreGithubRepositories,
-            onToggleRepository = viewModel::toggleGithubRepository,
-            onSaveRepositories = viewModel::saveGithubRepositories,
-            onImportRepo = viewModel::importFromPublicRepo,
-            onDisconnect = viewModel::disconnectGithub,
-        )
+        AppReadyPane.GITHUB -> {
+            if (uiState.githubReauthorizationRequired) {
+                GithubReauthorizationRequiredScreen(
+                    accountLogin = uiState.githubConnection.accountLogin,
+                    isAuthorizing = uiState.isGithubAuthorizing,
+                    showBack = true,
+                    onBack = {
+                        onGithubSetupChange(false)
+                        viewModel.refresh()
+                    },
+                    onAuthorize = viewModel::connectGithub,
+                )
+            } else {
+                GithubConnectionScreen(
+                    connection = uiState.githubConnection,
+                    repositories = uiState.githubRepositories,
+                    nextCursor = uiState.githubNextCursor,
+                    query = uiState.githubQuery,
+                    isLoading = uiState.isGithubRepositoriesLoading,
+                    isLoadingMore = uiState.isGithubLoadingMore,
+                    isSaving = uiState.isGithubSaving,
+                    isAuthorizing = uiState.isGithubAuthorizing,
+                    errorMessage = uiState.githubRepositoryError,
+                    topicSyncMessage = uiState.githubTopicSyncMessage,
+                    onBack = {
+                        onGithubSetupChange(false)
+                        viewModel.refresh()
+                    },
+                    onConnect = viewModel::connectGithub,
+                    onSearch = { viewModel.loadGithubRepositories(query = it) },
+                    onLoadMore = viewModel::loadMoreGithubRepositories,
+                    onToggleRepository = viewModel::toggleGithubRepository,
+                    onSaveRepositories = viewModel::saveGithubRepositories,
+                    onImportRepo = viewModel::importFromPublicRepo,
+                    onDisconnect = viewModel::disconnectGithub,
+                )
+            }
+        }
         AppReadyPane.MAIN -> mainNavigation()
     }
     uiState.knowledgeBootstrapPrompt?.let { prompt ->
