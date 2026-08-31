@@ -39,12 +39,21 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m6"]["capacity_diagnosis"]["evidence_checks"][
         "package_saturated"
     ] is True
+    oneshot = report["missions"]["m6"]["oneshot_blind"]
+    assert oneshot["evidence_checks"]["ran_once"] is True
+    assert oneshot["evidence_checks"]["not_retuned"] is True
+    assert oneshot["evidence_checks"]["not_claimed_pass"] is True
+    assert oneshot["aggregate_status"] == "not_scorable"
+    assert oneshot["status"] == "not_scorable"
+    assert oneshot["thin_holdout"] is True
     assert "M5 long-running snapshot" not in " ".join(report["unmet_gate_items"])
     assert "M3 longitudinal" not in " ".join(report["unmet_gate_items"])
     assert report["missions"]["m3"]["longitudinal_t1"]["evidence_checks"][
         "live_collected"
     ] is True
     assert any("#171" in item for item in report["unmet_gate_items"])
+    assert any("not_scorable" in item for item in report["unmet_gate_items"])
+    assert any("not PASS" in item for item in report["unmet_gate_items"])
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True
     assert any("GitHub OAuth" in item for item in report["human_only_or_field_validation"])
     assert any("#327" in item for item in report["human_only_or_field_validation"])

@@ -29,6 +29,7 @@ ARTIFACTS = {
     "m6": EVIDENCE_ROOT / "m6" / "v01" / "top3_selection.json",
     "m6_root_cause": EVIDENCE_ROOT / "m6" / "v01" / "root_cause_report.json",
     "m6_capacity": EVIDENCE_ROOT / "m6" / "v01" / "top3_capacity_diagnosis.json",
+    "m6_oneshot_blind": EVIDENCE_ROOT / "m6" / "v01" / "oneshot_blind_aggregate.json",
     "m7_backend": EVIDENCE_ROOT / "clean_room" / "v01" / "backend_report.json",
 }
 
@@ -329,6 +330,56 @@ def _m6_capacity_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m6_oneshot_blind_gate(report: dict[str, Any]) -> dict[str, Any]:
+    holdout = report.get("holdout") or {}
+    aggregate_status = report.get("aggregate_status")
+    ran_once = (
+        report.get("status") == "oneshot_blind_recorded"
+        and report.get("oneshot") is True
+        and report.get("retune") is False
+    )
+    thin_holdout = (
+        int(holdout.get("judgments") or 0) <= 1
+        or int(holdout.get("scored_judgments") or 0) == 0
+    )
+    checks = {
+        "ran_once": ran_once,
+        "not_retuned": report.get("retune") is False,
+        "production_code_unchanged": report.get("production_code_unchanged") is True,
+        "not_human_gold": report.get("human_gold") is False,
+        "aggregate_recorded": aggregate_status in {"available", "not_scorable"},
+        "not_claimed_pass": aggregate_status != "pass",
+    }
+    if ran_once and aggregate_status == "not_scorable":
+        status = "not_scorable"
+    elif ran_once and aggregate_status == "available":
+        status = "recorded"
+    else:
+        status = "fail"
+    return {
+        "status": status,
+        "evidence_checks": checks,
+        "aggregate_status": aggregate_status,
+        "oneshot": report.get("oneshot"),
+        "retune": report.get("retune"),
+        "frozen_sha": report.get("repository_sha"),
+        "thin_holdout": thin_holdout,
+        "holdout": {
+            "events": holdout.get("events"),
+            "real_events": holdout.get("real_events"),
+            "profiles": holdout.get("profiles"),
+            "judgments": holdout.get("judgments"),
+            "scored_judgments": holdout.get("scored_judgments"),
+        },
+        "note": (
+            "#171 ran once after production freeze. "
+            "aggregate_status is not_scorable because the reserved holdout is thin "
+            "(1 judgment, 0 scored). This is not M6 blind PASS. "
+            "Do not retune or expand the holdout."
+        ),
+    }
+
+
 def _m7_gate(report: dict[str, Any]) -> dict[str, Any]:
     stages = report.get("stages", [])
     checks = {
@@ -351,12 +402,19 @@ def _unmet_gate_items(missions: dict[str, Any]) -> list[str]:
     t1 = missions.get("m3", {}).get("longitudinal_t1", {})
     if t1.get("status") != "partial":
         unmet.append("M3 longitudinal per-source update evidence (#283)")
-    unmet.extend(
-        [
-            "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-            "M6 one-shot blind aggregate evaluation (#171) after production freeze",
-            "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
-        ]
+    unmet.append(
+        "M4 broad phone/tablet/a11y/error/offline qualification and release field validation"
+    )
+    oneshot = missions.get("m6", {}).get("oneshot_blind", {})
+    if oneshot.get("aggregate_status") == "not_scorable":
+        unmet.append(
+            "M6 one-shot blind (#171) ran once after freeze; "
+            "aggregate_status=not_scorable (thin holdout); not PASS"
+        )
+    else:
+        unmet.append("M6 one-shot blind aggregate evaluation (#171) after production freeze")
+    unmet.append(
+        "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
     )
     return unmet
 
@@ -397,9 +455,11 @@ def build_report() -> dict[str, Any]:
             "artifact": _relative(ARTIFACTS["m6"]),
             "root_cause_artifact": _relative(ARTIFACTS["m6_root_cause"]),
             "capacity_artifact": _relative(ARTIFACTS["m6_capacity"]),
+            "oneshot_blind_artifact": _relative(ARTIFACTS["m6_oneshot_blind"]),
             **_m6_gate(loaded["m6"]),
             "root_cause_analysis": _m6_root_cause_gate(loaded["m6_root_cause"]),
             "capacity_diagnosis": _m6_capacity_gate(loaded["m6_capacity"]),
+            "oneshot_blind": _m6_oneshot_blind_gate(loaded["m6_oneshot_blind"]),
         },
         "m7": {
             "artifact": _relative(ARTIFACTS["m7_backend"]),

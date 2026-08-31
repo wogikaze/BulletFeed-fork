@@ -26,6 +26,10 @@ python backend/scripts/build_rc_evidence_report.py --check --output "$RUNNER_TEM
 M4 / M6 など依存レーンが main に入ったあとは、integrator が current SHA で再実行する。
 出力の `status` は `pre_field_release_candidate` のまま残す。
 
+#171 one-shot blind は `oneshot_blind_aggregate.json` を読んで記録する。
+現行 holdout は thin のため `aggregate_status=not_scorable` であり、M6 blind PASS とは書かない。
+同一 holdout の再調整や拡張はしない。
+
 ## やってはいけないこと
 
 - `completion_gate_pass` を `true` に手編集する
