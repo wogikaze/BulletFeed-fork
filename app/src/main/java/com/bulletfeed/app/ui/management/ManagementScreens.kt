@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -193,18 +194,18 @@ fun TopicsScreen(
                 Spacer(Modifier.height(18.dp))
                 Text("候補を検索", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
+                    AccessibleOutlinedTextField(
                         value = query,
                         onValueChange = {
                             query = it
                             if (it.isBlank()) onSearchTopics("")
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).testTag("topic-search-field"),
                         label = { Text("技術・サービス・企業") },
                         singleLine = true,
                     )
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = { onSearchTopics(query) }, enabled = query.isNotBlank() && !isSearching) {
+                    AccessiblePrimaryButton(onClick = { onSearchTopics(query) }, enabled = query.isNotBlank() && !isSearching) {
                         if (isSearching) {
                             CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
                         } else {
@@ -589,7 +590,7 @@ fun SettingsScreen(
                 Spacer(Modifier.height(8.dp))
                 InfoBlock("地域", profile.region.ifBlank { "未設定" })
                 Spacer(Modifier.height(20.dp))
-                OutlinedButton(
+                AccessibleOutlinedButton(
                     onClick = {
                         role = profile.role
                         interestsText = profile.interests.joinToString(", ")
@@ -599,27 +600,28 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text("プロフィールを編集") }
             } else {
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = role,
                     onValueChange = { role = it },
                     label = { Text("職種") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("profile-role-field"),
                     singleLine = true,
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = interestsText,
                     onValueChange = { interestsText = it },
                     label = { Text("興味（カンマ区切り）") },
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    singleLine = false,
                 )
-                OutlinedTextField(
+                AccessibleOutlinedTextField(
                     value = region,
                     onValueChange = { region = it },
                     label = { Text("地域") },
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     singleLine = true,
                 )
-                Button(
+                AccessiblePrimaryButton(
                     onClick = {
                         val interests = interestsText
                             .split(",", "、")
@@ -638,7 +640,7 @@ fun SettingsScreen(
                     }
                     Text(if (isSaving) "保存中" else "保存")
                 }
-                TextButton(onClick = { editing = false }, enabled = !isSaving, modifier = Modifier.fillMaxWidth()) {
+                AccessibleTextButton(onClick = { editing = false }, enabled = !isSaving, modifier = Modifier.fillMaxWidth()) {
                     Text("キャンセル")
                 }
             }
