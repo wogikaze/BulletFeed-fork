@@ -1,0 +1,78 @@
+{
+  "report_version": "m6-identity-remediation-progress-v1",
+  "status": "identity_remediation_measured",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": false,
+  "relation_feature_version": "relation-features-v02",
+  "production_change": {
+    "event_concepts": "Extract package-registry ecosystem and package identity from publisher/title (crates.io / PyPI / npm).",
+    "relation": "Exact followed package identity on package_registry sources is Relation level direct; ecosystem/language matches remain adjacent.",
+    "user_interest": "Rust neighbors crates.io; JavaScript neighbors npm; Python neighbors PyPI. Not a weight tweak."
+  },
+  "freeze_case_after": [
+    {
+      "persona_family": "package_release_manager",
+      "relation_levels": {
+        "adjacent": 20
+      },
+      "personalization_zero": 0,
+      "median_pos": 171.0,
+      "min_pos": 27,
+      "max_pos": 241,
+      "top10": 0,
+      "before_relation_levels": {
+        "adjacent": 4,
+        "reference": 16
+      },
+      "before_personalization_zero": 16,
+      "before_median_pos": 178.0
+    },
+    {
+      "persona_family": "rust_compiler_contributor",
+      "relation_levels": {
+        "adjacent": 19,
+        "direct": 1
+      },
+      "personalization_zero": 0,
+      "median_pos": 74.0,
+      "min_pos": 6,
+      "max_pos": 132,
+      "top10": 2,
+      "before_relation_levels": {
+        "adjacent": 2,
+        "reference": 18
+      },
+      "before_personalization_zero": 18,
+      "before_median_pos": 83.5
+    },
+    {
+      "persona_family": "javascript_tooling_maintainer",
+      "relation_levels": {
+        "adjacent": 18,
+        "direct": 2
+      },
+      "personalization_zero": 0,
+      "median_pos": 130.5,
+      "min_pos": 9,
+      "max_pos": 218,
+      "top10": 1,
+      "before_relation_levels": {
+        "adjacent": 20
+      },
+      "before_personalization_zero": 0,
+      "before_median_pos": 142.5
+    }
+  ],
+  "interpretation": {
+    "semantic_identity_gap": "closed_on_freeze_cases",
+    "ranking_priority_or_capacity": "remains_for_broad_ecosystem_interests",
+    "notes": [
+      "package_release_manager crate releases moved from reference to adjacent via crates.io/packages identity.",
+      "rust_compiler_contributor crate releases moved from reference to adjacent via Rust→crates.io neighbor; one followed package is direct.",
+      "javascript_tooling_maintainer eslint/prettier exact package matches are now direct; remaining npm-ecosystem items stay adjacent.",
+      "Top-10 occupancy on the 20 representative cases is still limited by equal-rank capacity among many package_registry events. That is not treated as remaining identity loss.",
+      "Full-cluster important-unknown recall before/after is a follow-on measurement; this artifact does not claim M6 Completion Gate PASS."
+    ]
+  }
+}

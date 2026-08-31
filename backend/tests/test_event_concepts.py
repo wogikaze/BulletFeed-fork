@@ -281,3 +281,21 @@ def test_evaluate_relation_uses_event_concepts_for_adjacent_match(database) -> N
     assert reference.matched_topics == ()
     assert reference.reason == ""
     assert reference.feature_version == RELATION_FEATURE_VERSION
+
+
+def test_package_registry_extracts_ecosystem_and_package_identity() -> None:
+    extraction = extract_event_concepts(
+        {
+            "event_id": "evt-chrono",
+            "source_type": "package_registry",
+            "source_key": "crates registry / chrono",
+            "title": "chrono 0.4.43",
+            "summary": "chrono 0.4.43 release metadata from crates",
+        }
+    )
+    ids = {concept.concept_id for concept in extraction.concepts}
+    names = {concept.canonical_name.casefold() for concept in extraction.concepts}
+    assert "crates-io" in ids
+    assert "packages" in ids
+    assert "chrono" in names
+    assert any("chrono" in concept.aliases for concept in extraction.concepts)

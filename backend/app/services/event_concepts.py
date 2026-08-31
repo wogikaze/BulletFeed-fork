@@ -111,6 +111,15 @@ _FEATURE_ENTRIES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("authorization-bypass", "Authorization bypass", ("authorization bypass", "authz bypass")),
 )
 
+_PACKAGE_REGISTRY_PUBLISHER_RE = re.compile(
+    r"^(?P<registry>crates|pypi|npm)\s+registry\s*/\s*(?P<package>.+)$",
+    re.IGNORECASE,
+)
+_PACKAGE_REGISTRY_ECOSYSTEMS: dict[str, tuple[str, tuple[str, ...]]] = {
+    "crates": ("crates.io", ("crates.io", "crates", "cargo")),
+    "pypi": ("PyPI", ("PyPI", "pypi", "pip")),
+    "npm": ("npm", ("npm", "npmjs", "npm registry")),
+}
 _GHSA_RE = re.compile(
     r"\bGHSA-[23456789cfghjmpqrvwxy]{4}-[23456789cfghjmpqrvwxy]{4}-"
     r"[23456789cfghjmpqrvwxy]{4}\b",
@@ -357,6 +366,7 @@ def extract_event_concepts(
     abstentions: list[ConceptAbstention] = []
 
     candidates.extend(_extract_structured_identifiers(structured))
+    candidates.extend(_extract_package_registry_concepts(payload, structured))
     prose_ids, prose_id_abstentions = _extract_prose_identifiers(
         fields,
         structured=structured,
@@ -469,13 +479,18 @@ def _infer_structured(payload: EventConceptInput) -> StructuredIdentifiers:
         elif _OSV_RE.fullmatch(source_key):
             osv_ids.append(source_key.upper())
 
+    package_names = list(explicit.package_names)
+    registry = _package_registry_identity(payload)
+    if registry is not None and registry[1] and registry[1] not in package_names:
+        package_names.append(registry[1])
+
     return StructuredIdentifiers(
         ghsa_ids=tuple(dict.fromkeys(item.upper() for item in ghsa_ids if item)),
         cve_ids=tuple(dict.fromkeys(item.upper() for item in cve_ids if item)),
         osv_ids=tuple(dict.fromkeys(item.upper() for item in osv_ids if item)),
         repository=repository,
         packages=explicit.packages,
-        package_names=explicit.package_names,
+        package_names=tuple(dict.fromkeys(package_names)),
     )
 
 
@@ -526,6 +541,88 @@ def _extract_structured_identifiers(structured: StructuredIdentifiers) -> list[_
             _package_candidate(name, field="structured.package_names", source="structured", name_only=True)
         )
     return candidates
+
+
+def _extract_package_registry_concepts(
+    payload: EventConceptInput,
+    structured: StructuredIdentifiers,
+) -> list[_Candidate]:
+    identity = _package_registry_identity(payload)
+    if identity is None:
+        return []
+    registry, package_name = identity
+    canonical, aliases = _PACKAGE_REGISTRY_ECOSYSTEMS[registry]
+    candidates = [
+        _Candidate(
+            concept_id=_concept_id(canonical),
+            canonical_name=canonical,
+            concept_type="product_service",
+            weight=WEIGHT_STRUCTURED,
+            confidence="high",
+            stable_id=f"registry:{registry}",
+            aliases=list(aliases),
+            product_version=None,
+            source="structured",
+            provenance=_provenance("structured", "package_registry.ecosystem"),
+            field="package_registry.ecosystem",
+        ),
+        _Candidate(
+            concept_id="packages",
+            canonical_name="packages",
+            concept_type="product_service",
+            weight=WEIGHT_STRUCTURED_LINKED,
+            confidence="high",
+            stable_id="registry:packages",
+            aliases=["packages", "package"],
+            product_version=None,
+            source="structured",
+            provenance=_provenance("structured", "package_registry.packages"),
+            field="package_registry.packages",
+        ),
+        _Candidate(
+            concept_id="releases",
+            canonical_name="releases",
+            concept_type="product_service",
+            weight=WEIGHT_STRUCTURED_LINKED,
+            confidence="medium",
+            stable_id="registry:releases",
+            aliases=["releases", "release"],
+            product_version=None,
+            source="structured",
+            provenance=_provenance("structured", "package_registry.releases"),
+            field="package_registry.releases",
+        ),
+    ]
+    if package_name and package_name not in structured.package_names:
+        candidates.append(
+            _package_candidate(
+                package_name,
+                field="package_registry.package",
+                source="structured",
+                name_only=True,
+            )
+        )
+    return candidates
+
+
+def _package_registry_identity(payload: EventConceptInput) -> tuple[str, str] | None:
+    publisher = payload.source_key.strip()
+    match = _PACKAGE_REGISTRY_PUBLISHER_RE.match(publisher)
+    if match is None and payload.source_type != "package_registry":
+        return None
+    if match is not None:
+        return match.group("registry").casefold(), match.group("package").strip()
+    title_name = payload.title.strip().split()[0] if payload.title.strip() else ""
+    combined = " ".join(part for part in (publisher, payload.title, payload.summary) if part)
+    folded = combined.casefold()
+    for registry in _PACKAGE_REGISTRY_ECOSYSTEMS:
+        if registry in folded or (registry == "crates" and "crates.io" in folded):
+            return registry, title_name
+        if registry == "pypi" and "pypi.org" in folded:
+            return registry, title_name
+        if registry == "npm" and "npmjs" in folded:
+            return registry, title_name
+    return None
 
 
 def _extract_prose_identifiers(

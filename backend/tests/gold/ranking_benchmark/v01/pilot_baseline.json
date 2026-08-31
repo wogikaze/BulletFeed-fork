@@ -156,7 +156,7 @@
       "obs:pgold-p-i-16"
     ],
     "ranking_contract_version": "feed-order-v4",
-    "relation_feature_version": "relation-features-v01",
+    "relation_feature_version": "relation-features-v02",
     "split": "pilot",
     "user_ids": [
       "pgold-p-u-01",

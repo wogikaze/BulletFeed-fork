@@ -20,7 +20,7 @@ from app.services.user_interest import (
     semantic_match,
 )
 
-RELATION_FEATURE_VERSION = "relation-features-v01"
+RELATION_FEATURE_VERSION = "relation-features-v02"
 ADJACENT_MIN_SCORE = 0.2
 NEIGHBOR_MIN_SCORE = 0.2
 
@@ -40,6 +40,29 @@ _INFERRED_NEIGHBOR_RANK = 40
 _EXPLICIT_OTHER_RANK = 150
 _EXPLICIT_REPO_CONCEPT_RANK = 250
 _FEEDBACK_RANK = 150
+_PACKAGE_REGISTRY_SOURCE_TYPES = frozenset({"package_registry"})
+_ECOSYSTEM_CONCEPT_KEYS = frozenset(
+    {
+        "packages",
+        "package",
+        "releases",
+        "release",
+        "cratesio",
+        "crates",
+        "cargo",
+        "pypi",
+        "pip",
+        "npm",
+        "npmjs",
+        "javascript",
+        "typescript",
+        "python",
+        "rust",
+        "java",
+        "go",
+        "ruby",
+    }
+)
 
 MatchKind = Literal["direct", "neighbor"]
 
@@ -118,7 +141,13 @@ def evaluate_relation_from_state(
     )
     features = features_for_relation(extraction)
     text = " ".join(part for part in (source_key, event_title, event_summary) if part)
-    return _semantic_relation(state, extraction=extraction, features=features, text=text)
+    return _semantic_relation(
+        state,
+        extraction=extraction,
+        features=features,
+        text=text,
+        source_type=source_type,
+    )
 
 
 def consume_concept_features(
@@ -153,6 +182,7 @@ def _semantic_relation(
     extraction: EventConceptExtraction,
     features: RelationConceptFeatures,
     text: str,
+    source_type: str = "",
 ) -> RelationSignal:
     active = [
         concept
@@ -238,8 +268,13 @@ def _semantic_relation(
     rank = max(item.rank for item in chosen)
     topics = tuple(dict.fromkeys(item.display_name for item in chosen))
     reason = _explain(chosen)
+    level = "adjacent"
+    if source_type in _PACKAGE_REGISTRY_SOURCE_TYPES and _package_identity_match(
+        chosen, extraction
+    ):
+        level = "direct"
     return RelationSignal(
-        level="adjacent",
+        level=level,
         reason=reason,
         matched_topics=topics,
         matched_repositories=(),
@@ -247,6 +282,37 @@ def _semantic_relation(
         feature_version=RELATION_FEATURE_VERSION,
         score=score,
     )
+
+
+def _package_identity_keys(extraction: EventConceptExtraction) -> set[str]:
+    keys: set[str] = set()
+    for concept in extraction.concepts:
+        if concept.concept_type != "framework_library_package":
+            continue
+        keys.add(_token_key(concept.concept_id))
+        keys.add(_token_key(concept.canonical_name))
+        for alias in concept.aliases:
+            keys.add(_token_key(alias))
+    return {key for key in keys if key and key not in _ECOSYSTEM_CONCEPT_KEYS}
+
+
+def _package_identity_match(
+    matches: Sequence[_ConceptMatch],
+    extraction: EventConceptExtraction,
+) -> bool:
+    package_keys = _package_identity_keys(extraction)
+    if not package_keys:
+        return False
+    for item in matches:
+        if item.match_kind != "direct":
+            continue
+        candidate_keys = {
+            _token_key(item.concept_id),
+            _token_key(item.display_name),
+        }
+        if candidate_keys & package_keys and not (candidate_keys & _ECOSYSTEM_CONCEPT_KEYS):
+            return True
+    return False
 
 
 def _match_from_concept(concept: InterestConcept, *, match_kind: MatchKind) -> _ConceptMatch:
