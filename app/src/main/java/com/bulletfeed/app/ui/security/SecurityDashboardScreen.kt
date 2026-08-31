@@ -90,7 +90,7 @@ fun SecurityDashboardScreen(
                     modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(filter.heading, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    SectionHeading(filter.heading)
                     Spacer(Modifier.weight(1f))
                     Text("${visibleAlerts.size}件", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
                 }

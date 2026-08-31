@@ -234,6 +234,19 @@ fun AppBarTitle(
 }
 
 @Composable
+internal fun SectionHeading(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text,
+        modifier = modifier.testTag("section-heading").semantics { heading() },
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+    )
+}
+
+@Composable
 fun StatusPill(
     label: String,
     color: Color,

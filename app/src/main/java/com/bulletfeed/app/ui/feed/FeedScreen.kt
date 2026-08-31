@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -173,9 +174,14 @@ fun FeedScreen(
 }
 
 @Composable
-private fun SecurityShortcut(actionCount: Int, onClick: () -> Unit) =
+internal fun SecurityShortcut(actionCount: Int, onClick: () -> Unit) =
     Card(
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp).fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp)
+            .testTag("security-shortcut")
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFCE8E6)),
         shape = RoundedCornerShape(18.dp),
     ) {
@@ -252,7 +258,7 @@ private fun FeedHeading(filter: FeedFilter, count: Int) =
         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("${filter.label}の変化", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        SectionHeading("${filter.label}の変化")
         Spacer(Modifier.weight(1f))
         Text("${count}件", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
     }
