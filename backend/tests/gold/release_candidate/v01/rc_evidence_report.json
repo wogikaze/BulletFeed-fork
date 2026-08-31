@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "fab22aa6e5836ce016d51ad83ed47918e0143ca6",
+  "repository_sha": "b1befc9ee4ab04eefe64820ca27332438f8946ce",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -299,8 +299,20 @@
     "M6 one-shot blind aggregate evaluation (#171) after production freeze",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"
   ],
+  "field_eval": {
+    "protocol": "docs/evaluation/field-eval-protocol.md",
+    "human_blockers": "docs/operations/field-eval-human-blockers.md",
+    "source_of_truth": "GET /v1/me/feed-sessions/metrics",
+    "start_ok_with_one_person": true,
+    "completion_target_participants": 5,
+    "executed": false
+  },
   "human_only_or_field_validation": [
     "live OAuth and real-user enrollment are excluded from automated clean-room evidence",
-    "public HTTPS field validation is not replaced by local fixtures"
+    "public HTTPS field validation is not replaced by local fixtures",
+    "public HTTPS backend, domain, and certificates are a human-only blocker",
+    "GitHub OAuth client secret is a human-only production secret",
+    "paid hosting is a human-only paid-service commitment",
+    "enrolling users other than the operator requires real-user consent; start is allowed with 1 person; #327 completion target is >=5"
   ]
 }
