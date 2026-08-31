@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -102,11 +100,10 @@ fun NotificationsScreen(
                 ) {
                     NotificationFilter.entries.forEach { item ->
                         val count = if (item == NotificationFilter.UNREAD) unreadCount else notifications.size
-                        FilterChip(
+                        AccessibleFilterChip(
                             selected = filter == item,
                             onClick = { filter = item },
-                            modifier = Modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
-                            label = { Text("${item.label} $count") },
+                            label = "${item.label} $count",
                         )
                     }
                 }

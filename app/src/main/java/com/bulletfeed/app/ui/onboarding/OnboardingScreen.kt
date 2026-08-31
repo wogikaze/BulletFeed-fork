@@ -34,7 +34,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -261,20 +260,20 @@ private fun ProfileStep(
     SelectionLabel("職種")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         roleOptions.forEach { option ->
-            FilterChip(
+            AccessibleFilterChip(
                 selected = role == option,
                 onClick = { onRoleChange(option) },
-                label = { Text(option) },
+                label = option,
             )
         }
     }
     SelectionLabel("興味のある分野")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         interestOptions.forEach { option ->
-            FilterChip(
+            AccessibleFilterChip(
                 selected = option in interests,
                 onClick = { onInterestToggle(option) },
-                label = { Text(option) },
+                label = option,
                 leadingIcon =
                     if (option in interests) {
                         { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
@@ -287,10 +286,10 @@ private fun ProfileStep(
     SelectionLabel("地域（任意）")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         regionOptions.forEach { option ->
-            FilterChip(
+            AccessibleFilterChip(
                 selected = region == option,
                 onClick = { onRegionChange(option) },
-                label = { Text(option) },
+                label = option,
             )
         }
     }
@@ -424,10 +423,10 @@ private fun TopicsStep(
     SelectionLabel("スターター候補")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         starterTopics.forEach { topic ->
-            FilterChip(
+            AccessibleFilterChip(
                 selected = topic in topics,
                 onClick = { onToggle(topic) },
-                label = { Text(topic) },
+                label = topic,
                 leadingIcon =
                     if (topic in topics) {
                         { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
