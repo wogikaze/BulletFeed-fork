@@ -153,6 +153,30 @@ class BulletFeedViewModelStateTest {
     }
 
     @Test
+    fun topicNameRequiredIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"topic name is required"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("テーマ名を入力") == true)
+    }
+
+    @Test
+    fun statuspageUrlMustBeHttpIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Statuspage URL must be HTTP or HTTPS"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("HTTP または HTTPS") == true)
+    }
+
+    @Test
     fun rssHostNotAllowlistedIsNotOffline() {
         val recovered =
             readyState().reduceRootFailure(
