@@ -165,6 +165,90 @@ class BulletFeedViewModelStateTest {
     }
 
     @Test
+    fun sourceUrlRequiredIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"url is required"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("URLを入力") == true)
+    }
+
+    @Test
+    fun unsupportedSourceKindIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Unsupported source kind"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("購読できません") == true)
+    }
+
+    @Test
+    fun invalidStatuspageIdIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Invalid Statuspage ID"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("page ID") == true)
+    }
+
+    @Test
+    fun statuspagePageIdOrUrlRequiredIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"pageId or url is required for statuspage"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("page ID または URL") == true)
+    }
+
+    @Test
+    fun statuspageHostMustBeStatuspageIoIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"Statuspage URL must use a statuspage.io page host"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("statuspage.io") == true)
+    }
+
+    @Test
+    fun rssFetchingDisabledIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"RSS fetching is disabled"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("現在無効") == true)
+    }
+
+    @Test
+    fun rssHostCannotBeResolvedIsNotOffline() {
+        val recovered =
+            readyState().reduceRootFailure(
+                httpError(422, """{"error":{"message":"RSS host cannot be resolved"}}"""),
+            )
+
+        assertFalse(recovered.isOffline)
+        assertTrue(recovered.hasStaleFeed)
+        assertTrue(recovered.errorMessage?.contains("ホスト名を解決できません") == true)
+    }
+
+    @Test
     fun genericClientErrorRetainsStaleFeedAndAsksToRetry() {
         val recovered = readyState().reduceRootFailure(httpError(400))
 
