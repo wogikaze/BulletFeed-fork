@@ -215,7 +215,7 @@ private fun OnboardingActions(
         AccessiblePrimaryButton(
             onClick = onNext,
             enabled = canContinue && !isSaving,
-            modifier = Modifier.weight(1.3f),
+            modifier = Modifier.weight(1.3f).testTag("onboarding-continue-button"),
         ) {
             if (isSaving) {
                 CircularProgressIndicator(
