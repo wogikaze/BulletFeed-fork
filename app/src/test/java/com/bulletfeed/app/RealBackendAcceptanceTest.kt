@@ -323,6 +323,32 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
+    fun `topic limit is validation not offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            repeat(MAX_TRACKED_TOPICS) { index ->
+                repository.addUserTopic("LimitTopic$index", TopicType.TECHNOLOGY)
+            }
+            try {
+                repository.addUserTopic("LimitTopicOverflow", TopicType.TECHNOLOGY)
+                fail("expected topic limit")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertTrue(recovered.hasStaleFeed)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(recovered.errorMessage?.contains("$MAX_TRACKED_TOPICS") == true)
+            }
+        }
+
+    @Test
     fun `invalid statuspage id is validation not offline`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
