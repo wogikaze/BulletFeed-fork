@@ -62,7 +62,7 @@ fun SearchScreen(
                             .any { it.contains(query, ignoreCase = true) }
                 )
         }
-    Scaffold(topBar = { TopAppBar(title = { Text("情報を検索") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { AppBarTitle("情報を検索") }) }) { padding ->
         LazyColumn(modifier = modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp)) {
             item {
                 Spacer(Modifier.height(12.dp))

@@ -21,8 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
+@Composable
+fun AppBarTitle(
+    text: String,
+    fontWeight: FontWeight = FontWeight.Bold,
+) {
+    Text(
+        text,
+        modifier = Modifier.semantics { heading() },
+        fontWeight = fontWeight,
+    )
+}
 
 @Composable
 fun StatusPill(

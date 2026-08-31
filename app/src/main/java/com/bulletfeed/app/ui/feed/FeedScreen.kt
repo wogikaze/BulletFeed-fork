@@ -118,11 +118,7 @@ fun FeedScreen(
     LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
         item {
             TopAppBar(
-                title = {
-                    Column {
-                        Text("BulletFeed", fontWeight = FontWeight.Bold)
-                    }
-                },
+                title = { AppBarTitle("BulletFeed") },
                 actions = {
                     IconButton(onClick = onNotificationsClick) {
                         if (unreadNotificationCount > 0) {
@@ -161,7 +157,10 @@ fun FeedScreen(
             item {
                 Text(
                     loadMoreError,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .semantics { liveRegion = LiveRegionMode.Assertive },
                     color = Color(0xFF8F1D18),
                     style = MaterialTheme.typography.bodySmall,
                 )
