@@ -39,6 +39,16 @@ def test_anonymous_session_creation_is_rate_limited_per_client(
     assert user_count == MAX_SESSIONS_PER_CLIENT_WINDOW
 
 
+def test_acceptance_harness_allows_more_anonymous_sessions_than_the_client_window(
+    client: TestClient,
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("BULLETFEED_ACCEPTANCE_HARNESS", "1")
+    for _ in range(MAX_SESSIONS_PER_CLIENT_WINDOW + 5):
+        response = client.post("/v1/sessions")
+        assert response.status_code == 200
+
+
 def test_session_policy_prunes_only_empty_stale_anonymous_users(database: Database) -> None:
     now = 1_800_000_000
     created_at = now - EMPTY_ANONYMOUS_RETENTION_SECONDS - 1
