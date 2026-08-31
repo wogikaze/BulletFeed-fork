@@ -36,5 +36,9 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
         "package_saturated"
     ] is True
     assert "M5 long-running snapshot" not in " ".join(report["unmet_gate_items"])
+    assert "M3 longitudinal" not in " ".join(report["unmet_gate_items"])
+    assert report["missions"]["m3"]["longitudinal_t1"]["evidence_checks"][
+        "live_collected"
+    ] is True
     assert any("#171" in item for item in report["unmet_gate_items"])
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True
