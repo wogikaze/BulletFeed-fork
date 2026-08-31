@@ -168,6 +168,44 @@ class DtoMappersContractTest {
     }
 
     @Test
+    fun `site feed discover maps candidates as discovery-only never evidence`() {
+        val mapped = SiteFeedDiscoverResultDto(
+            version = "site-feed-discover-v1",
+            siteUrl = "https://notes.example.com/",
+            canonicalSiteUrl = "https://notes.example.com/",
+            preferredFamily = "rss_atom",
+            items = listOf(
+                SiteFeedDiscoverItemDto(
+                    id = "feed-1",
+                    endpointId = "ep-feed-1",
+                    canonicalUrl = "https://notes.example.com/feed.xml",
+                    family = "rss_atom",
+                    discoveryMethod = "html_link",
+                    discoveryProvenance = "site_html_link",
+                    title = "Notes",
+                    preferred = true,
+                    evidenceEligible = false,
+                    discoveryOnly = true,
+                    actionability = "subscribe",
+                    verificationStatus = "unverified",
+                    authorityStatus = "unknown",
+                    explanation = "link rel alternate",
+                    siteUrl = "https://notes.example.com/",
+                ),
+            ),
+        ).toDomain()
+
+        assertEquals("site-feed-discover-v1", mapped.version)
+        assertEquals("rss_atom", mapped.preferredFamily)
+        val item = mapped.items.single()
+        assertTrue(item.preferred)
+        assertTrue(item.discoveryOnly)
+        assertEquals(false, item.evidenceEligible)
+        assertEquals(SourceActionability.SUBSCRIBE, item.actionability)
+        assertEquals("https://notes.example.com/feed.xml", item.canonicalUrl)
+    }
+
+    @Test
     fun `source subscription maps failing status from nested backend payload`() {
         val mapped = SourceSubscriptionDto(
             id = "sub-1",

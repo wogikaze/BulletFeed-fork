@@ -255,6 +255,33 @@ enum class SourceSubscriptionState { PENDING, OK, FAILING }
 
 enum class UserSourceKind { STATUSPAGE, RSS_ATOM, JSON_FEED, GENERIC_WEB }
 
+data class SiteFeedDiscoverItem(
+    val id: String,
+    val endpointId: String,
+    val canonicalUrl: String,
+    val family: String,
+    val discoveryMethod: String,
+    val discoveryProvenance: String,
+    val title: String,
+    val preferred: Boolean,
+    val evidenceEligible: Boolean,
+    val discoveryOnly: Boolean,
+    val actionability: SourceActionability = SourceActionability.UNSUPPORTED,
+    val verificationStatus: String,
+    val authorityStatus: String,
+    val explanation: String,
+    val siteUrl: String,
+    val publisher: SourcePublisher? = null,
+)
+
+data class SiteFeedDiscoverResult(
+    val version: String,
+    val siteUrl: String,
+    val canonicalSiteUrl: String,
+    val preferredFamily: String? = null,
+    val items: List<SiteFeedDiscoverItem> = emptyList(),
+)
+
 data class SourceSubscription(
     val id: String,
     val kind: String,

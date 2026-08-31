@@ -274,6 +274,35 @@ fun SourceRecommendationDto.toDomain(): SourceRecommendation =
 
 fun SourcePublisherDto.toDomain(): SourcePublisher = SourcePublisher(slug = slug, displayName = displayName)
 
+fun SiteFeedDiscoverItemDto.toDomain(): SiteFeedDiscoverItem =
+    SiteFeedDiscoverItem(
+        id = id,
+        endpointId = endpointId,
+        canonicalUrl = canonicalUrl,
+        family = family,
+        discoveryMethod = discoveryMethod,
+        discoveryProvenance = discoveryProvenance,
+        title = title,
+        preferred = preferred,
+        evidenceEligible = evidenceEligible,
+        discoveryOnly = discoveryOnly,
+        actionability = SourceActionability.valueOf(actionability.uppercase()),
+        verificationStatus = verificationStatus,
+        authorityStatus = authorityStatus,
+        explanation = explanation,
+        siteUrl = siteUrl,
+        publisher = publisher?.toDomain(),
+    )
+
+fun SiteFeedDiscoverResultDto.toDomain(): SiteFeedDiscoverResult =
+    SiteFeedDiscoverResult(
+        version = version,
+        siteUrl = siteUrl,
+        canonicalSiteUrl = canonicalSiteUrl,
+        preferredFamily = preferredFamily,
+        items = items.map { it.toDomain() },
+    )
+
 fun SourceSubscriptionDto.toDomain(): SourceSubscription =
     SourceSubscription(
         id = id,
