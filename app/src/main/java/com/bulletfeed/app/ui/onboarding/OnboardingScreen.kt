@@ -38,7 +38,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -437,20 +437,34 @@ private fun TopicsStep(
         }
     }
     SelectionLabel("自由入力")
+    OnboardingCustomTopicRow(
+        customTopic = customTopic,
+        onCustomTopicChange = onCustomTopicChange,
+        onAddCustom = onAddCustom,
+    )
+}
+
+@Composable
+internal fun OnboardingCustomTopicRow(
+    customTopic: String,
+    onCustomTopicChange: (String) -> Unit,
+    onAddCustom: () -> Unit,
+) {
     Row(
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        OutlinedTextField(
+        AccessibleOutlinedTextField(
             value = customTopic,
             onValueChange = onCustomTopicChange,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).testTag("onboarding-custom-topic-field"),
             label = { Text("企業・技術・サービス") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onAddCustom() }),
         )
-        OutlinedButton(onClick = onAddCustom, enabled = customTopic.isNotBlank()) {
+        AccessibleOutlinedButton(onClick = onAddCustom, enabled = customTopic.isNotBlank()) {
             Icon(Icons.Default.Add, contentDescription = "追加")
         }
     }

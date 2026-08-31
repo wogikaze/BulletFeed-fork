@@ -101,6 +101,18 @@
       "min_precision": 0.5,
       "min_recall": 0.5,
       "limit": 6
+    },
+    {
+      "case_id": "static-site-blogs",
+      "topics": ["Hugo", "Jekyll"],
+      "relevant_urls": [
+        "https://gohugo.io/index.xml",
+        "https://jekyllrb.com/feed.xml"
+      ],
+      "irrelevant_substrings": ["reactor", "news.ycombinator.com"],
+      "min_precision": 0.5,
+      "min_recall": 0.5,
+      "limit": 8
     }
   ]
 }

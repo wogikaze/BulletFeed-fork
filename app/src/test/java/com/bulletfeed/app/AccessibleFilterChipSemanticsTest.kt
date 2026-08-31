@@ -105,4 +105,20 @@ class AccessibleFilterChipSemanticsTest {
 
         composeRule.onNodeWithTag("search-query-field").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun onboardingCustomTopicRowMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingCustomTopicRow(
+                    customTopic = "Kotlin",
+                    onCustomTopicChange = {},
+                    onAddCustom = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("onboarding-custom-topic-field").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithContentDescription("追加").assertHeightIsAtLeast(48.dp)
+    }
 }

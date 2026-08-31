@@ -296,6 +296,16 @@ Behavior:
 - 承認/無視だけを記録する。`source_sync_subscriptions` も `source_sync_jobs` も作らない
 - 未知の候補は 404。他人の決定は見えない
 
+`POST /me/sources/discover` `{ url }` — サイト/ブログ URL から RSS / Atom / JSON Feed 候補を返す。
+
+- 認証必須。テナント分離。`SourceAccessPolicy` でレート制限する
+- HTML の `link rel=alternate` を優先する。見つからなければ `/feed` `/rss` `/atom.xml` `/feed.xml` `/index.xml` を同一 origin・最大 5 件で推測する
+- feed が見つかれば generic web は返さない（重複取得しない）。feed が無ければ generic_web へ安全に fallback する
+- 発見だけでは購読・Observation・Claim を作らない。`evidenceEligible` は常に false。`discoveryOnly` は true
+- 正規化は source registry（#58）。同一 publisher の複数 feed は別 endpoint として畳む
+- SSRF / 資格情報 URL / 私有 IP / redirect 先 / robots / サイズ / timeout は既存 source policy で拒否する
+- 購読は利用者が `POST /me/sources` で明示したときだけ行う
+
 ### Security / Notifications
 
 既存のまま残す。脆弱性は Event に統合しない。
