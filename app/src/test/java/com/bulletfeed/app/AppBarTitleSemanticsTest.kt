@@ -94,6 +94,9 @@ class AppBarTitleSemanticsTest {
         composeRule.onNodeWithTag("settings-knowledge-heading").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )
+        composeRule.onNodeWithTag("settings-site-feed-discover-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
         composeRule.onNodeWithTag("settings-subscriptions-heading").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )

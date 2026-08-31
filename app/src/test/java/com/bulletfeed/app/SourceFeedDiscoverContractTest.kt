@@ -21,4 +21,19 @@ class SourceFeedDiscoverContractTest {
             assertTrue(discovered.items.any { it.preferred && it.family == "rss_atom" })
             assertEquals(before, repository.getSourceSubscriptions())
         }
+
+    @Test
+    fun mockDiscoverFallsBackToGenericWebWithoutCreatingSubscriptions() =
+        runTest {
+            val repository = MockBulletFeedRepository()
+            val before = repository.getSourceSubscriptions()
+            val discovered = repository.discoverSiteFeeds("https://plain.example.com/")
+
+            assertEquals("generic_web", discovered.preferredFamily)
+            assertTrue(discovered.items.isNotEmpty())
+            assertTrue(discovered.items.all { it.family == "generic_web" })
+            assertTrue(discovered.items.all { it.discoveryOnly })
+            assertTrue(discovered.items.all { !it.evidenceEligible })
+            assertEquals(before, repository.getSourceSubscriptions())
+        }
 }
