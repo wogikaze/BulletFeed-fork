@@ -68,7 +68,7 @@ fun SecurityDashboardScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("セキュリティ", fontWeight = FontWeight.Bold) },
+                title = { AppBarTitle("セキュリティ") },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFFFFBF8)),
             )
         },

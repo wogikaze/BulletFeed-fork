@@ -110,7 +110,7 @@ fun TopicsScreen(
         }
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("テーマ") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { AppBarTitle("テーマ") }) }) { padding ->
         LazyColumn(
             state = lazyListState,
             modifier = modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp),
@@ -357,7 +357,7 @@ fun GithubConnectionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("GitHub連携") },
+                title = { AppBarTitle("GitHub連携") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
@@ -575,7 +575,7 @@ fun SettingsScreen(
     var interestsText by rememberSaveable(profile.interests) { mutableStateOf(profile.interests.joinToString(", ")) }
     var region by rememberSaveable(profile.region) { mutableStateOf(profile.region) }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("設定") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { AppBarTitle("設定") }) }) { padding ->
         Column(
             modifier
                 .padding(padding)
