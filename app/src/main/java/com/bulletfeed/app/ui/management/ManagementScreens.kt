@@ -33,10 +33,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -255,15 +252,15 @@ fun TopicsScreen(
                     }
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
+                    AccessibleOutlinedTextField(
                         value = newTopic,
                         onValueChange = { newTopic = it },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).testTag("topic-add-field"),
                         label = { Text("テーマを追加") },
                         singleLine = true,
                     )
                     Spacer(Modifier.width(8.dp))
-                    Button(
+                    AccessiblePrimaryButton(
                         onClick = {
                             onAddTopic(newTopic, selectedType)
                             newTopic = ""
@@ -312,7 +309,7 @@ private fun TopicManagementCard(
     shape = RoundedCornerShape(16.dp),
 ) {
     Row(Modifier.padding(horizontal = 8.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = {}, modifier = dragHandleModifier) {
+        AccessibleIconButton(onClick = {}, modifier = dragHandleModifier) {
             Icon(Icons.Default.DragHandle, contentDescription = "並び替え", tint = Color(0xFF655F69))
         }
         Column(Modifier.weight(1f)) {
@@ -358,7 +355,7 @@ fun GithubConnectionScreen(
             TopAppBar(
                 title = { AppBarTitle("GitHub連携") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    AccessibleIconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
                     }
                 },
@@ -412,14 +409,14 @@ fun GithubConnectionScreen(
                     }
                     Spacer(Modifier.height(24.dp))
                     Text("public repositoryからテーマを取り込む", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    OutlinedTextField(
+                    AccessibleOutlinedTextField(
                         value = repoInput,
                         onValueChange = { repoInput = it },
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("github-import-repo-field"),
                         label = { Text("owner/repo") },
                         singleLine = true,
                     )
-                    Button(
+                    AccessiblePrimaryButton(
                         onClick = {
                             onImportRepo(repoInput)
                             repoInput = ""
@@ -434,15 +431,15 @@ fun GithubConnectionScreen(
                 item {
                     Text("監視するrepository", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
+                        AccessibleOutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).testTag("github-repo-search-field"),
                             label = { Text("repositoryを検索") },
                             singleLine = true,
                         )
                         Spacer(Modifier.width(8.dp))
-                        Button(onClick = { onSearch(searchQuery) }) { Text("検索") }
+                        AccessiblePrimaryButton(onClick = { onSearch(searchQuery) }) { Text("検索") }
                     }
                     Spacer(Modifier.height(10.dp))
                 }
@@ -462,7 +459,7 @@ fun GithubConnectionScreen(
                 }
                 if (nextCursor != null) {
                     item {
-                        OutlinedButton(
+                        AccessibleOutlinedButton(
                             onClick = onLoadMore,
                             enabled = !isLoadingMore,
                             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
@@ -722,7 +719,7 @@ private fun KnowledgeBootstrapSection(
             }
         }
     }
-    OutlinedButton(
+    AccessibleOutlinedButton(
         onClick = onReset,
         enabled = !isSaving && (summary.checkpoints.isNotEmpty() || summary.explicitKnownFactCount > 0),
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
@@ -929,7 +926,7 @@ private fun SourceRecommendationCard(
                         }
                         Spacer(Modifier.width(8.dp))
                     }
-                    OutlinedButton(
+                    AccessibleOutlinedButton(
                         onClick = onIgnore,
                         enabled = enabled,
                         modifier = Modifier.weight(1f),

@@ -121,4 +121,20 @@ class AccessibleFilterChipSemanticsTest {
         composeRule.onNodeWithTag("onboarding-custom-topic-field").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithContentDescription("追加").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun notificationsBackMeetsMinimumTouchTargetHeight() {
+        composeRule.setContent {
+            MaterialTheme {
+                NotificationsScreen(
+                    notifications = emptyList(),
+                    onBack = {},
+                    onNotificationClick = {},
+                    onMarkAllRead = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
+    }
 }
