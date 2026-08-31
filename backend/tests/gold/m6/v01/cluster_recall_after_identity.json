@@ -1,0 +1,88 @@
+{
+  "report_version": "m6-cluster-recall-after-identity-v1",
+  "label_source": "AI-silver",
+  "human_gold": false,
+  "blind_read": false,
+  "blind_records_loaded": false,
+  "relation_feature_version": "relation-features-v02",
+  "frozen_baseline": "tests/gold/real_world_validation/v01/m2_readiness_report.json",
+  "repository_sha": "9b3faa96fd70368211d6eb339bbac89b62742ca3",
+  "headline_at_10": {
+    "before": {
+      "precision_at_10": 0.7,
+      "recall_at_10": 0.477592,
+      "important_unknown_recall_at_10": 0.63656
+    },
+    "after": {
+      "precision_at_10": 0.7,
+      "recall_at_10": 0.477592,
+      "important_unknown_recall_at_10": 0.640255
+    }
+  },
+  "persona_families": {
+    "package_release_manager": {
+      "before": {
+        "sample_count": 4,
+        "judgment_count": 1120,
+        "precision_at_10": 1.0,
+        "recall_at_10": 0.036824,
+        "important_unknown_recall_at_10": 0.036824,
+        "unknown_but_hidden_rate": 0.963176
+      },
+      "after": {
+        "sample_count": 4,
+        "judgment_count": 1120,
+        "precision_at_10": 1.0,
+        "recall_at_10": 0.036824,
+        "important_unknown_recall_at_10": 0.036824,
+        "unknown_but_hidden_rate": 0.963176
+      },
+      "iu_recall_at_10_delta": 0.0
+    },
+    "rust_compiler_contributor": {
+      "before": {
+        "sample_count": 8,
+        "judgment_count": 601,
+        "precision_at_10": 0.55,
+        "recall_at_10": 0.535971,
+        "important_unknown_recall_at_10": 0.535971,
+        "unknown_but_hidden_rate": 0.464029
+      },
+      "after": {
+        "sample_count": 8,
+        "judgment_count": 601,
+        "precision_at_10": 0.55,
+        "recall_at_10": 0.535971,
+        "important_unknown_recall_at_10": 0.535971,
+        "unknown_but_hidden_rate": 0.464029
+      },
+      "iu_recall_at_10_delta": 0.0
+    },
+    "javascript_tooling_maintainer": {
+      "before": {
+        "sample_count": 4,
+        "judgment_count": 471,
+        "precision_at_10": 0.5,
+        "recall_at_10": 0.522727,
+        "important_unknown_recall_at_10": 0.522727,
+        "unknown_but_hidden_rate": 0.477273
+      },
+      "after": {
+        "sample_count": 4,
+        "judgment_count": 471,
+        "precision_at_10": 0.5,
+        "recall_at_10": 0.522727,
+        "important_unknown_recall_at_10": 0.522727,
+        "unknown_but_hidden_rate": 0.477273
+      },
+      "iu_recall_at_10_delta": 0.0
+    }
+  },
+    "notes": [
+      "This is full-cluster production scoring, not the 20-case freeze sample.",
+      "Identity remediation is frozen; this measurement does not read blind labels.",
+      "Do not run #171 one-shot blind until Top-3 production remediation is complete.",
+      "Top-3 family IU@10 delta is 0.",
+      "Remaining gap is ranking_priority_or_capacity among equal-rank registry events."
+    ]
+}
