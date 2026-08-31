@@ -99,6 +99,9 @@ class Impact(ApiModel):
     confidence: Confidence
 
 
+AdditionalSourceRole = Literal["restatement", "syndication", "independent_confirmation"]
+
+
 class SourceEvidence(ApiModel):
     publisher: str
     kind: SourceKind
@@ -107,6 +110,7 @@ class SourceEvidence(ApiModel):
     published_at: str
     retrieved_at: str
     evidence: str
+    role: AdditionalSourceRole | None = None
 
 
 class SessionResponse(ApiModel):

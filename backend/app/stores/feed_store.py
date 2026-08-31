@@ -16,6 +16,7 @@ from app.errors import not_found, unprocessable
 from app.schemas.common import Delta, Importance, MatchedRepository, Relation, SourceEvidence
 from app.schemas.feed import PublicFeedItem
 from app.services.cross_source_suppress import SourceCandidate, project_candidates
+from app.services.display_reason import DisplayReasonInputs, build_display_reason
 from app.services.feedback_signals import (
     FAMILY_FOLLOW,
     FAMILY_KNOWLEDGE,
@@ -328,7 +329,28 @@ def _row_to_item(
     following: bool,
     sources: list[SourceEvidence],
     additional_sources: list[SourceEvidence] | None = None,
+    *,
+    display_inputs: DisplayReasonInputs | None = None,
 ) -> PublicFeedItem:
+    matched_repos = [
+        MatchedRepository.model_validate(item) for item in json.loads(row["matched_repos_json"])
+    ]
+    matched_topics = json.loads(row["matched_topics_json"])
+    extras = list(additional_sources or [])
+    reason_inputs = display_inputs or DisplayReasonInputs(
+        ranking_policy_version=RANKING_POLICY_VERSION,
+        priority_rule=None,
+        redundancy_penalty=0.0,
+        relation_level=row["relation_level"],
+        relation_reason=row["relation_reason"],
+        matched_topics=tuple(matched_topics),
+        matched_repository_names=tuple(item.name for item in matched_repos),
+        importance_level=row["importance_level"],
+        delta_type=row["delta_type"],
+        knownness_state=STATE_UNKNOWN,
+        knownness_confidence=CONFIDENCE_NONE,
+        additional_source_roles=tuple(item.role for item in extras if item.role),
+    )
     return PublicFeedItem(
         id=row["id"],
         event_id=row["event_id"],
@@ -349,17 +371,16 @@ def _row_to_item(
         relation=Relation(
             level=row["relation_level"],
             reason=row["relation_reason"],
-            matched_topics=json.loads(row["matched_topics_json"]),
-            matched_repositories=[
-                MatchedRepository.model_validate(item) for item in json.loads(row["matched_repos_json"])
-            ],
+            matched_topics=matched_topics,
+            matched_repositories=matched_repos,
         ),
         status=row["status"],
         following=following,
         updated_at=row["updated_at"],
         delivery_id=delivery_id,
         sources=sources,
-        additional_sources=list(additional_sources or []),
+        additional_sources=extras,
+        display_reason=build_display_reason(reason_inputs),
     )
 
 
@@ -808,7 +829,12 @@ class FeedStore:
                 )
             projection = project_candidates(source_candidates)
             additional_by_id = {
-                card.displayed_id: list(card.provenance())
+                card.displayed_id: [source.to_source_evidence() for source in card.additional_sources]
+                for card in projection.cards
+                if card.action != "hide"
+            }
+            evidence_count_by_id = {
+                card.displayed_id: card.independent_evidence_count
                 for card in projection.cards
                 if card.action != "hide"
             }
@@ -866,6 +892,8 @@ class FeedStore:
 
             items: list[PublicFeedItem] = []
             created_at = _now_iso()
+            ranked_by_id = {item.item_id: item for item in page}
+            knownness_for_page = knownness_by_item
             for row in page_rows:
                 delivery_id = f"dlv_{secrets.token_urlsafe(10)}"
                 connection.execute(
@@ -882,13 +910,36 @@ class FeedStore:
                         event_id=row["event_id"],
                         delta_id=row["delta_id"],
                     )
+                extras = additional_by_id.get(row["id"], [])
+                ranked_item = ranked_by_id[row["id"]]
+                known_state, known_confidence = knownness_for_page[row["id"]]
+                matched_repos = [
+                    MatchedRepository.model_validate(item)
+                    for item in json.loads(row["matched_repos_json"])
+                ]
+                display_inputs = DisplayReasonInputs(
+                    ranking_policy_version=ranked_item.policy_version,
+                    priority_rule=ranked_item.priority_rule,
+                    redundancy_penalty=ranked_item.axes.redundancy_penalty,
+                    relation_level=row["relation_level"],
+                    relation_reason=row["relation_reason"],
+                    matched_topics=tuple(json.loads(row["matched_topics_json"])),
+                    matched_repository_names=tuple(item.name for item in matched_repos),
+                    importance_level=row["importance_level"],
+                    delta_type=row["delta_type"],
+                    knownness_state=known_state,
+                    knownness_confidence=known_confidence,
+                    additional_source_roles=tuple(item.role for item in extras if item.role),
+                    independent_evidence_count=evidence_count_by_id.get(row["id"], 1),
+                )
                 items.append(
                     _row_to_item(
                         row,
                         delivery_id,
                         follows.get(row["event_id"], False),
                         sources_by_event.get(row["event_id"], []),
-                        additional_by_id.get(row["id"], []),
+                        extras,
+                        display_inputs=display_inputs,
                     )
                 )
             page_ids = {row["id"] for row in page_rows}
