@@ -1580,8 +1580,9 @@ private fun Throwable.toUserMessage(): String {
         this is SessionRecoveryRequiredException -> "保存済みのBulletFeedアカウントへ再認証してください。"
         this is IOException -> "通信できませんでした。接続を確認して再試行してください。"
         httpCode() == 401 -> "認証の有効期限が切れました。同じアカウントへ再認証してください。"
-        httpCode() == 403 -> apiValidationMessage()
-            ?: "この情報へのアクセス権がありません。GitHubの再認証または情報源の許可設定を確認してください。"
+        httpCode() == 403 ->
+            apiValidationMessage
+                ?: "この情報へのアクセス権がありません。GitHubの再認証または情報源の許可設定を確認してください。"
         httpCode() == 404 -> "対象は削除されたか、現在はアクセスできません。"
         apiValidationMessage != null -> apiValidationMessage
         httpCode() == 409 -> "サーバー上の状態が更新されています。再読み込みしてからやり直してください。"
@@ -1615,7 +1616,8 @@ private fun Throwable.apiValidationMessage(): String? {
     val httpError = this as? HttpException ?: return null
     if (httpError.code() !in setOf(403, 409, 422)) return null
     val body = runCatching { httpError.response()?.errorBody()?.string() }.getOrNull() ?: return null
-    val message = runCatching { apiErrorJson.decodeFromString<ApiErrorEnvelope>(body).error.message }.getOrNull()
+    val raw = runCatching { apiErrorJson.decodeFromString<ApiErrorEnvelope>(body).error.message }.getOrNull()
+    val message = raw?.removePrefix("Value error, ")?.trim()?.takeIf { it.isNotEmpty() }
     return when (message) {
         "topic limit reached" -> TOPIC_LIMIT_REACHED_MESSAGE
         "topic already exists" -> "すでに追跡中のテーマです。"
@@ -1625,6 +1627,7 @@ private fun Throwable.apiValidationMessage(): String? {
         "pageId or url is required for statuspage" -> "Statuspage は page ID または URL が必要です。"
         "Statuspage URL must use a statuspage.io page host" -> "Statuspage は statuspage.io のページURLを指定してください。"
         "RSS fetching is disabled" -> "RSS/JSON Feed の取得は現在無効です。"
+        "Web fetching is disabled" -> "Webページの取得は現在無効です。"
         "RSS host is not in the allowlist" -> "このホストのフィードは許可されていません。"
         "RSS host cannot be resolved" -> "フィードのホスト名を解決できません。"
         else -> message?.takeIf { it.isNotBlank() && it.length <= 180 }

@@ -46,6 +46,7 @@ def validation_exception_handler(_request: Request, exc: RequestValidationError)
         if len(location) > 1:
             field = str(location[-1])
         message = str(errors[0].get("msg") or message)
+        message = message.removeprefix("Value error, ")
     return JSONResponse(status_code=422, content=error_payload("validation_error", message, field))
 
 
