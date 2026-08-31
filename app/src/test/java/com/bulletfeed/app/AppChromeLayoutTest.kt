@@ -260,4 +260,41 @@ class AppChromeLayoutTest {
             ),
         )
     }
+
+    @Test
+    fun widthChangeKeepsNotificationsOverlayOverSelectedEvent() {
+        assertEquals(
+            AppReadyPane.NOTIFICATIONS,
+            AppReadyPane.resolve(
+                widthDp = 360,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = true,
+                githubSetupOpen = false,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.NOTIFICATIONS,
+            AppReadyPane.resolve(
+                widthDp = 840,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = true,
+                githubSetupOpen = false,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.NOTIFICATIONS,
+            AppReadyPane.resolve(
+                widthDp = 360,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = true,
+                githubSetupOpen = false,
+            ),
+        )
+    }
 }
