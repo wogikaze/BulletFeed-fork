@@ -4,8 +4,10 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +30,7 @@ class SessionRecoverySemanticsTest {
         composeRule.onNodeWithText("同じアカウントへ再認証").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )
+        composeRule.onNodeWithText("アカウントを復旧").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -45,6 +48,7 @@ class SessionRecoverySemanticsTest {
         composeRule.onNodeWithText("GitHubの再認証が必要です").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithText("GitHubを再認証").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -69,5 +73,6 @@ class SessionRecoverySemanticsTest {
         composeRule.onNodeWithText("GitHub連携を完了").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithText("GitHubで認可する").assertHeightIsAtLeast(48.dp)
     }
 }
