@@ -1665,6 +1665,8 @@ private fun Throwable.apiValidationMessage(): String? {
         "topic limit reached" -> TOPIC_LIMIT_REACHED_MESSAGE
         "topic already exists" -> "すでに追跡中のテーマです。"
         "topic name is required" -> "テーマ名を入力してください。"
+        "at least 5 topics are required unless GitHub import is enabled" ->
+            "GitHub連携なしではテーマを5件以上選んでください。"
         "url is required" -> "URLを入力してください。"
         "Unsupported source kind" -> "この種類の情報源は購読できません。"
         "Invalid Statuspage ID" -> "Statuspage の page ID が正しくありません。"

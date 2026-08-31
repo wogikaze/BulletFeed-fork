@@ -19,6 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+import retrofit2.HttpException
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
@@ -59,6 +60,26 @@ class M1AndroidOnboardingJourneyTest {
                 assertEquals(persona.personaId, persona.topics.distinct(), snapshot.topics)
                 assertTrue(persona.personaId, repository.getGithubConnection())
             }
+        }
+
+    @Test
+    fun completeOnboardingWithoutGithubAndTooFewTopicsIsUnprocessable() =
+        runTest {
+            val persona = loadPersonas().first { it.expectEmptyReason == "no_topics_abstention" }
+            val repository = MockBulletFeedRepository()
+            try {
+                repository.completeOnboarding(
+                    profile = profileFor(persona),
+                    topics = emptyList(),
+                    connectGithub = false,
+                )
+                throw AssertionError("${persona.personaId} expected HTTP 422 abstention")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+            }
+            val snapshot = repository.getOnboardingSnapshot()
+            assertEquals(persona.personaId, false, snapshot.completed)
+            assertEquals(persona.personaId, OnboardingState.PROFILE, snapshot.state)
         }
 
     @Test

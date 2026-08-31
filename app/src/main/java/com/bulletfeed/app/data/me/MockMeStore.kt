@@ -1,5 +1,10 @@
 package com.bulletfeed.app
 
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
+import retrofit2.HttpException
+import retrofit2.Response
+
 class MockMeStore(
     private val state: MockAppState,
 ) : MeRepository {
@@ -82,10 +87,13 @@ class MockMeStore(
         topics: List<String>,
         connectGithub: Boolean,
     ): OnboardingSnapshot {
+        val uniqueTopics = uniqueTopicNames(topics)
+        if (!connectGithub && uniqueTopics.size < DemoData.MINIMUM_TOPIC_COUNT) {
+            throw mockUnprocessable("at least 5 topics are required unless GitHub import is enabled")
+        }
         state.profile = profile
         state.topics =
-            topics
-                .distinct()
+            uniqueTopics
                 .mapIndexed { index, name ->
                     UserTopic("topic_$index", name, TopicType.TECHNOLOGY, TopicPriority.NORMAL, index)
                 }.toMutableList()
@@ -268,4 +276,25 @@ class MockMeStore(
                 inferredFactCount = 0,
             )
     }
+}
+
+private fun uniqueTopicNames(topics: List<String>): List<String> {
+    val unique = mutableListOf<String>()
+    val seen = mutableSetOf<String>()
+    for (name in topics) {
+        val cleaned = name.trim()
+        if (cleaned.isEmpty() || !seen.add(cleaned.lowercase())) continue
+        unique += cleaned
+    }
+    return unique
+}
+
+private fun mockUnprocessable(message: String): HttpException {
+    val body = """{"error":{"code":"validation_error","message":"$message"}}"""
+    return HttpException(
+        Response.error<Unit>(
+            422,
+            body.toResponseBody("application/json".toMediaType()),
+        ),
+    )
 }
