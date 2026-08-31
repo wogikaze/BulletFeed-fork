@@ -100,4 +100,13 @@ class SurfaceLiveRegionSemanticsTest {
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
     }
+
+    @Test
+    fun sourcePartialFailureAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { SourcePartialFailureStatus(failingCount = 1) }
+
+        composeRule.onNodeWithText("1件の情報源が失敗中です。他の購読とフィードはそのまま使えます。").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
 }
