@@ -32,6 +32,9 @@ jobs:
       - name: Install hash-locked backend dependencies
         run: python -m pip install --require-hashes -r backend/requirements.lock
 
+      - name: Install ext4 loop tools
+        run: sudo apt-get update && sudo apt-get install -y e2fsprogs
+
       - name: Run M5 Docker host recovery drill
         run: |
           python backend/scripts/run_host_recovery_drill.py \
