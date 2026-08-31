@@ -25,6 +25,7 @@ ARTIFACTS = {
     "m5_host": EVIDENCE_ROOT / "recovery" / "v01" / "host_recovery_report.json",
     "m6": EVIDENCE_ROOT / "m6" / "v01" / "top3_selection.json",
     "m6_root_cause": EVIDENCE_ROOT / "m6" / "v01" / "root_cause_report.json",
+    "m6_capacity": EVIDENCE_ROOT / "m6" / "v01" / "top3_capacity_diagnosis.json",
     "m7_backend": EVIDENCE_ROOT / "clean_room" / "v01" / "backend_report.json",
 }
 
@@ -254,7 +255,30 @@ def _m6_gate(report: dict[str, Any]) -> dict[str, Any]:
     return {
         "status": "partial" if all(checks.values()) else "fail",
         "evidence_checks": checks,
-        "note": "Selection is complete; production remediation and blind one-shot evaluation are not.",
+        "note": (
+            "Top-3 family IU@10 is k=10 capacity after identity/recency/production ranker. "
+            "Do not run #171 to chase family IU@10."
+        ),
+    }
+
+
+def _m6_capacity_gate(report: dict[str, Any]) -> dict[str, Any]:
+    families = report.get("persona_families", {})
+    package = families.get("package_release_manager", {})
+    javascript = families.get("javascript_tooling_maintainer", {})
+    checks = {
+        "not_blind": report.get("blind_read") is False and report.get("human_gold") is False,
+        "package_saturated": package.get("k10_saturated_profiles") == 4,
+        "javascript_capacity_mix": javascript.get("k10_saturated_profiles") == 2
+        and javascript.get("vacuous_perfect_recall_profiles") == 2,
+    }
+    return {
+        "status": "partial" if all(checks.values()) else "fail",
+        "evidence_checks": checks,
+        "note": (
+            "Saturated users already fill top-10 with important-unknown. "
+            "Vacuous IU recall 1.0 for empty IU sets is the existing metric contract."
+        ),
     }
 
 
@@ -306,8 +330,10 @@ def build_report() -> dict[str, Any]:
         "m6": {
             "artifact": _relative(ARTIFACTS["m6"]),
             "root_cause_artifact": _relative(ARTIFACTS["m6_root_cause"]),
+            "capacity_artifact": _relative(ARTIFACTS["m6_capacity"]),
             **_m6_gate(loaded["m6"]),
             "root_cause_analysis": _m6_root_cause_gate(loaded["m6_root_cause"]),
+            "capacity_diagnosis": _m6_capacity_gate(loaded["m6_capacity"]),
         },
         "m7": {
             "artifact": _relative(ARTIFACTS["m7_backend"]),
@@ -325,9 +351,7 @@ def build_report() -> dict[str, Any]:
             "M1 Android journey and cross-surface breadth for all 30 personas",
             "M3 longitudinal per-source update evidence (#283)",
             "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
-            "M5 long-running snapshot backup/retention and "
-            "stale-heartbeat/source-outage/rate-limit drills",
-            "M6 production Top-3 remediation followed by one-shot blind evaluation",
+            "M6 one-shot blind aggregate evaluation (#171) after production freeze",
             "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision",
         ],
         "human_only_or_field_validation": [
