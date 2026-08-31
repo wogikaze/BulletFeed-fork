@@ -55,4 +55,19 @@ class SessionRecoverySemanticsTest {
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
     }
+
+    @Test
+    fun githubAuthorizationErrorAnnouncesAssertiveLiveRegion() {
+        composeRule.setContent {
+            GithubAuthorizationRequiredScreen(
+                isAuthorizing = false,
+                errorMessage = "認可に失敗しました",
+                onAuthorize = {},
+            )
+        }
+
+        composeRule.onNodeWithText("GitHub連携を完了").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+    }
 }
