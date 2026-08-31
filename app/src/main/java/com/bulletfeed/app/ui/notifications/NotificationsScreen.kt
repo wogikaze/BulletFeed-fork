@@ -33,7 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -78,7 +77,7 @@ fun NotificationsScreen(
                 },
                 actions = {
                     if (unreadCount > 0) {
-                        TextButton(onClick = onMarkAllRead) {
+                        AccessibleTextButton(onClick = onMarkAllRead) {
                             Icon(Icons.Default.DoneAll, contentDescription = null, modifier = Modifier.size(18.dp))
                             Text("すべて既読", modifier = Modifier.padding(start = 4.dp))
                         }

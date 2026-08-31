@@ -30,14 +30,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Topic
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -209,11 +207,11 @@ private fun OnboardingActions(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (step > 0) {
-            OutlinedButton(onClick = onBack, enabled = !isSaving, modifier = Modifier.weight(0.7f)) {
+            AccessibleOutlinedButton(onClick = onBack, enabled = !isSaving, modifier = Modifier.weight(0.7f)) {
                 Text("戻る")
             }
         }
-        Button(
+        AccessiblePrimaryButton(
             onClick = onNext,
             enabled = canContinue && !isSaving,
             modifier = Modifier.weight(1.3f),
@@ -413,8 +411,8 @@ private fun TopicsStep(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { onToggle(item.name) }) { Text("追加") }
-                        OutlinedButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
+                        AccessiblePrimaryButton(onClick = { onToggle(item.name) }) { Text("追加") }
+                        AccessibleOutlinedButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
                     }
                 }
             }

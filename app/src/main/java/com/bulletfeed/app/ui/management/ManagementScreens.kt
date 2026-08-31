@@ -26,7 +26,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,7 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -178,11 +176,11 @@ fun TopicsScreen(
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Row(Modifier.padding(top = 8.dp)) {
-                            Button(onClick = { onAddRecommendation(item) }, enabled = !topicLimitReached) {
+                            AccessiblePrimaryButton(onClick = { onAddRecommendation(item) }, enabled = !topicLimitReached) {
                                 Text("追加")
                             }
                             Spacer(Modifier.width(8.dp))
-                            TextButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
+                            AccessibleTextButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
                         }
                     }
                 }
@@ -225,7 +223,7 @@ fun TopicsScreen(
                             Text(result.name, fontWeight = FontWeight.Bold)
                             Text(result.type.label(), color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
                         }
-                        Button(
+                        AccessiblePrimaryButton(
                             onClick = { onAddSearchResult(result) },
                             enabled = !topicLimitReached,
                         ) {
@@ -284,7 +282,10 @@ fun TopicsScreen(
                             color = Color(0xFF3D5A56),
                         )
                         Spacer(Modifier.height(12.dp))
-                        Button(onClick = onGithubClick, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006A67))) {
+                        AccessiblePrimaryButton(
+                            onClick = onGithubClick,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006A67)),
+                        ) {
                             Text(if (githubConnected) "連携設定を見る" else "GitHubを連携する")
                         }
                     }
@@ -321,7 +322,7 @@ private fun TopicManagementCard(
             onClick = { onPriorityChange(topic.id, topic.priority.next()) },
             labelColor = topic.priority.chipColor(),
         )
-        TextButton(onClick = { onRemoveTopic(topic.id) }) { Text("削除", color = Color(0xFF8F1D18)) }
+        AccessibleTextButton(onClick = { onRemoveTopic(topic.id) }) { Text("削除", color = Color(0xFF8F1D18)) }
     }
 }
 
@@ -395,7 +396,7 @@ fun GithubConnectionScreen(
                 item {
                     InfoBlock("必要な権限", "公開プロフィールと、選択したrepositoryに対してGitHubが現在許可しているメタデータ・依存関係情報")
                     Spacer(Modifier.height(14.dp))
-                    Button(
+                    AccessiblePrimaryButton(
                         onClick = onConnect,
                         enabled = !isAuthorizing,
                         modifier = Modifier.fillMaxWidth(),
@@ -473,7 +474,7 @@ fun GithubConnectionScreen(
                     }
                 }
                 item {
-                    Button(
+                    AccessiblePrimaryButton(
                         onClick = onSaveRepositories,
                         enabled = !isSaving,
                         modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
@@ -492,7 +493,7 @@ fun GithubConnectionScreen(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
-                    TextButton(onClick = onDisconnect, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                    AccessibleTextButton(onClick = onDisconnect, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
                         Text("GitHub連携を解除", color = Color(0xFF8F1D18))
                     }
                     Spacer(Modifier.height(24.dp))
@@ -913,7 +914,7 @@ private fun SourceRecommendationCard(
                 Spacer(Modifier.height(12.dp))
                 Row {
                     if (item.canApprove()) {
-                        Button(
+                        AccessiblePrimaryButton(
                             onClick = onApprove,
                             enabled = enabled,
                             modifier = Modifier.weight(1f),
