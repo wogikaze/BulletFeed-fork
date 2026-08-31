@@ -27,7 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -1057,7 +1056,7 @@ private fun RowWithDismiss(message: String, onDismiss: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(message, modifier = Modifier.weight(1f), color = Color.White, style = MaterialTheme.typography.bodySmall)
-        IconButton(onClick = onDismiss) {
+        AccessibleIconButton(onClick = onDismiss) {
             Icon(Icons.Default.Close, contentDescription = "閉じる", tint = Color.White)
         }
     }

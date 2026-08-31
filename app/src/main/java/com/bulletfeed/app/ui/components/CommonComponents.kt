@@ -20,8 +20,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -126,6 +130,43 @@ internal fun AccessibleTextButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
+        content = content,
+    )
+}
+
+@Composable
+internal fun AccessibleOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = true,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
+        label = label,
+        leadingIcon = leadingIcon,
+        singleLine = singleLine,
+        shape = shape,
+    )
+}
+
+@Composable
+internal fun AccessibleIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier.defaultMinSize(
+            minWidth = AppReadability.MIN_TOUCH_TARGET_DP.dp,
+            minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp,
+        ),
         content = content,
     )
 }
