@@ -23,11 +23,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -56,6 +61,46 @@ internal fun AccessibleFilterChip(
         modifier = modifier.defaultMinSize(minHeight = AppReadability.MIN_TOUCH_TARGET_DP.dp),
         label = { Text(label) },
         leadingIcon = leadingIcon,
+    )
+}
+
+@Composable
+internal fun ReadableTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    style: TextStyle = MaterialTheme.typography.titleMedium,
+    fontWeight: FontWeight = FontWeight.Bold,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+) {
+    val maxLines = AppReadability.titleMaxLines(LocalDensity.current.fontScale)
+    Text(
+        text,
+        modifier = modifier.testTag("readable-title-max-lines-$maxLines"),
+        color = color,
+        style = style,
+        fontWeight = fontWeight,
+        lineHeight = lineHeight,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+internal fun ReadableSummary(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color(0xFF49454F),
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+) {
+    val maxLines = AppReadability.summaryMaxLines(LocalDensity.current.fontScale)
+    Text(
+        text,
+        modifier = modifier.testTag("readable-summary-max-lines-$maxLines"),
+        color = color,
+        style = style,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
     )
 }
 

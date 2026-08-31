@@ -52,12 +52,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -222,12 +220,9 @@ private fun TodaySummary(
                 }.padding(13.dp),
             ) {
                 Text("${event.importance.label} · ${event.relation.label}", color = Color(0xFFFFD8A8), style = MaterialTheme.typography.labelMedium)
-                Text(
+                ReadableTitle(
                     event.title,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = AppReadability.titleMaxLines(LocalDensity.current.fontScale),
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -333,23 +328,12 @@ private fun EventCard(
                 if (!event.read) Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFB42318)))
             }
             Spacer(Modifier.height(12.dp))
-            val fontScale = LocalDensity.current.fontScale
-            Text(
+            ReadableTitle(
                 event.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
                 lineHeight = 23.sp,
-                maxLines = AppReadability.titleMaxLines(fontScale),
-                overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.height(7.dp))
-            Text(
-                event.summary,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF49454F),
-                maxLines = AppReadability.summaryMaxLines(fontScale),
-                overflow = TextOverflow.Ellipsis,
-            )
+            ReadableSummary(event.summary)
             Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = Color(0xFFEAE5EC))
             Spacer(Modifier.height(8.dp))

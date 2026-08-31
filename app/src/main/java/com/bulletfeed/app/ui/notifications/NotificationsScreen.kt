@@ -46,12 +46,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -195,22 +193,13 @@ private fun NotificationCard(
                 Spacer(Modifier.weight(1f))
                 Text(notification.occurredAt, color = Color(0xFF655F69), style = MaterialTheme.typography.labelSmall)
             }
-            val fontScale = LocalDensity.current.fontScale
-            Text(
+            ReadableTitle(
                 notification.title,
                 modifier = Modifier.padding(top = 5.dp),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = AppReadability.titleMaxLines(fontScale),
-                overflow = TextOverflow.Ellipsis,
             )
-            Text(
+            ReadableSummary(
                 notification.summary,
                 modifier = Modifier.padding(top = 5.dp),
-                color = Color(0xFF49454F),
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = AppReadability.summaryMaxLines(fontScale),
-                overflow = TextOverflow.Ellipsis,
             )
             HorizontalDivider(modifier = Modifier.padding(top = 11.dp, bottom = 7.dp), color = Color(0xFFEAE5EC))
             Row(verticalAlignment = Alignment.CenterVertically) {
