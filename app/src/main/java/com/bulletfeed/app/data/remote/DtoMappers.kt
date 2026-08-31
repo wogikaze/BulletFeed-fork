@@ -14,6 +14,19 @@ fun FeedItemDto.toDomain(): FeedItem =
         deliveryId = deliveryId,
         sources = sources.map { it.toDomain() },
         additionalSources = additionalSources.map { it.toDomain() },
+        displayReason = displayReason?.toDomain(),
+    )
+
+fun DisplayReasonDto.toDomain(): DisplayReason =
+    DisplayReason(
+        policyVersion = policyVersion,
+        rankingPolicyVersion = rankingPolicyVersion,
+        primaryCode = primaryCode,
+        text = text,
+        codes = codes,
+        matchKind = matchKind,
+        deltaKind = deltaKind,
+        independentEvidenceCount = independentEvidenceCount.coerceAtLeast(1),
     )
 
 fun FeedPageDto.toDomain(): FeedPage = FeedPage(items = items.map { it.toDomain() }, nextCursor = nextCursor)

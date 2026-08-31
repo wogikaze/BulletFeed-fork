@@ -130,9 +130,12 @@ fun EventDetailScreen(
 
 @Composable
 private fun FeedContextHeader(event: FeedEvent) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 12.dp)) {
-        StatusPill(event.importance.label, event.importance.color)
-        StatusPill(event.relation.label, event.relation.color, pale = true)
+    Column(Modifier.padding(bottom = 12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StatusPill(event.importance.label, event.importance.color)
+            StatusPill(event.relation.label, event.relation.color, pale = true)
+        }
+        FeedDisplayReasonLine(event.displayReason, modifier = Modifier.padding(top = 8.dp))
     }
 }
 

@@ -49,10 +49,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -335,6 +339,7 @@ internal fun EventCard(
             )
             Spacer(Modifier.height(7.dp))
             ReadableSummary(event.summary)
+            FeedDisplayReasonLine(event.displayReason, modifier = Modifier.padding(top = 8.dp))
             Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = Color(0xFFEAE5EC))
             Spacer(Modifier.height(8.dp))
@@ -380,4 +385,23 @@ internal fun EventCard(
             }
         }
     }
+}
+
+@Composable
+internal fun FeedDisplayReasonLine(
+    reason: DisplayReason?,
+    modifier: Modifier = Modifier,
+) {
+    val text = reason?.userFacingTextOrNull() ?: return
+    val maxLines = if (LocalDensity.current.fontScale >= AppReadability.LARGE_FONT_SCALE) 3 else 2
+    Text(
+        text,
+        modifier = modifier
+            .testTag("feed-display-reason")
+            .semantics { contentDescription = "表示理由: $text" },
+        color = Color(0xFF655F69),
+        style = MaterialTheme.typography.bodySmall,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
+    )
 }

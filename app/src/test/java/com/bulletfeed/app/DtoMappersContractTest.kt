@@ -1,5 +1,6 @@
 package com.bulletfeed.app
 
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -211,6 +212,111 @@ class DtoMappersContractTest {
         assertEquals(FeedFeedbackType.LESS_LIKE_THIS, Feedback.LESS_LIKE_THIS.toFeedFeedbackType())
         assertEquals(FeedFeedbackType.UNDO, Feedback.UNDO.toFeedFeedbackType())
         assertEquals(null, Feedback.READ.toFeedFeedbackType())
+    }
+
+    @Test
+    fun `feed displayReason maps user-facing text and keeps codes from GET feed`() {
+        val json = Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }
+        val dto = json.decodeFromString<FeedItemDto>(
+            """
+            {
+              "id": "fi_1",
+              "eventId": "ev_1",
+              "delta": {
+                "id": "d1",
+                "type": "new_fact",
+                "summary": "summary",
+                "before": "",
+                "after": "after",
+                "occurredAt": "2026-09-01T00:00:00Z"
+              },
+              "title": "title",
+              "importance": { "level": "medium", "reason": "impact", "confidence": "high" },
+              "relation": {
+                "level": "direct",
+                "reason": "matched topic",
+                "matchedTopics": ["Rust"],
+                "matchedRepositories": []
+              },
+              "status": "unread",
+              "following": true,
+              "updatedAt": "2026-09-01T00:00:00Z",
+              "deliveryId": "dlv_1",
+              "displayReason": {
+                "policyVersion": "display-reason-v1",
+                "rankingPolicyVersion": "ranking-v1",
+                "primaryCode": "relation.direct_topic",
+                "text": "フォロー中のRustに関連。まだ見ていない可能性が高い。",
+                "codes": ["relation.direct_topic", "novelty.possibly_unread"],
+                "matchKind": "direct",
+                "deltaKind": "new_fact",
+                "independentEvidenceCount": 1
+              }
+            }
+            """.trimIndent(),
+        )
+        val mapped = dto.toDomain()
+        val reason = mapped.displayReason
+        assertEquals("display-reason-v1", reason?.policyVersion)
+        assertEquals("relation.direct_topic", reason?.primaryCode)
+        assertEquals("フォロー中のRustに関連。まだ見ていない可能性が高い。", reason?.text)
+        assertEquals(listOf("relation.direct_topic", "novelty.possibly_unread"), reason?.codes)
+        assertEquals("direct", reason?.matchKind)
+        assertEquals("new_fact", reason?.deltaKind)
+        assertEquals("フォロー中のRustに関連。まだ見ていない可能性が高い。", reason?.userFacingTextOrNull())
+        assertEquals(reason, mapped.toFeedEvent().displayReason)
+    }
+
+    @Test
+    fun `missing displayReason stays null and empty text is not shown`() {
+        val json = Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }
+        val withoutReason = json.decodeFromString<FeedItemDto>(
+            """
+            {
+              "id": "fi_2",
+              "eventId": "ev_2",
+              "delta": {
+                "id": "d2",
+                "type": "detail",
+                "summary": "summary",
+                "before": "",
+                "after": "after",
+                "occurredAt": "2026-09-01T00:00:00Z"
+              },
+              "title": "title",
+              "importance": { "level": "low", "reason": "impact", "confidence": "low" },
+              "relation": {
+                "level": "reference",
+                "reason": "reference",
+                "matchedTopics": [],
+                "matchedRepositories": []
+              },
+              "status": "unread",
+              "following": false,
+              "updatedAt": "2026-09-01T00:00:00Z",
+              "deliveryId": "dlv_2"
+            }
+            """.trimIndent(),
+        ).toDomain()
+        assertEquals(null, withoutReason.displayReason)
+        assertEquals(null, withoutReason.toFeedEvent().displayReason)
+
+        val blank = DisplayReason(
+            policyVersion = "display-reason-v1",
+            rankingPolicyVersion = "ranking-v1",
+            primaryCode = "relation.reference",
+            text = "   ",
+            codes = listOf("relation.reference"),
+            matchKind = "reference",
+            deltaKind = "new_fact",
+        )
+        assertEquals(null, blank.userFacingTextOrNull())
     }
 
     @Test
