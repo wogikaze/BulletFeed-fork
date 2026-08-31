@@ -444,3 +444,70 @@ def test_blind_relevance_reports_precision_recall_and_false_positive_rate() -> N
     assert 0.0 <= report.include_ambiguous.recall_at_k <= 1.0
     assert 0.0 <= fpr <= 1.0
     assert report.include_ambiguous.user_count == len(corpus.users)
+
+
+def test_crates_io_interest_matches_crates_registry_release() -> None:
+    state = _state(
+        "pkg_mgr",
+        topics=(("packages", "high"), ("releases", "high"), ("crates.io", "high")),
+    )
+    signal = _score(
+        state,
+        title="chrono 0.4.43",
+        summary="chrono 0.4.43 release metadata from crates",
+        source_type="package_registry",
+        source_key="crates registry / chrono",
+    )
+    assert signal.level in {"adjacent", "direct"}
+    assert signal.personalization_rank > 0
+    assert signal.score > 0
+
+
+def test_rust_interest_is_adjacent_to_crates_registry_release() -> None:
+    state = _state("rustc", topics=(("Rust", "high"), ("LLVM", "high")))
+    signal = _score(
+        state,
+        title="anyhow 1.0.104",
+        summary="anyhow 1.0.104 release metadata from crates",
+        source_type="package_registry",
+        source_key="crates registry / anyhow",
+    )
+    assert signal.level == "adjacent"
+    assert signal.personalization_rank > 0
+
+
+def test_followed_package_is_direct_on_registry_release() -> None:
+    state = _state(
+        "js_tools",
+        topics=(("JavaScript", "high"), ("npm", "high"), ("eslint", "high"), ("prettier", "high")),
+    )
+    eslint = _score(
+        state,
+        title="eslint 9.1.0",
+        summary="eslint 9.1.0 release metadata from npm",
+        source_type="package_registry",
+        source_key="npm registry / eslint",
+    )
+    other = _score(
+        state,
+        title="d3 7.9.0",
+        summary="d3 7.9.0 release metadata from npm",
+        source_type="package_registry",
+        source_key="npm registry / d3",
+    )
+    assert eslint.level == "direct"
+    assert other.level == "adjacent"
+    assert eslint.personalization_rank >= other.personalization_rank
+
+
+def test_unrelated_registry_release_stays_reference() -> None:
+    state = _state("android", topics=(("Kotlin", "high"), ("Android", "high")))
+    signal = _score(
+        state,
+        title="chrono 0.4.43",
+        summary="chrono 0.4.43 release metadata from crates",
+        source_type="package_registry",
+        source_key="crates registry / chrono",
+    )
+    assert signal.level == "reference"
+    assert signal.personalization_rank == 0

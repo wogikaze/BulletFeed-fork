@@ -4,6 +4,7 @@ from pathlib import Path
 from app.database import Database
 from app.services.feed_projection import FeedProjector
 from app.services.github_release_pipeline import ingest_github_release_events
+from app.services.relation import RELATION_FEATURE_VERSION
 from app.services.rss_pipeline import ingest_feed_events
 from app.stores.feed_store import FeedStore
 
@@ -117,4 +118,4 @@ def test_rss_feed_matches_user_topic_as_adjacent_relation(tmp_path: Path) -> Non
     assert json.loads(row["matched_topics_json"]) == ["Kotlin"]
     assert json.loads(row["matched_repos_json"]) == []
     assert "Kotlin" in row["relation_reason"]
-    assert "relation-features-v01" in row["relation_reason"]
+    assert RELATION_FEATURE_VERSION in row["relation_reason"]

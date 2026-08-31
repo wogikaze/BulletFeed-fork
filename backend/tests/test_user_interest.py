@@ -225,6 +225,14 @@ def test_semantic_neighbors_match_without_string_equality() -> None:
     assert "compiler optimization" not in "LLVM Scalar Evolution now folds more addrecs.".casefold()
 
 
+def test_rust_interest_neighbors_crates_registry_without_package_name() -> None:
+    rust = _state("u_rust", topics=(("Rust", "high"),))
+    match = semantic_match(rust, "chrono 0.4.43 release metadata from crates")
+
+    assert match.matched
+    assert any(hit.concept_id == "crates-io" and hit.match_kind == "neighbor" for hit in match.hits)
+
+
 def test_hard_negatives_do_not_explode_recall() -> None:
     react = _state("u_react", topics=(("React", "high"),))
     java = _state("u_java", topics=(("Java", "high"),))
