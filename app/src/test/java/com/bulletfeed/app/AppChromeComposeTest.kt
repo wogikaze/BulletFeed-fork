@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -243,6 +247,45 @@ class AppChromeComposeTest {
         assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
         composeRule.onNodeWithTag("app-chrome-tab-feed").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("app-chrome-tab-security").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun configurationWidthChangeSwitchesBottomBarToRailAndBack() {
+        var widthDp by mutableStateOf(360)
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(LocalConfiguration provides widthConfiguration(widthDp)) {
+                    key(widthDp) {
+                        AppChromeShellForWindow(
+                            tab = AppTab.FEED,
+                            securityActionCount = 0,
+                            onTabChange = {},
+                            content = { _ -> },
+                        )
+                    }
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+
+        composeRule.runOnIdle { widthDp = 800 }
+        composeRule.waitForIdle()
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-feed").assertHeightIsAtLeast(48.dp)
+
+        composeRule.runOnIdle { widthDp = 840 }
+        composeRule.waitForIdle()
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+
+        composeRule.runOnIdle { widthDp = 360 }
+        composeRule.waitForIdle()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-topics").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

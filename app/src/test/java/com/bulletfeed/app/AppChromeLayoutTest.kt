@@ -162,6 +162,80 @@ class AppChromeLayoutTest {
     }
 
     @Test
+    fun widthChangeFromPhoneToExpandedSwitchesStackedEventToListDetail() {
+        assertEquals(
+            AppReadyPane.EVENT_STACKED,
+            AppReadyPane.resolve(
+                widthDp = 360,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = false,
+                githubSetupOpen = false,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.EVENT_STACKED,
+            AppReadyPane.resolve(
+                widthDp = 800,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = false,
+                githubSetupOpen = false,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.EVENT_LIST_DETAIL,
+            AppReadyPane.resolve(
+                widthDp = 840,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = false,
+                githubSetupOpen = false,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.EVENT_STACKED,
+            AppReadyPane.resolve(
+                widthDp = 360,
+                tab = AppTab.FEED,
+                selectedEventId = "event-1",
+                selectedVulnerabilityId = null,
+                notificationsOpen = false,
+                githubSetupOpen = false,
+            ),
+        )
+    }
+
+    @Test
+    fun widthChangeFromPhoneToExpandedSwitchesStackedVulnerabilityToListDetail() {
+        assertEquals(
+            AppReadyPane.VULNERABILITY_STACKED,
+            AppReadyPane.resolve(
+                widthDp = 360,
+                tab = AppTab.SECURITY,
+                selectedEventId = null,
+                selectedVulnerabilityId = "alert-1",
+                notificationsOpen = false,
+                githubSetupOpen = false,
+            ),
+        )
+        assertEquals(
+            AppReadyPane.VULNERABILITY_LIST_DETAIL,
+            AppReadyPane.resolve(
+                widthDp = 840,
+                tab = AppTab.SECURITY,
+                selectedEventId = null,
+                selectedVulnerabilityId = "alert-1",
+                notificationsOpen = false,
+                githubSetupOpen = false,
+            ),
+        )
+    }
+
+    @Test
     fun expandedVulnerabilityGivesWayToNotificationsOverlay() {
         assertEquals(
             AppReadyPane.VULNERABILITY_LIST_DETAIL,

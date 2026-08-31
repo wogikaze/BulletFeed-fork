@@ -167,4 +167,116 @@ class AppBarTitleSemanticsTest {
 
         composeRule.onNodeWithTag("today-priority-event").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun eventDetailSectionHeadingsExposeHeadingSemantics() {
+        composeRule.setContent {
+            MaterialTheme {
+                EventDetailScreen(
+                    event = sampleEventDetail(),
+                    feedContext = null,
+                    onBack = {},
+                    onFeedback = {},
+                    onFollow = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("knowledge-bootstrap-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+        composeRule.onNodeWithTag("event-detail-delta-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+        composeRule.onNodeWithTag("event-detail-timeline-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+        composeRule.onNodeWithTag("event-detail-evidence-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
+
+    @Test
+    fun vulnerabilityUpdateHeadingExposesHeadingSemantics() {
+        composeRule.setContent {
+            MaterialTheme {
+                VulnerabilityDetailScreen(
+                    alert = sampleVulnerabilityAlert(),
+                    onBack = {},
+                    onStatusChange = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("vulnerability-update-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
+
+    @Test
+    fun onboardingStepHeadingExposesHeadingSemantics() {
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(
+                    initialProfile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                    initialTopics = emptyList(),
+                    isSaving = false,
+                    onComplete = { _, _, _ -> },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("onboarding-step-heading").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
+        )
+    }
 }
+
+private fun sampleEventDetail(): EventDetail =
+    EventDetail(
+        id = "event-1",
+        title = "Release",
+        summary = "Summary",
+        currentState =
+            CurrentState(
+                phase = "identified",
+                summary = "Shipping",
+                since = "2026-08-31T00:00:00Z",
+                confidence = "high",
+            ),
+        latestDelta =
+            FeedDelta(
+                id = "delta-1",
+                type = DeltaType.NEW_FACT,
+                summary = "shipped",
+                before = "",
+                after = "1.0",
+                occurredAt = "2026-08-31T00:00:00Z",
+            ),
+        openedDelta = null,
+        timeline = emptyList(),
+        impacts = emptyList(),
+        sources = emptyList(),
+        following = false,
+    )
+
+private fun sampleVulnerabilityAlert(): VulnerabilityAlert =
+    VulnerabilityAlert(
+        id = "v1",
+        advisoryId = "GHSA-xxxx",
+        cve = "CVE-2026-0001",
+        title = "依存関係の脆弱性",
+        summary = "更新してください。",
+        severity = VulnerabilitySeverity.HIGH,
+        status = VulnerabilityStatus.OPEN,
+        repository = "owner/repo",
+        packageName = "example",
+        currentVersion = "1.0.0",
+        fixedVersion = "1.0.1",
+        dependencyType = DependencyType.DIRECT,
+        detectedAt = "2026-08-31T00:00:00Z",
+        source = "github",
+        evidence = "advisory",
+        recommendation = "1.0.1 に更新",
+        cvssScore = 8.1,
+    )

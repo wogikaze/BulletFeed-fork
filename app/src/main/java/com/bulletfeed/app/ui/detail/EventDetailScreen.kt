@@ -101,21 +101,33 @@ fun EventDetailScreen(
                         onMarkCurrentStateKnown = onMarkCurrentStateKnown,
                     )
                     Spacer(Modifier.height(20.dp))
-                    SectionTitle("Delta")
+                    SectionHeading(
+                        "Delta",
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        tag = "event-detail-delta-heading",
+                    )
                     DeltaCard(event.openedDelta ?: event.latestDelta)
                     event.impacts.forEach { impact ->
                         Spacer(Modifier.height(10.dp))
                         ImpactCard(impact)
                     }
                     Spacer(Modifier.height(22.dp))
-                    SectionTitle("Timeline")
+                    SectionHeading(
+                        "Timeline",
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        tag = "event-detail-timeline-heading",
+                    )
                     if (event.timeline.isEmpty()) {
                         EmptyDetailSection("時系列情報はありません。")
                     } else {
                         event.timeline.forEach { TimelineEntryCard(it) }
                     }
                     Spacer(Modifier.height(22.dp))
-                    SectionTitle("Evidence / Source")
+                    SectionHeading(
+                        "Evidence / Source",
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        tag = "event-detail-evidence-heading",
+                    )
                     if (event.sources.isEmpty()) {
                         EmptyDetailSection("追跡できるソースはありません。")
                     } else {
@@ -252,7 +264,11 @@ internal fun KnowledgeBootstrapCard(
     modifier = Modifier.fillMaxWidth(),
 ) {
     Column(Modifier.padding(16.dp)) {
-        Text("アプリ外ですでに知っている場合", fontWeight = FontWeight.Bold)
+        SectionHeading(
+            "アプリ外ですでに知っている場合",
+            style = MaterialTheme.typography.titleMedium,
+            tag = "knowledge-bootstrap-heading",
+        )
         Text(
             "現在状態「${currentState.summary}」を確認して登録します。Claim ID の入力は不要です。",
             modifier = Modifier.padding(top = 6.dp),
@@ -306,10 +322,6 @@ internal fun EmptyDetailSection(text: String) =
             .semantics { liveRegion = LiveRegionMode.Polite },
         color = Color(0xFF655F69),
     )
-
-@Composable
-private fun SectionTitle(text: String) =
-    Text(text, modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
 
 @Composable
 internal fun EventActionBar(
