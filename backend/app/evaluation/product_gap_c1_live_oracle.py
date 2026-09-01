@@ -285,10 +285,11 @@ async def measure_live_g3(
 
     measured = len(raw_recall)
     return {
-        "artifact_version": "product-gap-c1-g3-measurement-v1",
+        "artifact_version": "product-gap-c1-g3-measurement-v2",
         "dataset_version": freeze.get("dataset_version"),
         "path": "same_feed_url_independent_oracle_vs_production_preview",
         "live_oracle": True,
+        "family_regression_measured": False,
         "sample_complete": limit is None,
         "split": split,
         "selected_sources": len(selected),
