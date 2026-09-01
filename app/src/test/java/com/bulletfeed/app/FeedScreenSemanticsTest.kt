@@ -1,6 +1,8 @@
 package com.bulletfeed.app
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -13,6 +15,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -102,6 +105,48 @@ class FeedScreenSemanticsTest {
 
         composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("event-card").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsEmptyFeedActionTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    EmptyFeed(
+                        filter = FeedFilter.DIRECT,
+                        onFilterChange = {},
+                        onTopicsClick = {},
+                        onGithubClick = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("すべての変化を見る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("テーマを追加する").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("GitHubを連携・設定する").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsLoadMoreTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    FeedLoadMoreButton(
+                        isLoadingMore = false,
+                        enabled = true,
+                        onLoadMore = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("feed-load-more").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("次のページを読み込む").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

@@ -156,17 +156,11 @@ fun FeedScreen(
         }
         if (nextCursor != null) {
             item {
-                AccessiblePrimaryButton(
-                    onClick = onLoadMore,
+                FeedLoadMoreButton(
+                    isLoadingMore = isLoadingMore,
                     enabled = !isLoadingMore && !isFiltering,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-                ) {
-                    if (isLoadingMore) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    Text(if (isLoadingMore) "読み込み中" else "次のページを読み込む")
-                }
+                    onLoadMore = onLoadMore,
+                )
             }
         }
         item { Spacer(Modifier.height(20.dp)) }
@@ -308,6 +302,29 @@ internal fun EmptyFeed(
     AccessiblePrimaryButton(onClick = onTopicsClick, modifier = Modifier.fillMaxWidth()) { Text("テーマを追加する") }
     Spacer(Modifier.height(8.dp))
     AccessibleOutlinedButton(onClick = onGithubClick, modifier = Modifier.fillMaxWidth()) { Text("GitHubを連携・設定する") }
+}
+
+@Composable
+internal fun FeedLoadMoreButton(
+    isLoadingMore: Boolean,
+    enabled: Boolean,
+    onLoadMore: () -> Unit,
+) {
+    Spacer(Modifier.height(12.dp))
+    AccessiblePrimaryButton(
+        onClick = onLoadMore,
+        enabled = enabled,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .testTag("feed-load-more"),
+    ) {
+        if (isLoadingMore) {
+            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(if (isLoadingMore) "読み込み中" else "次のページを読み込む")
+    }
 }
 
 @Composable
