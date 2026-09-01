@@ -22,6 +22,8 @@ interface FeedRepository {
         type: FeedFeedbackType,
     )
 
+    suspend fun resetLearnedRanking(): Long = 0L
+
     suspend fun recordExposures(items: List<FeedExposure>)
 
     suspend fun startFeedSession(): FeedSessionTelemetry = FeedSessionTelemetry()

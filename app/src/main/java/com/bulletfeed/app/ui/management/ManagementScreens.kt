@@ -585,6 +585,7 @@ fun SettingsScreen(
     ),
     isSavingKnowledgeBootstrap: Boolean = false,
     onResetKnowledgeBootstrap: () -> Unit = {},
+    onResetLearnedRanking: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -687,6 +688,8 @@ fun SettingsScreen(
                 onReset = onResetKnowledgeBootstrap,
             )
             Spacer(Modifier.height(28.dp))
+            LearnedRankingSection(onReset = onResetLearnedRanking)
+            Spacer(Modifier.height(28.dp))
             SourceRecommendationsSection(
                 recommendations = recommendations,
                 decidingRecommendationId = decidingRecommendationId,
@@ -761,6 +764,28 @@ private fun KnowledgeBootstrapSection(
         modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-reset"),
     ) {
         Text(if (isSaving) "リセット中" else "bootstrap だけをリセット")
+    }
+}
+
+@Composable
+private fun LearnedRankingSection(onReset: () -> Unit) {
+    SectionHeading(
+        "学習した並び",
+        style = MaterialTheme.typography.headlineSmall,
+        tag = "settings-learned-ranking-heading",
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "「重要」などのフィードバックで変わった GET /feed の並びを、学習前に戻します。feedback の記録自体は消しません。",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color(0xFF655F69),
+    )
+    Spacer(Modifier.height(12.dp))
+    AccessibleOutlinedButton(
+        onClick = onReset,
+        modifier = Modifier.fillMaxWidth().testTag("learned-ranking-reset"),
+    ) {
+        Text("学習した並びをリセット")
     }
 }
 

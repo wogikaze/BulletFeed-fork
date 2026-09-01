@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -148,5 +149,24 @@ class SettingsDetailSearchFontScaleTest {
 
         composeRule.onNodeWithTag("feed-refresh-button").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("更新").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun settingsResetLearnedRankingButtonInvokesCallback() {
+        var resets = 0
+        composeRule.setContent {
+            MaterialTheme {
+                SettingsScreen(
+                    profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                    isSaving = false,
+                    onSaveProfile = {},
+                    onResetLearnedRanking = { resets += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("learned-ranking-reset").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        assertEquals(1, resets)
     }
 }
