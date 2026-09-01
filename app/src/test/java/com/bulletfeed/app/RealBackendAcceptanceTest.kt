@@ -1,6 +1,13 @@
 package com.bulletfeed.app
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -20,6 +27,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
+import java.io.File
 import java.io.IOException
 import java.net.ServerSocket
 import java.util.UUID
@@ -408,6 +416,87 @@ class RealBackendAcceptanceTest {
             assertTrue(feed.items.isEmpty())
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `thirty personas reach useful feed or abstain against real backend`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
+            try {
+                val personas = loadM1Personas()
+                assertEquals(30, personas.size)
+                val abstaining = personas.filter { it.expectEmptyReason == "no_topics_abstention" }
+                assertEquals(listOf("m1p_29", "m1p_30"), abstaining.map { it.personaId })
+
+                for (persona in personas) {
+                    val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+                    val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+                    val repository = RemoteBulletFeedRepository(api, sessionManager)
+                    val viewModel = BulletFeedViewModel(repository)
+                    advanceUntilIdle()
+
+                    val intendedAbstention = persona.expectEmptyReason == "no_topics_abstention"
+                    viewModel.completeOnboarding(
+                        profile = profileFor(persona),
+                        topics = if (intendedAbstention) emptyList() else topicSelection(persona.topics),
+                        connectGithub = false,
+                    )
+                    advanceUntilIdle()
+                    val state = viewModel.uiState.value
+                    if (intendedAbstention) {
+                        assertEquals(persona.personaId, OnboardingState.PROFILE, state.onboardingState)
+                        assertFalse(persona.personaId, state.onboardingCompleted)
+                        assertTrue(
+                            "${persona.personaId} must not fabricate a useful feed",
+                            state.events.isEmpty(),
+                        )
+                        assertTrue(
+                            "${persona.personaId} expected the 5-topic validation message, got ${state.errorMessage}",
+                            state.errorMessage?.contains("5件") == true,
+                        )
+                        val feed = repository.getFeedPage(limit = 5)
+                        assertTrue("${persona.personaId} abstention feed must stay empty", feed.items.isEmpty())
+                    } else {
+                        assertEquals(persona.personaId, OnboardingState.READY, state.onboardingState)
+                        assertTrue(persona.personaId, state.onboardingCompleted)
+                        val userId = sessionManager.userId
+                        assertNotNull("${persona.personaId} expected a session user", userId)
+                        val seeded = seedStatuspage(baseUrl, userId!!)
+                        assertTrue(
+                            "${persona.personaId} expected projected events",
+                            seeded.projectedItemCount >= 1,
+                        )
+                        viewModel.refresh()
+                        advanceUntilIdle()
+                        val ready = viewModel.uiState.value
+                        assertTrue(
+                            "${persona.personaId} expected a real-backend feed after onboarding",
+                            ready.events.isNotEmpty(),
+                        )
+                        val event = ready.events.first()
+                        val detail = repository.getEventDetail(event.id, event.feedItemId)
+                        assertTrue("${persona.personaId} expected evidence sources", detail.sources.isNotEmpty())
+                        assertTrue(
+                            "${persona.personaId} evidence must be source-grounded text",
+                            detail.sources.all { it.evidence.isNotBlank() },
+                        )
+                        assertTrue(
+                            "${persona.personaId} must not surface claim ids as evidence",
+                            detail.sources.none { source ->
+                                source.evidence.contains("claim_id", ignoreCase = true) ||
+                                    source.kind.name.contains("claim_id", ignoreCase = true)
+                            },
+                        )
+                        repository.updateEventFeedback(event.id, Feedback.ALREADY_KNEW)
+                    }
+                }
+            } finally {
+                Dispatchers.resetMain()
+            }
+        }
+
     @Test
     fun `invalid statuspage id is validation not offline`() =
         runTest {
@@ -721,6 +810,56 @@ class RealBackendAcceptanceTest {
 
     private fun uniqueStatuspagePageId(): String =
         "accp" + UUID.randomUUID().toString().replace("-", "").take(12)
+
+    private fun loadM1Personas(): List<M1RealBackendPersonaFixture> {
+        val manifest = json.decodeFromString<M1RealBackendPersonaManifest>(m1PersonaManifestFile().readText())
+        return manifest.personas
+    }
+
+    private fun profileFor(persona: M1RealBackendPersonaFixture): UserProfile =
+        if (persona.language == "en") {
+            UserProfile("Android engineer", setOf("mobile"), "US")
+        } else {
+            UserProfile("Androidエンジニア", setOf("モバイル"), "東京")
+        }
+
+    private fun topicSelection(topics: List<String>): List<String> {
+        val candidates = topics + listOf("React", "TypeScript", "Python", "Rust", "Kubernetes")
+        val selected = mutableListOf<String>()
+        val seen = mutableSetOf<String>()
+        for (topic in candidates) {
+            val key = topic.lowercase()
+            if (key in seen) continue
+            seen += key
+            selected += topic
+            if (selected.size == 5) break
+        }
+        return selected
+    }
+
+    private fun m1PersonaManifestFile(): File {
+        val candidates =
+            listOf(
+                File("backend/tests/gold/m1_personas/v01/personas.json"),
+                File("../backend/tests/gold/m1_personas/v01/personas.json"),
+                File("../../backend/tests/gold/m1_personas/v01/personas.json"),
+            )
+        return candidates.firstOrNull { it.isFile }
+            ?: error("M1 persona manifest not found from ${File(".").canonicalPath}")
+    }
+
+    @Serializable
+    private data class M1RealBackendPersonaManifest(
+        val personas: List<M1RealBackendPersonaFixture>,
+    )
+
+    @Serializable
+    private data class M1RealBackendPersonaFixture(
+        @SerialName("persona_id") val personaId: String,
+        val language: String,
+        val topics: List<String> = emptyList(),
+        @SerialName("expect_empty_reason") val expectEmptyReason: String = "",
+    )
 
     private companion object {
         const val BASE_URL_PROPERTY = "bulletfeed.acceptance.baseUrl"
