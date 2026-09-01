@@ -21,6 +21,8 @@ class MockFeedStore(
         applyFeedback(feedItemId, type, markRead = false)
     }
 
+    override suspend fun resetLearnedRanking(): Long = 1L
+
     override suspend fun startFeedSession(): FeedSessionTelemetry {
         if (state.activeFeedSessionId != null) {
             return FeedSessionTelemetry(id = state.activeFeedSessionId.orEmpty(), startedAt = 1)

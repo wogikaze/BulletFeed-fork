@@ -49,12 +49,44 @@ class BulletFeedViewModelFeedbackReloadTest {
                 Dispatchers.resetMain()
             }
         }
+
+    @Test
+    fun resetLearnedRankingReloadsTheNextFeedPage() =
+        runTest {
+            Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
+            try {
+                val repository = RecordingBulletFeedRepository()
+                val viewModel = BulletFeedViewModel(repository)
+                viewModel.completeOnboarding(
+                    profile = UserProfile("Androidエンジニア", setOf("モバイル"), "東京"),
+                    topics = listOf("Kotlin", "Android", "GitHub", "React", "Python"),
+                    connectGithub = false,
+                )
+                advanceUntilIdle()
+
+                val loadsAfterReady = repository.filteredFeedLoads
+                assertTrue("onboarding READY must load the feed", loadsAfterReady >= 1)
+
+                viewModel.resetLearnedRanking()
+                advanceUntilIdle()
+
+                assertEquals(1, repository.rankingResets)
+                assertTrue(
+                    "ranking reset must GET /feed again so the next page can drop learned order: " +
+                        "loads after ready=$loadsAfterReady after reset=${repository.filteredFeedLoads}",
+                    repository.filteredFeedLoads > loadsAfterReady,
+                )
+            } finally {
+                Dispatchers.resetMain()
+            }
+        }
 }
 
 private class RecordingBulletFeedRepository(
     private val inner: MockBulletFeedRepository = MockBulletFeedRepository(),
 ) : BulletFeedRepository by inner {
     val feedbacks = mutableListOf<Pair<String, FeedFeedbackType>>()
+    var rankingResets = 0
     var filteredFeedLoads = 0
 
     override suspend fun sendFeedFeedback(
@@ -63,6 +95,11 @@ private class RecordingBulletFeedRepository(
     ) {
         feedbacks += feedItemId to type
         inner.sendFeedFeedback(feedItemId, type)
+    }
+
+    override suspend fun resetLearnedRanking(): Long {
+        rankingResets += 1
+        return inner.resetLearnedRanking()
     }
 
     override suspend fun getFilteredFeedPage(

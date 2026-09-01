@@ -319,6 +319,7 @@ private fun ReadyApplication(
             onRemoveSubscription = viewModel::removeSourceSubscription,
             onDiscoverSiteFeeds = viewModel::discoverSiteFeeds,
             onResetKnowledgeBootstrap = viewModel::resetKnowledgeBootstrap,
+            onResetLearnedRanking = viewModel::resetLearnedRanking,
             onLoadMoreFeed = viewModel::loadMoreFeed,
             onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
         )
@@ -568,6 +569,7 @@ private fun MainNavigation(
     onRemoveSubscription: (String) -> Unit,
     onDiscoverSiteFeeds: (String) -> Unit,
     onResetKnowledgeBootstrap: () -> Unit,
+    onResetLearnedRanking: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
 ) {
@@ -600,6 +602,7 @@ private fun MainNavigation(
             onRemoveSubscription = onRemoveSubscription,
             onDiscoverSiteFeeds = onDiscoverSiteFeeds,
             onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
+            onResetLearnedRanking = onResetLearnedRanking,
             onLoadMoreFeed = onLoadMoreFeed,
             onVisibleFeedItems = onVisibleFeedItems,
         )
@@ -753,6 +756,7 @@ private fun AppTabPane(
     onRemoveSubscription: (String) -> Unit,
     onDiscoverSiteFeeds: (String) -> Unit,
     onResetKnowledgeBootstrap: () -> Unit,
+    onResetLearnedRanking: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
 ) {
@@ -825,6 +829,7 @@ private fun AppTabPane(
             knowledgeBootstrap = uiState.knowledgeBootstrap,
             isSavingKnowledgeBootstrap = uiState.isSavingKnowledgeBootstrap,
             onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
+            onResetLearnedRanking = onResetLearnedRanking,
             modifier = Modifier.padding(innerPadding),
         )
     }

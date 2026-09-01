@@ -1346,6 +1346,11 @@ class BulletFeedViewModel(
         )
     }
 
+    fun resetLearnedRanking() = launchUpdate {
+        repository.resetLearnedRanking()
+        reloadFeedFromServer()
+    }
+
     fun resetKnowledgeBootstrap() = launchUpdate {
         _uiState.update { it.copy(isSavingKnowledgeBootstrap = true) }
         try {
