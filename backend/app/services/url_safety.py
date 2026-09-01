@@ -60,7 +60,10 @@ def _host_looks_like_literal_ip_trick(hostname: str) -> bool:
         return True
     parts = host.split(".")
     if 1 <= len(parts) <= 4 and all(part and part.replace("x", "").isalnum() for part in parts):
-        if any(part.startswith("0x") or (part.startswith("0") and part != "0" and part.isdigit()) for part in parts):
+        if any(
+            part.startswith("0x") or (part.startswith("0") and part != "0" and part.isdigit())
+            for part in parts
+        ):
             return True
         if len(parts) < 4 and all(part.isdigit() for part in parts):
             return True
