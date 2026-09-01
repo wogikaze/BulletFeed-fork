@@ -332,6 +332,57 @@ def test_enough_important_feedback_lifts_held_out_siblings_on_next_feed(
     assert PERSONALIZATION_VERSION not in rss["importance_reason"]
 
 
+def test_enough_not_relevant_feedback_explains_demote_on_next_feed(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    _seed_same_candidate_set(database, user_id)
+    before = _feed_ids(client, auth_headers)
+    assert before.index("nfeed_held_rss") < before.index("nfeed_held_release")
+
+    with database.connect() as connection:
+        ledger_before = ledger_world_state(connection)
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "not_relevant"},
+        )
+        assert response.status_code == 200
+
+    after_body = client.get("/v1/feed", headers=auth_headers, params={"limit": 50})
+    assert after_body.status_code == 200
+    after_items = {item["id"]: item for item in after_body.json()["items"]}
+    after = [item["id"] for item in after_body.json()["items"]]
+    assert "nfeed_held_release" in after_items
+    assert "nfeed_held_rss" in after_items
+    assert after.index("nfeed_held_rss") < after.index("nfeed_held_release")
+    demoted_reason = after_items["nfeed_held_release"]["displayReason"]
+    untouched_reason = after_items["nfeed_held_rss"]["displayReason"]
+    assert "personalization.feedback_demote" in demoted_reason["codes"]
+    assert "無関係マーク" in demoted_reason["text"]
+    assert PERSONALIZATION_VERSION not in demoted_reason["text"]
+    assert "personalization.feedback_demote" not in demoted_reason["text"]
+    assert "personalization.feedback_demote" not in untouched_reason["codes"]
+    assert "無関係マーク" not in untouched_reason["text"]
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT relation_reason FROM feed_items WHERE id = ?",
+            ("nfeed_held_release",),
+        ).fetchone()
+        rss = connection.execute(
+            "SELECT relation_reason FROM feed_items WHERE id = ?",
+            ("nfeed_held_rss",),
+        ).fetchone()
+    assert PERSONALIZATION_VERSION in held["relation_reason"]
+    assert PERSONALIZATION_VERSION not in rss["relation_reason"]
+
+
 def test_sparse_and_history_rich_cohorts_keep_separate_next_feed_safety(
     client: TestClient,
     auth_headers: dict[str, str],
