@@ -142,6 +142,7 @@ class M1AndroidOnboardingJourneyTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("onboarding-continue-button").performClick()
         composeRule.waitForIdle()
+        composeRule.onNodeWithText("あと5件選択してください").performScrollTo().assertExists()
         composeRule.onNodeWithTag("onboarding-continue-button").assertIsNotEnabled()
         composeRule.onNodeWithTag("onboarding-continue-button").performClick()
         composeRule.waitForIdle()
