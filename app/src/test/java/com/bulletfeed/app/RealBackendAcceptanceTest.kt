@@ -111,7 +111,7 @@ class RealBackendAcceptanceTest {
             val seeded = seedFeedbackRanking(baseUrl, userId!!)
             assertEquals(3, seeded.trainItemIds.size)
 
-            fun feedIds(): List<String> = repository.getFeedPage(limit = 50).items.map { it.id }
+            suspend fun feedIds(): List<String> = repository.getFeedPage(limit = 50).items.map { it.id }
 
             val before = feedIds()
             val rssBefore = before.indexOf(seeded.heldRssItemId)
