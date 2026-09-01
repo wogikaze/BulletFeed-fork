@@ -6,7 +6,6 @@ import ipaddress
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlparse
 
 from fastapi import HTTPException
 
@@ -58,7 +57,11 @@ def _host_is_blocked(hostname: str) -> bool:
         return True
     parts = stripped.split(".")
     if 1 <= len(parts) <= 4 and all(part for part in parts):
-        if any(part.startswith("0x") or (part.startswith("0") and part != "0" and part.isdigit()) for part in parts):
+        if any(
+            part.startswith("0x")
+            or (part.startswith("0") and part != "0" and part.isdigit())
+            for part in parts
+        ):
             return True
         if len(parts) < 4 and all(part.isdigit() for part in parts):
             return True
