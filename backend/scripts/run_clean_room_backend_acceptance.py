@@ -54,12 +54,14 @@ def _json_request(
     method: str = "GET",
     payload: dict[str, Any] | None = None,
     access_token: str | None = None,
+    timeout: float = 2,
 ) -> tuple[int | None, dict[str, Any]]:
     status, body = _request(
         f"{base_url}{path}",
         method=method,
         payload=payload,
         access_token=access_token,
+        timeout=timeout,
     )
     if body:
         decoded = json.loads(body)
@@ -111,8 +113,11 @@ def main(argv: list[str] | None = None) -> int:
             "BULLETFEED_GITHUB_CLIENT_SECRET": "",
             "BULLETFEED_RSS_ALLOWED_HOSTS": "react.dev",
             "BULLETFEED_WEB_ALLOWED_HOSTS": "cisa.gov,react.dev",
+            "BULLETFEED_EMBED_SOURCE_SYNC_WORKER": "0",
             "BULLETFEED_WORKER_IDLE_SECONDS": "0.25",
             "BULLETFEED_WORKER_POLL_SECONDS": "1",
+            # Fail live official-RSS fetches quickly so seed-statuspage is not locked out.
+            "BULLETFEED_REQUEST_TIMEOUT_SECONDS": "1",
         }
     )
     api = None
@@ -251,6 +256,7 @@ def main(argv: list[str] | None = None) -> int:
             "/__acceptance__/seed-statuspage",
             method="POST",
             payload={"userId": user_id},
+            timeout=20,
         )
         event_ids = seeded.get("eventIds", [])
         _stage(

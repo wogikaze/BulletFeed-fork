@@ -35,6 +35,7 @@ def _request(
     method: str = "GET",
     payload: dict[str, Any] | None = None,
     access_token: str | None = None,
+    timeout: float = 2,
 ) -> tuple[int | None, bytes]:
     body = json.dumps(payload).encode("utf-8") if payload is not None else None
     headers = {"Content-Type": "application/json"} if body is not None else {}
@@ -42,7 +43,7 @@ def _request(
         headers["Authorization"] = f"Bearer {access_token}"
     request = urllib.request.Request(url, data=body, headers=headers, method=method)  # noqa: S310
     try:
-        with urllib.request.urlopen(request, timeout=2) as response:  # noqa: S310
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
             return response.status, response.read()
     except urllib.error.HTTPError as exc:
         return exc.code, exc.read()
@@ -143,6 +144,7 @@ def main(argv: list[str] | None = None) -> int:
             "BULLETFEED_TOKEN_ENCRYPTION_KEY": Fernet.generate_key().decode(),
             "BULLETFEED_GITHUB_CLIENT_ID": "",
             "BULLETFEED_GITHUB_CLIENT_SECRET": "",
+            "BULLETFEED_EMBED_SOURCE_SYNC_WORKER": "0",
             "BULLETFEED_WORKER_IDLE_SECONDS": "0.25",
             "BULLETFEED_WORKER_POLL_SECONDS": "1",
         }

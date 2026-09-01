@@ -1,5 +1,6 @@
 import asyncio
 import os
+import threading
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -43,20 +44,27 @@ async def lifespan(_: FastAPI):
     database.initialize()
     install_topic_catalog(database)
     install_release_lifecycle_guards(database)
-    worker_task: asyncio.Task[None] | None = None
+    worker_thread: threading.Thread | None = None
+    worker_stop = threading.Event()
     if settings.embed_source_sync_worker:
         from app.release_worker import run_release_worker
 
-        worker_task = asyncio.create_task(run_release_worker())
+        def _run_embedded_worker() -> None:
+            # Own event loop: RSS DNS/parse/ingest is sync and must not stall API requests.
+            asyncio.run(run_release_worker(stop_event=worker_stop))
+
+        worker_thread = threading.Thread(
+            target=_run_embedded_worker,
+            name="bulletfeed-source-sync",
+            daemon=True,
+        )
+        worker_thread.start()
     try:
         yield
     finally:
-        if worker_task is not None:
-            worker_task.cancel()
-            try:
-                await worker_task
-            except asyncio.CancelledError:
-                pass
+        if worker_thread is not None:
+            worker_stop.set()
+            worker_thread.join(timeout=5)
 
 
 app = FastAPI(

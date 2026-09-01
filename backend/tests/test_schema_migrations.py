@@ -124,6 +124,16 @@ def _install_current_unversioned_schema(database: Database) -> None:
         )
 
 
+def test_connect_enables_wal_and_busy_timeout(tmp_path: Path) -> None:
+    database = Database(tmp_path / "wal.db")
+    database.initialize()
+    with database.connect() as connection:
+        journal = connection.execute("PRAGMA journal_mode").fetchone()[0]
+        busy = connection.execute("PRAGMA busy_timeout").fetchone()[0]
+    assert str(journal).lower() == "wal"
+    assert int(busy) == 30000
+
+
 def test_fresh_init_matches_upgrade_from_current_schema(tmp_path: Path) -> None:
     fresh = Database(tmp_path / "fresh.db")
     fresh.initialize()
