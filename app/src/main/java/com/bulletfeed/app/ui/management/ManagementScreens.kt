@@ -792,12 +792,12 @@ private fun SiteFeedDiscoverSection(
     if (errorMessage != null) {
         SourceSubscriptionErrorStatus(errorMessage)
     }
+    Spacer(Modifier.height(12.dp))
     AccessiblePrimaryButton(
         onClick = { onDiscover(siteUrl.trim()) },
         enabled = !isDiscovering && siteUrl.isNotBlank(),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp)
             .testTag("site-feed-discover-button"),
     ) {
         if (isDiscovering) {
@@ -863,12 +863,12 @@ private fun SiteFeedDiscoverCandidateCard(
                 Text(item.explanation, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
             }
             if (kind != null && canSubscribe) {
+                Spacer(Modifier.height(8.dp))
                 AccessiblePrimaryButton(
                     onClick = { onSubscribe(kind, item.canonicalUrl, "") },
                     enabled = enabled,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp)
                         .testTag("site-feed-discover-subscribe"),
                 ) {
                     Text(if (kind == UserSourceKind.GENERIC_WEB) "Webとして追加" else "このフィードを購読")

@@ -1,7 +1,15 @@
 package com.bulletfeed.app
 
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -210,7 +218,90 @@ class SiteFeedDiscoverSettingsTest {
         composeRule.onNodeWithTag("site-feed-discover-button").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("site-feed-discover-subscribe").assertHeightIsAtLeast(48.dp)
     }
+
+    @Test
+    fun tabletWidthKeepsDiscoverTouchTargetsAndDiscoveryOnly() {
+        var subscribed = 0
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalConfiguration provides widthConfiguration(840),
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    AppChromeShellForWindow(
+                        tab = AppTab.SETTINGS,
+                        securityActionCount = 0,
+                        onTabChange = {},
+                    ) { padding ->
+                        SettingsScreen(
+                            profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                            isSaving = false,
+                            onSaveProfile = {},
+                            siteFeedDiscoverResult = sampleDiscoverResult(),
+                            onAddSubscription = { _, _, _ -> subscribed += 1 },
+                            modifier = Modifier.padding(padding),
+                        )
+                    }
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("app-chrome-tab-settings").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("site-feed-discover-url", useUnmergedTree = true).performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("site-feed-discover-button").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("site-feed-discover-subscribe").performScrollTo().assertHeightIsAtLeast(48.dp)
+        assertEquals(
+            1,
+            composeRule.onAllNodesWithText("発見のみ。購読するまで証拠には使いません。").fetchSemanticsNodes().size,
+        )
+        assertEquals(0, subscribed)
+    }
+
+    @Test
+    fun resizingToTabletKeepsDiscoverTouchTargets() {
+        var widthDp by mutableStateOf(360)
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalConfiguration provides widthConfiguration(widthDp),
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    key(widthDp) {
+                        AppChromeShellForWindow(
+                            tab = AppTab.SETTINGS,
+                            securityActionCount = 0,
+                            onTabChange = {},
+                        ) { padding ->
+                            SettingsScreen(
+                                profile = UserProfile(role = "Androidエンジニア", interests = setOf("モバイル"), region = "東京"),
+                                isSaving = false,
+                                onSaveProfile = {},
+                                siteFeedDiscoverResult = sampleDiscoverResult(),
+                                modifier = Modifier.padding(padding),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("site-feed-discover-button").performScrollTo().assertHeightIsAtLeast(48.dp)
+
+        composeRule.runOnIdle { widthDp = 840 }
+        composeRule.waitForIdle()
+        assertEquals(1, composeRule.onAllNodesWithTag("app-chrome-navigation-rail").fetchSemanticsNodes().size)
+        assertEquals(0, composeRule.onAllNodesWithTag("app-chrome-bottom-bar").fetchSemanticsNodes().size)
+        composeRule.onNodeWithTag("site-feed-discover-button").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("site-feed-discover-subscribe").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("app-chrome-tab-settings").assertHeightIsAtLeast(48.dp)
+    }
 }
+
+private fun widthConfiguration(widthDp: Int): Configuration =
+    Configuration().apply { screenWidthDp = widthDp }
 
 private fun sampleDiscoverResult(): SiteFeedDiscoverResult =
     SiteFeedDiscoverResult(
