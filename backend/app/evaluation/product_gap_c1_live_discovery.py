@@ -84,7 +84,7 @@ async def measure_live_g1(
 
     feed_total = 0
     feed_hits = 0
-    top3_hits = 0
+    precision_at_3_scores: list[float] = []
     japanese_feed_total = 0
     japanese_feed_hits = 0
     no_feed_total = 0
@@ -158,9 +158,11 @@ async def measure_live_g1(
             family_total[row.family] += 1
             gold_feed = _canonical(row.feed_url)
             found = gold_feed in candidate_urls
-            in_top3 = gold_feed in candidate_urls[:3]
+            window = candidate_urls[:3]
+            precision_at_3 = (sum(1 for item in window if item == gold_feed) / len(window)) if window else 0.0
             feed_hits += int(found)
-            top3_hits += int(in_top3)
+            precision_at_3_scores.append(precision_at_3)
+            in_top3 = gold_feed in window
             family_hits[row.family] += int(found)
             if row.language == "ja":
                 japanese_feed_total += 1
@@ -215,7 +217,9 @@ async def measure_live_g1(
         "selected_sources": len(selected),
         "feed_sources": feed_total,
         "feed_recall": feed_hits / feed_total if feed_total else 0.0,
-        "candidate_precision_at_3_proxy": top3_hits / feed_total if feed_total else 0.0,
+        "precision_at_3": (
+            sum(precision_at_3_scores) / len(precision_at_3_scores) if precision_at_3_scores else 0.0
+        ),
         "japanese_feed_recall": (
             japanese_feed_hits / japanese_feed_total if japanese_feed_total else 0.0
         ),
