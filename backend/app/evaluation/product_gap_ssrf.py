@@ -44,7 +44,7 @@ def evaluate_ssrf_suite(path: Path) -> dict:
         "bypasses": bypasses,
         "production_path": "validate_url_shape",
         "production_fetch_measured": False,
-        "pass": False,
+        "passed": False,
         "failures": (["g5_production_fetch_unmeasured"] + (["g5_ssrf_shape_bypass"] if bypasses else [])),
         "shape_bypass_count": len(bypasses),
     }

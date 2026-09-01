@@ -26,9 +26,9 @@ def main(argv: list[str] | None = None) -> int:
         "g7": {
             "one_command": True,
             "deterministic": True,
-            "pass": gates["pass"] and g6["pass"],
+            "pass": gates["passed"] and g6["pass"],
         },
-        "pass": gates["pass"] and g6["pass"],
+        "pass": gates["passed"] and g6["pass"],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

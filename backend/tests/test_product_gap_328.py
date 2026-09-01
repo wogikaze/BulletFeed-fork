@@ -48,7 +48,7 @@ def test_ssrf_suite_uses_production_shape_and_does_not_claim_fetch() -> None:
     assert report["case_count"] >= 100
     assert report["production_path"] == "validate_url_shape"
     assert report["production_fetch_measured"] is False
-    assert report["pass"] is False
+    assert report["passed"] is False
     assert "g5_production_fetch_unmeasured" in report["failures"]
     validate_url_shape("https://ffmpeg.org/", source_name="SSRF")
     validate_url_shape("https://react.dev/blog", source_name="SSRF")
@@ -183,14 +183,14 @@ def test_compare_table_keeps_losses() -> None:
 def test_c1_gate_harness_does_not_invent_pass() -> None:
     report = evaluate_c1_gates(GOLD / "c1")
     assert report["g0"]["attested"] is False
-    assert report["g1"]["pass"] is False
-    assert report["g2"]["pass"] is False
+    assert report["g1"]["passed"] is False
+    assert report["g2"]["passed"] is False
     assert report["g2"]["gold_injected"] is False
-    assert report["g3"]["pass"] is False
+    assert report["g3"]["passed"] is False
     assert report["g3"]["live_oracle_unmeasured"] is True
-    assert report["g4"]["pass"] is False
-    assert report["g5"]["pass"] is False
-    assert report["pass"] is False
+    assert report["g4"]["passed"] is False
+    assert report["g5"]["passed"] is False
+    assert report["passed"] is False
 
 
 def test_g1_precision_counts_false_positives_in_top3() -> None:
@@ -206,7 +206,7 @@ def test_g1_precision_counts_false_positives_in_top3() -> None:
     }
     g1 = evaluate_g1(sources, floors=floors)
     assert g1["production_confirm_measured"] is False
-    assert g1["pass"] is False
+    assert g1["passed"] is False
     assert "g1_production_confirm_unmeasured" in g1["failures"]
     assert g1["precision_at_3"] <= g1["feed_recall_unconfirmed_probe"] + 1e-9
 

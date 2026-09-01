@@ -106,7 +106,7 @@ def build_report() -> dict:
             "g4": c1_gates["g4"],
             "g5": c1_gates["g5"],
             "g6": g6,
-            "pass": bool(c1_gates["pass"] and g6["pass"]),
+            "pass": bool(c1_gates["passed"] and g6["pass"]),
             "failures": c1_failures,
         },
         "c2_recommend": c2,

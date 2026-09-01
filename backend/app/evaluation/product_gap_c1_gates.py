@@ -67,7 +67,12 @@ def _precision_at_k(candidates: list[str], gold: str, *, k: int = 3) -> float:
     return sum(1 for item in window if item == gold) / len(window)
 
 
-def evaluate_g1(sources: list[G0Source], *, floors: dict[str, float], fixtures: Path | None = None) -> dict[str, Any]:
+def evaluate_g1(
+    sources: list[G0Source],
+    *,
+    floors: dict[str, float],
+    fixtures: Path | None = None,
+) -> dict[str, Any]:
     fixture_root = fixtures or FIXTURES
     eligible_feed = [
         row
@@ -97,12 +102,12 @@ def evaluate_g1(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
                     "family": row.family,
                 }
             )
-    no_feed = [row for row in sources if not row.has_feed and row.policy_status == "eligible"]
     fallback = None
     subscribe_ok = False
     try:
-        from app.database import Database
         from tempfile import TemporaryDirectory
+
+        from app.database import Database
 
         xml = (fixture_root / "rss" / "g3_oracle_feed.xml").read_bytes()
         parsed = feedparser.parse(xml, resolve_relative_uris=False, sanitize_html=True)
@@ -154,7 +159,7 @@ def evaluate_g1(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
         "subscribe_e2e_fixture": subscribe_ok,
         "production_confirm_measured": False,
         "undiscovered": undiscovered,
-        "pass": False,
+        "passed": False,
         "failures": failures,
     }
 
@@ -246,7 +251,7 @@ def evaluate_g2(sources: list[G0Source], *, floors: dict[str, float]) -> dict[st
         failures.append("g2_no_rss_recall_at_50")
     if weak_primary:
         failures.append("g2_weak_primary_topic")
-    return {**metrics, "topics": topic_rows, "pass": False, "failures": failures}
+    return {**metrics, "topics": topic_rows, "passed": False, "failures": failures}
 
 
 def _fixture_field(item_xml: str, pattern: re.Pattern[str]) -> str:
@@ -300,7 +305,7 @@ def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
         "breadth_superiority_pp": None,
         "family_regression_measured": False,
         "live_oracle_unmeasured": True,
-        "pass": False,
+        "passed": False,
         "failures": [
             "g3_live_oracle_unmeasured",
             "g3_family_regression_unmeasured",
@@ -312,7 +317,12 @@ def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
 
 def evaluate_g4(*, fixtures: Path, floors: dict[str, float]) -> dict[str, Any]:
     cases = [
-        ("article_with_boilerplate.html", "https://blog.example.com/compiler-change", True, "unsafe transform"),
+        (
+            "article_with_boilerplate.html",
+            "https://blog.example.com/compiler-change",
+            True,
+            "unsafe transform",
+        ),
         ("nav_only.html", "https://blog.example.com/nav", False, None),
     ]
     body_hits = 0
@@ -367,7 +377,7 @@ def evaluate_g4(*, fixtures: Path, floors: dict[str, float]) -> dict[str, Any]:
         "update_precision": None,
         "evidence_locator_ok": locator_ok,
         "sufficient_feed_skips_fetch": skip_fetch,
-        "pass": False,
+        "passed": False,
         "failures": failures,
         "floors": floors,
     }
@@ -391,7 +401,7 @@ def evaluate_g5(gold_dir: Path) -> dict[str, Any]:
     return {
         "ssrf": ssrf,
         "identity": identity,
-        "pass": False,
+        "passed": False,
         "failures": failures,
     }
 
@@ -414,5 +424,5 @@ def evaluate_c1_gates(gold_dir: Path | None = None) -> dict[str, Any]:
         "g3": g3,
         "g4": g4,
         "g5": g5,
-        "pass": False,
+        "passed": False,
     }
