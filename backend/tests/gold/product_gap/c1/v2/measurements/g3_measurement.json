@@ -1,21 +1,24 @@
 {
-  "artifact_version": "product-gap-c1-g3-measurement-v1",
+  "artifact_version": "product-gap-c1-g3-measurement-v4",
   "dataset_version": "product-gap-c1-g0-v2",
   "path": "same_feed_url_independent_oracle_vs_production_preview",
   "live_oracle": true,
+  "family_regression_measured": false,
   "sample_complete": true,
   "split": "dev",
   "selected_sources": 55,
-  "measured_sources": 37,
+  "attempted_sources": 55,
+  "successful_sources": 37,
+  "failed_sources": 18,
   "metrics": {
-    "raw_entry_recall": 0.9459459459459459,
-    "important_update_recall": 0.972972972972973,
+    "raw_entry_recall": 0.6727272727272727,
+    "important_update_recall": 0.6727272727272727,
     "duplicate_item_rate": 0.0,
     "family_recall": {
-      "corp_tech_blog": 1.0,
-      "official_blog": 0.9,
-      "personal_dev_blog": 1.0,
-      "rss_atom_json": 0.6666666666666666
+      "corp_tech_blog": 0.5833333333333334,
+      "official_blog": 0.625,
+      "personal_dev_blog": 0.8333333333333334,
+      "rss_atom_json": 1.0
     }
   },
   "status_counts": {
@@ -117,7 +120,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:34:08.480084+00:00",
+      "retrieved_at": "2026-09-01T10:54:31.127233+00:00",
       "status": "ok"
     },
     {
@@ -214,7 +217,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:34:27.653971+00:00",
+      "retrieved_at": "2026-09-01T10:54:39.509535+00:00",
       "status": "ok"
     },
     {
@@ -224,7 +227,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "415: G3 oracle content type is not allowed: application/octet-stream",
-      "retrieved_at": "2026-09-01T07:34:45.585901+00:00"
+      "retrieved_at": "2026-09-01T10:54:47.546843+00:00"
     },
     {
       "source_id": "c1_en_off_017",
@@ -336,7 +339,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:34:58.059321+00:00",
+      "retrieved_at": "2026-09-01T10:54:50.158283+00:00",
       "status": "ok"
     },
     {
@@ -346,7 +349,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "415: G3 oracle compressed responses are not allowed",
-      "retrieved_at": "2026-09-01T07:35:31.845354+00:00"
+      "retrieved_at": "2026-09-01T10:54:56.855703+00:00"
     },
     {
       "source_id": "c1_en_off_021",
@@ -442,7 +445,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:35:41.796021+00:00",
+      "retrieved_at": "2026-09-01T10:55:00.154598+00:00",
       "status": "ok"
     },
     {
@@ -452,7 +455,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "502: G3 oracle returned HTTP 404",
-      "retrieved_at": "2026-09-01T07:35:58.742694+00:00"
+      "retrieved_at": "2026-09-01T10:55:05.359262+00:00"
     },
     {
       "source_id": "c1_en_off_025",
@@ -463,83 +466,83 @@
       "oracle_entries": [
         {
           "title": "Emulator control for adaptive app development",
-          "link": "https://android-developers.googleblog.com/feeds/6766967387297621648/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/emulator-adaptive.html"
         },
         {
           "title": "How WhatsApp Upgraded to Secure, Seamless Sign-In for 1 Billion Users with Passkeys",
-          "link": "https://android-developers.googleblog.com/feeds/2142519968365769225/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/whatsapp-passkeys-secure-sign-in.html"
         },
         {
           "title": "Elevating app quality: Reducing memory usage and improving device migration",
-          "link": "https://android-developers.googleblog.com/feeds/3046254478597816363/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/app-quality-memory-optimization-secure-onboarding.html"
         },
         {
           "title": "Ensuring Safety in the Generative AI Ecosystem: Protecting Users from Non-Consensual Intimate Content",
-          "link": "https://android-developers.googleblog.com/feeds/7129797423235721416/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/ensuring-safety-genai-preventing-non-consensual-intimate-content.html"
         },
         {
           "title": "AAOS SDV - Secure by Design",
-          "link": "https://android-developers.googleblog.com/feeds/6753712392854325591/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/aaos-sdv-secure-by-design.html"
         },
         {
           "title": "Preparing your app for broader memory limits",
-          "link": "https://android-developers.googleblog.com/feeds/4265891887313386931/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/app-broader-memory-limits.html"
         },
         {
           "title": "Tinder cuts app cold starts by 47% with new R8 Configuration Analyzer",
-          "link": "https://android-developers.googleblog.com/feeds/95107061724834879/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/tinder-app-cold-start-r8-configuration-analyzer.html"
         },
         {
           "title": "Jetpack XR SDK core libraries reach beta: The next milestone for Android XR",
-          "link": "https://android-developers.googleblog.com/feeds/5965363738026017539/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/jetpack-xr-sdk-core-libraries-beta.html"
         },
         {
           "title": "Enhance your app for the new Pixel lineup: Unveiled at Made by Google",
-          "link": "https://android-developers.googleblog.com/feeds/4347998413375612878/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/pixel-app-experience-made-by-google.html"
         },
         {
           "title": "Bring one-handed gestures to your Wear OS app",
-          "link": "https://android-developers.googleblog.com/feeds/2798697072776672466/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/one-handed-gestures-wear-os.html"
         },
         {
           "title": "What's new in the Jetpack Compose August '26 release",
-          "link": "https://android-developers.googleblog.com/feeds/8497185682650112021/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/jetpack-compose-august-2026-release.html"
         },
         {
           "title": "Media3 1.11 - What's new?",
-          "link": "https://android-developers.googleblog.com/feeds/8539179489937049654/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/media3-1-11-whats-new.html"
         },
         {
           "title": "Inside Android Skills - Built for deprecation",
-          "link": "https://android-developers.googleblog.com/feeds/8100987187420918726/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/08/android-skills-philosophy.html"
         },
         {
           "title": "Delivering safer, age-appropriate experiences on Google Play",
-          "link": "https://android-developers.googleblog.com/feeds/4296509647035928483/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/google-play-age-signals-api-safer-experiences.html"
         },
         {
           "title": "Celebrating 5 years of Jetpack Compose",
-          "link": "https://android-developers.googleblog.com/feeds/8693766666920532872/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/five-years-of-jetpack-compose.html"
         },
         {
           "title": "How R8 made Kotlin Coroutines on Android 2x faster",
-          "link": "https://android-developers.googleblog.com/feeds/1305649857865852540/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/how-r8-made-kotlin-coroutines-2x-faster.html"
         },
         {
           "title": "Optimize your apps for the next generation of Samsung Galaxy devices",
-          "link": "https://android-developers.googleblog.com/feeds/7230493561349571062/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/optimize-galaxy-screen-sizes.html"
         },
         {
           "title": "Build intelligent Android apps: Cloud and hybrid inference",
-          "link": "https://android-developers.googleblog.com/feeds/1633372972504974395/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/build-intelligent-android-apps-cloud-hybrid-inference.html"
         },
         {
           "title": "Build intelligent Android apps: Integrate into Android's intelligence system using AppFunctions",
-          "link": "https://android-developers.googleblog.com/feeds/5691330950466150364/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/build-intelligent-android-apps-appfunctions.html"
         },
         {
           "title": "Build intelligent Android apps: Introduction to Jetpacker",
-          "link": "https://android-developers.googleblog.com/feeds/6562467341747115358/comments/default"
+          "link": "https://android-developers.googleblog.com/2026/07/build-intelligent-android-apps-introduction-jetpack.html"
         }
       ],
       "production_source_url": "https://android-developers.googleblog.com/feeds/posts/default",
@@ -625,10 +628,10 @@
           "link": "https://android-developers.googleblog.com/2026/07/build-intelligent-android-apps-introduction-jetpack.html"
         }
       ],
-      "raw_entry_recall": 0.0,
-      "important_update_recall": 0.0,
+      "raw_entry_recall": 1.0,
+      "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:35:59.811408+00:00",
+      "retrieved_at": "2026-09-01T10:55:08.304096+00:00",
       "status": "ok"
     },
     {
@@ -638,7 +641,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "403: RSS host is not in the allowlist",
-      "retrieved_at": "2026-09-01T07:37:29.316277+00:00"
+      "retrieved_at": "2026-09-01T10:55:19.891720+00:00"
     },
     {
       "source_id": "c1_en_off_029",
@@ -647,7 +650,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "413: G3 oracle response exceeded the configured limit",
-      "retrieved_at": "2026-09-01T07:37:48.181351+00:00"
+      "retrieved_at": "2026-09-01T10:55:22.055424+00:00"
     },
     {
       "source_id": "c1_en_off_033",
@@ -743,7 +746,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:38:08.639610+00:00",
+      "retrieved_at": "2026-09-01T10:55:24.316747+00:00",
       "status": "ok"
     },
     {
@@ -920,7 +923,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:38:45.331198+00:00",
+      "retrieved_at": "2026-09-01T10:55:32.458281+00:00",
       "status": "ok"
     },
     {
@@ -930,7 +933,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "415: G3 oracle content type is not allowed: text/html",
-      "retrieved_at": "2026-09-01T07:39:03.311345+00:00"
+      "retrieved_at": "2026-09-01T10:55:37.706555+00:00"
     },
     {
       "source_id": "c1_en_off_047",
@@ -1106,7 +1109,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:39:12.274583+00:00",
+      "retrieved_at": "2026-09-01T10:55:40.482525+00:00",
       "status": "ok"
     },
     {
@@ -1116,7 +1119,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "413: G3 oracle response exceeded the configured limit",
-      "retrieved_at": "2026-09-01T07:39:24.737272+00:00"
+      "retrieved_at": "2026-09-01T10:55:45.359560+00:00"
     },
     {
       "source_id": "c1_en_corp_004",
@@ -1125,7 +1128,7 @@
       "status": "failed",
       "exception_type": "ConnectTimeout",
       "detail": "",
-      "retrieved_at": "2026-09-01T07:39:34.442848+00:00"
+      "retrieved_at": "2026-09-01T10:55:48.473798+00:00"
     },
     {
       "source_id": "c1_en_corp_007",
@@ -1301,7 +1304,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:40:00.873325+00:00",
+      "retrieved_at": "2026-09-01T10:55:59.781059+00:00",
       "status": "ok"
     },
     {
@@ -1311,7 +1314,7 @@
       "status": "failed",
       "exception_type": "ConnectTimeout",
       "detail": "",
-      "retrieved_at": "2026-09-01T07:40:14.670135+00:00"
+      "retrieved_at": "2026-09-01T10:56:06.481080+00:00"
     },
     {
       "source_id": "c1_en_corp_011",
@@ -1407,7 +1410,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:40:30.906309+00:00",
+      "retrieved_at": "2026-09-01T10:56:18.510489+00:00",
       "status": "ok"
     },
     {
@@ -1584,7 +1587,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:40:41.739877+00:00",
+      "retrieved_at": "2026-09-01T10:56:24.478986+00:00",
       "status": "ok"
     },
     {
@@ -1681,7 +1684,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:40:51.343087+00:00",
+      "retrieved_at": "2026-09-01T10:56:31.274259+00:00",
       "status": "ok"
     },
     {
@@ -1692,6 +1695,10 @@
       "oracle_content_type": "application/rss+xml",
       "oracle_entries": [
         {
+          "title": "Ensuring Code Compliance in Public Sector Software Projects",
+          "link": "https://blog.jetbrains.com/qodana/2026/09/ensuring-code-compliance"
+        },
+        {
           "title": "Authenticating TeamCity Builds to External Services With OIDC",
           "link": "https://blog.jetbrains.com/teamcity/2026/09/authenticating-teamcity-builds-with-oidc"
         },
@@ -1734,15 +1741,15 @@
         {
           "title": "AI Agents in DataGrip",
           "link": "https://blog.jetbrains.com/datagrip/2026/08/26/ai-agents-in-datagrip"
-        },
-        {
-          "title": "Compose Multiplatform 1.12.0 Released",
-          "link": "https://blog.jetbrains.com/kotlin/2026/08/compose-multiplatform-1-12-0"
         }
       ],
       "production_source_url": "https://blog.jetbrains.com/feed/",
       "production_entries": [
         {
+          "title": "Ensuring Code Compliance in Public Sector Software Projects",
+          "link": "https://blog.jetbrains.com/qodana/2026/09/ensuring-code-compliance"
+        },
+        {
           "title": "Authenticating TeamCity Builds to External Services With OIDC",
           "link": "https://blog.jetbrains.com/teamcity/2026/09/authenticating-teamcity-builds-with-oidc"
         },
@@ -1785,16 +1792,12 @@
         {
           "title": "AI Agents in DataGrip",
           "link": "https://blog.jetbrains.com/datagrip/2026/08/26/ai-agents-in-datagrip"
-        },
-        {
-          "title": "Compose Multiplatform 1.12.0 Released",
-          "link": "https://blog.jetbrains.com/kotlin/2026/08/compose-multiplatform-1-12-0"
         }
       ],
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:40:59.974016+00:00",
+      "retrieved_at": "2026-09-01T10:56:35.072713+00:00",
       "status": "ok"
     },
     {
@@ -1891,7 +1894,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:41:09.823600+00:00",
+      "retrieved_at": "2026-09-01T10:56:39.569280+00:00",
       "status": "ok"
     },
     {
@@ -1988,7 +1991,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:41:22.200382+00:00",
+      "retrieved_at": "2026-09-01T10:56:47.126542+00:00",
       "status": "ok"
     },
     {
@@ -2125,7 +2128,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:41:29.477412+00:00",
+      "retrieved_at": "2026-09-01T10:56:53.589443+00:00",
       "status": "ok"
     },
     {
@@ -2222,7 +2225,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:41:40.220657+00:00",
+      "retrieved_at": "2026-09-01T10:56:58.829804+00:00",
       "status": "ok"
     },
     {
@@ -2232,7 +2235,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "422: RSS URL must be HTTPS and must not contain credentials",
-      "retrieved_at": "2026-09-01T07:41:50.490331+00:00"
+      "retrieved_at": "2026-09-01T10:57:04.504527+00:00"
     },
     {
       "source_id": "c1_en_corp_033",
@@ -2328,7 +2331,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:41:56.010762+00:00",
+      "retrieved_at": "2026-09-01T10:57:07.658774+00:00",
       "status": "ok"
     },
     {
@@ -2377,7 +2380,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:42:06.840485+00:00",
+      "retrieved_at": "2026-09-01T10:57:10.857162+00:00",
       "status": "ok"
     },
     {
@@ -2554,7 +2557,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:42:16.508493+00:00",
+      "retrieved_at": "2026-09-01T10:57:14.216103+00:00",
       "status": "ok"
     },
     {
@@ -2675,7 +2678,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:42:34.977234+00:00",
+      "retrieved_at": "2026-09-01T10:57:22.016467+00:00",
       "status": "ok"
     },
     {
@@ -2852,7 +2855,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:42:46.898061+00:00",
+      "retrieved_at": "2026-09-01T10:57:27.523232+00:00",
       "status": "ok"
     },
     {
@@ -2909,7 +2912,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:42:58.707034+00:00",
+      "retrieved_at": "2026-09-01T10:57:32.569989+00:00",
       "status": "ok"
     },
     {
@@ -3006,7 +3009,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:43:16.950638+00:00",
+      "retrieved_at": "2026-09-01T10:57:39.754102+00:00",
       "status": "ok"
     },
     {
@@ -3183,7 +3186,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:43:29.758759+00:00",
+      "retrieved_at": "2026-09-01T10:57:45.537342+00:00",
       "status": "ok"
     },
     {
@@ -3193,7 +3196,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "403: RSS host is not in the allowlist",
-      "retrieved_at": "2026-09-01T07:43:51.059472+00:00"
+      "retrieved_at": "2026-09-01T10:57:51.414771+00:00"
     },
     {
       "source_id": "c1_en_misc_022",
@@ -3369,7 +3372,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:43:57.586868+00:00",
+      "retrieved_at": "2026-09-01T10:57:52.883141+00:00",
       "status": "ok"
     },
     {
@@ -3546,7 +3549,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:44:11.759519+00:00",
+      "retrieved_at": "2026-09-01T10:57:56.792996+00:00",
       "status": "ok"
     },
     {
@@ -3723,7 +3726,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:44:50.236683+00:00",
+      "retrieved_at": "2026-09-01T10:57:59.584524+00:00",
       "status": "ok"
     },
     {
@@ -3733,7 +3736,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "403: RSS host is not in the allowlist",
-      "retrieved_at": "2026-09-01T07:45:32.016228+00:00"
+      "retrieved_at": "2026-09-01T10:58:03.880010+00:00"
     },
     {
       "source_id": "c1_en_misc_029",
@@ -3744,83 +3747,83 @@
       "oracle_entries": [
         {
           "title": "Kojo Idrissa: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/5940730988042727748"
+          "link": "https://pyfound.blogspot.com/2026/08/kojo-idrissa-2026-psf-board-election.html"
         },
         {
           "title": "Ramya Ravi: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/4672704196319318775"
+          "link": "https://pyfound.blogspot.com/2026/08/ramya-ravi-2026-psf-board-election.html"
         },
         {
           "title": "Petr Andreev: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/5281164023818626482"
+          "link": "https://pyfound.blogspot.com/2026/08/petr-andreev-2026-psf-board-election.html"
         },
         {
           "title": "Nina Zakharenko: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/3007387444775470172"
+          "link": "https://pyfound.blogspot.com/2026/08/nina-zakharenko-2026-psf-board-election.html"
         },
         {
           "title": "Keith Murray: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/4741429770140498284"
+          "link": "https://pyfound.blogspot.com/2026/08/keith-murray-2026-psf-board-election.html"
         },
         {
           "title": "Karo Ladino-Puerto: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/3555094142145864670"
+          "link": "https://pyfound.blogspot.com/2026/08/karo-ladino-puerto-2026-psf-board.html"
         },
         {
           "title": "Kalyan Prasad: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/4706355413950209186"
+          "link": "https://pyfound.blogspot.com/2026/08/kalyan-prasad-2026-psf-board-election.html"
         },
         {
           "title": "Jeremy Tanner: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/412395852033317478"
+          "link": "https://pyfound.blogspot.com/2026/08/jeremy-tanner-2026-psf-board-election.html"
         },
         {
           "title": "Georgi Ker: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/6116863465515145342"
+          "link": "https://pyfound.blogspot.com/2026/08/georgi-ker-2026-psf-board-election.html"
         },
         {
           "title": "Elaine Wong: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/7529007532513813817"
+          "link": "https://pyfound.blogspot.com/2026/08/elaine-wong-2026-psf-board-election.html"
         },
         {
           "title": "Ee Durbin: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/3936054580063910964"
+          "link": "https://pyfound.blogspot.com/2026/08/ee-durbin-2026-psf-board-election.html"
         },
         {
           "title": "Christopher Neugebauer: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/126347556312558368"
+          "link": "https://pyfound.blogspot.com/2026/08/christopher-neugebauer-2026-psf-board.html"
         },
         {
           "title": "Cecília Tivir: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/6043325788282697635"
+          "link": "https://pyfound.blogspot.com/2026/08/cecilia-tivir-2026-psf-board-election.html"
         },
         {
           "title": "Calvin Tsang: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/3574706940861620080"
+          "link": "https://pyfound.blogspot.com/2026/08/calvin-tsang-2026-psf-board-election.html"
         },
         {
           "title": "Benjamin Manning: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/1712186328357050097"
+          "link": "https://pyfound.blogspot.com/2026/08/benjamin-manning-2026-psf-board.html"
         },
         {
           "title": "Agata Skamruk: 2026 PSF Board Election Candidate Interview",
-          "link": "https://blogger.com/feeds/8520/posts/default/2074791423610442906"
+          "link": "https://pyfound.blogspot.com/2026/08/2026-psf-board-election-candidate.html"
         },
         {
           "title": "How AWS Powers PyPI and the PSF",
-          "link": "https://blogger.com/feeds/8520/posts/default/1800634540162976879"
+          "link": "https://pyfound.blogspot.com/2026/08/how-aws-powers-pypi-and-psf.html"
         },
         {
           "title": "Announcing the Packaging Council Election Candidates for 2026!",
-          "link": "https://blogger.com/feeds/8520/posts/default/6269270845344168303"
+          "link": "https://pyfound.blogspot.com/2026/08/announcing-packaging-council-election.html"
         },
         {
           "title": "Announcing the PSF Board Candidates for 2026!",
-          "link": "https://blogger.com/feeds/8520/posts/default/5663370285181069806"
+          "link": "https://pyfound.blogspot.com/2026/08/announcing-psf-board-candidates-for-2026.html"
         },
         {
           "title": "Announcing a 2026 PSF Grants Program Funding Round",
-          "link": "https://blogger.com/feeds/8520/posts/default/7072000088733555056"
+          "link": "https://pyfound.blogspot.com/2026/07/announcing-2026-psf-grants-program.html"
         }
       ],
       "production_source_url": "https://pyfound.blogspot.com/feeds/posts/default",
@@ -3906,10 +3909,10 @@
           "link": "https://pyfound.blogspot.com/2026/07/announcing-2026-psf-grants-program.html"
         }
       ],
-      "raw_entry_recall": 0.0,
+      "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:45:50.825563+00:00",
+      "retrieved_at": "2026-09-01T10:58:05.270785+00:00",
       "status": "ok"
     },
     {
@@ -3958,7 +3961,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:46:32.450700+00:00",
+      "retrieved_at": "2026-09-01T10:58:09.093760+00:00",
       "status": "ok"
     },
     {
@@ -3968,7 +3971,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "403: RSS host is not in the allowlist",
-      "retrieved_at": "2026-09-01T07:47:14.493062+00:00"
+      "retrieved_at": "2026-09-01T10:58:14.996329+00:00"
     },
     {
       "source_id": "c1_ja_corp_002",
@@ -3977,7 +3980,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "403: RSS host is not in the allowlist",
-      "retrieved_at": "2026-09-01T07:47:29.153526+00:00"
+      "retrieved_at": "2026-09-01T10:58:16.847948+00:00"
     },
     {
       "source_id": "c1_ja_corp_003",
@@ -4041,7 +4044,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:47:49.900726+00:00",
+      "retrieved_at": "2026-09-01T10:58:17.425705+00:00",
       "status": "ok"
     },
     {
@@ -4051,7 +4054,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "403: RSS host is not in the allowlist",
-      "retrieved_at": "2026-09-01T07:48:21.538117+00:00"
+      "retrieved_at": "2026-09-01T10:58:19.002827+00:00"
     },
     {
       "source_id": "c1_ja_corp_006",
@@ -4060,7 +4063,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "502: G3 oracle returned HTTP 404",
-      "retrieved_at": "2026-09-01T07:48:44.310322+00:00"
+      "retrieved_at": "2026-09-01T10:58:19.686298+00:00"
     },
     {
       "source_id": "c1_ja_corp_008",
@@ -4069,7 +4072,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "422: RSS host cannot be resolved",
-      "retrieved_at": "2026-09-01T07:49:05.773285+00:00"
+      "retrieved_at": "2026-09-01T10:58:21.213892+00:00"
     },
     {
       "source_id": "c1_ja_corp_009",
@@ -4245,7 +4248,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:49:06.275279+00:00",
+      "retrieved_at": "2026-09-01T10:58:21.449435+00:00",
       "status": "ok"
     },
     {
@@ -4422,7 +4425,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:50:18.323991+00:00",
+      "retrieved_at": "2026-09-01T10:58:23.446422+00:00",
       "status": "ok"
     },
     {
@@ -4432,7 +4435,7 @@
       "status": "failed",
       "exception_type": "HTTPException",
       "detail": "413: G3 oracle response exceeded the configured limit",
-      "retrieved_at": "2026-09-01T07:50:56.317903+00:00"
+      "retrieved_at": "2026-09-01T10:58:25.698694+00:00"
     },
     {
       "source_id": "c1_ja_per_001",
@@ -4608,7 +4611,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:51:15.687350+00:00",
+      "retrieved_at": "2026-09-01T10:58:27.769925+00:00",
       "status": "ok"
     },
     {
@@ -4785,7 +4788,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:51:44.050416+00:00",
+      "retrieved_at": "2026-09-01T10:58:29.392346+00:00",
       "status": "ok"
     },
     {
@@ -4882,7 +4885,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:52:15.200607+00:00",
+      "retrieved_at": "2026-09-01T10:58:32.125643+00:00",
       "status": "ok"
     },
     {
@@ -4979,7 +4982,7 @@
       "raw_entry_recall": 1.0,
       "important_update_recall": 1.0,
       "duplicate_item_rate": 0.0,
-      "retrieved_at": "2026-09-01T07:52:46.804846+00:00",
+      "retrieved_at": "2026-09-01T10:58:33.859813+00:00",
       "status": "ok"
     }
   ]

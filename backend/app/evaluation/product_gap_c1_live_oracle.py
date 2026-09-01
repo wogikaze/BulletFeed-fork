@@ -93,12 +93,20 @@ def _oracle_entries(body: bytes) -> list[dict[str, str]]:
             continue
         title = ""
         link = ""
+        link_candidates: list[tuple[int, str]] = []
         for child in element:
             child_name = _local_name(child.tag)
             if child_name == "title" and not title:
                 title = _element_text(child)
-            elif child_name == "link" and not link:
-                link = str(child.attrib.get("href") or _element_text(child))
+            elif child_name == "link":
+                candidate = str(child.attrib.get("href") or _element_text(child)).strip()
+                relation = str(child.attrib.get("rel") or "").casefold()
+                if not candidate or relation in {"replies", "self", "enclosure"}:
+                    continue
+                priority = 0 if relation in {"", "alternate"} else 1
+                link_candidates.append((priority, candidate))
+        if link_candidates:
+            link = min(link_candidates, key=lambda item: item[0])[1]
         if title and link:
             entries.append({"title": title, "link": link})
     return entries
@@ -215,6 +223,7 @@ async def measure_live_g3(
     family_hits: dict[str, int] = defaultdict(int)
     rows: list[dict[str, Any]] = []
     status_counts: Counter[str] = Counter()
+    failed_sources = 0
 
     for index, row in enumerate(selected):
         if row.feed_url is None:
@@ -228,6 +237,7 @@ async def measure_live_g3(
                 }
             )
             continue
+        family_totals[row.family] += 1
         settings = _settings_for_feed(row, timeout_seconds=timeout_seconds)
         retrieved_at = datetime.now(UTC).isoformat()
         try:
@@ -256,7 +266,6 @@ async def measure_live_g3(
             raw_recall.append(raw)
             important_recall.append(important)
             duplicate_rates.append(duplicate_rate)
-            family_totals[row.family] += 1
             family_hits[row.family] += int(raw >= 1.0)
             status = "ok"
             rows.append(
@@ -278,6 +287,10 @@ async def measure_live_g3(
             )
         except Exception as exc:  # noqa: BLE001 - retain live failure as artifact data
             status = "failed"
+            failed_sources += 1
+            raw_recall.append(0.0)
+            important_recall.append(0.0)
+            duplicate_rates.append(0.0)
             rows.append(
                 {
                     "source_id": row.source_id,
@@ -293,9 +306,10 @@ async def measure_live_g3(
         if delay_seconds > 0 and index + 1 < len(selected):
             await asyncio.sleep(delay_seconds)
 
-    measured = len(raw_recall)
+    attempted = len(raw_recall)
+    successful = attempted - failed_sources
     return {
-        "artifact_version": "product-gap-c1-g3-measurement-v2",
+        "artifact_version": "product-gap-c1-g3-measurement-v4",
         "dataset_version": freeze.get("dataset_version"),
         "path": "same_feed_url_independent_oracle_vs_production_preview",
         "live_oracle": True,
@@ -303,11 +317,13 @@ async def measure_live_g3(
         "sample_complete": limit is None,
         "split": split,
         "selected_sources": len(selected),
-        "measured_sources": measured,
+        "attempted_sources": attempted,
+        "successful_sources": successful,
+        "failed_sources": failed_sources,
         "metrics": {
-            "raw_entry_recall": sum(raw_recall) / measured if measured else None,
-            "important_update_recall": sum(important_recall) / measured if measured else None,
-            "duplicate_item_rate": sum(duplicate_rates) / measured if measured else None,
+            "raw_entry_recall": sum(raw_recall) / attempted if attempted else None,
+            "important_update_recall": sum(important_recall) / attempted if attempted else None,
+            "duplicate_item_rate": sum(duplicate_rates) / attempted if attempted else None,
             "family_recall": {
                 family: family_hits[family] / total if total else 0.0
                 for family, total in sorted(family_totals.items())

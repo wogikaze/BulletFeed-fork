@@ -51,12 +51,14 @@
       "metric_failures": [
         "g3_raw_entry_recall",
         "g3_important_update_recall",
-        "g3_family_regression_unmeasured"
+        "g3_family_regression_unmeasured",
+        "g3_source_acquisition_failed"
       ],
       "blockers": [
         "g3_raw_entry_recall",
         "g3_important_update_recall",
-        "g3_family_regression_unmeasured"
+        "g3_family_regression_unmeasured",
+        "g3_source_acquisition_failed"
       ]
     },
     "g4": {
@@ -105,6 +107,7 @@
     "g3:g3_raw_entry_recall",
     "g3:g3_important_update_recall",
     "g3:g3_family_regression_unmeasured",
+    "g3:g3_source_acquisition_failed",
     "g4:g4_body_success",
     "g4:g4_important_body_recall",
     "g4:g4_update_recall",

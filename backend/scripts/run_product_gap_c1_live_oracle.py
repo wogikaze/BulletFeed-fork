@@ -40,7 +40,8 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "output": str(args.output),
                 "selected_sources": report["selected_sources"],
-                "measured_sources": report["measured_sources"],
+                "attempted_sources": report["attempted_sources"],
+                "successful_sources": report["successful_sources"],
             },
             indent=2,
         )

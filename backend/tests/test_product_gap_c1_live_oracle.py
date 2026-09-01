@@ -21,6 +21,16 @@ def test_independent_oracle_parses_rss_without_feedparser() -> None:
         "Security advisory",
     ]
     assert len(oracle._important(entries)) == 2
+    atom = b"""
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <entry>
+        <title>Atom update</title>
+        <link rel="replies" href="https://example.com/comments"/>
+        <link rel="alternate" href="https://example.com/article"/>
+      </entry>
+    </feed>
+    """
+    assert oracle._oracle_entries(atom)[0]["link"] == "https://example.com/article"
 
 
 @pytest.mark.asyncio

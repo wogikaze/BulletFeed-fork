@@ -26,3 +26,4 @@ def test_v2_hard_gate_reads_artifacts_only() -> None:
     assert report["completion_gate_pass"] is False
     assert "operator_attestation_pending" in report["gates"]["g0"]["blockers"]
     assert "g3_family_regression_unmeasured" in report["gates"]["g3"]["blockers"]
+    assert "g3_source_acquisition_failed" in report["gates"]["g3"]["blockers"]

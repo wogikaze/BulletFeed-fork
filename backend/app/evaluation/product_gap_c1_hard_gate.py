@@ -118,6 +118,10 @@ def evaluate_c1_hard_gate(gold_dir=None) -> dict[str, Any]:
             failures.append("g3_live_oracle_unmeasured")
         if name == "g3" and artifact.get("family_regression_measured") is not True:
             failures.append("g3_family_regression_unmeasured")
+        if name == "g3":
+            failed_sources = artifact.get("failed_sources")
+            if failed_sources is None or int(failed_sources) > 0:
+                failures.append("g3_source_acquisition_failed")
         gates[name] = {
             "status": "measured",
             "completion_gate_pass": len(failures) == 0,

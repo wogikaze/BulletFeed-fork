@@ -1,0 +1,15 @@
+{
+  "artifact_version": "product-gap-c1-g3-measurement-baseline-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "path": "same_feed_url_independent_oracle_vs_production_preview",
+  "split": "dev",
+  "live_oracle": true,
+  "selected_sources": 55,
+  "measured_sources": 37,
+  "metrics": {
+    "raw_entry_recall": 0.9459459459459459,
+    "important_update_recall": 0.972972972972973,
+    "duplicate_item_rate": 0.0
+  },
+  "note": "Baseline before the independent Atom link-role fix. It is retained for failure attribution and is not a tuning label."
+}
