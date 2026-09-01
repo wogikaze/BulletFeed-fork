@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Literal
 
+from app.services.knowledge_evidence import STATE_KNOWN, STATE_UNKNOWN
 from app.services.multiobjective_ranker import RankerCandidate, rank_candidates
 
 Mode = Literal["chronological", "topic_filter", "bulletfeed"]
@@ -84,6 +85,70 @@ def compare_modes(
         "modes": table,
         "lost_metrics_kept": True,
     }
+
+
+def apply_cohort_knownness(
+    items: Sequence[CompareItem],
+    *,
+    cohort: Literal["cold_start", "history_rich"],
+) -> list[CompareItem]:
+    rebuilt: list[CompareItem] = []
+    for item in items:
+        known = item.already_known if cohort == "history_rich" else False
+        rebuilt.append(
+            replace(
+                item,
+                already_known=known,
+                candidate=replace(
+                    item.candidate,
+                    knownness_state=STATE_KNOWN if known else STATE_UNKNOWN,
+                ),
+            )
+        )
+    return rebuilt
+
+
+def compare_cohorts(
+    items: Sequence[CompareItem],
+    *,
+    followed_topics: set[str],
+    k: int = 10,
+) -> dict[str, Any]:
+    cohorts = {
+        cohort: compare_modes(
+            apply_cohort_knownness(items, cohort=cohort),
+            followed_topics=followed_topics,
+            k=k,
+        )
+        for cohort in ("cold_start", "history_rich")
+    }
+    return {
+        "report_version": "product-gap-c5-compare-v2",
+        "k": k,
+        "lost_metrics_kept": True,
+        "cohorts": cohorts,
+        "presentation": presentation_rows(cohorts),
+    }
+
+
+def presentation_rows(cohorts: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for cohort, table in cohorts.items():
+        for mode, payload in table["modes"].items():
+            metrics = payload["metrics"]
+            rows.append(
+                {
+                    "cohort": cohort,
+                    "mode": mode,
+                    "cards_to_first_important_unknown": metrics["cards_to_first_important_unknown"],
+                    "useful_rate": metrics["useful_rate"],
+                    "already_known_reshow_rate": metrics["already_known_reshow_rate"],
+                    "important_unknown_miss_rate": metrics["important_unknown_miss_rate"],
+                    "duplicate_rate": metrics["duplicate_rate"],
+                    "unknown_but_hidden": metrics["unknown_but_hidden"],
+                }
+            )
+    return rows
 
 
 def attach_source_coverage(table: dict[str, Any], *, g3: dict[str, Any] | None) -> dict[str, Any]:

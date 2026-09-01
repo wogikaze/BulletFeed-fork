@@ -1,58 +1,183 @@
 {
-  "report_version": "product-gap-c5-compare-v1",
+  "report_version": "product-gap-c5-compare-v2",
   "k": 5,
-  "modes": {
-    "chronological": {
-      "order": [
-        "old-rust-known",
-        "js-noise",
-        "rust-dup",
-        "rust-sec",
-        "llvm-adj"
-      ],
-      "metrics": {
-        "cards_to_first_important_unknown": 4,
-        "useful_rate": 0.4,
-        "already_known_reshow_rate": 0.4,
-        "important_unknown_miss_rate": 0.0,
-        "duplicate_rate": 0.2,
-        "unknown_but_hidden": 0
-      }
+  "lost_metrics_kept": true,
+  "cohorts": {
+    "cold_start": {
+      "report_version": "product-gap-c5-compare-v1",
+      "k": 5,
+      "modes": {
+        "chronological": {
+          "order": [
+            "old-rust-known",
+            "js-noise",
+            "rust-dup",
+            "rust-sec",
+            "llvm-adj"
+          ],
+          "metrics": {
+            "cards_to_first_important_unknown": 4,
+            "useful_rate": 0.4,
+            "already_known_reshow_rate": 0.0,
+            "important_unknown_miss_rate": 0.0,
+            "duplicate_rate": 0.2,
+            "unknown_but_hidden": 0
+          }
+        },
+        "topic_filter": {
+          "order": [
+            "old-rust-known",
+            "rust-dup",
+            "rust-sec"
+          ],
+          "metrics": {
+            "cards_to_first_important_unknown": 3,
+            "useful_rate": 0.3333333333333333,
+            "already_known_reshow_rate": 0.0,
+            "important_unknown_miss_rate": 0.5,
+            "duplicate_rate": 0.3333333333333333,
+            "unknown_but_hidden": 1
+          }
+        },
+        "bulletfeed": {
+          "order": [
+            "rust-sec",
+            "old-rust-known",
+            "llvm-adj",
+            "js-noise",
+            "rust-dup"
+          ],
+          "metrics": {
+            "cards_to_first_important_unknown": 1,
+            "useful_rate": 0.4,
+            "already_known_reshow_rate": 0.0,
+            "important_unknown_miss_rate": 0.0,
+            "duplicate_rate": 0.2,
+            "unknown_but_hidden": 0
+          }
+        }
+      },
+      "lost_metrics_kept": true
     },
-    "topic_filter": {
-      "order": [
-        "old-rust-known",
-        "rust-dup",
-        "rust-sec"
-      ],
-      "metrics": {
-        "cards_to_first_important_unknown": 3,
-        "useful_rate": 0.3333333333333333,
-        "already_known_reshow_rate": 0.6666666666666666,
-        "important_unknown_miss_rate": 0.5,
-        "duplicate_rate": 0.3333333333333333,
-        "unknown_but_hidden": 1
-      }
-    },
-    "bulletfeed": {
-      "order": [
-        "rust-sec",
-        "old-rust-known",
-        "llvm-adj",
-        "js-noise",
-        "rust-dup"
-      ],
-      "metrics": {
-        "cards_to_first_important_unknown": 1,
-        "useful_rate": 0.4,
-        "already_known_reshow_rate": 0.4,
-        "important_unknown_miss_rate": 0.0,
-        "duplicate_rate": 0.2,
-        "unknown_but_hidden": 0
-      }
+    "history_rich": {
+      "report_version": "product-gap-c5-compare-v1",
+      "k": 5,
+      "modes": {
+        "chronological": {
+          "order": [
+            "old-rust-known",
+            "js-noise",
+            "rust-dup",
+            "rust-sec",
+            "llvm-adj"
+          ],
+          "metrics": {
+            "cards_to_first_important_unknown": 4,
+            "useful_rate": 0.4,
+            "already_known_reshow_rate": 0.4,
+            "important_unknown_miss_rate": 0.0,
+            "duplicate_rate": 0.2,
+            "unknown_but_hidden": 0
+          }
+        },
+        "topic_filter": {
+          "order": [
+            "old-rust-known",
+            "rust-dup",
+            "rust-sec"
+          ],
+          "metrics": {
+            "cards_to_first_important_unknown": 3,
+            "useful_rate": 0.3333333333333333,
+            "already_known_reshow_rate": 0.6666666666666666,
+            "important_unknown_miss_rate": 0.5,
+            "duplicate_rate": 0.3333333333333333,
+            "unknown_but_hidden": 1
+          }
+        },
+        "bulletfeed": {
+          "order": [
+            "rust-sec",
+            "llvm-adj",
+            "old-rust-known",
+            "js-noise",
+            "rust-dup"
+          ],
+          "metrics": {
+            "cards_to_first_important_unknown": 1,
+            "useful_rate": 0.4,
+            "already_known_reshow_rate": 0.4,
+            "important_unknown_miss_rate": 0.0,
+            "duplicate_rate": 0.2,
+            "unknown_but_hidden": 0
+          }
+        }
+      },
+      "lost_metrics_kept": true
     }
   },
-  "lost_metrics_kept": true,
+  "presentation": [
+    {
+      "cohort": "cold_start",
+      "mode": "chronological",
+      "cards_to_first_important_unknown": 4,
+      "useful_rate": 0.4,
+      "already_known_reshow_rate": 0.0,
+      "important_unknown_miss_rate": 0.0,
+      "duplicate_rate": 0.2,
+      "unknown_but_hidden": 0
+    },
+    {
+      "cohort": "cold_start",
+      "mode": "topic_filter",
+      "cards_to_first_important_unknown": 3,
+      "useful_rate": 0.3333333333333333,
+      "already_known_reshow_rate": 0.0,
+      "important_unknown_miss_rate": 0.5,
+      "duplicate_rate": 0.3333333333333333,
+      "unknown_but_hidden": 1
+    },
+    {
+      "cohort": "cold_start",
+      "mode": "bulletfeed",
+      "cards_to_first_important_unknown": 1,
+      "useful_rate": 0.4,
+      "already_known_reshow_rate": 0.0,
+      "important_unknown_miss_rate": 0.0,
+      "duplicate_rate": 0.2,
+      "unknown_but_hidden": 0
+    },
+    {
+      "cohort": "history_rich",
+      "mode": "chronological",
+      "cards_to_first_important_unknown": 4,
+      "useful_rate": 0.4,
+      "already_known_reshow_rate": 0.4,
+      "important_unknown_miss_rate": 0.0,
+      "duplicate_rate": 0.2,
+      "unknown_but_hidden": 0
+    },
+    {
+      "cohort": "history_rich",
+      "mode": "topic_filter",
+      "cards_to_first_important_unknown": 3,
+      "useful_rate": 0.3333333333333333,
+      "already_known_reshow_rate": 0.6666666666666666,
+      "important_unknown_miss_rate": 0.5,
+      "duplicate_rate": 0.3333333333333333,
+      "unknown_but_hidden": 1
+    },
+    {
+      "cohort": "history_rich",
+      "mode": "bulletfeed",
+      "cards_to_first_important_unknown": 1,
+      "useful_rate": 0.4,
+      "already_known_reshow_rate": 0.4,
+      "important_unknown_miss_rate": 0.0,
+      "duplicate_rate": 0.2,
+      "unknown_but_hidden": 0
+    }
+  ],
   "source_coverage": {
     "rss_subset_coverage": null,
     "breadth_superiority_pp": null,

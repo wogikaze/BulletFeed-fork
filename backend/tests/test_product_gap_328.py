@@ -8,7 +8,7 @@ from app.evaluation.product_gap_c1_gates import evaluate_c1_gates, evaluate_g1
 from app.evaluation.product_gap_c2 import PersonaPair, evaluate_c2, score_adjacent_case, score_pair
 from app.evaluation.product_gap_c3 import decay_before_after
 from app.evaluation.product_gap_c4 import fixture_reason_missing
-from app.evaluation.product_gap_compare import CompareItem, compare_modes
+from app.evaluation.product_gap_compare import CompareItem, compare_cohorts, compare_modes
 from app.evaluation.product_gap_ssrf import evaluate_ssrf_suite
 from app.services.knowledge_evidence import (
     KIND_ALREADY_KNEW,
@@ -178,6 +178,50 @@ def test_compare_table_keeps_losses() -> None:
     chrono = table["modes"]["chronological"]["order"][0]
     assert chrono == "old-rust-known" or chrono
     assert table["lost_metrics_kept"] is True
+
+
+def test_compare_cohorts_keep_topic_filter_losses_and_history_reshow() -> None:
+    payload = json.loads((GOLD / "c5" / "compare_fixture.json").read_text(encoding="utf-8"))
+    items = [
+        CompareItem(
+            item_id=row["item_id"],
+            published_at=row["published_at"],
+            topic_key=row["topic_key"],
+            important_unknown=row["important_unknown"],
+            already_known=row["already_known"],
+            duplicate=row["duplicate"],
+            useful=row["useful"],
+            candidate=RankerCandidate(
+                item_id=row["item_id"],
+                topic_key=row["topic_key"],
+                relation_level=row["relation_level"],
+                importance_level=row["importance_level"],
+                updated_at=row["published_at"],
+            ),
+        )
+        for row in payload["items"]
+    ]
+    report = compare_cohorts(items, followed_topics=set(payload["followed_topics"]), k=5)
+    assert set(report["cohorts"]) == {"cold_start", "history_rich"}
+    topic_filter = report["cohorts"]["history_rich"]["modes"]["topic_filter"]["metrics"]
+    assert topic_filter["important_unknown_miss_rate"] > 0
+    assert topic_filter["unknown_but_hidden"] >= 1
+    cold = report["cohorts"]["cold_start"]["modes"]["bulletfeed"]["metrics"]
+    rich = report["cohorts"]["history_rich"]["modes"]
+    assert cold["already_known_reshow_rate"] == 0.0
+    assert (
+        rich["bulletfeed"]["metrics"]["already_known_reshow_rate"]
+        <= rich["chronological"]["metrics"]["already_known_reshow_rate"]
+    )
+    assert (
+        rich["bulletfeed"]["metrics"]["cards_to_first_important_unknown"]
+        <= rich["chronological"]["metrics"]["cards_to_first_important_unknown"]
+    )
+    assert any(
+        row["mode"] == "topic_filter" and row["important_unknown_miss_rate"] > 0
+        for row in report["presentation"]
+    )
+
 
 
 def test_c1_gate_harness_does_not_invent_pass() -> None:
