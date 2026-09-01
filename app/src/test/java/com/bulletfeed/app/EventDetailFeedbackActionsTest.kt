@@ -1,9 +1,13 @@
 package com.bulletfeed.app
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -116,5 +120,45 @@ class EventDetailFeedbackActionsTest {
         composeRule.onNodeWithText("今知った").performClick()
         assertEquals(listOf(Feedback.ALREADY_KNEW, Feedback.LEARNED_NOW), received)
         assertTrue(received.none { it == Feedback.IMPORTANT || it == Feedback.NOT_RELEVANT })
+    }
+
+    @Test
+    fun knowledgeChoiceShowsWhichButtonIsSelected() {
+        composeRule.setContent {
+            MaterialTheme {
+                EventActionBar(
+                    following = false,
+                    hasFeedContext = true,
+                    onFeedback = {},
+                    onFollow = {},
+                    onDismiss = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("event-detail-already-knew").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, false),
+        )
+        composeRule.onNodeWithTag("event-detail-learned-now").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, false),
+        )
+
+        composeRule.onNodeWithText("今知った").performClick()
+        composeRule.onNodeWithTag("event-detail-learned-now").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, true),
+        )
+        composeRule.onNodeWithTag("event-detail-already-knew").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, false),
+        )
+        composeRule.onNodeWithText("「今知った」を記録しました").assertExists()
+
+        composeRule.onNodeWithText("知っていた").performClick()
+        composeRule.onNodeWithTag("event-detail-already-knew").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, true),
+        )
+        composeRule.onNodeWithTag("event-detail-learned-now").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.Selected, false),
+        )
+        composeRule.onNodeWithText("「知っていた」を記録しました").assertExists()
     }
 }

@@ -82,6 +82,32 @@ async def list_repositories(settings: Settings, token: str) -> list[dict[str, An
     return items
 
 
+async def get_repository_by_id(
+    settings: Settings,
+    repository_id: str,
+    token: str,
+) -> dict[str, Any] | None:
+    """Fetch one repository for a selection delta without listing the account."""
+    async with httpx.AsyncClient(timeout=settings.request_timeout_seconds, trust_env=False) as client:
+        response = await client.get(
+            f"{API_URL}/repositories/{repository_id}",
+            headers=_headers(token),
+        )
+    if response.status_code == 404:
+        return None
+    data = await require_json(
+        response,
+        "GitHub repository",
+        reauthorization_on_auth_failure=True,
+    )
+    if not isinstance(data, dict) or not isinstance(data.get("id"), int):
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="GitHub returned invalid repository metadata",
+        )
+    return data
+
+
 async def repository_accessible(
     settings: Settings,
     owner: str,

@@ -185,10 +185,10 @@ class AppBarTitleSemanticsTest {
             }
         }
 
-        composeRule.onNodeWithTag("knowledge-bootstrap-heading").assert(
+        composeRule.onNodeWithTag("event-detail-delta-heading").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )
-        composeRule.onNodeWithTag("event-detail-delta-heading").assert(
+        composeRule.onNodeWithTag("event-detail-unknown-facts-heading").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )
         composeRule.onNodeWithTag("event-detail-timeline-heading").assert(

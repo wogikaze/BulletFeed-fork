@@ -37,6 +37,7 @@ KNOWN_REVISIONS = (
     "18",
     "19",
     "20",
+    "21",
 )
 
 OAUTH_SCHEMA = """
@@ -492,6 +493,39 @@ def _apply_revision_20(connection: sqlite3.Connection) -> None:
     connection.executescript(WEBHOOK_SCHEMA)
 
 
+def _apply_revision_21(connection: sqlite3.Connection) -> None:
+    """Durable, retryable GitHub topic inference jobs."""
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS github_topic_sync_jobs (
+            user_id TEXT PRIMARY KEY,
+            generation INTEGER NOT NULL DEFAULT 1,
+            status TEXT NOT NULL DEFAULT 'pending'
+                CHECK (status IN ('pending', 'running', 'completed', 'failed')),
+            requested_at INTEGER NOT NULL,
+            next_run_at INTEGER NOT NULL,
+            started_at INTEGER,
+            finished_at INTEGER,
+            lease_until INTEGER NOT NULL DEFAULT 0,
+            lease_token TEXT,
+            attempt_count INTEGER NOT NULL DEFAULT 0,
+            added_topics_json TEXT NOT NULL DEFAULT '[]',
+            already_tracked_topics_json TEXT NOT NULL DEFAULT '[]',
+            inspected_repository_count INTEGER NOT NULL DEFAULT 0,
+            failed_repository_count INTEGER NOT NULL DEFAULT 0,
+            last_error TEXT,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_github_topic_sync_jobs_due
+        ON github_topic_sync_jobs(status, next_run_at, lease_until)
+        """
+    )
+
+
 _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "1": _apply_revision_1,
     "2": _apply_revision_2,
@@ -513,4 +547,5 @@ _REVISION_APPLIERS: dict[str, Callable[[sqlite3.Connection], None]] = {
     "18": _apply_revision_18,
     "19": _apply_revision_19,
     "20": _apply_revision_20,
+    "21": _apply_revision_21,
 }

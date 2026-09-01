@@ -170,6 +170,49 @@ def test_github_repositories_and_disconnect(client: TestClient, auth_headers: di
     assert client.get("/v1/me/integrations/github", headers=auth_headers).json()["connected"] is False
 
 
+def test_github_repository_delta_save_commits_before_topic_sync(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+    monkeypatch,
+) -> None:
+    listed = client.get(
+        "/v1/me/integrations/github/repositories",
+        headers=auth_headers,
+        params={"limit": 1},
+    )
+    repository_id = listed.json()["items"][0]["id"]
+
+    async def get_one(settings, selected_id, token):
+        del settings, token
+        return next(repo for repo in DEMO_REPOSITORIES if str(repo["id"]) == selected_id)
+
+    from app.db.seed import DEMO_REPOSITORIES
+    from app.services import github as github_service
+
+    monkeypatch.setattr(github_service, "get_repository_by_id", get_one)
+    updated = client.patch(
+        "/v1/me/integrations/github/repositories",
+        headers=auth_headers,
+        json={"addRepositoryIds": [repository_id], "removeRepositoryIds": []},
+    )
+
+    assert updated.status_code == 200, updated.text
+    assert updated.json()["topicSyncState"] == "pending"
+    assert updated.json()["addedTopics"] == []
+    status_response = client.get(
+        "/v1/me/integrations/github/topic-sync",
+        headers=auth_headers,
+    )
+    assert status_response.status_code == 200
+    assert status_response.json()["state"] == "pending"
+    with database.connect() as connection:
+        assert connection.execute(
+            "SELECT 1 FROM github_repo_watches WHERE repository_id = ? AND selected = 1",
+            (repository_id,),
+        ).fetchone()
+
+
 def test_saving_github_repositories_returns_inferred_topics(
     client: TestClient,
     auth_headers: dict[str, str],

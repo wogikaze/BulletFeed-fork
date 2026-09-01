@@ -12,8 +12,10 @@ from app.schemas.integrations import (
     GithubImportResult,
     GithubRepoImportRequest,
     GithubRepositoryPage,
+    GithubRepositorySelectionPatch,
     GithubRepositoryUpdate,
     GithubRepositoryUpdateResult,
+    GithubTopicSyncStatus,
     NotificationItem,
     NotificationList,
     NotificationReadAllResponse,
@@ -113,6 +115,46 @@ async def update_github_repositories(
         inspected_repository_count=synced.inspected_repository_count,
         failed_repository_count=synced.failed_repository_count,
     )
+
+
+@router.patch("/me/integrations/github/repositories", response_model=GithubRepositoryUpdateResult)
+async def patch_github_repositories(
+    body: GithubRepositorySelectionPatch,
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[IntegrationStore, Depends(_store)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    database: Annotated[Database, Depends(get_database)],
+) -> GithubRepositoryUpdateResult:
+    connection = await store.patch_repositories(
+        user["user_id"],
+        body.add_repository_ids,
+        body.remove_repository_ids,
+        settings,
+    )
+    store.enqueue_github_topic_sync(user["user_id"])
+    with database.connect() as db_connection:
+        state_row = db_connection.execute(
+            "SELECT onboarding_state FROM users WHERE id = ?",
+            (user["user_id"],),
+        ).fetchone()
+    if state_row is not None and state_row["onboarding_state"] == "repository_pending":
+        MeStore(database).mark_repository_setup_ready(user["user_id"])
+    else:
+        FeedProjector(database).reproject_user(user_id=user["user_id"])
+    return GithubRepositoryUpdateResult(
+        connected=connection.connected,
+        credential_state=connection.credential_state,
+        account_login=connection.account_login,
+        topic_sync_state="pending",
+    )
+
+
+@router.get("/me/integrations/github/topic-sync", response_model=GithubTopicSyncStatus)
+def get_github_topic_sync_status(
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[IntegrationStore, Depends(_store)],
+) -> GithubTopicSyncStatus:
+    return store.github_topic_sync_status(user["user_id"])
 
 
 @router.post("/me/integrations/github/import", response_model=GithubImportResult)

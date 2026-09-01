@@ -1,3 +1,4 @@
+import asyncio
 import os
 import time
 from contextlib import asynccontextmanager
@@ -42,7 +43,20 @@ async def lifespan(_: FastAPI):
     database.initialize()
     install_topic_catalog(database)
     install_release_lifecycle_guards(database)
-    yield
+    worker_task: asyncio.Task[None] | None = None
+    if settings.embed_source_sync_worker:
+        from app.release_worker import run_release_worker
+
+        worker_task = asyncio.create_task(run_release_worker())
+    try:
+        yield
+    finally:
+        if worker_task is not None:
+            worker_task.cancel()
+            try:
+                await worker_task
+            except asyncio.CancelledError:
+                pass
 
 
 app = FastAPI(

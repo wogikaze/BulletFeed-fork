@@ -108,19 +108,29 @@ fun BulletFeedApp(
 
     LaunchedEffect(deepLink) {
         val uri = deepLink?.let(Uri::parse) ?: return@LaunchedEffect
-        val id = uri.pathSegments.firstOrNull() ?: return@LaunchedEffect
         notificationsOpen = false
         githubSetupOpen = false
         when (uri.host) {
-            "event" -> {
-                selectedVulnerabilityId = null
-                selectedEventId = id
-                selectedFeedItemId = null
+            "oauth" -> {
+                if (uri.pathSegments.firstOrNull() == "github") {
+                    // The callback carries no credentials. The pending flow and poll token remain
+                    // in protected local storage; refresh claims the completed flow immediately.
+                    viewModel.refresh()
+                }
             }
-            "security" -> {
-                selectedEventId = null
-                selectedFeedItemId = null
-                selectedVulnerabilityId = id
+            "event",
+            "security",
+            -> {
+                val id = uri.pathSegments.firstOrNull() ?: return@LaunchedEffect
+                if (uri.host == "event") {
+                    selectedVulnerabilityId = null
+                    selectedEventId = id
+                    selectedFeedItemId = null
+                } else {
+                    selectedEventId = null
+                    selectedFeedItemId = null
+                    selectedVulnerabilityId = id
+                }
             }
         }
     }
@@ -780,6 +790,7 @@ private fun AppTabPane(
             onVisibleFeedItems = onVisibleFeedItems,
             onTopicsClick = { onTabChange(AppTab.TOPICS) },
             onGithubClick = onGithubSetupOpen,
+            hasFollowedTopics = uiState.topicItems.isNotEmpty(),
             modifier = Modifier.padding(innerPadding),
         )
         AppTab.SECURITY -> SecurityDashboardScreen(

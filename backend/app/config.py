@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     dynamic_web_max_subresources: int = 8
     dynamic_web_max_memory_mb: int = 128
     crawler_user_agent: str = RELEASE_CRAWLER_USER_AGENT
+    embed_source_sync_worker: bool = True
 
     @field_validator("crawler_user_agent")
     @classmethod

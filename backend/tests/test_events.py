@@ -10,7 +10,13 @@ from app.services.feed_projection import FeedProjector
 from app.services.github_release_pipeline import ingest_github_release_events
 from app.services.ledger_projection import LedgerProjector
 from app.services.statuspage_pipeline import StatuspagePipeline
-from app.stores.event_store import EventStore
+from app.stores.event_store import EventStore, _fact_texts
+
+
+def test_fact_texts_split_source_sentences() -> None:
+    assert _fact_texts("First change. Second change.", "") == ("First change.", "Second change.")
+    assert _fact_texts("調査を開始した。原因を特定した。", "") == ("調査を開始した。", "原因を特定した。")
+    assert _fact_texts("published", "published") == ("published",)
 
 
 def _project_test_event(database: Database) -> tuple[str, str]:
@@ -140,6 +146,27 @@ def test_event_detail_and_opened_delta(
     assert body["timeline"][0]["deltaId"]
     assert "claim" not in body
     assert body["sources"][0]["kind"] == "statuspage"
+    facts = body["unknownFacts"]
+    assert facts
+    assert all(item["id"] and item["text"].strip() for item in facts)
+
+    with database.connect() as connection:
+        mapped = connection.execute(
+            "SELECT claim_id FROM delta_claim_map WHERE delta_id = ?",
+            (feed_item["delta"]["id"],),
+        ).fetchone()
+    assert mapped is not None
+    claim_id = mapped["claim_id"]
+    assert any(item["id"].startswith(f"{claim_id}:") for item in facts)
+
+    knew = client.post(
+        f"/v1/feed/items/{feed_item['id']}/feedback",
+        headers=auth_headers,
+        json={"type": "already_knew"},
+    )
+    assert knew.status_code == 200
+    after_knew = client.get(f"/v1/events/{event_id}", headers=auth_headers).json()["unknownFacts"]
+    assert all(not item["id"].startswith(f"{claim_id}:") for item in after_knew)
 
 
 def test_follow_event(

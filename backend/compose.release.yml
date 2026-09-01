@@ -7,6 +7,7 @@ services:
     env_file: .env.release
     environment:
       BULLETFEED_DATABASE_PATH: /data/bulletfeed.db
+      BULLETFEED_EMBED_SOURCE_SYNC_WORKER: "0"
     volumes:
       - bulletfeed-data:/data
     ports:

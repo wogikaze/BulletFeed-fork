@@ -80,6 +80,7 @@ fun EventDetailDto.toDomain(): EventDetail =
         currentState = currentState.toDomain(),
         latestDelta = latestDelta.toDomain(),
         openedDelta = openedDelta?.toDomain(),
+        unknownFacts = unknownFacts.map { it.toDomain() },
         timeline = timeline.map { it.toDomain() },
         impacts = impacts.map { it.toDomain() },
         sources = sources.map { it.toDomain() },
@@ -107,6 +108,8 @@ fun EventTimelineEntryDto.toDomain(): EventTimelineEntry =
     )
 
 fun EventImpactDto.toDomain(): EventImpact = EventImpact(kind = kind, text = text, confidence = confidence)
+
+fun UnknownFactDto.toDomain(): UnknownFact = UnknownFact(id = id, text = text)
 
 fun EventSourceDto.toDomain(): EventSource =
     EventSource(
@@ -184,7 +187,22 @@ fun GithubRepositoryUpdateResultDto.toDomain(): GithubTopicSyncResult =
         alreadyTrackedTopics = alreadyTrackedTopics,
         inspectedRepositoryCount = inspectedRepositoryCount,
         failedRepositoryCount = failedRepositoryCount,
+        topicSyncState = topicSyncState.toGithubTopicSyncState(),
     )
+
+fun GithubTopicSyncStatusDto.toDomain(): GithubTopicSyncStatus =
+    GithubTopicSyncStatus(
+        state = state.toGithubTopicSyncState(),
+        addedTopics = addedTopics,
+        alreadyTrackedTopics = alreadyTrackedTopics,
+        inspectedRepositoryCount = inspectedRepositoryCount,
+        failedRepositoryCount = failedRepositoryCount,
+        error = error,
+    )
+
+private fun String.toGithubTopicSyncState(): GithubTopicSyncState =
+    runCatching { GithubTopicSyncState.valueOf(uppercase()) }
+        .getOrDefault(GithubTopicSyncState.COMPLETED)
 
 fun GithubImportResultDto.toSyncResult(): GithubTopicSyncResult =
     GithubTopicSyncResult(

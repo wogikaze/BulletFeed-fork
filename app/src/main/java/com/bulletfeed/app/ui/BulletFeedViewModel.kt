@@ -78,8 +78,8 @@ data class BulletFeedUiState(
         explicitKnownFactCount = 0,
         inferredFactCount = 0,
     ),
-    val knowledgeBootstrapPrompt: KnowledgeBootstrapPrompt? = null,
     val isSavingKnowledgeBootstrap: Boolean = false,
+    val knowledgeBootstrapPrompt: KnowledgeBootstrapPrompt? = null,
     val topicRecommendations: List<TopicRecommendation> = emptyList(),
     val topicRecommendationCohort: String = "",
     val isLoading: Boolean = true,
@@ -113,6 +113,7 @@ class BulletFeedViewModel(
     private var eventDetailJob: Job? = null
     private var vulnerabilityDetailJob: Job? = null
     private var githubRepositoryJob: Job? = null
+    private var githubTopicSyncJob: Job? = null
     private var githubAuthorizationJob: Job? = null
     private var topicSearchJob: Job? = null
     private var refreshVersion = 0L
@@ -258,6 +259,9 @@ class BulletFeedViewModel(
                 }
                 if (ready) {
                     startFeedTelemetrySession()
+                }
+                if (githubConnection.connected) {
+                    observeGithubTopicSyncIfActive()
                 }
             } catch (error: CancellationException) {
                 throw error
@@ -842,44 +846,29 @@ class BulletFeedViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isGithubSaving = true, githubRepositoryError = null, githubTopicSyncMessage = null) }
             try {
-                val allRepositories = fetchAllGithubRepositories()
-                val selectedIds = allRepositories
-                    .filter { repository -> githubSelectionEdits[repository.id] ?: repository.selected }
-                    .map { it.id }
-                if (_uiState.value.onboardingState == OnboardingState.REPOSITORY_PENDING && selectedIds.isEmpty()) {
-                    error("GitHub setup requires at least one selected repository")
-                }
-                val result = repository.updateGithubRepositories(selectedIds)
+                val edits = githubSelectionEdits.toMap()
+                val addRepositoryIds = edits.filterValues { it }.keys.toList()
+                val removeRepositoryIds = edits.filterValues { !it }.keys.toList()
+                val selectedRepositoryCount = _uiState.value.githubRepositories.count { it.selected }
+                val result = repository.updateGithubRepositorySelection(
+                    addRepositoryIds = addRepositoryIds,
+                    removeRepositoryIds = removeRepositoryIds,
+                )
                 githubSelectionEdits.clear()
-                val onboarding = repository.getOnboardingSnapshot()
-                val topicItems = repository.getUserTopics().sortedBy { it.order }
-                val page = if (result.connection.credentialState == GithubCredentialState.CONNECTED) {
-                    repository.getGithubRepositoryPage(query = _uiState.value.githubQuery)
-                } else {
-                    GithubRepositoryPage(emptyList(), null)
-                }
-                val feedPage = if (onboarding.state == OnboardingState.READY) {
-                    repository.getFilteredFeedPage(relation = _uiState.value.feedFilter.toRelationOrNull())
-                } else {
-                    FeedPage(emptyList(), null)
-                }
-                val alerts = if (onboarding.state == OnboardingState.READY) repository.getVulnerabilityAlerts() else emptyList()
                 _uiState.update { current ->
                     current.copy(
                         githubConnection = result.connection,
-                        githubRepositories = page.items,
-                        githubNextCursor = page.nextCursor,
                         isGithubSaving = false,
-                        onboardingCompleted = onboarding.completed,
-                        onboardingState = onboarding.state,
-                        events = feedPage.items.map { it.toFeedEvent() },
-                        feedDeliveryIds = feedPage.deliveryIdMap(),
-                        feedNextCursor = feedPage.nextCursor,
-                        vulnerabilityAlerts = alerts,
-                        topicItems = topicItems,
-                        topics = topicItems.map { topic -> topic.name },
-                        githubTopicSyncMessage = githubTopicSyncMessage(result, selectedIds.size),
+                        githubTopicSyncMessage = if (result.topicSyncState == GithubTopicSyncState.PENDING) {
+                            "保存しました。GitHubからトピックを確認中です。"
+                        } else {
+                            githubTopicSyncMessage(result, selectedRepositoryCount)
+                        },
                     )
+                }
+                refreshGithubStateAfterSave()
+                if (result.topicSyncState == GithubTopicSyncState.PENDING) {
+                    observeGithubTopicSync()
                 }
             } catch (error: CancellationException) {
                 throw error
@@ -897,21 +886,139 @@ class BulletFeedViewModel(
         }
     }
 
-    private suspend fun fetchAllGithubRepositories(): List<GithubRepositoryChoice> {
-        val all = mutableListOf<GithubRepositoryChoice>()
-        var cursor: String? = null
-        val seenCursors = mutableSetOf<String>()
-        do {
-            val page = repository.getGithubRepositoryPage(query = "", cursor = cursor, limit = 50)
-            all += page.items
-            val next = page.nextCursor
-            if (next != null && !seenCursors.add(next)) error("GitHub repository pagination cursor repeated")
-            cursor = next
-        } while (cursor != null)
-        return all.distinctBy { it.id }
+    private fun refreshGithubStateAfterSave() {
+        viewModelScope.launch {
+            try {
+                val onboarding = repository.getOnboardingSnapshot()
+                val topicItems = repository.getUserTopics().sortedBy { it.order }
+                val feedPage = if (onboarding.state == OnboardingState.READY) {
+                    repository.getFilteredFeedPage(relation = _uiState.value.feedFilter.toRelationOrNull())
+                } else {
+                    FeedPage(emptyList(), null)
+                }
+                val alerts = if (onboarding.state == OnboardingState.READY) {
+                    repository.getVulnerabilityAlerts()
+                } else {
+                    emptyList()
+                }
+                _uiState.update { current ->
+                    current.copy(
+                        onboardingCompleted = onboarding.completed,
+                        onboardingState = onboarding.state,
+                        events = feedPage.items.map { it.toFeedEvent() },
+                        feedDeliveryIds = feedPage.deliveryIdMap(),
+                        feedNextCursor = feedPage.nextCursor,
+                        vulnerabilityAlerts = alerts,
+                        topicItems = topicItems,
+                        topics = topicItems.map { it.name },
+                    )
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                if (error.isUnauthorized()) {
+                    handleRootFailure(error)
+                } else if (error.httpCode() == 403) {
+                    markGithubReauthorizationRequired()
+                } else {
+                    _uiState.update { it.copy(githubRepositoryError = error.toUserMessage()) }
+                }
+            }
+        }
+    }
+
+    private fun observeGithubTopicSyncIfActive() {
+        githubTopicSyncJob?.cancel()
+        githubTopicSyncJob = viewModelScope.launch {
+            val status = runCatching { repository.getGithubTopicSyncStatus() }.getOrNull() ?: return@launch
+            if (status.state == GithubTopicSyncState.PENDING || status.state == GithubTopicSyncState.RUNNING) {
+                try {
+                    observeGithubTopicSync(status)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Throwable) {
+                    _uiState.update {
+                        it.copy(githubTopicSyncMessage = "トピックの確認状態を取得できませんでした。")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeGithubTopicSync() {
+        githubTopicSyncJob?.cancel()
+        githubTopicSyncJob = viewModelScope.launch {
+            try {
+                observeGithubTopicSync(repository.getGithubTopicSyncStatus())
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                _uiState.update {
+                    it.copy(githubTopicSyncMessage = "保存は完了しました。トピックの確認状態を取得できませんでした。")
+                }
+            }
+        }
+    }
+
+    private suspend fun observeGithubTopicSync(initial: GithubTopicSyncStatus) {
+        var status = initial
+        repeat(120) {
+            when (status.state) {
+                GithubTopicSyncState.COMPLETED -> {
+                    applyGithubTopicSyncStatus(status)
+                    return
+                }
+                GithubTopicSyncState.FAILED -> {
+                    _uiState.update {
+                        it.copy(
+                            githubTopicSyncMessage = "トピックの確認に失敗しました。時間をおいて再試行します。",
+                        )
+                    }
+                    return
+                }
+                GithubTopicSyncState.IDLE -> return
+                GithubTopicSyncState.PENDING,
+                GithubTopicSyncState.RUNNING,
+                -> {
+                    _uiState.update {
+                        it.copy(githubTopicSyncMessage = "保存しました。GitHubからトピックを確認中です。")
+                    }
+                }
+            }
+            delay(1000)
+            status = repository.getGithubTopicSyncStatus()
+        }
+        _uiState.update {
+            it.copy(githubTopicSyncMessage = "トピックの確認に時間がかかっています。処理はバックグラウンドで継続します。")
+        }
+    }
+
+    private suspend fun applyGithubTopicSyncStatus(status: GithubTopicSyncStatus) {
+        val topicItems = repository.getUserTopics().sortedBy { it.order }
+        val topicRecommendations = repository.getTopicRecommendations(includeFollowed = false)
+        val selectedRepositoryCount = status.inspectedRepositoryCount + status.failedRepositoryCount
+        _uiState.update { current ->
+            current.copy(
+                topicItems = topicItems,
+                topics = topicItems.map { it.name },
+                topicRecommendations = topicRecommendations.items,
+                topicRecommendationCohort = topicRecommendations.cohort,
+                githubTopicSyncMessage = githubTopicSyncMessage(
+                    GithubTopicSyncResult(
+                        connection = current.githubConnection,
+                        addedTopics = status.addedTopics,
+                        alreadyTrackedTopics = status.alreadyTrackedTopics,
+                        inspectedRepositoryCount = status.inspectedRepositoryCount,
+                        failedRepositoryCount = status.failedRepositoryCount,
+                    ),
+                    selectedRepositoryCount = selectedRepositoryCount,
+                ),
+            )
+        }
     }
 
     fun disconnectGithub() = launchUpdate {
+        githubTopicSyncJob?.cancel()
         repository.disconnectGithub()
         githubSelectionEdits.clear()
         val connection = repository.getGithubConnectionState()

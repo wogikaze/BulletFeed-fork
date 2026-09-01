@@ -74,6 +74,42 @@ async def test_worker_syncs_each_source_once_per_repository_and_respects_poll_wi
 
 
 @pytest.mark.asyncio
+async def test_worker_completes_durable_github_topic_sync_job(tmp_path, monkeypatch) -> None:
+    database = Database(tmp_path / "topic-sync.db")
+    database.initialize()
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_1', 0)")
+    key = Fernet.generate_key().decode()
+    settings = Settings(database_path=database.path, token_encryption_key=key)
+    from app.services.repository_topic_inference import RepositoryTopicSyncResult
+    from app.stores.integration_store import IntegrationStore
+
+    async def fake_sync(database, cipher, *, user_id, settings):
+        del database, cipher, user_id, settings
+        return RepositoryTopicSyncResult(
+            added=["Kotlin"],
+            already_tracked=["Redis"],
+            inspected_repository_count=1,
+            failed_repository_count=0,
+        )
+
+    monkeypatch.setattr(sync_worker, "sync_selected_repository_topics", fake_sync)
+    monkeypatch.setattr(sync_worker, "FeedProjector", lambda database: type(
+        "Projector", (), {"reproject_user": lambda self, *, user_id: None}
+    )())
+    store = IntegrationStore(database, TokenCipher(key))
+    store.enqueue_github_topic_sync("user_1", now=1_000)
+
+    summary = await WatchSyncWorker(settings, database, batch_size=1).run_once(now=1_000)
+
+    assert (summary.attempted, summary.succeeded, summary.failed) == (1, 1, 0)
+    result = store.github_topic_sync_status("user_1")
+    assert result.state == "completed"
+    assert result.added_topics == ["Kotlin"]
+    assert result.already_tracked_topics == ["Redis"]
+
+
+@pytest.mark.asyncio
 async def test_run_once_only_leases_the_job_currently_executing(tmp_path, monkeypatch) -> None:
     database = _database_with_watch(tmp_path)
     settings = Settings(database_path=database.path)

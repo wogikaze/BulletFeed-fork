@@ -153,6 +153,14 @@ interface BulletFeedApi {
         @Body body: GithubRepositoryUpdateDto,
     ): GithubRepositoryUpdateResultDto
 
+    @PATCH("v1/me/integrations/github/repositories")
+    suspend fun patchGithubRepositories(
+        @Body body: GithubRepositorySelectionPatchDto,
+    ): GithubRepositoryUpdateResultDto
+
+    @GET("v1/me/integrations/github/topic-sync")
+    suspend fun getGithubTopicSyncStatus(): GithubTopicSyncStatusDto
+
     @DELETE("v1/me/integrations/github")
     suspend fun disconnectGithub()
 
@@ -356,10 +364,17 @@ data class EventDetailDto(
     val currentState: CurrentStateDto,
     val latestDelta: FeedDeltaDto,
     val openedDelta: FeedDeltaDto? = null,
+    val unknownFacts: List<UnknownFactDto> = emptyList(),
     val timeline: List<EventTimelineEntryDto>,
     val impacts: List<EventImpactDto>,
     val sources: List<EventSourceDto>,
     val following: Boolean,
+)
+
+@Serializable
+data class UnknownFactDto(
+    val id: String,
+    val text: String,
 )
 
 @Serializable
@@ -484,6 +499,7 @@ data class GithubRepositoryUpdateResultDto(
     val alreadyTrackedTopics: List<String> = emptyList(),
     val inspectedRepositoryCount: Int = 0,
     val failedRepositoryCount: Int = 0,
+    val topicSyncState: String = "completed",
 )
 
 @Serializable
@@ -528,6 +544,24 @@ data class GithubRepositoryDto(
 @Serializable
 data class GithubRepositoryUpdateDto(
     val repositoryIds: List<String>,
+)
+
+@Serializable
+data class GithubRepositorySelectionPatchDto(
+    val addRepositoryIds: List<String> = emptyList(),
+    val removeRepositoryIds: List<String> = emptyList(),
+)
+
+@Serializable
+data class GithubTopicSyncStatusDto(
+    val state: String,
+    val requestedAt: Long? = null,
+    val finishedAt: Long? = null,
+    val addedTopics: List<String> = emptyList(),
+    val alreadyTrackedTopics: List<String> = emptyList(),
+    val inspectedRepositoryCount: Int = 0,
+    val failedRepositoryCount: Int = 0,
+    val error: String? = null,
 )
 
 @Serializable

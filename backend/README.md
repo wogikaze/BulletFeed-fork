@@ -11,7 +11,7 @@ Android が本線で接続する FastAPI backend です。通常のアプリ起�
 - GitHub トークンのサーバー側暗号化保存、連携リポジトリ選択、private repository access
 - Security Alert と通知
 - Feed の server ordering / cursor pagination、viewport exposure、profile 変更時の再 projection
-- 公開リポジトリの GitHub Releases、SBOM、OSV、Statuspage、許可した RSS / Atom / JSON Feed の取得（継続取得は API とは別の source-sync worker）
+- 公開リポジトリの GitHub Releases、SBOM、OSV、Statuspage、許可した RSS / Atom / JSON Feed の取得（ローカル `uvicorn` は source-sync worker を同梱。公開構成では専用 worker プロセス）
 
 記事本文のクロール・転載、ログイン回避、有料記事取得、任意 URL へのアクセスは実装していません。Webhook 受信は公開 MVP の shipped 機能ではありません。
 
@@ -34,7 +34,7 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-継続取得には API とは別に source-sync worker が必要です。公開 MVP では `compose.release.yml` が API + worker + durable shared SQLite volume を定義します。
+ローカルの `uvicorn` は source-sync worker を同じプロセスに埋め込みます。`BULLETFEED_EMBED_SOURCE_SYNC_WORKER=0` で無効化できます。公開 MVP では `compose.release.yml` が API + 専用 worker + durable shared SQLite volume を定義します。
 
 - ヘルスチェック: `http://127.0.0.1:8000/health`
 - OpenAPI UI: `http://127.0.0.1:8000/docs`
