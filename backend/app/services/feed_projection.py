@@ -11,9 +11,12 @@ from app.observability import record
 from app.services.ranking import evaluate_importance
 from app.services.ranking_feedback import apply_feedback_ranking
 from app.services.relation import _normalize, evaluate_relation
+from app.services.user_interest import concept_display_name, concept_neighbors, resolve_concept_id
 
 if len(WATERMARK_STATES) != 2:
     raise RuntimeError("novel-delta SQL binds exactly two watermark states")
+
+MAX_ADJACENT_CANDIDATE_EVENTS = 8
 
 
 def project_event_for_audience(
@@ -290,18 +293,45 @@ class FeedProjector:
             if (token := _normalize(name))
         ]
         if topics:
+            exact_tokens, adjacent_tokens = FeedProjector._match_tokens_for_topics(topics)
             events = connection.execute(
                 """
                 SELECT e.id, e.title, e.summary, COALESCE(le.source_key, '') AS source_key
                 FROM events e
                 LEFT JOIN ledger_events le ON le.id = e.id
+                ORDER BY e.id
                 """
             ).fetchall()
+            adjacent_hits: list[str] = []
             for event in events:
                 padded = f" {_normalize(' '.join((event['source_key'], event['title'], event['summary'])))} "
-                if any(f" {token} " in padded for token in topics):
+                if any(f" {token} " in padded for token in exact_tokens):
                     ids.add(event["id"])
+                elif any(f" {token} " in padded for token in adjacent_tokens):
+                    adjacent_hits.append(event["id"])
+            ids.update(adjacent_hits[:MAX_ADJACENT_CANDIDATE_EVENTS])
         return sorted(ids)
+
+    @staticmethod
+    def _match_tokens_for_topics(topics: Sequence[str]) -> tuple[set[str], set[str]]:
+        exact: set[str] = set()
+        adjacent: set[str] = set()
+        for name in topics:
+            token = _normalize(name)
+            if token:
+                exact.add(token)
+            concept_id = resolve_concept_id(name)
+            concept_token = _normalize(concept_id)
+            if concept_token:
+                exact.add(concept_token)
+            for neighbor in concept_neighbors(concept_id):
+                neighbor_token = _normalize(neighbor)
+                if neighbor_token:
+                    adjacent.add(neighbor_token)
+                display = _normalize(concept_display_name(neighbor))
+                if display:
+                    adjacent.add(display)
+        return exact, adjacent - exact
 
     @staticmethod
     def _source_identity(connection, event_id: str) -> tuple[str, str]:

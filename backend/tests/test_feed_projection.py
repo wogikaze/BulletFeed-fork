@@ -1,4 +1,4 @@
-from app.services.feed_projection import FeedProjector
+from app.services.feed_projection import MAX_ADJACENT_CANDIDATE_EVENTS, FeedProjector
 from app.services.github_release_pipeline import ingest_github_release_events
 from app.services.ledger_projection import LedgerProjector
 from app.services.rss_pipeline import ingest_feed_events
@@ -103,18 +103,27 @@ def _plant_unrelated_event(database, event_id: str = "unrelated_noise") -> str:
 
 
 def _ingest_kotlin_source(database) -> str:
+    return _ingest_named_source(
+        database,
+        title="Kotlin 2.3 migration guide",
+        summary="Kotlin compiler migration guidance.",
+        slug="kotlin-2-3",
+    )
+
+
+def _ingest_named_source(database, *, title: str, summary: str, slug: str) -> str:
     result = ingest_feed_events(
         database,
         preview={
             "title": "Acme Engineering",
-            "source_url": "https://engineering.acme.example/feed.xml",
+            "source_url": f"https://engineering.acme.example/{slug}/feed.xml",
             "items": [
                 {
-                    "title": "Kotlin 2.3 migration guide",
-                    "link": "https://engineering.acme.example/kotlin-2-3",
+                    "title": title,
+                    "link": f"https://engineering.acme.example/{slug}",
                     "published": "2026-08-20T15:00:00Z",
                     "updated": "2026-08-20T15:00:00Z",
-                    "summary": "Kotlin compiler migration guidance.",
+                    "summary": summary,
                 }
             ],
         },
@@ -165,6 +174,74 @@ def test_reproject_user_skips_unrelated_planted_event(database, monkeypatch):
         ).fetchone()["count"]
     assert unrelated_items == 0
     assert kotlin_items >= 1
+
+
+def test_reproject_user_surfaces_adjacent_neighbor_without_exact_topic(database):
+    llvm_event_id = _ingest_named_source(
+        database,
+        title="LLVM 20.1 pass manager",
+        summary="New LLVM pass pipeline for backends.",
+        slug="llvm-20-1",
+    )
+    unrelated_id = _plant_unrelated_event(database)
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_1', 0)")
+        connection.execute(
+            """
+            INSERT INTO topics (
+                id, user_id, name, type, priority, sort_order, created_at
+            ) VALUES ('topic_rust', 'user_1', 'Rust', 'technology', 'high', 0, 0)
+            """
+        )
+
+    FeedProjector(database).reproject_user(user_id="user_1")
+
+    with database.connect() as connection:
+        llvm_rows = connection.execute(
+            """
+            SELECT relation_level, relation_reason
+            FROM feed_items WHERE user_id = 'user_1' AND event_id = ?
+            """,
+            (llvm_event_id,),
+        ).fetchall()
+        unrelated_count = connection.execute(
+            "SELECT COUNT(*) AS count FROM feed_items WHERE user_id = 'user_1' AND event_id = ?",
+            (unrelated_id,),
+        ).fetchone()["count"]
+    assert llvm_rows
+    assert all(row["relation_level"] == "adjacent" for row in llvm_rows)
+    assert unrelated_count == 0
+
+
+def test_reproject_user_caps_adjacent_neighbor_candidates(database):
+    event_ids = [
+        _ingest_named_source(
+            database,
+            title=f"LLVM pass {index}",
+            summary="LLVM IR pipeline notes.",
+            slug=f"llvm-pass-{index}",
+        )
+        for index in range(12)
+    ]
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES ('user_1', 0)")
+        connection.execute(
+            """
+            INSERT INTO topics (
+                id, user_id, name, type, priority, sort_order, created_at
+            ) VALUES ('topic_rust', 'user_1', 'Rust', 'technology', 'high', 0, 0)
+            """
+        )
+
+    FeedProjector(database).reproject_user(user_id="user_1")
+    with database.connect() as connection:
+        surfaced = {
+            row["event_id"]
+            for row in connection.execute(
+                "SELECT DISTINCT event_id FROM feed_items WHERE user_id = 'user_1'"
+            )
+        }
+    assert len(surfaced.intersection(event_ids)) == MAX_ADJACENT_CANDIDATE_EVENTS
 
 
 def test_reproject_user_surfaces_source_changes_after_adding_topic(database):

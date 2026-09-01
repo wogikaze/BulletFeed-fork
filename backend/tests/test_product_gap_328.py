@@ -211,6 +211,18 @@ def test_g1_precision_counts_false_positives_in_top3() -> None:
     assert g1["precision_at_3"] <= g1["feed_recall_unconfirmed_probe"] + 1e-9
 
 
+def test_adjacent_human_review_sample_is_not_gold() -> None:
+    payload = json.loads((GOLD / "c2" / "adjacent_human_review_sample.json").read_text(encoding="utf-8"))
+    assert payload["human_gold"] is False
+    assert payload["label_source"] == "constructed"
+    useful = [row for row in payload["items"] if row["useful"]]
+    unrelated = [row for row in payload["items"] if not row["useful"]]
+    assert len(useful) >= 3
+    assert unrelated
+    assert all(row["expected_match"] == "adjacent" for row in useful)
+    assert all(row["expected_match"] == "reference" for row in unrelated)
+
+
 def test_adjacent_rust_llvm_is_not_exact_match() -> None:
     report = score_adjacent_case(
         {
