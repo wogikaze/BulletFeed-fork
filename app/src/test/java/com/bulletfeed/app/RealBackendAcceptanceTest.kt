@@ -349,6 +349,40 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
+    fun `empty topics without github is abstention not a useful feed or offline`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            try {
+                repository.completeOnboarding(
+                    profile = UserProfile("Android engineer", setOf("mobile"), "US"),
+                    topics = emptyList(),
+                    connectGithub = false,
+                )
+                fail("expected 422 no_topics_abstention")
+            } catch (error: HttpException) {
+                assertEquals(422, error.code())
+                val recovered = readyUiState().reduceRootFailure(error)
+                assertFalse(recovered.isOffline)
+                assertFalse(recovered.sessionExpired)
+                assertTrue(
+                    "expected 5-topic validation copy, got ${recovered.errorMessage}",
+                    recovered.errorMessage?.contains("5件") == true,
+                )
+            }
+            val onboarding = repository.getOnboardingSnapshot()
+            assertFalse(onboarding.completed)
+            assertEquals(OnboardingState.PROFILE, onboarding.state)
+            val feed = repository.getFeedPage(limit = 5)
+            assertTrue(feed.items.isEmpty())
+        }
+
+    @Test
     fun `invalid statuspage id is validation not offline`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
