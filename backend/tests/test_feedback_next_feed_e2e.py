@@ -721,6 +721,83 @@ def test_repository_feedback_lifts_held_out_on_next_feed(
     assert PERSONALIZATION_VERSION not in other["importance_reason"]
 
 
+def test_impact_feedback_lifts_held_out_on_next_feed(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    with database.connect() as connection:
+        for index, source_type in enumerate(("rss_atom", "github_release", "package_registry")):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=f"nfeed_i_train_{index}",
+                event_id=f"ev_nfeed_i_train_{index}",
+                source_type=source_type,
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                delta_type="state_update",
+                title=f"Unrelated kitchen notes {index}",
+            )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_i_state",
+            event_id="ev_nfeed_i_state",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            delta_type="state_update",
+            title="Unrelated desk lamp manual",
+        )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_i_other",
+            event_id="ev_nfeed_i_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="Unrelated garden hose specs",
+        )
+        ledger_before = ledger_world_state(connection)
+
+    before = _feed_ids(client, auth_headers)
+    assert "nfeed_i_state" in before and "nfeed_i_other" in before
+    with database.connect() as connection:
+        baseline = connection.execute(
+            "SELECT importance_level FROM feed_items WHERE id = ?",
+            ("nfeed_i_state",),
+        ).fetchone()
+    assert baseline["importance_level"] == "medium"
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_i_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    after = _feed_ids(client, auth_headers)
+    assert after.index("nfeed_i_state") < after.index("nfeed_i_other")
+    assert set(before) == set(after)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_i_state",),
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_i_other",),
+        ).fetchone()
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "state_update" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
 def test_feedback_ranking_does_not_drop_correction_from_next_feed(
     client: TestClient,
     auth_headers: dict[str, str],

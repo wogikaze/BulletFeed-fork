@@ -22,6 +22,9 @@ MIN_SAMPLE_SIZE = 3
 FEATURE_KIND_SOURCE_TYPE = "source_type"
 FEATURE_KIND_TOPIC = "topic"
 FEATURE_KIND_REPOSITORY = "repository"
+FEATURE_KIND_IMPACT = "impact"
+_PROTECTED_DELTAS = frozenset({"correction", "unresolved_contradiction"})
+_GENERIC_IMPACT_DELTAS = frozenset({"detail", "new_fact", ""})
 PERSONALIZATION_VERSION = "ranking-feedback-v0"
 RANK_BONUS = 50
 
@@ -79,6 +82,7 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
             fb.type AS feedback_type,
             COALESCE(le.source_type, 'unknown') AS source_type,
             COALESCE(le.source_key, '') AS source_key,
+            COALESCE(d.type, 'detail') AS delta_type,
             e.title AS title,
             e.summary AS summary
         FROM (
@@ -105,6 +109,7 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
             WHERE user_id = ? AND created_at > ?
         ) fb
         JOIN feed_items f ON f.id = fb.feed_item_id AND f.user_id = fb.user_id
+        LEFT JOIN deltas d ON d.id = f.delta_id
         LEFT JOIN ledger_events le ON le.id = f.event_id
         LEFT JOIN events e ON e.id = f.event_id
         WHERE fb.rn = 1 AND fb.type != 'undo'
@@ -114,9 +119,12 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
     source_tallies: dict[str, dict[str, int]] = {}
     topic_tallies: dict[str, dict[str, int]] = {}
     repository_tallies: dict[str, dict[str, int]] = {}
+    impact_tallies: dict[str, dict[str, int]] = {}
     concept_tallies: dict[str, dict[str, int]] = {}
     for row in rows:
         _add_tally(source_tallies, row["source_type"], row["feedback_type"])
+        if row["delta_type"] not in _GENERIC_IMPACT_DELTAS:
+            _add_tally(impact_tallies, row["delta_type"], row["feedback_type"])
         text = " ".join(part for part in (row["title"], row["summary"]) if part)
         for concept_id in detect_concepts_in_text(text):
             _add_tally(concept_tallies, concept_id, row["feedback_type"])
@@ -149,6 +157,12 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
         user_id=user_id,
         feature_kind=FEATURE_KIND_REPOSITORY,
         tallies=repository_tallies,
+    )
+    _persist_feature_tallies(
+        connection,
+        user_id=user_id,
+        feature_kind=FEATURE_KIND_IMPACT,
+        tallies=impact_tallies,
     )
     _persist_feature_tallies(
         connection,
@@ -280,6 +294,7 @@ def _apply_adjustments(
     features = _features(connection, user_id)
     topic_features = _features(connection, user_id, FEATURE_KIND_TOPIC)
     repository_features = _features(connection, user_id, FEATURE_KIND_REPOSITORY)
+    impact_features = _features(connection, user_id, FEATURE_KIND_IMPACT)
     concept_features = _features(connection, user_id, FEATURE_KIND_CONCEPT)
     items = connection.execute(
         """
@@ -333,6 +348,13 @@ def _apply_adjustments(
                 concept_features,
                 detect_concepts_in_text(text),
             )
+        if kind is None and impact_features and item["delta_type"] not in _GENERIC_IMPACT_DELTAS:
+            kind, counts, feature_value = _pick_discrete_adjustment(
+                impact_features,
+                (item["delta_type"],),
+            )
+        if kind == "demote_relation" and item["delta_type"] in _PROTECTED_DELTAS:
+            kind = None
         if kind == "boost_importance":
             importance_level = _shift(importance_level, _IMPORTANCE_ORDER, 1)
             importance_reason = f"{importance.reason} {_explain(kind, counts[0], feature_value)}"
