@@ -21,13 +21,19 @@
           "g1_feed_recall",
           "g1_precision_at_3",
           "g1_japanese_recall",
-          "g1_no_feed_fallback"
+          "g1_no_feed_fallback",
+          "g1_family_recall:corp_tech_blog",
+          "g1_family_recall:official_blog",
+          "g1_family_recall:personal_dev_blog"
         ],
         "blockers": [
           "g1_feed_recall",
           "g1_precision_at_3",
           "g1_japanese_recall",
-          "g1_no_feed_fallback"
+          "g1_no_feed_fallback",
+          "g1_family_recall:corp_tech_blog",
+          "g1_family_recall:official_blog",
+          "g1_family_recall:personal_dev_blog"
         ]
       },
       "g2": {
@@ -37,12 +43,20 @@
         "metric_failures": [
           "g2_primary_recall_at_20",
           "g2_relevant_recall_at_50",
-          "g2_precision_at_20"
+          "g2_precision_at_20",
+          "g2_japanese_recall_at_50",
+          "g2_blog_recall_at_50",
+          "g2_no_rss_recall_at_50",
+          "g2_weak_primary_topic"
         ],
         "blockers": [
           "g2_primary_recall_at_20",
           "g2_relevant_recall_at_50",
-          "g2_precision_at_20"
+          "g2_precision_at_20",
+          "g2_japanese_recall_at_50",
+          "g2_blog_recall_at_50",
+          "g2_no_rss_recall_at_50",
+          "g2_weak_primary_topic"
         ]
       },
       "g3": {
@@ -101,9 +115,16 @@
       "g1:g1_precision_at_3",
       "g1:g1_japanese_recall",
       "g1:g1_no_feed_fallback",
+      "g1:g1_family_recall:corp_tech_blog",
+      "g1:g1_family_recall:official_blog",
+      "g1:g1_family_recall:personal_dev_blog",
       "g2:g2_primary_recall_at_20",
       "g2:g2_relevant_recall_at_50",
       "g2:g2_precision_at_20",
+      "g2:g2_japanese_recall_at_50",
+      "g2:g2_blog_recall_at_50",
+      "g2:g2_no_rss_recall_at_50",
+      "g2:g2_weak_primary_topic",
       "g3:g3_raw_entry_recall",
       "g3:g3_important_update_recall",
       "g3:g3_family_regression_unmeasured",

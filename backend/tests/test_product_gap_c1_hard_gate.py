@@ -27,3 +27,5 @@ def test_v2_hard_gate_reads_artifacts_only() -> None:
     assert "operator_attestation_pending" in report["gates"]["g0"]["blockers"]
     assert "g3_family_regression_unmeasured" in report["gates"]["g3"]["blockers"]
     assert "g3_source_acquisition_failed" in report["gates"]["g3"]["blockers"]
+    assert "g1_family_recall:corp_tech_blog" in report["gates"]["g1"]["blockers"]
+    assert "g2_japanese_recall_at_50" in report["gates"]["g2"]["blockers"]

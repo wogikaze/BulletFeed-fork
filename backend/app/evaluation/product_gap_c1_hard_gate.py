@@ -16,6 +16,7 @@ from app.evaluation.product_gap_c1_artifacts import (
     compare_metrics,
     load_freeze,
     load_measurement,
+    metric_meets_floor,
 )
 
 GOLD_C1 = Path(__file__).resolve().parents[2] / "tests" / "gold" / "product_gap" / "c1" / "v2"
@@ -30,6 +31,9 @@ _G2_REQUIRED = {
     "g2_primary_recall_at_20": "primary_recall_at_20",
     "g2_relevant_recall_at_50": "relevant_recall_at_50",
     "g2_precision_at_20": "precision_at_20",
+    "g2_japanese_recall_at_50": "japanese_recall_at_50",
+    "g2_blog_recall_at_50": "blog_recall_at_50",
+    "g2_no_rss_recall_at_50": "no_rss_recall_at_50",
 }
 _G3_REQUIRED = {
     "g3_raw_entry_recall": "raw_entry_recall",
@@ -110,6 +114,17 @@ def evaluate_c1_hard_gate(gold_dir=None) -> dict[str, Any]:
             continue
         metrics = artifact.get("metrics") or {}
         failures = compare_metrics(metrics, floors, _REQUIRED.get(name, {}))
+        if name == "g1":
+            family_recall = metrics.get("family_recall")
+            if not isinstance(family_recall, dict):
+                failures.append("g1_family_recall_unmeasured")
+            else:
+                for family, value in family_recall.items():
+                    if family != "no_rss_web" and not metric_meets_floor(
+                        value,
+                        floors["g1_family_recall"],
+                    ):
+                        failures.append(f"g1_family_recall:{family}")
         if artifact.get("dataset_version") != freeze.get("dataset_version"):
             failures.append(f"{name}_dataset_version_mismatch")
         if artifact.get("sample_complete") is not True:
@@ -118,6 +133,8 @@ def evaluate_c1_hard_gate(gold_dir=None) -> dict[str, Any]:
             failures.append("g1_not_production_confirm")
         if name == "g2" and artifact.get("gold_injected"):
             failures.append("g2_gold_injected")
+        if name == "g2" and artifact.get("weak_primary_topics"):
+            failures.append("g2_weak_primary_topic")
         if name == "g3" and artifact.get("live_oracle") is not True:
             failures.append("g3_live_oracle_unmeasured")
         if name == "g3" and artifact.get("family_regression_measured") is not True:
