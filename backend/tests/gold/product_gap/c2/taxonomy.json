@@ -1,0 +1,13 @@
+{
+  "dataset_version": "product-gap-c2-taxonomy-v1",
+  "human_gold": false,
+  "classes": [
+    "personalization_insufficiency",
+    "adjacent_useful_discovery",
+    "direct_regression",
+    "capacity_occupancy"
+  ],
+  "capacity_evidence": "backend/tests/gold/m6/v01/capacity_remediation_before_after.json",
+  "personalization_insufficiency_rule": "Kendall distance below 0.15 on a contrast persona pair is an independent insufficiency, not a ranking bug.",
+  "note": "Constructed labels only. Human adjacent samples stay empty until #326/#318 participants label them."
+}

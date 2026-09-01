@@ -1,0 +1,108 @@
+{
+  "dataset_version": "product-gap-c1-g0-v1",
+  "frozen": true,
+  "final_blind_eligible": false,
+  "superseded_by": "product-gap-c1-g0-v2",
+  "note": "v1 split was observed during implementation. Keep as a development corpus only. Do not treat this split as unseen blind.",
+  "label_source": "human_curated_pending_operator_attestation",
+  "human_gold": false,
+  "attestation_required": true,
+  "metrics": {
+    "g1_feed_recall": 0.98,
+    "g1_family_recall": 0.95,
+    "g1_japanese_recall": 0.95,
+    "g1_precision_at_3": 0.95,
+    "g1_no_feed_fallback": 0.98,
+    "g2_primary_recall_at_20": 0.9,
+    "g2_relevant_recall_at_50": 0.85,
+    "g2_precision_at_20": 0.8,
+    "g2_japanese_recall_at_50": 0.85,
+    "g2_blog_recall_at_50": 0.85,
+    "g2_no_rss_recall_at_50": 0.75,
+    "g2_min_topic_primary_recall": 0.7,
+    "g3_raw_entry_recall": 0.995,
+    "g3_important_update_recall": 1.0,
+    "g3_duplicate_item_rate": 0.005,
+    "g3_family_regression_pp": 1.0,
+    "g3_rss_subset_coverage": 0.99,
+    "g3_breadth_superiority_pp": 10.0,
+    "g4_body_success": 0.97,
+    "g4_important_body_recall": 0.95,
+    "g4_update_recall": 0.95,
+    "g4_update_precision": 0.95,
+    "g4_boilerplate_fp": 0.01,
+    "g4_article_split": 0.005
+  },
+  "exclusion_rules": [
+    "policy_blocked sources stay in the universe and are reported separately",
+    "do not drop a source after seeing blind results",
+    "do not change thresholds after seeing blind results",
+    "do not add per-source patches after seeing blind results"
+  ],
+  "failure_classes": [
+    "policy_blocked",
+    "undiscovered",
+    "unsubscribable",
+    "acquisition_failed",
+    "extraction_failed"
+  ],
+  "floors": {
+    "min_topics": 24,
+    "min_sources": 300,
+    "min_per_major_family": 40,
+    "min_japanese": 100,
+    "min_no_rss_web": 60,
+    "min_blind_ratio": 0.3
+  },
+  "summary": {
+    "source_count": 267,
+    "topic_count": 24,
+    "topics": {
+      "android": 8,
+      "angular": 6,
+      "cloudflare": 7,
+      "deno": 6,
+      "flutter": 6,
+      "go": 22,
+      "java": 17,
+      "kotlin": 9,
+      "kubernetes": 8,
+      "linux": 18,
+      "llvm": 7,
+      "neovim": 8,
+      "nextjs": 7,
+      "oss_security": 13,
+      "postgresql": 6,
+      "python": 17,
+      "react": 11,
+      "redis": 6,
+      "ruby": 21,
+      "rust": 14,
+      "swift": 7,
+      "typescript": 30,
+      "vue": 7,
+      "webassembly": 6
+    },
+    "families": {
+      "corp_tech_blog": 75,
+      "docs_changelog": 51,
+      "no_rss_web": 46,
+      "official_blog": 32,
+      "personal_dev_blog": 54,
+      "rss_atom_json": 89
+    },
+    "languages": {
+      "en": 176,
+      "ja": 91
+    },
+    "splits": {
+      "blind": 83,
+      "dev": 184
+    },
+    "no_rss_web_count": 46,
+    "japanese_count": 91,
+    "blind_source_ratio": 0.31086142322097376,
+    "unique_domains": 153,
+    "policy_blocked_count": 5
+  }
+}

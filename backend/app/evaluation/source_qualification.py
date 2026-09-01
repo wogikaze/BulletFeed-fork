@@ -473,7 +473,7 @@ def _deterministic_fault_cases() -> tuple[ReplayCase, ...]:
         _expect_http_error(
             scenario="redirect_private_guard",
             callback=lambda: validate_public_url(
-                "https://127.0.0.1/redirect-target",
+                "https://unlisted.example/redirect-target",
                 {"authoritative.example"},
                 source_name="M3 redirect",
             ),

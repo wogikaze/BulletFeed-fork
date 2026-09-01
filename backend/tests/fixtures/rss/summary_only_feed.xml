@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Example blog</title>
+    <link>https://blog.example.com/</link>
+    <item>
+      <title>Important compiler change</title>
+      <link>https://blog.example.com/compiler-change</link>
+      <description>Short teaser.</description>
+      <pubDate>Mon, 01 Aug 2026 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -44,7 +44,73 @@ def validate_url_shape(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"{source_name} URL port is not allowed",
         )
+    if _host_is_not_public_shape(parsed.hostname):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"{source_name} host is not a public hostname",
+        )
     return parsed
+
+
+_BLOCKED_EXACT_HOSTS = {
+    "localhost",
+    "localdomain",
+    "metadata.google.internal",
+    "host.docker.internal",
+    "kubernetes.default.svc",
+    "nip.io",
+    "sslip.io",
+    "xip.io",
+    "localtest.me",
+    "lvh.me",
+    "vcap.me",
+}
+_BLOCKED_HOST_SUFFIXES = (
+    ".localhost",
+    ".localdomain",
+    ".internal",
+    ".corp",
+    ".home",
+    ".lan",
+    ".local",
+    ".onion",
+    ".i2p",
+    ".consul",
+    ".nip.io",
+    ".sslip.io",
+    ".xip.io",
+    ".localtest.me",
+    ".lvh.me",
+    ".vcap.me",
+)
+
+
+def _ip_like_label(part: str) -> bool:
+    if part.startswith("0x"):
+        try:
+            int(part, 16)
+        except ValueError:
+            return False
+        return True
+    return part.isdigit()
+
+
+def _host_is_not_public_shape(hostname: str) -> bool:
+    host = hostname.strip("[]").lower().rstrip(".")
+    if any(ch in host for ch in (" ", "\t", "\x00")):
+        return True
+    if host in _BLOCKED_EXACT_HOSTS or any(host.endswith(suffix) for suffix in _BLOCKED_HOST_SUFFIXES):
+        return True
+    if host.startswith("127.") or "127.0.0.1" in host:
+        return True
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        parts = [part for part in host.split(".") if part]
+        if 1 <= len(parts) <= 4 and all(_ip_like_label(part) for part in parts):
+            return True
+        return False
+    return not ip.is_global
 
 
 def reject_private_resolved_addresses(addresses: list, *, source_name: str) -> None:
@@ -77,14 +143,19 @@ def validate_public_url(
 ) -> str:
     """Allowlist + DNS + private-IP checks. Unknown host and private IP fail closed."""
     parsed = validate_url_shape(url, source_name=source_name, allow_http=allow_http)
-    assert parsed.hostname is not None
-    if not host_is_allowed(parsed.hostname, allowed_hosts):
+    hostname = parsed.hostname
+    if hostname is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"{source_name} URL must include a public hostname",
+        )
+    if not host_is_allowed(hostname, allowed_hosts):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"{source_name} host is not in the allowlist",
         )
     port = 80 if parsed.scheme == "http" else 443
-    resolve_public_hostname(parsed.hostname, port=port, source_name=source_name)
+    resolve_public_hostname(hostname, port=port, source_name=source_name)
     return url
 
 

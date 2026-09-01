@@ -1,0 +1,62 @@
+{
+  "dataset_version": "product-gap-c5-compare-v1",
+  "followed_topics": ["rust"],
+  "k": 5,
+  "items": [
+    {
+      "item_id": "rust-sec",
+      "published_at": "2026-08-01T00:00:00Z",
+      "topic_key": "rust",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "relation_level": "direct",
+      "importance_level": "critical"
+    },
+    {
+      "item_id": "rust-dup",
+      "published_at": "2026-08-02T00:00:00Z",
+      "topic_key": "rust",
+      "important_unknown": false,
+      "already_known": true,
+      "duplicate": true,
+      "useful": false,
+      "relation_level": "direct",
+      "importance_level": "low"
+    },
+    {
+      "item_id": "js-noise",
+      "published_at": "2026-08-03T00:00:00Z",
+      "topic_key": "react",
+      "important_unknown": false,
+      "already_known": false,
+      "duplicate": false,
+      "useful": false,
+      "relation_level": "reference",
+      "importance_level": "low"
+    },
+    {
+      "item_id": "llvm-adj",
+      "published_at": "2026-07-01T00:00:00Z",
+      "topic_key": "llvm",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "relation_level": "adjacent",
+      "importance_level": "high"
+    },
+    {
+      "item_id": "old-rust-known",
+      "published_at": "2026-08-04T00:00:00Z",
+      "topic_key": "rust",
+      "important_unknown": false,
+      "already_known": true,
+      "duplicate": false,
+      "useful": false,
+      "relation_level": "direct",
+      "importance_level": "medium"
+    }
+  ]
+}

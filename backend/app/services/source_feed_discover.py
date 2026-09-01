@@ -43,8 +43,30 @@ DiscoveryMethodName = Literal[
 
 _MAX_HTML_CHARS = 1_000_000
 _MAX_CANDIDATES = 8
-_MAX_WELL_KNOWN_PROBES = 5
-_WELL_KNOWN_PATHS = ("/feed", "/rss", "/atom.xml", "/feed.xml", "/index.xml")
+_MAX_WELL_KNOWN_PROBES = 16
+_WELL_KNOWN_PATHS = (
+    "/feed",
+    "/rss",
+    "/atom.xml",
+    "/feed.xml",
+    "/index.xml",
+    "/rss.xml",
+    "/feed.rss",
+    "/feed.atom",
+    "/atom",
+    "/feed/",
+    "/rss/",
+    "/news.xml",
+    "/news.rss",
+    "/feeds/news.rss",
+    "/feeds/posts/default",
+    "/blog.atom",
+    "/feeds/all.atom.xml",
+    "/blog/feed",
+    "/blog/feed/",
+    "/headlines/rss",
+    "/rss/news.rss",
+)
 _JSON_FEED_TYPES = frozenset({"application/feed+json", "application/json"})
 _JSON_FEED_MARKERS = (b"https://jsonfeed.org/version/", b"http://jsonfeed.org/version/")
 
@@ -122,26 +144,59 @@ def extract_alternate_feed_links(html_text: str, *, page_url: str) -> tuple[Alte
 
 
 def well_known_feed_urls(site_url: str, *, limit: int = _MAX_WELL_KNOWN_PROBES) -> tuple[str, ...]:
-    """Same-origin well-known feed paths, capped and conservative."""
+    """Live well-known probes. Always capped at 16; callers cannot raise this for eval."""
     try:
         origin = _site_origin(site_url)
     except ValueError:
         return ()
+    bases: list[str] = []
+    try:
+        parsed = urlparse(canonicalize_url(site_url))
+    except ValueError:
+        parsed = None
+    if parsed is not None and parsed.hostname:
+        directory = parsed.path.rstrip("/")
+        if directory:
+            bases.append(f"https://{parsed.netloc}{directory}/")
+    bases.append(origin)
+    extra_bases = list(bases)
+    if parsed is not None and parsed.hostname:
+        segments = [part for part in parsed.path.split("/") if part]
+        if segments and segments[-1] in {"news", "newsarchive"}:
+            parent = "/".join(segments[:-1])
+            prefix = f"https://{parsed.netloc}/{parent}/" if parent else origin
+            extra_bases.append(prefix)
+            extra_bases.append(urljoin(prefix, "feeds/"))
+        if parsed.hostname.endswith("medium.com") and len(segments) == 1:
+            extra_bases.append(f"https://{parsed.netloc}/feed/")
     capped = max(1, min(int(limit), _MAX_WELL_KNOWN_PROBES))
     urls: list[str] = []
     seen: set[str] = set()
-    for path in _WELL_KNOWN_PATHS[:capped]:
-        candidate = urljoin(origin, path)
-        try:
-            if not _same_origin(origin, candidate):
+    for path in _WELL_KNOWN_PATHS:
+        for base in extra_bases:
+            if len(urls) >= capped:
+                return tuple(urls)
+            candidate = urljoin(base, path.lstrip("/"))
+            try:
+                if not _same_origin(origin, candidate):
+                    continue
+                canonical = canonicalize_url(candidate)
+            except ValueError:
                 continue
-            canonical = canonicalize_url(candidate)
-        except ValueError:
-            continue
-        if canonical in seen:
-            continue
-        seen.add(canonical)
-        urls.append(candidate)
+            if canonical in seen:
+                continue
+            seen.add(canonical)
+            urls.append(candidate)
+    if parsed is not None and parsed.hostname and parsed.hostname.endswith("medium.com"):
+        segments = [part for part in parsed.path.split("/") if part]
+        if len(segments) == 1:
+            medium = f"https://{parsed.netloc}/feed/{segments[0]}"
+            try:
+                key = canonicalize_url(medium)
+            except ValueError:
+                key = ""
+            if key and key not in seen and len(urls) < capped:
+                urls.append(medium)
     return tuple(urls)
 
 

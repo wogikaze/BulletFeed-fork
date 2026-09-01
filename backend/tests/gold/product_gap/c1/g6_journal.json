@@ -1,0 +1,615 @@
+{
+  "journal_version": "product-gap-c1-g6-v1",
+  "started_at": "2026-09-01T05:06:29.875513Z",
+  "sources": [
+    {
+      "source_id": "c1_ja_corp_001",
+      "site_url": "https://tech.mercari.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_002",
+      "site_url": "https://engineering.linecorp.com/ja",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_003",
+      "site_url": "https://developers.cyberagent.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_004",
+      "site_url": "https://techblog.yahoo.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_005",
+      "site_url": "https://techblog.zozo.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_006",
+      "site_url": "https://tech.pepabo.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_007",
+      "site_url": "https://blog.cybozu.io",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_008",
+      "site_url": "https://techblog.cookpad.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_009",
+      "site_url": "https://developers.freee.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_010",
+      "site_url": "https://moneyforward-dev.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_011",
+      "site_url": "https://tech.andpad.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_012",
+      "site_url": "https://engineering.dena.com/blog/",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_013",
+      "site_url": "https://tech.layerx.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_014",
+      "site_url": "https://tech.plaid.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_015",
+      "site_url": "https://developer.hatena.ne.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_016",
+      "site_url": "https://tech.uzabase.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_017",
+      "site_url": "https://engineering.rakus.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_018",
+      "site_url": "https://developers.gmo.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_019",
+      "site_url": "https://tech.smarthr.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_020",
+      "site_url": "https://techblog.smartnews.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_021",
+      "site_url": "https://developer.mamezou-tech.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_022",
+      "site_url": "https://tech.nri-net.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_023",
+      "site_url": "https://engineering.mercari.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_024",
+      "site_url": "https://tech.recruit.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_025",
+      "site_url": "https://developers.cyberagent.co.jp/blog/",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_026",
+      "site_url": "https://tech.smartcamp.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_027",
+      "site_url": "https://tech.kakehashi.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_028",
+      "site_url": "https://tech.sreake.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_029",
+      "site_url": "https://tech.smartnews.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_030",
+      "site_url": "https://blog.studysapuri.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_031",
+      "site_url": "https://tech.smartbank.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_032",
+      "site_url": "https://tech.nurture.tech",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_033",
+      "site_url": "https://developers.karte.io",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_034",
+      "site_url": "https://tech.smartround.com",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_035",
+      "site_url": "https://tech.herp.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_036",
+      "site_url": "https://tech.bm-sms.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_037",
+      "site_url": "https://tech.smartinsight.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_038",
+      "site_url": "https://engineering.10x.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_039",
+      "site_url": "https://tech.smartshopping.co.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_ja_corp_040",
+      "site_url": "https://tech.smartnova.jp",
+      "language": "ja",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_off_001",
+      "site_url": "https://react.dev/blog",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_002",
+      "site_url": "https://react.dev/learn",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_032",
+      "site_url": "https://lore.kernel.org",
+      "language": "en",
+      "family": "no_rss_web"
+    },
+    {
+      "source_id": "c1_en_misc_001",
+      "site_url": "https://withoutboats.github.io",
+      "language": "en",
+      "family": "personal_dev_blog"
+    },
+    {
+      "source_id": "c1_en_off_003",
+      "site_url": "https://blog.vuejs.org",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_004",
+      "site_url": "https://vuejs.org/guide/introduction.html",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_005",
+      "site_url": "https://blog.angular.dev",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_006",
+      "site_url": "https://angular.dev/overview",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_007",
+      "site_url": "https://devblogs.microsoft.com/typescript",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_008",
+      "site_url": "https://www.typescriptlang.org/docs/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_009",
+      "site_url": "https://blog.rust-lang.org",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_010",
+      "site_url": "https://doc.rust-lang.org/book/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_011",
+      "site_url": "https://go.dev/blog",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_012",
+      "site_url": "https://go.dev/doc/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_013",
+      "site_url": "https://blog.python.org",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_014",
+      "site_url": "https://docs.python.org/3/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_015",
+      "site_url": "https://www.ruby-lang.org/en/news/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_016",
+      "site_url": "https://docs.ruby-lang.org/en/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_017",
+      "site_url": "https://blog.jetbrains.com/kotlin",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_018",
+      "site_url": "https://kotlinlang.org/docs/home.html",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_019",
+      "site_url": "https://www.swift.org/blog/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_020",
+      "site_url": "https://www.swift.org/documentation/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_021",
+      "site_url": "https://inside.java",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_022",
+      "site_url": "https://docs.oracle.com/en/java/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_023",
+      "site_url": "https://blog.llvm.org",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_024",
+      "site_url": "https://llvm.org/docs/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_025",
+      "site_url": "https://android-developers.googleblog.com",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_026",
+      "site_url": "https://developer.android.com",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_027",
+      "site_url": "https://blog.flutter.dev",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_028",
+      "site_url": "https://docs.flutter.dev",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_029",
+      "site_url": "https://kubernetes.io/blog/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_030",
+      "site_url": "https://kubernetes.io/docs/home/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_031",
+      "site_url": "https://www.kernel.org/category/releases.html",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_033",
+      "site_url": "https://www.postgresql.org/about/newsarchive/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_034",
+      "site_url": "https://www.postgresql.org/docs/current/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_035",
+      "site_url": "https://redis.io/blog/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_036",
+      "site_url": "https://redis.io/docs/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_037",
+      "site_url": "https://nextjs.org/blog",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_038",
+      "site_url": "https://nextjs.org/docs",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_039",
+      "site_url": "https://deno.com/blog",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_040",
+      "site_url": "https://docs.deno.com",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_041",
+      "site_url": "https://blog.cloudflare.com",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_042",
+      "site_url": "https://developers.cloudflare.com",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_043",
+      "site_url": "https://webassembly.org/news/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_044",
+      "site_url": "https://webassembly.org/docs/core/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_045",
+      "site_url": "https://www.openwall.com/lists/oss-security/",
+      "language": "en",
+      "family": "no_rss_web"
+    },
+    {
+      "source_id": "c1_en_off_046",
+      "site_url": "https://github.com/advisories",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_off_047",
+      "site_url": "https://neovim.io/news/",
+      "language": "en",
+      "family": "official_blog"
+    },
+    {
+      "source_id": "c1_en_off_048",
+      "site_url": "https://neovim.io/doc/",
+      "language": "en",
+      "family": "docs_changelog"
+    },
+    {
+      "source_id": "c1_en_corp_001",
+      "site_url": "https://engineering.fb.com",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_002",
+      "site_url": "https://vercel.com/blog",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_003",
+      "site_url": "https://netlify.com/blog",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_004",
+      "site_url": "https://blog.nrwl.io",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_005",
+      "site_url": "https://devblogs.microsoft.com",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_006",
+      "site_url": "https://blog.cloudflare.com/tag/rust",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_007",
+      "site_url": "https://aws.amazon.com/blogs/opensource/",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_008",
+      "site_url": "https://engineering.grab.com",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_009",
+      "site_url": "https://www.uber.com/blog/engineering/",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_010",
+      "site_url": "https://instagram-engineering.com",
+      "language": "en",
+      "family": "corp_tech_blog"
+    },
+    {
+      "source_id": "c1_en_corp_011",
+      "site_url": "https://dropbox.tech",
+      "language": "en",
+      "family": "corp_tech_blog"
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-09-01",
+      "acquisition_ok": 0,
+      "updates": 0
+    }
+  ],
+  "observed_updates": 0,
+  "note": "Do not close Challenge 1 until 7 consecutive days and 200 updates are recorded."
+}

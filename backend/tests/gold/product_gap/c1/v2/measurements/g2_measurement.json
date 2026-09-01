@@ -1,0 +1,183 @@
+{
+  "artifact_version": "product-gap-c1-g2-measurement-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "path": "production_discovery",
+  "sample_complete": true,
+  "split": "dev",
+  "gold_injected": false,
+  "metrics": {
+    "primary_recall_at_20": 0.23170731707317074,
+    "relevant_recall_at_50": 0.09251101321585903,
+    "precision_at_20": 0.25609756097560976,
+    "japanese_recall_at_50": 0.0,
+    "blog_recall_at_50": 0.1,
+    "no_rss_recall_at_50": 0.05714285714285714
+  },
+  "weak_primary_topics": [
+    "android",
+    "angular",
+    "deno",
+    "flutter",
+    "go",
+    "java",
+    "kotlin",
+    "kubernetes",
+    "linux",
+    "llvm",
+    "neovim",
+    "oss_security",
+    "postgresql",
+    "python",
+    "react",
+    "redis",
+    "swift",
+    "typescript",
+    "webassembly"
+  ],
+  "topics": [
+    {
+      "topic_id": "android",
+      "primary_recall_at_20": 0.4,
+      "relevant_recall_at_50": 0.2222222222222222,
+      "predicted_count": 4
+    },
+    {
+      "topic_id": "angular",
+      "primary_recall_at_20": 0.2,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "cloudflare",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 2
+    },
+    {
+      "topic_id": "deno",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "flutter",
+      "primary_recall_at_20": 0.3333333333333333,
+      "relevant_recall_at_50": 0.2,
+      "predicted_count": 2
+    },
+    {
+      "topic_id": "go",
+      "primary_recall_at_20": 0.5,
+      "relevant_recall_at_50": 0.11764705882352941,
+      "predicted_count": 4
+    },
+    {
+      "topic_id": "java",
+      "primary_recall_at_20": 0.3333333333333333,
+      "relevant_recall_at_50": 0.05,
+      "predicted_count": 4
+    },
+    {
+      "topic_id": "kotlin",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.1111111111111111,
+      "predicted_count": 5
+    },
+    {
+      "topic_id": "kubernetes",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 4
+    },
+    {
+      "topic_id": "linux",
+      "primary_recall_at_20": 0.09090909090909091,
+      "relevant_recall_at_50": 0.045454545454545456,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "llvm",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 4
+    },
+    {
+      "topic_id": "neovim",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.125,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "nextjs",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 6
+    },
+    {
+      "topic_id": "oss_security",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.18181818181818182,
+      "predicted_count": 7
+    },
+    {
+      "topic_id": "postgresql",
+      "primary_recall_at_20": 0.14285714285714285,
+      "relevant_recall_at_50": 0.1,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "python",
+      "primary_recall_at_20": 0.2857142857142857,
+      "relevant_recall_at_50": 0.10526315789473684,
+      "predicted_count": 10
+    },
+    {
+      "topic_id": "react",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 6
+    },
+    {
+      "topic_id": "redis",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "ruby",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "rust",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 5
+    },
+    {
+      "topic_id": "swift",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.14285714285714285,
+      "predicted_count": 1
+    },
+    {
+      "topic_id": "typescript",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 6
+    },
+    {
+      "topic_id": "vue",
+      "primary_recall_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "predicted_count": 2
+    },
+    {
+      "topic_id": "webassembly",
+      "primary_recall_at_20": 0.25,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 3
+    }
+  ]
+}

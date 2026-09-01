@@ -1,0 +1,8 @@
+{
+  "policy_version": "knownness-decay-v1",
+  "stale_displayed_state": "unknown",
+  "fixture_clock_state": "probably_known",
+  "already_knew_state": "known",
+  "already_knew_does_not_decay": true,
+  "stale_implicit_unknown": true
+}

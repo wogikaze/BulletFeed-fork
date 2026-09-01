@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import secrets
 import sqlite3
+import time
 from datetime import UTC, datetime
 
 from app.database import Database
@@ -116,9 +117,10 @@ def _knownness_by_feed_item(
                 connection,
                 user_id=user_id,
                 knowledge_id=mapped.knowledge_id,
+                now=int(time.time()),
             )
         else:
-            derived = derive_knowledge_state(by_claim.get(claim_id, ()))
+            derived = derive_knowledge_state(by_claim.get(claim_id, ()), now=int(time.time()))
         states[feed_row["id"]] = (derived.state, derived.confidence)
     return states
 
