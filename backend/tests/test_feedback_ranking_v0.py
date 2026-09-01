@@ -525,6 +525,68 @@ def test_repository_feedback_lifts_held_out_without_source_type_threshold(databa
     assert PERSONALIZATION_VERSION not in other["importance_reason"]
 
 
+def test_impact_feedback_lifts_same_source_type_held_out(database) -> None:
+    with database.connect() as connection:
+        for index, source_type in enumerate(("rss_atom", "github_release", "package_registry")):
+            _insert_item(
+                connection,
+                user_id="learner",
+                item_id=f"train_impact_{index}",
+                event_id=f"ev_train_impact_{index}",
+                source_type=source_type,
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                delta_type="state_update",
+                title=f"Unrelated kitchen notes {index}",
+            )
+            _mark(
+                connection,
+                user_id="learner",
+                item_id=f"train_impact_{index}",
+                feedback_type="important",
+                created_at=40 + index,
+            )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_state",
+            event_id="ev_held_state",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            delta_type="state_update",
+            title="Unrelated desk lamp manual",
+        )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_other",
+            event_id="ev_held_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="Unrelated garden hose specs",
+        )
+        apply_feedback_ranking(connection, user_id="learner")
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_state'"
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_other'"
+        ).fetchone()
+        impact = connection.execute(
+            """
+            SELECT important_count FROM user_ranking_features
+            WHERE user_id = 'learner' AND feature_kind = 'impact' AND feature_value = 'state_update'
+            """
+        ).fetchone()
+
+    assert impact is not None
+    assert impact["important_count"] == MIN_SAMPLE_SIZE
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "state_update" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
 def test_replay_matches_with_and_without_feedback(tmp_path: Path) -> None:
     clean = Database(tmp_path / "clean.db")
     clean.initialize()
