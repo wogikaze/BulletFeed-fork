@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from app.evaluation.product_gap_c1_final_guard import audit_final_blind_preflight
 from app.evaluation.product_gap_c1_hard_gate import evaluate_c1_hard_gate
 
 GOLD_V1 = Path(__file__).parent / "gold" / "product_gap" / "c1"
@@ -29,3 +30,10 @@ def test_v2_hard_gate_reads_artifacts_only() -> None:
     assert "g3_source_acquisition_failed" in report["gates"]["g3"]["blockers"]
     assert "g1_family_recall:corp_tech_blog" in report["gates"]["g1"]["blockers"]
     assert "g2_japanese_recall_at_50" in report["gates"]["g2"]["blockers"]
+
+
+def test_final_blind_guard_refuses_without_operator_lock() -> None:
+    report = audit_final_blind_preflight(GOLD_V2)
+    assert report["ready"] is False
+    assert "operator_attestation_pending" in report["failures"]
+    assert "production_sha_unlocked" in report["failures"]

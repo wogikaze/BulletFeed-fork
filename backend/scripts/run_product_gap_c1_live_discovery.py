@@ -7,6 +7,7 @@ import asyncio
 import json
 from pathlib import Path
 
+from app.evaluation.product_gap_c1_final_guard import audit_final_blind_preflight
 from app.evaluation.product_gap_c1_live_discovery import measure_live_g1
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +27,10 @@ def main(argv: list[str] | None = None) -> int:
         default=GOLD / "measurements" / "g1_measurement.json",
     )
     args = parser.parse_args(argv)
+    if args.split == "blind":
+        guard = audit_final_blind_preflight(GOLD)
+        if not guard["ready"]:
+            raise SystemExit("Final blind preflight failed: " + "; ".join(guard["failures"]))
 
     report = asyncio.run(
         measure_live_g1(

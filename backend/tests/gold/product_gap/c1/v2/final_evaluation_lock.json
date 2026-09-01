@@ -1,0 +1,9 @@
+{
+  "lock_version": "product-gap-c1-final-lock-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "production_sha": null,
+  "blind_status": "not_started",
+  "blind_result_path": null,
+  "operator_lock_required": true,
+  "note": "Fill production_sha only after production logic, thresholds, corpus, and policy versions are frozen. Do not change this lock after the one-shot blind starts."
+}
