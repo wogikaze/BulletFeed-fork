@@ -735,7 +735,13 @@ def _v2_coverage() -> list[dict]:
         ("https://www.ospn.jp", None, "linux", "official_blog", "ja"),
         ("https://www.jpcert.or.jp/at/", None, "oss_security", "no_rss_web", "ja"),
         ("https://www.jpcert.or.jp/wr/", None, "oss_security", "no_rss_web", "ja"),
-        ("https://blog.jxck.io", "https://blog.jxck.io/feeds/atom.xml", "typescript", "personal_dev_blog", "ja"),
+        (
+            "https://blog.jxck.io",
+            "https://blog.jxck.io/feeds/atom.xml",
+            "typescript",
+            "personal_dev_blog",
+            "ja",
+        ),
         ("https://sosukesuzuki.dev", None, "typescript", "personal_dev_blog", "ja"),
         ("https://blog.leko.jp", None, "typescript", "personal_dev_blog", "ja"),
         ("https://blog.uhy.ooo", None, "typescript", "personal_dev_blog", "ja"),
@@ -825,7 +831,13 @@ def assemble_v2_rows() -> list[dict]:
     return _assign_splits(rows)
 
 
-def write_g0_dataset(rows: list[dict], *, dataset_version: str, out: Path, final_blind_eligible: bool) -> dict:
+def write_g0_dataset(
+    rows: list[dict],
+    *,
+    dataset_version: str,
+    out: Path,
+    final_blind_eligible: bool,
+) -> dict:
     summary = _summarize(rows)
     freeze = {
         "dataset_version": dataset_version,

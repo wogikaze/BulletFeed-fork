@@ -9,13 +9,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from build_product_gap_c1_g0_corpus import assemble_v2_rows, write_g0_dataset
-
 OUT = ROOT / "tests" / "gold" / "product_gap" / "c1" / "v2"
 DATASET = "product-gap-c1-g0-v2"
 
 
 def main() -> int:
+    from build_product_gap_c1_g0_corpus import assemble_v2_rows, write_g0_dataset
+
     rows = assemble_v2_rows()
     summary = write_g0_dataset(
         rows,
@@ -40,7 +40,11 @@ def main() -> int:
     for family in ("official_blog", "corp_tech_blog", "personal_dev_blog", "docs_changelog", "rss_atom_json"):
         if summary["families"].get(family, 0) < 40:
             missing.append(f"{family} {summary['families'].get(family, 0)}<40")
-    loopback = [row["site_url"] for row in rows if "127.0.0.1" in row["site_url"] or row["domain"] in {"localhost", "169.254.169.254"}]
+    loopback = [
+        row["site_url"]
+        for row in rows
+        if "127.0.0.1" in row["site_url"] or row["domain"] in {"localhost", "169.254.169.254"}
+    ]
     if loopback:
         missing.append("loopback_in_g0")
     if missing:
