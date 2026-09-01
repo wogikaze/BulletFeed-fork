@@ -195,3 +195,52 @@ def test_feedback_overlay_is_explained_without_version_codes() -> None:
     assert reason_inconsistencies(
         leaked, _inputs(relation_level="direct", relation_reason="selected topic")
     )
+
+
+def test_preference_overlay_is_explained_when_discrete_feedback_did_not_apply() -> None:
+    preferred = build_display_reason(
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            preference_overlay_applied=True,
+        )
+    )
+    assert "personalization.preference_overlay" in preferred.codes
+    assert "評価傾向" in preferred.text
+    assert "offline-preference" not in preferred.text
+    assert "personalization.preference_overlay" not in preferred.text
+    assert (
+        reason_inconsistencies(
+            preferred,
+            _inputs(
+                relation_level="direct",
+                relation_reason="selected topic",
+                preference_overlay_applied=True,
+            ),
+        )
+        == []
+    )
+
+    discrete_wins = build_display_reason(
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            personalization_adjustment="boost_importance",
+            preference_overlay_applied=True,
+        )
+    )
+    assert "personalization.feedback_boost" in discrete_wins.codes
+    assert "personalization.preference_overlay" not in discrete_wins.codes
+    assert "評価傾向" not in discrete_wins.text
+    assert (
+        reason_inconsistencies(
+            discrete_wins,
+            _inputs(
+                relation_level="direct",
+                relation_reason="selected topic",
+                personalization_adjustment="boost_importance",
+                preference_overlay_applied=True,
+            ),
+        )
+        == []
+    )

@@ -26,6 +26,8 @@ _PERSONALIZATION_TEXT: Final[dict[PersonalizationAdjustment, str]] = {
     "boost_importance": "これまでの重要マークに合わせて並びを調整しています",
     "demote_relation": "これまでの無関係マークに合わせて並びを調整しています",
 }
+_PREFERENCE_CODE: Final = "personalization.preference_overlay"
+_PREFERENCE_TEXT: Final = "これまでの評価傾向に合わせて並びを調整しています"
 
 _CORRECTION_DELTAS = frozenset({"correction"})
 _CONFLICT_DELTAS = frozenset({"unresolved_contradiction", "unresolved_conflict", "conflict"})
@@ -50,6 +52,7 @@ class DisplayReasonInputs:
     additional_source_roles: tuple[str, ...]
     independent_evidence_count: int = 1
     personalization_adjustment: PersonalizationAdjustment | None = None
+    preference_overlay_applied: bool = False
 
 
 def delta_kind_for(
@@ -151,6 +154,9 @@ def build_display_reason(inputs: DisplayReasonInputs) -> DisplayReason:
     if personalization_code is not None and personalization_text:
         codes.append(personalization_code)
         fragments.append(personalization_text)
+    elif inputs.preference_overlay_applied:
+        codes.append(_PREFERENCE_CODE)
+        fragments.append(_PREFERENCE_TEXT)
 
     if not fragments:
         fragments.append("追跡中の情報源に新しい事実があります")
@@ -208,6 +214,16 @@ def reason_inconsistencies(reason: DisplayReason, inputs: DisplayReasonInputs) -
             problems.append("personalization text is not backed by the live overlay")
     elif personalization_codes:
         problems.append("personalization text is not backed by a live overlay")
+    prefer_preference = (
+        inputs.preference_overlay_applied and inputs.personalization_adjustment is None
+    )
+    if prefer_preference:
+        if _PREFERENCE_CODE not in reason.codes:
+            problems.append("preference overlay code is not backed by the live overlay")
+        if _PREFERENCE_TEXT not in reason.text:
+            problems.append("preference overlay text is not backed by the live overlay")
+    elif _PREFERENCE_CODE in reason.codes:
+        problems.append("preference overlay text is not backed by a live overlay")
     allowed_names = {name.casefold() for name in inputs.matched_topics}
     allowed_names.update(name.casefold() for name in inputs.matched_repository_names)
     for token in _named_entities(reason.text):
@@ -284,6 +300,11 @@ def _relation_code_and_text(
     if match_kind == "adjacent":
         return "relation.adjacent_topic", "フォロー中トピックの周辺に関連"
     return "relation.reference", "参考情報として表示しています"
+
+
+def preference_overlay_applied_from_reason(importance_reason: str, *, version: str) -> bool:
+    """True when the rank-only offline preference overlay wrote its versioned suffix."""
+    return bool(version) and version in (importance_reason or "")
 
 
 def personalization_adjustment_from_reasons(
