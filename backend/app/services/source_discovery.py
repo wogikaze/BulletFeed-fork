@@ -7,12 +7,10 @@ Hacker News and other aggregators stay discovery_only.
 
 from __future__ import annotations
 
-import json
 import sqlite3
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlparse
 
@@ -201,16 +199,13 @@ def discover_sources(
     hn_items: Sequence[Mapping[str, Any]] = (),
     include_ignored: bool = False,
     include_curated_seeds: bool = True,
-    include_g0_catalog: bool = False,
     persist_registry: bool = True,
     limit: int = _DEFAULT_LIMIT,
 ) -> SourceDiscoveryResult:
     source_registry = registry or SourceRegistry()
     seed_hints = _hints_from_seeds() if include_curated_seeds else ()
-    catalog_hints = hints_from_g0_catalog() if include_g0_catalog else ()
     merged_hints = (
         *seed_hints,
-        *catalog_hints,
         *_hints_from_selected_repositories(state),
         *hints,
         *hints_from_hacker_news(hn_items, state),
@@ -426,66 +421,6 @@ def record_source_recommendation_decision(
 
 def _hints_from_seeds() -> tuple[DiscoveryHint, ...]:
     return tuple(_hint_from_seed(seed) for seed in CURATED_SOURCE_SEEDS)
-
-
-_G0_FAMILY_TO_KIND = {
-    "official_blog": SourceKind.RSS_ATOM,
-    "corp_tech_blog": SourceKind.RSS_ATOM,
-    "personal_dev_blog": SourceKind.RSS_ATOM,
-    "rss_atom_json": SourceKind.RSS_ATOM,
-    "docs_changelog": SourceKind.DOCUMENTATION,
-    "no_rss_web": SourceKind.GENERIC_WEB,
-}
-
-
-def hints_from_g0_catalog() -> tuple[DiscoveryHint, ...]:
-    """Topic-tagged G0 universe. Discovery-only; never Claim evidence."""
-    path = Path(__file__).resolve().parents[2] / "tests" / "gold" / "product_gap" / "c1" / "sources.json"
-    if not path.is_file():
-        return ()
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return ()
-    hints: list[DiscoveryHint] = []
-    for row in payload:
-        if not isinstance(row, dict):
-            continue
-        if row.get("policy_status") != "eligible":
-            continue
-        site = row.get("site_url")
-        feed = row.get("feed_url")
-        topic = row.get("topic_id")
-        if not isinstance(site, str) or not isinstance(topic, str):
-            continue
-        url = feed if isinstance(feed, str) and feed else site
-        family = _G0_FAMILY_TO_KIND.get(str(row.get("family") or ""), SourceKind.GENERIC_WEB)
-        if not row.get("has_feed"):
-            family = SourceKind.GENERIC_WEB if family == SourceKind.RSS_ATOM else family
-        concept = resolve_concept_id(topic)
-        primary = row.get("authority") == "primary" or row.get("family") in {
-            "official_blog",
-            "docs_changelog",
-        }
-        hints.append(
-            DiscoveryHint(
-                url=url,
-                provenance=(
-                    DiscoveryProvenance.CURATED_SEED.value
-                    if primary
-                    else DiscoveryProvenance.WEBSITE_FEED.value
-                ),
-                family=family,
-                concept_ids=(concept, topic),
-                title=str(row.get("source_id") or topic),
-                publisher_slug=str(row.get("domain") or topic),
-                publisher_name=str(row.get("domain") or topic),
-                homepage_url=site,
-                why="G0 catalog source; discovery is not evidence",
-                display_name=str(row.get("source_id") or url),
-            )
-        )
-    return tuple(hints)
 
 
 def _hint_from_seed(seed: SourceSeed) -> DiscoveryHint:

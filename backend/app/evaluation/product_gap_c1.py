@@ -36,6 +36,7 @@ class G0Source(_Strict):
     authority: str = Field(min_length=1)
     has_feed: bool
     domain: str = Field(min_length=1)
+    registrable_domain: str = Field(min_length=1)
     policy_status: str = Field(min_length=1)
     relevance: str = Field(min_length=1)
     curation: str = Field(min_length=1)
@@ -52,6 +53,7 @@ class G0Report:
     no_rss_web_count: int
     blind_source_ratio: float
     unique_domains: int
+    policy_blocked_count: int
     attested: bool
     floors_pass: bool
     failures: tuple[str, ...]
@@ -66,6 +68,7 @@ class G0Report:
             "no_rss_web_count": self.no_rss_web_count,
             "blind_source_ratio": self.blind_source_ratio,
             "unique_domains": self.unique_domains,
+            "policy_blocked_count": self.policy_blocked_count,
             "attested": self.attested,
             "floors_pass": self.floors_pass,
             "failures": list(self.failures),
@@ -87,19 +90,21 @@ def evaluate_g0(gold_dir: Path) -> G0Report:
     sources = load_g0_sources(gold_dir / "sources.json")
     attestation = load_attestation(gold_dir / "attestation.json")
     freeze = json.loads((gold_dir / "g0_freeze.json").read_text(encoding="utf-8"))
-    families = Counter(row.family for row in sources)
-    for row in sources:
+    eligible = [row for row in sources if row.policy_status == "eligible" and row.relevance == "relevant"]
+    families = Counter(row.family for row in eligible)
+    for row in eligible:
         if row.has_feed:
             families["rss_atom_json"] += 1
-    topics = {row.topic_id for row in sources}
-    japanese = sum(1 for row in sources if row.language == "ja")
-    no_rss = sum(1 for row in sources if row.family == "no_rss_web")
+    topics = {row.topic_id for row in eligible}
+    japanese = sum(1 for row in eligible if row.language == "ja")
+    no_rss = sum(1 for row in eligible if row.family == "no_rss_web")
     blind = sum(1 for row in sources if row.split == "blind")
     ratio = blind / len(sources) if sources else 0.0
     attested = attestation.get("status") == "attested" and bool(attestation.get("attested_by"))
+    policy_blocked = sum(1 for row in sources if row.policy_status == "policy_blocked")
     floors = freeze["floors"]
     failures: list[str] = []
-    if len(sources) < floors["min_sources"]:
+    if len(eligible) < floors["min_sources"]:
         failures.append("min_sources")
     if len(topics) < floors["min_topics"]:
         failures.append("min_topics")
@@ -112,17 +117,20 @@ def evaluate_g0(gold_dir: Path) -> G0Report:
     for family in ("official_blog", "corp_tech_blog", "personal_dev_blog", "docs_changelog", "rss_atom_json"):
         if families.get(family, 0) < floors["min_per_major_family"]:
             failures.append(f"family:{family}")
+    if policy_blocked < 1:
+        failures.append("policy_blocked_absent")
     if not attested:
         failures.append("attestation_pending")
     return G0Report(
         dataset_version=str(freeze["dataset_version"]),
-        source_count=len(sources),
+        source_count=len(eligible),
         topic_count=len(topics),
         families=dict(sorted(families.items())),
         japanese_count=japanese,
         no_rss_web_count=no_rss,
         blind_source_ratio=ratio,
-        unique_domains=len({row.domain for row in sources}),
+        unique_domains=len({row.registrable_domain for row in sources}),
+        policy_blocked_count=policy_blocked,
         attested=attested,
         floors_pass=not failures,
         failures=tuple(failures),

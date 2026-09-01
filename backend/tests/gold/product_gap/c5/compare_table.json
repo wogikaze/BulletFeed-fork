@@ -54,10 +54,10 @@
   },
   "lost_metrics_kept": true,
   "source_coverage": {
-    "rss_subset_coverage": 1.0,
-    "breadth_superiority_pp": 76.53958944281524,
-    "rss_only_universe_recall": 0.23460410557184752,
-    "bulletfeed_universe_recall": 1.0,
+    "rss_subset_coverage": null,
+    "breadth_superiority_pp": null,
+    "rss_only_universe_recall": null,
+    "bulletfeed_universe_recall": null,
     "live_oracle_unmeasured": true
   },
   "field": {

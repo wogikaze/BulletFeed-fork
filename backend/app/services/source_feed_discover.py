@@ -144,7 +144,7 @@ def extract_alternate_feed_links(html_text: str, *, page_url: str) -> tuple[Alte
 
 
 def well_known_feed_urls(site_url: str, *, limit: int = _MAX_WELL_KNOWN_PROBES) -> tuple[str, ...]:
-    """Same-origin well-known feed paths, from the origin and the site directory."""
+    """Live well-known probes. Always capped at 16; callers cannot raise this for eval."""
     try:
         origin = _site_origin(site_url)
     except ValueError:
@@ -169,7 +169,7 @@ def well_known_feed_urls(site_url: str, *, limit: int = _MAX_WELL_KNOWN_PROBES) 
             extra_bases.append(urljoin(prefix, "feeds/"))
         if parsed.hostname.endswith("medium.com") and len(segments) == 1:
             extra_bases.append(f"https://{parsed.netloc}/feed/")
-    capped = max(1, min(int(limit), 80))
+    capped = max(1, min(int(limit), _MAX_WELL_KNOWN_PROBES))
     urls: list[str] = []
     seen: set[str] = set()
     for path in _WELL_KNOWN_PATHS:

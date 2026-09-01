@@ -1,9 +1,9 @@
 # #328 人間作業（close の一部）
 
-エージェントはこれを代替しない。
+エージェントはこれを代替しない。G0 は件数やハーネス緑では Human Gold にしない。
 
-1. `backend/tests/gold/product_gap/c1/sources.json` をレビューし、`attestation.json` を attested にする。
-2. 公開 HTTPS と release base URL を入れる。
-3. G6 を `python backend/scripts/start_product_gap_g6_journal.py` で開始し、7日と200更新まで止める。
-4. #318 / #326 を ≥5人でラベルする。
-5. #327 を1週間 ≥5人で回す。
+1. `sources.json` の topic 関連・policy 分類・eTLD+1 blind をレビューする。padding や index ページが残っていたら署名しない。
+2. 認めたときだけ `attestation.json` を attested にする。blind 結果を見てから直さない。
+3. 公開 HTTPS と release base URL を入れる。
+4. G6 を7日と200更新まで止める。
+5. #318 / #326 / #327 を ≥5人で取る。

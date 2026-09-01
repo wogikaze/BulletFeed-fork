@@ -1,198 +1,374 @@
 {
-  "report_version": "product-gap-c1-g1g5-v1",
+  "report_version": "product-gap-c1-g1g5-v2",
   "g0": {
     "dataset_version": "product-gap-c1-g0-v1",
-    "source_count": 341,
+    "source_count": 262,
     "topic_count": 24,
     "families": {
       "corp_tech_blog": 75,
-      "docs_changelog": 62,
-      "no_rss_web": 96,
-      "official_blog": 43,
-      "personal_dev_blog": 56,
+      "docs_changelog": 51,
+      "no_rss_web": 41,
+      "official_blog": 32,
+      "personal_dev_blog": 54,
       "rss_atom_json": 89
     },
-    "japanese_count": 103,
-    "no_rss_web_count": 96,
-    "blind_source_ratio": 0.3196480938416422,
-    "unique_domains": 233,
+    "japanese_count": 91,
+    "no_rss_web_count": 41,
+    "blind_source_ratio": 0.31086142322097376,
+    "unique_domains": 153,
+    "policy_blocked_count": 5,
     "attested": false,
     "floors_pass": false,
     "failures": [
+      "min_sources",
+      "min_japanese",
+      "min_no_rss_web",
+      "family:official_blog",
       "attestation_pending"
     ]
   },
   "g1": {
     "eligible_feed_count": 80,
-    "feed_recall": 1.0,
-    "precision_at_3": 1.0,
-    "japanese_recall": 1.0,
+    "probe_limit": 16,
+    "feed_recall_unconfirmed_probe": 0.875,
+    "precision_at_3": 0.1625,
+    "japanese_recall": 0.9444444444444444,
     "family_recall": {
-      "official_blog": 1.0,
-      "corp_tech_blog": 1.0,
+      "official_blog": 0.8260869565217391,
+      "corp_tech_blog": 0.8285714285714286,
       "personal_dev_blog": 1.0,
       "rss_atom_json": 1.0
     },
-    "no_feed_fallback": 1.0,
+    "no_feed_fallback": null,
     "subscribe_e2e_fixture": true,
-    "undiscovered": [],
-    "pass": true,
-    "failures": []
+    "production_confirm_measured": false,
+    "undiscovered": [
+      {
+        "source_id": "c1_en_off_015",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "blind",
+        "family": "official_blog"
+      },
+      {
+        "source_id": "c1_en_off_033",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "official_blog"
+      },
+      {
+        "source_id": "c1_en_off_047",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "official_blog"
+      },
+      {
+        "source_id": "c1_en_corp_002",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "corp_tech_blog"
+      },
+      {
+        "source_id": "c1_en_corp_015",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "blind",
+        "family": "corp_tech_blog"
+      },
+      {
+        "source_id": "c1_en_corp_018",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "corp_tech_blog"
+      },
+      {
+        "source_id": "c1_en_corp_019",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "corp_tech_blog"
+      },
+      {
+        "source_id": "c1_en_corp_021",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "corp_tech_blog"
+      },
+      {
+        "source_id": "c1_en_corp_035",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "dev",
+        "family": "corp_tech_blog"
+      },
+      {
+        "source_id": "c1_ja_off_001",
+        "class": "undiscovered_unconfirmed_probe",
+        "split": "blind",
+        "family": "official_blog"
+      }
+    ],
+    "pass": false,
+    "failures": [
+      "g1_production_confirm_unmeasured",
+      "g1_live_path_unmeasured",
+      "g1_feed_recall",
+      "g1_japanese_recall",
+      "g1_precision_at_3",
+      "g1_no_feed_fallback_unmeasured",
+      "g1_family_recall:official_blog",
+      "g1_family_recall:corp_tech_blog"
+    ]
   },
   "g2": {
-    "primary_recall_at_20": 0.9904761904761905,
-    "relevant_recall_at_50": 1.0,
-    "precision_at_20": 1.0,
-    "japanese_recall_at_50": 1.0,
-    "blog_recall_at_50": 1.0,
-    "no_rss_recall_at_50": 1.0,
-    "weak_primary_topics": [],
+    "primary_recall_at_20": 0.1566265060240964,
+    "relevant_recall_at_50": 0.07251908396946564,
+    "precision_at_20": 0.3392857142857143,
+    "japanese_recall_at_50": 0.0,
+    "blog_recall_at_50": 0.049689440993788817,
+    "no_rss_recall_at_50": 0.14634146341463414,
+    "weak_primary_topics": [
+      "android",
+      "angular",
+      "cloudflare",
+      "deno",
+      "flutter",
+      "go",
+      "java",
+      "kotlin",
+      "kubernetes",
+      "linux",
+      "llvm",
+      "neovim",
+      "nextjs",
+      "oss_security",
+      "postgresql",
+      "python",
+      "react",
+      "redis",
+      "ruby",
+      "rust",
+      "swift",
+      "typescript",
+      "vue",
+      "webassembly"
+    ],
+    "gold_injected": false,
     "topics": [
       {
         "topic_id": "android",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.4,
+        "relevant_recall_at_50": 0.25,
+        "predicted_count": 4
       },
       {
         "topic_id": "angular",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "cloudflare",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.5,
+        "relevant_recall_at_50": 0.2857142857142857,
+        "predicted_count": 2
       },
       {
         "topic_id": "deno",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "flutter",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.3333333333333333,
+        "relevant_recall_at_50": 0.3333333333333333,
+        "predicted_count": 2
       },
       {
         "topic_id": "go",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 2
       },
       {
         "topic_id": "java",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 3
       },
       {
         "topic_id": "kotlin",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.3333333333333333,
+        "relevant_recall_at_50": 0.2222222222222222,
+        "predicted_count": 4
       },
       {
         "topic_id": "kubernetes",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.25,
+        "relevant_recall_at_50": 0.125,
+        "predicted_count": 2
       },
       {
         "topic_id": "linux",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "llvm",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.3333333333333333,
+        "relevant_recall_at_50": 0.14285714285714285,
+        "predicted_count": 4
       },
       {
         "topic_id": "neovim",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "nextjs",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.14285714285714285,
+        "predicted_count": 4
       },
       {
         "topic_id": "oss_security",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.07692307692307693,
+        "predicted_count": 6
       },
       {
         "topic_id": "postgresql",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "python",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.4,
+        "relevant_recall_at_50": 0.11764705882352941,
+        "predicted_count": 9
       },
       {
         "topic_id": "react",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.3333333333333333,
+        "relevant_recall_at_50": 0.2727272727272727,
+        "predicted_count": 4
       },
       {
         "topic_id": "redis",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "ruby",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "rust",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.25,
+        "relevant_recall_at_50": 0.14285714285714285,
+        "predicted_count": 4
       },
       {
         "topic_id": "swift",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "typescript",
-        "primary_recall_at_20": 0.9285714285714286,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 4
       },
       {
         "topic_id": "vue",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 0
       },
       {
         "topic_id": "webassembly",
-        "primary_recall_at_20": 1.0,
-        "relevant_recall_at_50": 1.0
+        "primary_recall_at_20": 0.0,
+        "relevant_recall_at_50": 0.0,
+        "predicted_count": 2
       }
     ],
-    "pass": true,
-    "failures": []
+    "pass": false,
+    "failures": [
+      "g2_production_retrieval_below_floor",
+      "g2_primary_recall_at_20",
+      "g2_relevant_recall_at_50",
+      "g2_precision_at_20",
+      "g2_japanese_recall_at_50",
+      "g2_blog_recall_at_50",
+      "g2_no_rss_recall_at_50",
+      "g2_weak_primary_topic"
+    ]
   },
   "g3": {
-    "raw_entry_recall": 1.0,
-    "important_update_recall": 1.0,
-    "duplicate_item_rate": 0.0,
-    "rss_subset_coverage": 1.0,
-    "breadth_superiority_pp": 76.53958944281524,
-    "rss_only_universe_recall": 0.23460410557184752,
-    "bulletfeed_universe_recall": 1.0,
+    "fixture_raw_entry_recall": 1.0,
+    "fixture_important_update_recall": 1.0,
+    "fixture_duplicate_item_rate": 0.0,
+    "catalog_rss_only_share": 0.3053435114503817,
+    "catalog_breadth_note": "catalog inclusion is not RSS oracle parity",
+    "bulletfeed_universe_recall": null,
+    "breadth_superiority_pp": null,
+    "family_regression_measured": false,
     "live_oracle_unmeasured": true,
-    "pass": true,
-    "failures": []
+    "pass": false,
+    "failures": [
+      "g3_live_oracle_unmeasured",
+      "g3_family_regression_unmeasured",
+      "g3_breadth_not_acquisition"
+    ],
+    "floors": {
+      "g1_feed_recall": 0.98,
+      "g1_family_recall": 0.95,
+      "g1_japanese_recall": 0.95,
+      "g1_precision_at_3": 0.95,
+      "g1_no_feed_fallback": 0.98,
+      "g2_primary_recall_at_20": 0.9,
+      "g2_relevant_recall_at_50": 0.85,
+      "g2_precision_at_20": 0.8,
+      "g2_japanese_recall_at_50": 0.85,
+      "g2_blog_recall_at_50": 0.85,
+      "g2_no_rss_recall_at_50": 0.75,
+      "g2_min_topic_primary_recall": 0.7,
+      "g3_raw_entry_recall": 0.995,
+      "g3_important_update_recall": 1.0,
+      "g3_duplicate_item_rate": 0.005,
+      "g3_family_regression_pp": 1.0,
+      "g3_rss_subset_coverage": 0.99,
+      "g3_breadth_superiority_pp": 10.0,
+      "g4_body_success": 0.97,
+      "g4_important_body_recall": 0.95,
+      "g4_update_recall": 0.95,
+      "g4_update_precision": 0.95,
+      "g4_boilerplate_fp": 0.01,
+      "g4_article_split": 0.005
+    }
   },
   "g4": {
-    "body_success": 1.0,
-    "important_body_recall": 1.0,
+    "sample_count": 2,
+    "body_success": 0.5,
+    "important_body_recall": 0.5,
     "boilerplate_fp": 0.0,
-    "article_split": 0.0,
-    "evidence_locator": true,
+    "article_split": null,
+    "update_recall": null,
+    "update_precision": null,
+    "evidence_locator_ok": 1,
     "sufficient_feed_skips_fetch": true,
-    "pass": true,
-    "failures": [],
+    "pass": false,
+    "failures": [
+      "g4_sample_insufficient",
+      "g4_update_detection_unmeasured",
+      "g4_article_split_unmeasured",
+      "g4_n_lt_10",
+      "g4_body_success"
+    ],
     "floors": {
       "g1_feed_recall": 0.98,
       "g1_family_recall": 0.95,
@@ -224,17 +400,32 @@
     "ssrf": {
       "suite_version": "product-gap-c1-ssrf-v1",
       "case_count": 106,
-      "rejected": 105,
-      "bypasses": [],
-      "pass": true
+      "rejected": 103,
+      "bypasses": [
+        "multicast",
+        "ipv6-multicast"
+      ],
+      "production_path": "validate_url_shape",
+      "production_fetch_measured": false,
+      "pass": false,
+      "failures": [
+        "g5_production_fetch_unmeasured",
+        "g5_ssrf_shape_bypass"
+      ],
+      "shape_bypass_count": 2
     },
     "identity": {
-      "redirect_same_source": true,
+      "redirect_same_source_measured": false,
       "discovery_never_evidence": true,
-      "robots_not_success": true
+      "robots_not_success_measured": false
     },
-    "pass": true,
-    "failures": []
+    "pass": false,
+    "failures": [
+      "g5_production_fetch_unmeasured",
+      "g5_ssrf_shape_bypass",
+      "g5_identity_unmeasured",
+      "g5_robots_unmeasured"
+    ]
   },
   "pass": false,
   "g6": {

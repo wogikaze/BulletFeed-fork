@@ -35,9 +35,6 @@ def evidence_is_active(
 ) -> bool:
     if now is None or kind in NEVER_DECAY_KINDS:
         return True
-    # Fixture clocks use small integers. Do not decay them.
-    if created_at < 1_000_000_000:
-        return True
     ttl = IMPLICIT_TTL_SECONDS.get(kind)
     if ttl is None:
         return True

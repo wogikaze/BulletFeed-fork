@@ -52,6 +52,28 @@ FAMILIES = (
 )
 
 
+_MULTI_SUFFIXES = {
+    ("co", "jp"),
+    ("or", "jp"),
+    ("ne", "jp"),
+    ("ac", "jp"),
+    ("go", "jp"),
+    ("co", "uk"),
+    ("com", "au"),
+    ("github", "io"),
+    ("blogspot", "com"),
+}
+
+
+def registrable_domain(host: str) -> str:
+    parts = host.lower().rstrip(".").split(".")
+    if len(parts) >= 3 and tuple(parts[-2:]) in _MULTI_SUFFIXES:
+        return ".".join(parts[-3:])
+    if len(parts) >= 2:
+        return ".".join(parts[-2:])
+    return host.lower().rstrip(".")
+
+
 def _row(
     *,
     source_id: str,
@@ -63,6 +85,8 @@ def _row(
     feed_url: str | None = None,
     has_feed: bool | None = None,
     policy_status: str = "eligible",
+    relevance: str = "relevant",
+    curation: str = "agent_assembled_public_authoritative",
 ) -> dict:
     parsed = urlparse(site_url)
     domain = (parsed.hostname or "").lower().rstrip(".")
@@ -80,9 +104,10 @@ def _row(
         "authority": authority,
         "has_feed": feed_present,
         "domain": domain,
+        "registrable_domain": registrable_domain(domain),
         "policy_status": policy_status,
-        "relevance": "relevant",
-        "curation": "agent_assembled_public_authoritative",
+        "relevance": relevance,
+        "curation": curation,
     }
 
 
@@ -419,7 +444,7 @@ def _japanese() -> list[dict]:
         ("https://engineering.dena.com/blog/", None, "go", "corp_tech_blog"),
         ("https://tech.layerx.co.jp", "https://tech.layerx.co.jp/feed", "go", "corp_tech_blog"),
         ("https://tech.plaid.co.jp", None, "typescript", "corp_tech_blog"),
-        ("https://developer.hatena.ne.jp", "https://developer.hatena.ne.jp/feed", "perl", "corp_tech_blog"),
+        ("https://developer.hatena.ne.jp", "https://developer.hatena.ne.jp/feed", "ruby", "corp_tech_blog"),
         ("https://tech.uzabase.com", None, "kotlin", "corp_tech_blog"),
         ("https://engineering.rakus.co.jp", None, "java", "corp_tech_blog"),
         ("https://developers.gmo.jp", "https://developers.gmo.jp/feed/", "linux", "corp_tech_blog"),
@@ -467,20 +492,11 @@ def _japanese() -> list[dict]:
         ("https://ja.vuejs.org/guide/introduction.html", None, "vue", "docs_changelog"),
         ("https://angular.jp/docs", None, "angular", "docs_changelog"),
         ("https://www.rust-lang.org/ja", None, "rust", "docs_changelog"),
-        ("https://go.dev/doc", None, "go", "docs_changelog"),
         ("https://developer.android.com/docs?hl=ja", None, "android", "docs_changelog"),
-        ("https://docs.flutter.dev", None, "flutter", "docs_changelog"),
         ("https://kubernetes.io/ja/docs/home/", None, "kubernetes", "docs_changelog"),
-        ("https://www.postgresql.org/docs/current/", None, "postgresql", "docs_changelog"),
-        ("https://nextjs.org/docs", None, "nextjs", "docs_changelog"),
-        ("https://kotlinlang.org/docs/getting-started.html", None, "kotlin", "docs_changelog"),
         ("https://www.swift.org/ja/", None, "swift", "docs_changelog"),
-        ("https://neovim.io/doc/user/", None, "neovim", "docs_changelog"),
-        ("https://www.kernel.org", None, "linux", "docs_changelog"),
     ]
     personal = [
-        ("https://zenn.dev", None, "typescript", "personal_dev_blog"),
-        ("https://qiita.com", None, "python", "personal_dev_blog"),
         ("https://blog.bouzuya.net", "https://blog.bouzuya.net/atom.xml", "typescript", "personal_dev_blog"),
         ("https://azukiazusa.dev", "https://azukiazusa.dev/rss.xml", "typescript", "personal_dev_blog"),
         ("https://blog.ojisan.io", None, "typescript", "personal_dev_blog"),
@@ -503,7 +519,7 @@ def _japanese() -> list[dict]:
         ("https://zenn.dev/hokaccha", None, "typescript", "personal_dev_blog"),
         ("https://blog.hatena.ne.jp/motemen/", None, "go", "personal_dev_blog"),
         ("https://blog.hatena.ne.jp/nanto_vi/", None, "typescript", "personal_dev_blog"),
-        ("https://blog.hatena.ne.jp/onk/", None, "perl", "personal_dev_blog"),
+        ("https://blog.hatena.ne.jp/onk/", None, "ruby", "personal_dev_blog"),
         ("https://blog.kymmt.com", None, "ruby", "personal_dev_blog"),
         ("https://blog.a-know.me", None, "go", "personal_dev_blog"),
         ("https://diary.overlasting.net", None, "ruby", "personal_dev_blog"),
@@ -526,13 +542,12 @@ def _japanese() -> list[dict]:
     blocks = (("corp", corp), ("off", official), ("per", personal), ("web", feeds_and_web))
     for prefix, pairs in blocks:
         for index, (site, feed, topic, family) in enumerate(pairs, start=1):
-            topic_id = "ruby" if topic == "perl" else topic
             rows.append(
                 _row(
                     source_id=f"c1_ja_{prefix}_{index:03d}",
                     site_url=site,
                     feed_url=feed,
-                    topic=topic_id,
+                    topic=topic,
                     family=family,
                     language="ja",
                 )
@@ -540,16 +555,13 @@ def _japanese() -> list[dict]:
     return rows
 
 
-def _pad_to_floors(rows: list[dict]) -> list[dict]:
-    """Add extra no-RSS / personal / official rows until G0 floors pass."""
+def _topic_faithful_extras(rows: list[dict]) -> list[dict]:
+    """Same-topic official extras only. No cross-topic padding."""
     extras = [
         ("https://go.dev/doc/effective_go", "go", "docs_changelog", "en"),
         ("https://doc.rust-lang.org/cargo/", "rust", "docs_changelog", "en"),
         ("https://docs.python.org/3/whatsnew/index.html", "python", "docs_changelog", "en"),
-        ("https://www.ruby-lang.org/en/downloads/", "ruby", "docs_changelog", "en"),
         ("https://kotlinlang.org/docs/whatsnew.html", "kotlin", "docs_changelog", "en"),
-        ("https://www.swift.org/blog/swift-6/", "swift", "official_blog", "en"),
-        ("https://openjdk.org/jeps/0", "java", "docs_changelog", "en"),
         ("https://llvm.org/docs/ReleaseNotes.html", "llvm", "docs_changelog", "en"),
         ("https://developer.android.com/studio/releases", "android", "docs_changelog", "en"),
         ("https://docs.flutter.dev/release/release-notes", "flutter", "docs_changelog", "en"),
@@ -577,83 +589,11 @@ def _pad_to_floors(rows: list[dict]) -> list[dict]:
             "docs_changelog",
             "en",
         ),
-        ("https://gohugo.io/news/", "nextjs", "official_blog", "en"),
-        ("https://jekyllrb.com/news/", "ruby", "official_blog", "en"),
-        ("https://astro.build/blog/", "typescript", "official_blog", "en"),
-        ("https://svelte.dev/blog", "typescript", "official_blog", "en"),
-        ("https://bun.sh/blog", "typescript", "official_blog", "en"),
-        ("https://nodejs.org/en/blog", "typescript", "official_blog", "en"),
-        ("https://pnpm.io/blog", "typescript", "official_blog", "en"),
-        ("https://vite.dev/blog/", "typescript", "official_blog", "en"),
-        ("https://tailwindcss.com/blog", "typescript", "official_blog", "en"),
-        ("https://turbo.build/blog", "typescript", "official_blog", "en"),
-        ("https://orm.drizzle.team/docs/overview", "typescript", "docs_changelog", "en"),
-        ("https://orm.drizzle.team", "typescript", "no_rss_web", "en"),
-        ("https://prisma.io/docs", "typescript", "docs_changelog", "en"),
-        ("https://www.sqlite.org/changes.html", "postgresql", "docs_changelog", "en"),
-        ("https://www.sqlite.org", "postgresql", "no_rss_web", "en"),
-        ("https://caddy.community", "linux", "no_rss_web", "en"),
-        ("https://nginx.org/en/docs/", "linux", "docs_changelog", "en"),
-        ("https://httpd.apache.org", "linux", "no_rss_web", "en"),
-        ("https://prometheus.io/docs/introduction/overview/", "kubernetes", "docs_changelog", "en"),
-        ("https://grafana.com/docs/", "linux", "docs_changelog", "en"),
-        ("https://opentelemetry.io/docs/", "oss_security", "docs_changelog", "en"),
         ("https://www.cve.org", "oss_security", "no_rss_web", "en"),
-        ("https://www.first.org", "oss_security", "no_rss_web", "en"),
-        ("https://www.rfc-editor.org", "linux", "no_rss_web", "en"),
-        ("https://datatracker.ietf.org", "linux", "no_rss_web", "en"),
-        ("https://crates.io/policies", "rust", "no_rss_web", "en"),
-        ("https://pypi.org", "python", "no_rss_web", "en"),
-        ("https://rubygems.org", "ruby", "no_rss_web", "en"),
-        ("https://central.sonatype.com", "java", "no_rss_web", "en"),
-        ("https://pkg.go.dev", "go", "no_rss_web", "en"),
-        ("https://hex.pm", "oss_security", "no_rss_web", "en"),
-        ("https://crates.io", "rust", "no_rss_web", "en"),
-        ("https://npmjs.com", "typescript", "no_rss_web", "en"),
-        ("https://hub.docker.com", "linux", "no_rss_web", "en"),
-        ("https://formulae.brew.sh", "linux", "no_rss_web", "en"),
-        ("https://repology.org", "linux", "no_rss_web", "en"),
-        ("https://release-monitoring.org", "linux", "no_rss_web", "en"),
-        ("https://lwn.net/Archives/", "linux", "no_rss_web", "en"),
-        ("https://lore.kernel.org/lkml/", "linux", "no_rss_web", "en"),
-        ("https://bugs.debian.org", "linux", "no_rss_web", "en"),
-        ("https://bugzilla.redhat.com", "linux", "no_rss_web", "en"),
-        ("https://bugs.launchpad.net/ubuntu", "linux", "no_rss_web", "en"),
-        ("https://gitlab.freedesktop.org", "linux", "no_rss_web", "en"),
-        ("https://gitlab.gnome.org", "linux", "no_rss_web", "en"),
-        ("https://invent.kde.org", "linux", "no_rss_web", "en"),
-        ("https://codeberg.org", "oss_security", "no_rss_web", "en"),
-        ("https://sr.ht", "linux", "no_rss_web", "en"),
-        ("https://lists.debian.org", "linux", "no_rss_web", "en"),
-        ("https://marc.info", "linux", "no_rss_web", "en"),
-        ("https://www.mail-archive.com", "linux", "no_rss_web", "en"),
-        ("https://groups.google.com/g/golang-nuts", "go", "no_rss_web", "en"),
         ("https://internals.rust-lang.org", "rust", "no_rss_web", "en"),
         ("https://discuss.python.org", "python", "no_rss_web", "en"),
-        ("https://discuss.kotlinlang.org", "kotlin", "no_rss_web", "en"),
-        ("https://forums.swift.org", "swift", "no_rss_web", "en"),
-        ("https://discuss.kubernetes.io", "kubernetes", "no_rss_web", "en"),
         ("https://discourse.llvm.org", "llvm", "no_rss_web", "en"),
-        ("https://community.grafana.com", "linux", "no_rss_web", "en"),
-        ("https://forum.dlang.org", "llvm", "no_rss_web", "en"),
-        ("https://elixirforum.com", "oss_security", "no_rss_web", "en"),
-        ("https://users.rust-lang.org", "rust", "no_rss_web", "en"),
-        ("https://go.dev/play/", "go", "no_rss_web", "en"),
-        ("https://play.rust-lang.org", "rust", "no_rss_web", "en"),
-        ("https://play.kotlinlang.org", "kotlin", "no_rss_web", "en"),
-        ("https://swiftfiddle.com", "swift", "no_rss_web", "en"),
-        ("https://replit.com", "python", "no_rss_web", "en"),
-        ("https://godbolt.org", "llvm", "no_rss_web", "en"),
-        ("https://wandbox.org", "llvm", "no_rss_web", "en"),
-        ("https://www.onlinegdb.com", "llvm", "no_rss_web", "en"),
-        ("https://zenn.dev/topics/rust", "rust", "no_rss_web", "ja"),
-        ("https://zenn.dev/topics/go", "go", "no_rss_web", "ja"),
-        ("https://zenn.dev/topics/python", "python", "no_rss_web", "ja"),
-        ("https://zenn.dev/topics/kotlin", "kotlin", "no_rss_web", "ja"),
-        ("https://zenn.dev/topics/swift", "swift", "no_rss_web", "ja"),
-        ("https://qiita.com/tags/rust", "rust", "no_rss_web", "ja"),
-        ("https://qiita.com/tags/kubernetes", "kubernetes", "no_rss_web", "ja"),
-        ("https://qiita.com/tags/android", "android", "no_rss_web", "ja"),
+        ("https://lore.kernel.org/lkml/", "linux", "no_rss_web", "en"),
     ]
     existing = {row["site_url"] for row in rows}
     index = 1
@@ -662,7 +602,7 @@ def _pad_to_floors(rows: list[dict]) -> list[dict]:
             continue
         rows.append(
             _row(
-                source_id=f"c1_pad_{index:03d}",
+                source_id=f"c1_extra_{index:03d}",
                 site_url=site,
                 feed_url=None,
                 topic=topic,
@@ -675,12 +615,37 @@ def _pad_to_floors(rows: list[dict]) -> list[dict]:
     return rows
 
 
+def _policy_blocked_rows() -> list[dict]:
+    blocked = [
+        ("https://127.0.0.1/", "linux", "loopback"),
+        ("https://192.168.0.1/", "linux", "rfc1918"),
+        ("https://localhost/", "linux", "localhost"),
+        ("https://[::1]/", "linux", "ipv6_loopback"),
+        ("https://169.254.169.254/", "linux", "link_local"),
+    ]
+    rows = []
+    for index, (site, topic, reason) in enumerate(blocked, start=1):
+        rows.append(
+            _row(
+                source_id=f"c1_blocked_{index:03d}",
+                site_url=site,
+                feed_url=None,
+                topic=topic,
+                family="no_rss_web",
+                language="en",
+                policy_status="policy_blocked",
+                relevance="out_of_policy",
+                curation=f"policy_blocked:{reason}",
+            )
+        )
+    return rows
+
+
 def _assign_splits(rows: list[dict]) -> list[dict]:
     by_domain: dict[str, list[dict]] = defaultdict(list)
     for row in rows:
-        by_domain[row["domain"]].append(row)
+        by_domain[row["registrable_domain"]].append(row)
     domains = sorted(by_domain)
-    # Domain-unit blind: hash so the cut is stable and >= 30% of sources.
     ordered = sorted(domains, key=lambda domain: hashlib.sha256(domain.encode()).hexdigest())
     blind_domains: set[str] = set()
     total = len(rows)
@@ -691,7 +656,7 @@ def _assign_splits(rows: list[dict]) -> list[dict]:
         blind_domains.add(domain)
         blind_count += len(by_domain[domain])
     for row in rows:
-        row["split"] = "blind" if row["domain"] in blind_domains else "dev"
+        row["split"] = "blind" if row["registrable_domain"] in blind_domains else "dev"
     return rows
 
 
@@ -726,14 +691,15 @@ def _summarize(rows: list[dict]) -> dict:
         "no_rss_web_count": no_rss,
         "japanese_count": languages.get("ja", 0),
         "blind_source_ratio": splits.get("blind", 0) / len(rows) if rows else 0.0,
-        "unique_domains": len({row["domain"] for row in rows}),
+        "unique_domains": len({row["registrable_domain"] for row in rows}),
+        "policy_blocked_count": sum(1 for row in rows if row["policy_status"] == "policy_blocked"),
     }
 
 
 def main() -> int:
     rows = _dedupe(_english_official() + _english_corp() + _english_personal_and_feeds() + _japanese())
-    rows = _pad_to_floors(rows)
-    rows = _dedupe(rows)
+    rows = _topic_faithful_extras(rows)
+    rows = _dedupe(rows + _policy_blocked_rows())
     rows = _assign_splits(rows)
     summary = _summarize(rows)
     freeze = {
@@ -796,26 +762,28 @@ def main() -> int:
     (OUT / "g0_freeze.json").write_text(
         json.dumps(freeze, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-    (OUT / "attestation.json").write_text(
-        json.dumps(
-            {
-                "dataset_version": freeze["dataset_version"],
-                "status": "awaiting_operator_attestation",
-                "attested_by": None,
-                "attested_at": None,
-                "instruction": (
-                    "Review sources.json. If the public-URL set is accepted as "
-                    "human-curated gold, set status=attested, attested_by to the "
-                    "operator login, and attested_at to an ISO-8601 timestamp. "
-                    "Do not attest after reading blind results."
-                ),
-            },
-            ensure_ascii=False,
-            indent=2,
+    attestation_path = OUT / "attestation.json"
+    if not attestation_path.is_file():
+        attestation_path.write_text(
+            json.dumps(
+                {
+                    "dataset_version": freeze["dataset_version"],
+                    "status": "awaiting_operator_attestation",
+                    "attested_by": None,
+                    "attested_at": None,
+                    "instruction": (
+                        "Review sources.json. If the public-URL set is accepted as "
+                        "human-curated gold, set status=attested, attested_by to the "
+                        "operator login, and attested_at to an ISO-8601 timestamp. "
+                        "Do not attest after reading blind results."
+                    ),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
         )
-        + "\n",
-        encoding="utf-8",
-    )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     missing = []
     if summary["source_count"] < 300:

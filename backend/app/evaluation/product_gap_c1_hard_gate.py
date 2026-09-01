@@ -47,7 +47,7 @@ def evaluate_c1_hard_gate(gold_dir: Path | None = None) -> dict[str, Any]:
         "g2": {
             "deterministic_replay_pass": bool(g2.get("pass")),
             "completion_gate_pass": INCOMPLETE,
-            "evidence": "g0_catalog_hints_replay_not_independent_discovery",
+            "evidence": "production_curated_seed_discovery_vs_g0_labels",
             "blockers": ["independent_topic_to_source_discovery_unmeasured"],
         },
         "g3": {

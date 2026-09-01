@@ -221,7 +221,7 @@ async def measure_live_g1(
         ),
         "family_recall": family_recall,
         "no_feed_sources": no_feed_total,
-        "no_feed_fallback_rate": fallback_hits / no_feed_total if no_feed_total else 1.0,
+        "no_feed_fallback_rate": fallback_hits / no_feed_total if no_feed_total else None,
         "status_counts": dict(sorted(status_counts.items())),
         "rows": rows,
     }

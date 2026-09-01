@@ -161,6 +161,7 @@ def test_well_known_paths_are_same_origin_and_capped() -> None:
     assert len(urls) == 5
     assert all(canonicalize_url(url).startswith("https://notes.example.com/") for url in urls)
     assert canonicalize_url(urls[0]).endswith("/feed")
+    assert len(well_known_feed_urls("https://notes.example.com/blog/", limit=80)) == 16
 
 
 @pytest.mark.asyncio

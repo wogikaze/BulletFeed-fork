@@ -44,7 +44,7 @@ def validate_url_shape(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"{source_name} URL port is not allowed",
         )
-    if _host_looks_like_literal_ip_trick(parsed.hostname):
+    if _host_is_not_public_shape(parsed.hostname):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"{source_name} host is not a public hostname",
@@ -52,22 +52,65 @@ def validate_url_shape(
     return parsed
 
 
-def _host_looks_like_literal_ip_trick(hostname: str) -> bool:
+_BLOCKED_EXACT_HOSTS = {
+    "localhost",
+    "localdomain",
+    "metadata.google.internal",
+    "host.docker.internal",
+    "kubernetes.default.svc",
+    "nip.io",
+    "sslip.io",
+    "xip.io",
+    "localtest.me",
+    "lvh.me",
+    "vcap.me",
+}
+_BLOCKED_HOST_SUFFIXES = (
+    ".localhost",
+    ".localdomain",
+    ".internal",
+    ".corp",
+    ".home",
+    ".lan",
+    ".local",
+    ".onion",
+    ".i2p",
+    ".consul",
+    ".nip.io",
+    ".sslip.io",
+    ".xip.io",
+    ".localtest.me",
+    ".lvh.me",
+    ".vcap.me",
+)
+
+
+def _ip_like_label(part: str) -> bool:
+    if part.startswith("0x"):
+        try:
+            int(part, 16)
+        except ValueError:
+            return False
+        return True
+    return part.isdigit()
+
+
+def _host_is_not_public_shape(hostname: str) -> bool:
     host = hostname.strip("[]").lower().rstrip(".")
-    if host.startswith("0x") or host.startswith("::"):
+    if any(ch in host for ch in (" ", "\t", "\x00")):
         return True
-    if host.isdigit() and int(host) <= 0xFFFFFFFF:
+    if host in _BLOCKED_EXACT_HOSTS or any(host.endswith(suffix) for suffix in _BLOCKED_HOST_SUFFIXES):
         return True
-    parts = host.split(".")
-    if 1 <= len(parts) <= 4 and all(part and part.replace("x", "").isalnum() for part in parts):
-        if any(
-            part.startswith("0x") or (part.startswith("0") and part != "0" and part.isdigit())
-            for part in parts
-        ):
+    if host.startswith("127.") or "127.0.0.1" in host:
+        return True
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        parts = [part for part in host.split(".") if part]
+        if 1 <= len(parts) <= 4 and all(_ip_like_label(part) for part in parts):
             return True
-        if len(parts) < 4 and all(part.isdigit() for part in parts):
-            return True
-    return False
+        return False
+    return not ip.is_global
 
 
 def reject_private_resolved_addresses(addresses: list, *, source_name: str) -> None:

@@ -24,27 +24,40 @@ GOLD = Path(__file__).resolve().parents[0] / "gold" / "product_gap"
 FIXTURES = Path(__file__).resolve().parents[0] / "fixtures"
 
 
-def test_g0_count_floors_pass_without_claiming_attestation() -> None:
+def test_g0_is_not_human_gold_and_keeps_policy_blocked() -> None:
     report = evaluate_g0(GOLD / "c1")
-    assert report.source_count >= 300
-    assert report.topic_count >= 24
-    assert report.japanese_count >= 100
-    assert report.no_rss_web_count >= 60
-    assert report.blind_source_ratio >= 0.30
-    assert report.families["official_blog"] >= 40
-    assert report.families["corp_tech_blog"] >= 40
-    assert report.families["personal_dev_blog"] >= 40
-    assert report.families["docs_changelog"] >= 40
-    assert report.families["rss_atom_json"] >= 40
     assert report.attested is False
     assert "attestation_pending" in report.failures
+    assert report.policy_blocked_count >= 1
+    assert report.floors_pass is False
+    sources = json.loads((GOLD / "c1" / "sources.json").read_text(encoding="utf-8"))
+    urls = {row["site_url"].rstrip("/") for row in sources}
+    assert "https://zenn.dev" not in urls
+    assert "https://qiita.com" not in urls
+    assert "https://gohugo.io/news" not in urls
+    splits = {}
+    for row in sources:
+        splits.setdefault(row["registrable_domain"], set()).add(row["split"])
+    assert all(len(values) == 1 for values in splits.values())
 
 
-def test_ssrf_suite_has_100_cases_and_zero_bypass() -> None:
+def test_ssrf_suite_uses_production_shape_and_does_not_claim_fetch() -> None:
+    from app.services.url_safety import validate_url_shape
+
     report = evaluate_ssrf_suite(GOLD / "c1" / "ssrf_adversarial.json")
     assert report["case_count"] >= 100
-    assert report["bypasses"] == []
-    assert report["pass"] is True
+    assert report["production_path"] == "validate_url_shape"
+    assert report["production_fetch_measured"] is False
+    assert report["pass"] is False
+    assert "g5_production_fetch_unmeasured" in report["failures"]
+    validate_url_shape("https://ffmpeg.org/", source_name="SSRF")
+    validate_url_shape("https://react.dev/blog", source_name="SSRF")
+    try:
+        validate_url_shape("https://127.0.0.1/", source_name="SSRF")
+    except Exception as exc:  # noqa: BLE001 - shape reject is the measured outcome
+        assert "not a public hostname" in str(exc)
+    else:
+        raise AssertionError("loopback must fail URL shape")
 
 
 def test_summary_only_article_extracts_body_not_nav() -> None:
@@ -167,16 +180,20 @@ def test_compare_table_keeps_losses() -> None:
     assert table["lost_metrics_kept"] is True
 
 
-def test_c1_gate_harness_reports_floors_without_claiming_attestation() -> None:
+def test_c1_gate_harness_does_not_invent_pass() -> None:
     report = evaluate_c1_gates(GOLD / "c1")
-    assert report["g0"]["source_count"] >= 300
     assert report["g0"]["attested"] is False
-    assert report["g5"]["pass"] is True
-    assert report["g4"]["pass"] is True
+    assert report["g1"]["pass"] is False
+    assert report["g2"]["pass"] is False
+    assert report["g2"]["gold_injected"] is False
+    assert report["g3"]["pass"] is False
+    assert report["g3"]["live_oracle_unmeasured"] is True
+    assert report["g4"]["pass"] is False
+    assert report["g5"]["pass"] is False
     assert report["pass"] is False
 
 
-def test_g1_counts_well_known_official_feeds() -> None:
+def test_g1_precision_counts_false_positives_in_top3() -> None:
     from app.evaluation.product_gap_c1 import load_g0_sources
 
     sources = load_g0_sources(GOLD / "c1" / "sources.json")
@@ -188,9 +205,10 @@ def test_g1_counts_well_known_official_feeds() -> None:
         "g1_no_feed_fallback": 0.98,
     }
     g1 = evaluate_g1(sources, floors=floors)
-    assert g1["eligible_feed_count"] >= 70
-    assert g1["feed_recall"] > 0.5
-    assert g1["no_feed_fallback"] >= 0.98
+    assert g1["production_confirm_measured"] is False
+    assert g1["pass"] is False
+    assert "g1_production_confirm_unmeasured" in g1["failures"]
+    assert g1["precision_at_3"] <= g1["feed_recall_unconfirmed_probe"] + 1e-9
 
 
 def test_adjacent_rust_llvm_is_not_exact_match() -> None:
