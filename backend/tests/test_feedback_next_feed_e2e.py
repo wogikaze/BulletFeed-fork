@@ -5,7 +5,9 @@ One click is not enough; MIN_SAMPLE_SIZE important marks on a source type
 must lift held-out siblings of that type on the following feed page.
 """
 
-from fastapi.testclient import TestClient
+from __future__ import annotations
+
+import math
 
 from app.database import Database
 from app.services.feedback_signals import (
@@ -14,6 +16,15 @@ from app.services.feedback_signals import (
 )
 from app.services.ranking import evaluate_importance
 from app.services.ranking_feedback import MIN_SAMPLE_SIZE, PERSONALIZATION_VERSION
+from fastapi.testclient import TestClient
+
+_HELD_K = 5
+_HELD_RELEVANT = tuple(f"nfeed_ho_rel_{index}" for index in range(4))
+_HELD_NOISE = tuple(f"nfeed_ho_noise_{index}" for index in range(4))
+_HELD_UNKNOWN = "nfeed_ho_unknown"
+_HELD_CORRECTION = "nfeed_ho_correction"
+_HELD_TRAIN = tuple(f"nfeed_ho_train_{index}" for index in range(MIN_SAMPLE_SIZE))
+_HELD_LABELS = {item_id: 2 for item_id in _HELD_RELEVANT} | {item_id: 0 for item_id in _HELD_NOISE}
 
 
 def _user_id(database: Database) -> str:
@@ -118,6 +129,80 @@ def _feed_ids(client: TestClient, auth_headers: dict[str, str]) -> list[str]:
     response = client.get("/v1/feed", headers=auth_headers, params={"limit": 50})
     assert response.status_code == 200
     return [item["id"] for item in response.json()["items"]]
+
+
+def _dcg(gains: list[int]) -> float:
+    total = 0.0
+    for index, relevance in enumerate(gains, start=1):
+        total += (math.pow(2, relevance) - 1.0) / math.log2(index + 1)
+    return total
+
+
+def _ndcg(gains: list[int], ideal: list[int]) -> float:
+    idcg = _dcg(ideal)
+    if idcg == 0:
+        return 1.0
+    return _dcg(gains) / idcg
+
+
+def _heldout_metrics(feed_ids: list[str], *, k: int = _HELD_K) -> tuple[float, float, float]:
+    ranking = [item_id for item_id in feed_ids if item_id in _HELD_LABELS]
+    assert set(ranking) == set(_HELD_LABELS), ranking
+    top = ranking[:k]
+    precision = sum(1 for item_id in top if _HELD_LABELS[item_id] > 0) / k
+    gains = [_HELD_LABELS[item_id] for item_id in top]
+    ideal = sorted(_HELD_LABELS.values(), reverse=True)[:k]
+    irrelevant_rate = sum(1 for item_id in top if _HELD_LABELS[item_id] == 0) / k
+    return precision, _ndcg(gains, ideal), irrelevant_rate
+
+
+def _seed_heldout_metric_set(database: Database, user_id: str) -> None:
+    with database.connect() as connection:
+        for index, item_id in enumerate(_HELD_TRAIN):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=item_id,
+                event_id=f"ev_{item_id}",
+                source_type="github_release",
+                updated_at=f"2026-08-10T00:0{index}:00Z",
+            )
+        for index, item_id in enumerate(_HELD_RELEVANT):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=item_id,
+                event_id=f"ev_{item_id}",
+                source_type="github_release",
+                updated_at=f"2026-08-11T00:0{index}:00Z",
+            )
+        for index, item_id in enumerate(_HELD_NOISE):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=item_id,
+                event_id=f"ev_{item_id}",
+                source_type="rss_atom",
+                updated_at=f"2026-08-22T00:0{index}:00Z",
+                delta_type="new_fact",
+            )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id=_HELD_UNKNOWN,
+            event_id=f"ev_{_HELD_UNKNOWN}",
+            source_type="github_release",
+            updated_at="2026-08-12T00:00:00Z",
+        )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id=_HELD_CORRECTION,
+            event_id=f"ev_{_HELD_CORRECTION}",
+            source_type="rss_atom",
+            updated_at="2026-08-23T00:00:00Z",
+            delta_type="correction",
+        )
 
 
 def test_one_important_mark_does_not_reorder_next_feed(
@@ -236,3 +321,63 @@ def test_feedback_ranking_does_not_drop_correction_from_next_feed(
         ).fetchone()
     assert row["status"] == "unread"
     assert int(row["dismissed"]) == 0
+
+
+def test_heldout_precision_ndcg_and_irrelevant_rate_improve_on_next_feed(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    _seed_heldout_metric_set(database, user_id)
+    unknown_ids = {*_HELD_RELEVANT, *_HELD_NOISE, _HELD_UNKNOWN, _HELD_CORRECTION}
+
+    with database.connect() as connection:
+        ledger_before = ledger_world_state(connection)
+
+    before_ids = _feed_ids(client, auth_headers)
+    assert unknown_ids <= set(before_ids)
+    before_p, before_ndcg, before_irrelevant = _heldout_metrics(before_ids)
+    assert before_p < 1.0
+    assert before_irrelevant > 0.0
+
+    for item_id in _HELD_TRAIN:
+        response = client.post(
+            f"/v1/feed/items/{item_id}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    after_ids = _feed_ids(client, auth_headers)
+    assert unknown_ids <= set(after_ids)
+    assert set(before_ids) == set(after_ids)
+    after_p, after_ndcg, after_irrelevant = _heldout_metrics(after_ids)
+
+    assert after_p >= before_p
+    assert after_ndcg >= before_ndcg
+    assert after_irrelevant <= before_irrelevant
+    assert after_p > before_p or after_irrelevant < before_irrelevant
+    assert after_p >= 0.6
+    assert after_irrelevant <= 0.4
+
+    hidden_unknown = unknown_ids - set(after_ids)
+    assert not hidden_unknown
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        row = connection.execute(
+            "SELECT status, dismissed FROM feed_items WHERE id = ?",
+            (_HELD_CORRECTION,),
+        ).fetchone()
+        event_ids = [
+            item["event_id"]
+            for item in connection.execute(
+                "SELECT id, event_id FROM feed_items WHERE user_id = ?",
+                (user_id,),
+            ).fetchall()
+            if item["id"] in unknown_ids
+        ]
+    assert row["status"] == "unread"
+    assert int(row["dismissed"]) == 0
+    assert len(event_ids) == len(set(event_ids))
