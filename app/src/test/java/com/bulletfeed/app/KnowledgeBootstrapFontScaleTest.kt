@@ -117,5 +117,6 @@ class KnowledgeBootstrapFontScaleTest {
         }
 
         composeRule.onNodeWithText("bootstrap だけをリセット").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("knowledge-bootstrap-reset").performScrollTo().assertHeightIsAtLeast(48.dp)
     }
 }
