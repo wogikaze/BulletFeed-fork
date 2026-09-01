@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
+from collections.abc import Mapping, Sequence
 from typing import Literal
 
 from app.services.feedback_signals import RANKING_FEATURE_TYPES
@@ -19,6 +20,8 @@ from app.services.user_interest import detect_concepts_in_text
 
 MIN_SAMPLE_SIZE = 3
 FEATURE_KIND_SOURCE_TYPE = "source_type"
+FEATURE_KIND_TOPIC = "topic"
+FEATURE_KIND_REPOSITORY = "repository"
 PERSONALIZATION_VERSION = "ranking-feedback-v0"
 RANK_BONUS = 50
 
@@ -75,6 +78,7 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
         SELECT
             fb.type AS feedback_type,
             COALESCE(le.source_type, 'unknown') AS source_type,
+            COALESCE(le.source_key, '') AS source_key,
             e.title AS title,
             e.summary AS summary
         FROM (
@@ -108,12 +112,26 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
         (user_id, reset_at),
     ).fetchall()
     source_tallies: dict[str, dict[str, int]] = {}
+    topic_tallies: dict[str, dict[str, int]] = {}
+    repository_tallies: dict[str, dict[str, int]] = {}
     concept_tallies: dict[str, dict[str, int]] = {}
     for row in rows:
         _add_tally(source_tallies, row["source_type"], row["feedback_type"])
         text = " ".join(part for part in (row["title"], row["summary"]) if part)
         for concept_id in detect_concepts_in_text(text):
             _add_tally(concept_tallies, concept_id, row["feedback_type"])
+        relation = evaluate_relation(
+            connection,
+            user_id=user_id,
+            source_type=row["source_type"],
+            source_key=row["source_key"],
+            event_title=row["title"] or "",
+            event_summary=row["summary"] or "",
+        )
+        for topic in relation.matched_topics:
+            _add_tally(topic_tallies, topic, row["feedback_type"])
+        for repo_name in _repository_feature_values(relation.matched_repositories):
+            _add_tally(repository_tallies, repo_name, row["feedback_type"])
     _persist_feature_tallies(
         connection,
         user_id=user_id,
@@ -123,9 +141,30 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
     _persist_feature_tallies(
         connection,
         user_id=user_id,
+        feature_kind=FEATURE_KIND_TOPIC,
+        tallies=topic_tallies,
+    )
+    _persist_feature_tallies(
+        connection,
+        user_id=user_id,
+        feature_kind=FEATURE_KIND_REPOSITORY,
+        tallies=repository_tallies,
+    )
+    _persist_feature_tallies(
+        connection,
+        user_id=user_id,
         feature_kind=FEATURE_KIND_CONCEPT,
         tallies=concept_tallies,
     )
+
+
+def _repository_feature_values(repositories: Sequence[Mapping[str, str]]) -> tuple[str, ...]:
+    values: list[str] = []
+    for repo in repositories:
+        name = (repo.get("name") or repo.get("id") or "").strip()
+        if name and name not in values:
+            values.append(name)
+    return tuple(values)
 
 
 def _empty_tally() -> dict[str, int]:
@@ -174,6 +213,18 @@ def adjustment_for_counts(important_count: int, not_relevant_count: int) -> Adju
     if not_relevant_count >= MIN_SAMPLE_SIZE and not_relevant_count > important_count:
         return "demote_relation"
     return None
+
+
+def _pick_discrete_adjustment(
+    features: dict[str, tuple[int, int]],
+    values: Sequence[str],
+) -> tuple[Adjustment | None, tuple[int, int], str]:
+    for value in values:
+        counts = features.get(value, (0, 0))
+        kind = adjustment_for_counts(*counts)
+        if kind is not None:
+            return kind, counts, value
+    return None, (0, 0), ""
 
 
 def _reset_at(connection: sqlite3.Connection, user_id: str) -> int:
@@ -227,6 +278,8 @@ def _apply_adjustments(
     preference: UserPreferenceState,
 ) -> int:
     features = _features(connection, user_id)
+    topic_features = _features(connection, user_id, FEATURE_KIND_TOPIC)
+    repository_features = _features(connection, user_id, FEATURE_KIND_REPOSITORY)
     concept_features = _features(connection, user_id, FEATURE_KIND_CONCEPT)
     items = connection.execute(
         """
@@ -264,16 +317,22 @@ def _apply_adjustments(
         counts = features.get(source_type, (0, 0))
         kind = adjustment_for_counts(*counts)
         feature_value = source_type
+        if kind is None and topic_features:
+            kind, counts, feature_value = _pick_discrete_adjustment(
+                topic_features,
+                relation.matched_topics,
+            )
+        if kind is None and repository_features:
+            kind, counts, feature_value = _pick_discrete_adjustment(
+                repository_features,
+                _repository_feature_values(relation.matched_repositories),
+            )
         if kind is None and concept_features:
             text = " ".join(part for part in (item["title"], item["summary"]) if part)
-            for concept_id in detect_concepts_in_text(text):
-                concept_counts = concept_features.get(concept_id, (0, 0))
-                concept_kind = adjustment_for_counts(*concept_counts)
-                if concept_kind is not None:
-                    kind = concept_kind
-                    counts = concept_counts
-                    feature_value = concept_id
-                    break
+            kind, counts, feature_value = _pick_discrete_adjustment(
+                concept_features,
+                detect_concepts_in_text(text),
+            )
         if kind == "boost_importance":
             importance_level = _shift(importance_level, _IMPORTANCE_ORDER, 1)
             importance_reason = f"{importance.reason} {_explain(kind, counts[0], feature_value)}"

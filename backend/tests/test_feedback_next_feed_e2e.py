@@ -45,6 +45,7 @@ def _insert_item(
     updated_at: str,
     delta_type: str = "detail",
     title: str | None = None,
+    source_key: str | None = None,
 ) -> None:
     event_title = title or f"{source_type} {event_id}"
     connection.execute(
@@ -62,7 +63,7 @@ def _insert_item(
             id, source_type, source_key, source_event_id, title, created_at
         ) VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (event_id, source_type, event_id, event_id, event_id, updated_at),
+        (event_id, source_type, source_key or event_id, event_id, event_id, updated_at),
     )
     delta_id = f"d_{item_id}"
     connection.execute(
@@ -451,6 +452,174 @@ def test_concept_feedback_lifts_held_out_on_next_feed_same_source_type(
     assert held["importance_level"] == "high"
     assert PERSONALIZATION_VERSION in held["importance_reason"]
     assert "react" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
+def test_topic_feedback_lifts_held_out_on_next_feed_same_source_type(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO topics (id, user_id, name, type, priority, sort_order, created_at)
+            VALUES ('topic_kotlin', ?, 'Kotlin', 'technology', 'high', 0, 0)
+            """,
+            (user_id,),
+        )
+        for index in range(MIN_SAMPLE_SIZE):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=f"nfeed_t_train_{index}",
+                event_id=f"ev_nfeed_t_train_{index}",
+                source_type="github_release",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                title=f"Kotlin 2.1 train {index}",
+            )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_t_kotlin",
+            event_id="ev_nfeed_t_kotlin",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            title="Kotlin 2.1 notes",
+        )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_t_other",
+            event_id="ev_nfeed_t_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="PostgreSQL 18 notes",
+        )
+        ledger_before = ledger_world_state(connection)
+
+    before = _feed_ids(client, auth_headers)
+    assert "nfeed_t_kotlin" in before and "nfeed_t_other" in before
+    with database.connect() as connection:
+        baseline = connection.execute(
+            "SELECT importance_level FROM feed_items WHERE id = ?",
+            ("nfeed_t_kotlin",),
+        ).fetchone()
+    assert baseline["importance_level"] == "medium"
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_t_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    after = _feed_ids(client, auth_headers)
+    assert after.index("nfeed_t_kotlin") < after.index("nfeed_t_other")
+    assert set(before) == set(after)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_t_kotlin",),
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_t_other",),
+        ).fetchone()
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "Kotlin" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
+def test_repository_feedback_lifts_held_out_on_next_feed(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO github_repo_watches (
+                user_id, repository_id, full_name, html_url, selected, private
+            ) VALUES (?, 'repo-react', 'facebook/react', 'https://github.com/facebook/react', 1, 0)
+            """,
+            (user_id,),
+        )
+        for index, source_type in enumerate(("github_release", "github_advisory", "osv")):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=f"nfeed_r_train_{index}",
+                event_id=f"ev_nfeed_r_train_{index}",
+                source_type=source_type,
+                source_key="facebook/react",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                title=f"Unrelated kitchen notes {index}",
+            )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_r_react",
+            event_id="ev_nfeed_r_react",
+            source_type="github_release",
+            source_key="facebook/react",
+            updated_at="2026-08-21T00:00:00Z",
+            title="Unrelated desk lamp manual",
+        )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_r_go",
+            event_id="ev_nfeed_r_go",
+            source_type="github_release",
+            source_key="golang/go",
+            updated_at="2026-08-22T00:00:00Z",
+            title="Unrelated garden hose specs",
+        )
+        ledger_before = ledger_world_state(connection)
+
+    before = _feed_ids(client, auth_headers)
+    assert "nfeed_r_react" in before and "nfeed_r_go" in before
+    with database.connect() as connection:
+        baseline = connection.execute(
+            "SELECT importance_level FROM feed_items WHERE id = ?",
+            ("nfeed_r_react",),
+        ).fetchone()
+    assert baseline["importance_level"] == "medium"
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_r_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    after = _feed_ids(client, auth_headers)
+    assert after.index("nfeed_r_react") < after.index("nfeed_r_go")
+    assert set(before) == set(after)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_r_react",),
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_r_go",),
+        ).fetchone()
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "facebook/react" in held["importance_reason"]
     assert other["importance_level"] == "medium"
     assert PERSONALIZATION_VERSION not in other["importance_reason"]
 
