@@ -44,12 +44,6 @@
       "reason": "Internal constructor/database-state invariant; None would fail closed before any database operation and is not an authorization control."
     },
     {
-      "filename": "backend/app/services/url_safety.py",
-      "test_id": "B101",
-      "line_number": 100,
-      "reason": "Hostname non-null is enforced by validate_url_shape before this type-narrowing assertion; SSRF checks do not rely on the assert."
-    },
-    {
       "filename": "backend/app/evaluation/real_world_validation.py",
       "test_id": "B608",
       "line_number": 227,

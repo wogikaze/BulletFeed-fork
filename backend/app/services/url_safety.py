@@ -100,14 +100,19 @@ def validate_public_url(
 ) -> str:
     """Allowlist + DNS + private-IP checks. Unknown host and private IP fail closed."""
     parsed = validate_url_shape(url, source_name=source_name, allow_http=allow_http)
-    assert parsed.hostname is not None
-    if not host_is_allowed(parsed.hostname, allowed_hosts):
+    hostname = parsed.hostname
+    if hostname is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"{source_name} URL must include a public hostname",
+        )
+    if not host_is_allowed(hostname, allowed_hosts):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"{source_name} host is not in the allowlist",
         )
     port = 80 if parsed.scheme == "http" else 443
-    resolve_public_hostname(parsed.hostname, port=port, source_name=source_name)
+    resolve_public_hostname(hostname, port=port, source_name=source_name)
     return url
 
 
