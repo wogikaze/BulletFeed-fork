@@ -39,7 +39,9 @@ def test_qualification_attempts_all_constructed_personas(tmp_path: Path) -> None
     assert report["persona_count"] == 30
     assert report["tenant_leak"] == 0
     assert report["unsafe_suppression"] == 0
+    assert report["display_reason_missing"] == 0
     assert report["stage_failure_counts"]["activation"] == 0
+    assert report["stage_failure_counts"]["feed"] == 0
     assert report["harness_version"] == "m1-zero-to-useful-v02"
     assert report["metrics"]["sample_count"] == 30
     assert report["metrics"]["surfaced_card_count"] == 28
