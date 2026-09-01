@@ -696,6 +696,226 @@ def _summarize(rows: list[dict]) -> dict:
     }
 
 
+def _v2_coverage() -> list[dict]:
+    """Topic/family/language coverage only. Not chosen because discovery hits them."""
+    pairs = [
+        ("https://www.python.org/blogs/", None, "python", "official_blog", "en"),
+        ("https://blog.rust-lang.org/inside-rust/", None, "rust", "official_blog", "en"),
+        ("https://www.linuxfoundation.org/blog", None, "linux", "official_blog", "en"),
+        ("https://www.debian.org/News/", None, "linux", "official_blog", "en"),
+        ("https://fedoramagazine.org", "https://fedoramagazine.org/feed/", "linux", "official_blog", "en"),
+        ("https://archlinux.org/news/", None, "linux", "official_blog", "en"),
+        ("https://alpinelinux.org/posts/", None, "linux", "official_blog", "en"),
+        ("https://openjdk.org", None, "java", "official_blog", "en"),
+        ("https://www.postgresql.org/about/news/", None, "postgresql", "official_blog", "en"),
+        ("https://mail.openjdk.org/pipermail/announce/", None, "java", "official_blog", "en"),
+        ("https://www.debian.org/security/", None, "oss_security", "no_rss_web", "en"),
+        ("https://ubuntu.com/security", None, "oss_security", "no_rss_web", "en"),
+        ("https://www.gentoo.org/support/security/", None, "oss_security", "no_rss_web", "en"),
+        ("https://forums.swift.org", None, "swift", "no_rss_web", "en"),
+        ("https://discuss.kotlinlang.org", None, "kotlin", "no_rss_web", "en"),
+        ("https://bugs.ruby-lang.org", None, "ruby", "no_rss_web", "en"),
+        ("https://github.com/python/cpython/issues", None, "python", "no_rss_web", "en"),
+        ("https://bugzilla.kernel.org", None, "linux", "no_rss_web", "en"),
+        ("https://wiki.postgresql.org", None, "postgresql", "no_rss_web", "en"),
+        ("https://peps.python.org", None, "python", "docs_changelog", "en"),
+        ("https://go.dev/doc/devel/release", None, "go", "docs_changelog", "en"),
+        ("https://pkg.go.dev", None, "go", "no_rss_web", "en"),
+        ("https://crates.io", None, "rust", "no_rss_web", "en"),
+        ("https://pypi.org", None, "python", "no_rss_web", "en"),
+        ("https://rubygems.org", None, "ruby", "no_rss_web", "en"),
+        ("https://central.sonatype.com", None, "java", "no_rss_web", "en"),
+        ("https://hub.docker.com/_/postgres", None, "postgresql", "no_rss_web", "en"),
+        ("https://hub.docker.com/_/redis", None, "redis", "no_rss_web", "en"),
+        ("https://www.postgresql.jp", None, "postgresql", "official_blog", "ja"),
+        ("https://www.linux.or.jp", None, "linux", "official_blog", "ja"),
+        ("https://www.ruby.or.jp", None, "ruby", "official_blog", "ja"),
+        ("https://www.jpcert.or.jp", None, "oss_security", "official_blog", "ja"),
+        ("https://www.debian.or.jp", None, "linux", "official_blog", "ja"),
+        ("https://www.ospn.jp", None, "linux", "official_blog", "ja"),
+        ("https://www.jpcert.or.jp/at/", None, "oss_security", "no_rss_web", "ja"),
+        ("https://www.jpcert.or.jp/wr/", None, "oss_security", "no_rss_web", "ja"),
+        ("https://blog.jxck.io", "https://blog.jxck.io/feeds/atom.xml", "typescript", "personal_dev_blog", "ja"),
+        ("https://sosukesuzuki.dev", None, "typescript", "personal_dev_blog", "ja"),
+        ("https://blog.leko.jp", None, "typescript", "personal_dev_blog", "ja"),
+        ("https://blog.uhy.ooo", None, "typescript", "personal_dev_blog", "ja"),
+        ("https://blog.64p.org", None, "ruby", "personal_dev_blog", "ja"),
+        ("https://mametter.hatenablog.com", None, "ruby", "personal_dev_blog", "ja"),
+        ("https://mattn.kaoriya.net", None, "go", "personal_dev_blog", "ja"),
+        ("https://songmu.jp", None, "go", "personal_dev_blog", "ja"),
+        ("https://t-wada.hatenablog.jp", None, "java", "personal_dev_blog", "ja"),
+        ("https://zenn.dev/takeyuweb", None, "ruby", "personal_dev_blog", "ja"),
+        ("https://tech.pixiv.co.jp", None, "typescript", "corp_tech_blog", "ja"),
+        ("https://tech.preferred.jp", None, "python", "corp_tech_blog", "ja"),
+        ("https://buildersbox.corp-sansan.com", None, "java", "corp_tech_blog", "ja"),
+        ("https://tech.dely.jp", None, "kotlin", "corp_tech_blog", "ja"),
+        ("https://techblog.lycorp.co.jp", None, "java", "corp_tech_blog", "ja"),
+        ("https://www.postgresql.jp/document/", None, "postgresql", "docs_changelog", "ja"),
+        ("https://www.debian.org/releases/", None, "linux", "docs_changelog", "en"),
+        ("https://releases.llvm.org", None, "llvm", "docs_changelog", "en"),
+        ("https://www.swift.org/blog/swift-6/", None, "swift", "official_blog", "en"),
+        ("https://kotlinlang.org/docs/whatsnew-eap.html", None, "kotlin", "docs_changelog", "en"),
+        ("https://vuejs.org/guide/extras/ways-of-using-vue", None, "vue", "docs_changelog", "en"),
+        ("https://angular.dev/reference/releases", None, "angular", "docs_changelog", "en"),
+        ("https://deno.com/blog/v2.1", None, "deno", "official_blog", "en"),
+        ("https://nextjs.org/blog/next-16", None, "nextjs", "official_blog", "en"),
+        ("https://react.dev/blog/2024", None, "react", "official_blog", "en"),
+        ("https://neovim.io/news/2024/", None, "neovim", "official_blog", "en"),
+        ("https://redis.io/blog/category/releases/", None, "redis", "official_blog", "en"),
+        ("https://www.postgresql.org/docs/release/", None, "postgresql", "docs_changelog", "en"),
+        ("https://webassembly.org/features/", None, "webassembly", "docs_changelog", "en"),
+        ("https://bytecodealliance.org/articles", None, "webassembly", "corp_tech_blog", "en"),
+        ("https://lkml.org", None, "linux", "no_rss_web", "en"),
+        ("https://patchwork.kernel.org", None, "linux", "no_rss_web", "en"),
+        ("https://status.cloudflare.com", None, "cloudflare", "no_rss_web", "en"),
+        ("https://github.com/golang/go/wiki", None, "go", "no_rss_web", "en"),
+        ("https://github.com/rust-lang/rfcs", None, "rust", "no_rss_web", "en"),
+        ("https://android-review.googlesource.com", None, "android", "no_rss_web", "en"),
+        ("https://github.com/neovim/neovim/wiki", None, "neovim", "no_rss_web", "en"),
+    ]
+    rows = []
+    for index, (site, feed, topic, family, language) in enumerate(pairs, start=1):
+        rows.append(
+            _row(
+                source_id=f"c1_v2_{index:03d}",
+                site_url=site,
+                feed_url=feed,
+                topic=topic,
+                family=family,
+                language=language,
+            )
+        )
+    return rows
+
+
+def _public_policy_blocked_rows() -> list[dict]:
+    """Real public URLs that stay in the universe but are crawl-policy blocked."""
+    blocked = [
+        ("https://x.com/rustlang", "rust", "x_tos_robots"),
+        ("https://x.com/golang", "go", "x_tos_robots"),
+        ("https://x.com/kotlin", "kotlin", "x_tos_robots"),
+        ("https://www.linkedin.com/company/jetbrains", "kotlin", "linkedin_robots"),
+        ("https://www.linkedin.com/company/the-linux-foundation", "linux", "linkedin_robots"),
+        ("https://www.facebook.com/react", "react", "facebook_robots"),
+        ("https://www.reddit.com/r/rust", "rust", "reddit_robots"),
+        ("https://www.reddit.com/r/golang", "go", "reddit_robots"),
+    ]
+    rows = []
+    for index, (site, topic, reason) in enumerate(blocked, start=1):
+        rows.append(
+            _row(
+                source_id=f"c1_v2_blocked_{index:03d}",
+                site_url=site,
+                feed_url=None,
+                topic=topic,
+                family="no_rss_web",
+                language="en",
+                policy_status="policy_blocked",
+                relevance="relevant",
+                curation=f"policy_blocked:{reason}",
+            )
+        )
+    return rows
+
+
+def assemble_v2_rows() -> list[dict]:
+    rows = _dedupe(_english_official() + _english_corp() + _english_personal_and_feeds() + _japanese())
+    rows = _topic_faithful_extras(rows)
+    rows = _dedupe(rows + _v2_coverage() + _public_policy_blocked_rows())
+    return _assign_splits(rows)
+
+
+def write_g0_dataset(rows: list[dict], *, dataset_version: str, out: Path, final_blind_eligible: bool) -> dict:
+    summary = _summarize(rows)
+    freeze = {
+        "dataset_version": dataset_version,
+        "frozen": True,
+        "final_blind_eligible": final_blind_eligible,
+        "split_frozen": True,
+        "label_source": "human_curated_pending_operator_attestation",
+        "human_gold": False,
+        "attestation_required": True,
+        "metrics": {
+            "g1_feed_recall": 0.98,
+            "g1_family_recall": 0.95,
+            "g1_japanese_recall": 0.95,
+            "g1_precision_at_3": 0.95,
+            "g1_no_feed_fallback": 0.98,
+            "g2_primary_recall_at_20": 0.90,
+            "g2_relevant_recall_at_50": 0.85,
+            "g2_precision_at_20": 0.80,
+            "g2_japanese_recall_at_50": 0.85,
+            "g2_blog_recall_at_50": 0.85,
+            "g2_no_rss_recall_at_50": 0.75,
+            "g2_min_topic_primary_recall": 0.70,
+            "g3_raw_entry_recall": 0.995,
+            "g3_important_update_recall": 1.0,
+            "g3_duplicate_item_rate": 0.005,
+            "g3_family_regression_pp": 1.0,
+            "g3_rss_subset_coverage": 0.99,
+            "g3_breadth_superiority_pp": 10.0,
+            "g4_body_success": 0.97,
+            "g4_important_body_recall": 0.95,
+            "g4_update_recall": 0.95,
+            "g4_update_precision": 0.95,
+            "g4_boilerplate_fp": 0.01,
+            "g4_article_split": 0.005,
+        },
+        "exclusion_rules": [
+            "policy_blocked sources stay in the universe and are reported separately",
+            "policy_blocked must be a real public URL blocked by robots or crawl policy",
+            "loopback and link-local addresses belong in the G5 SSRF corpus",
+            "do not drop a source after seeing blind results",
+            "do not change thresholds after seeing blind results",
+            "do not add per-source patches after seeing blind results",
+            "do not add or remove sources after the blind split is frozen",
+        ],
+        "failure_classes": [
+            "policy_blocked",
+            "undiscovered",
+            "unsubscribable",
+            "acquisition_failed",
+            "extraction_failed",
+        ],
+        "floors": {
+            "min_topics": 24,
+            "min_sources": 300,
+            "min_per_major_family": 40,
+            "min_japanese": 100,
+            "min_no_rss_web": 60,
+            "min_blind_ratio": 0.30,
+        },
+        "summary": summary,
+    }
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "sources.json").write_text(json.dumps(rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (out / "g0_freeze.json").write_text(
+        json.dumps(freeze, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    attestation_path = out / "attestation.json"
+    if not attestation_path.is_file():
+        attestation_path.write_text(
+            json.dumps(
+                {
+                    "dataset_version": dataset_version,
+                    "status": "awaiting_operator_attestation",
+                    "attested_by": None,
+                    "attested_at": None,
+                    "instruction": (
+                        "Review sources.json after the production SHA is frozen. "
+                        "Do not attest after reading blind results."
+                    ),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+    (out / "measurements").mkdir(exist_ok=True)
+    return summary
+
+
 def main() -> int:
     rows = _dedupe(_english_official() + _english_corp() + _english_personal_and_feeds() + _japanese())
     rows = _topic_faithful_extras(rows)

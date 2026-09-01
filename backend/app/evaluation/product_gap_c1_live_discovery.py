@@ -210,22 +210,27 @@ async def measure_live_g1(
     for row in rows:
         status_counts[str(row["status"])] += 1
 
+    feed_recall = feed_hits / feed_total if feed_total else 0.0
+    precision_at_3 = (
+        sum(precision_at_3_scores) / len(precision_at_3_scores) if precision_at_3_scores else 0.0
+    )
     return {
-        "report_version": "product-gap-c1-live-g1-v1",
+        "artifact_version": "product-gap-c1-g1-measurement-v1",
+        "path": "production_confirm",
+        "sample_complete": limit is None,
         "split": split,
         "blind_final": split == "blind" and allow_blind_final,
         "selected_sources": len(selected),
         "feed_sources": feed_total,
-        "feed_recall": feed_hits / feed_total if feed_total else 0.0,
-        "precision_at_3": (
-            sum(precision_at_3_scores) / len(precision_at_3_scores) if precision_at_3_scores else 0.0
-        ),
-        "japanese_feed_recall": (
-            japanese_feed_hits / japanese_feed_total if japanese_feed_total else 0.0
-        ),
-        "family_recall": family_recall,
-        "no_feed_sources": no_feed_total,
-        "no_feed_fallback_rate": fallback_hits / no_feed_total if no_feed_total else None,
+        "metrics": {
+            "feed_recall": feed_recall,
+            "precision_at_3": precision_at_3,
+            "japanese_feed_recall": (
+                japanese_feed_hits / japanese_feed_total if japanese_feed_total else 0.0
+            ),
+            "family_recall": family_recall,
+            "no_feed_fallback_rate": fallback_hits / no_feed_total if no_feed_total else None,
+        },
         "status_counts": dict(sorted(status_counts.items())),
         "rows": rows,
     }

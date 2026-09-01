@@ -1,9 +1,8 @@
 {
-  "dataset_version": "product-gap-c1-g0-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
   "frozen": true,
-  "final_blind_eligible": false,
-  "superseded_by": "product-gap-c1-g0-v2",
-  "note": "v1 split was observed during implementation. Keep as a development corpus only. Do not treat this split as unseen blind.",
+  "final_blind_eligible": true,
+  "split_frozen": true,
   "label_source": "human_curated_pending_operator_attestation",
   "human_gold": false,
   "attestation_required": true,
@@ -35,9 +34,12 @@
   },
   "exclusion_rules": [
     "policy_blocked sources stay in the universe and are reported separately",
+    "policy_blocked must be a real public URL blocked by robots or crawl policy",
+    "loopback and link-local addresses belong in the G5 SSRF corpus",
     "do not drop a source after seeing blind results",
     "do not change thresholds after seeing blind results",
-    "do not add per-source patches after seeing blind results"
+    "do not add per-source patches after seeing blind results",
+    "do not add or remove sources after the blind split is frozen"
   ],
   "failure_classes": [
     "policy_blocked",
@@ -55,54 +57,54 @@
     "min_blind_ratio": 0.3
   },
   "summary": {
-    "source_count": 267,
+    "source_count": 341,
     "topic_count": 24,
     "topics": {
-      "android": 8,
-      "angular": 6,
-      "cloudflare": 7,
-      "deno": 6,
+      "android": 9,
+      "angular": 7,
+      "cloudflare": 8,
+      "deno": 7,
       "flutter": 6,
-      "go": 22,
-      "java": 17,
-      "kotlin": 9,
+      "go": 29,
+      "java": 23,
+      "kotlin": 14,
       "kubernetes": 8,
-      "linux": 18,
-      "llvm": 7,
-      "neovim": 8,
-      "nextjs": 7,
-      "oss_security": 13,
-      "postgresql": 6,
-      "python": 17,
-      "react": 11,
-      "redis": 6,
-      "ruby": 21,
-      "rust": 14,
-      "swift": 7,
-      "typescript": 30,
-      "vue": 7,
-      "webassembly": 6
+      "linux": 26,
+      "llvm": 8,
+      "neovim": 10,
+      "nextjs": 8,
+      "oss_security": 19,
+      "postgresql": 12,
+      "python": 21,
+      "react": 13,
+      "redis": 8,
+      "ruby": 27,
+      "rust": 19,
+      "swift": 9,
+      "typescript": 35,
+      "vue": 8,
+      "webassembly": 7
     },
     "families": {
-      "corp_tech_blog": 75,
-      "docs_changelog": 51,
-      "no_rss_web": 46,
-      "official_blog": 32,
-      "personal_dev_blog": 54,
-      "rss_atom_json": 89
+      "corp_tech_blog": 80,
+      "docs_changelog": 61,
+      "no_rss_web": 73,
+      "official_blog": 54,
+      "personal_dev_blog": 64,
+      "rss_atom_json": 91
     },
     "languages": {
-      "en": 176,
-      "ja": 91
+      "en": 226,
+      "ja": 115
     },
     "splits": {
-      "blind": 83,
-      "dev": 184
+      "blind": 107,
+      "dev": 234
     },
-    "no_rss_web_count": 46,
-    "japanese_count": 91,
-    "blind_source_ratio": 0.31086142322097376,
-    "unique_domains": 153,
-    "policy_blocked_count": 5
+    "no_rss_web_count": 73,
+    "japanese_count": 115,
+    "blind_source_ratio": 0.31378299120234604,
+    "unique_domains": 186,
+    "policy_blocked_count": 8
   }
 }

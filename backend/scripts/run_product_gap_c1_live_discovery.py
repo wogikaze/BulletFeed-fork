@@ -10,7 +10,7 @@ from pathlib import Path
 from app.evaluation.product_gap_c1_live_discovery import measure_live_g1
 
 ROOT = Path(__file__).resolve().parents[1]
-GOLD = ROOT / "tests" / "gold" / "product_gap" / "c1"
+GOLD = ROOT / "tests" / "gold" / "product_gap" / "c1" / "v2"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -20,7 +20,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int)
     parser.add_argument("--timeout", type=float, default=10.0)
     parser.add_argument("--delay", type=float, default=0.10)
-    parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=GOLD / "measurements" / "g1_measurement.json",
+    )
     args = parser.parse_args(argv)
 
     report = asyncio.run(

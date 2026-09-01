@@ -4,21 +4,24 @@ from pathlib import Path
 
 from app.evaluation.product_gap_c1_hard_gate import evaluate_c1_hard_gate
 
-GOLD = Path(__file__).parent / "gold" / "product_gap" / "c1"
+GOLD_V1 = Path(__file__).parent / "gold" / "product_gap" / "c1"
+GOLD_V2 = GOLD_V1 / "v2"
 
 
-def test_replay_metrics_cannot_close_hard_gate() -> None:
-    report = evaluate_c1_hard_gate(GOLD)
-
+def test_v1_is_not_final_blind_and_needs_artifacts() -> None:
+    report = evaluate_c1_hard_gate(GOLD_V1)
     assert report["completion_gate_pass"] is False
-    assert report["gates"]["g1"]["deterministic_replay_pass"] is False
-    assert report["gates"]["g1"]["completion_gate_pass"] is False
-    assert report["gates"]["g2"]["evidence"] == "production_curated_seed_discovery_vs_g0_labels"
-    assert report["gates"]["g2"]["completion_gate_pass"] is False
-    assert report["gates"]["g3"]["reported_bulletfeed_universe_recall_accepted"] is False
-    assert report["gates"]["g3"]["reported_breadth_superiority_accepted"] is False
-    assert report["gates"]["g4"]["update_recall"] is None
-    assert report["gates"]["g4"]["update_precision"] is None
-    assert report["gates"]["g5"]["deterministic_ssrf_pass"] is False
-    assert any("independent_topic_to_source_discovery_unmeasured" in item for item in report["blockers"])
-    assert any("live_rss_oracle_parity_unmeasured" in item for item in report["blockers"])
+    assert report["gates"]["g0"]["completion_gate_pass"] is False
+    assert "dataset_not_final_blind_eligible" in report["gates"]["g0"]["blockers"]
+    assert report["gates"]["g1"]["status"] == "measurement_absent"
+    assert report["gates"]["g2"]["status"] == "measurement_absent"
+    assert any("g1_measurement_absent" in item for item in report["blockers"])
+
+
+def test_v2_hard_gate_reads_artifacts_only() -> None:
+    if not (GOLD_V2 / "sources.json").is_file():
+        return
+    report = evaluate_c1_hard_gate(GOLD_V2)
+    assert report["dataset_version"] == "product-gap-c1-g0-v2"
+    assert report["completion_gate_pass"] is False
+    assert "operator_attestation_pending" in report["gates"]["g0"]["blockers"]

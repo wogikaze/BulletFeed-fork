@@ -1,0 +1,7 @@
+{
+  "dataset_version": "product-gap-c1-g0-v2",
+  "status": "awaiting_operator_attestation",
+  "attested_by": null,
+  "attested_at": null,
+  "instruction": "Review sources.json after the production SHA is frozen. Do not attest after reading blind results."
+}
