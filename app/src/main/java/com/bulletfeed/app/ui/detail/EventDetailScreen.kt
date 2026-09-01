@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -295,17 +296,19 @@ internal fun KnowledgeBootstrapCard(
                 color = Color(0xFF655F69),
             )
         }
+        Spacer(Modifier.height(12.dp))
         AccessiblePrimaryButton(
             onClick = { onMarkCurrentStateKnown(false) },
             enabled = !isSaving,
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-already-knew"),
         ) {
             Text("この現在状態はすでに知っている")
         }
+        Spacer(Modifier.height(8.dp))
         AccessibleOutlinedButton(
             onClick = { onMarkCurrentStateKnown(true) },
             enabled = !isSaving,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-catch-up"),
         ) {
             Text("これから追う（過去は既知にしない）")
         }
