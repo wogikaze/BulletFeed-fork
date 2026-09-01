@@ -9,6 +9,7 @@ Observations, Claims, or subscriptions.
 from __future__ import annotations
 
 import asyncio
+import json
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Literal
@@ -42,7 +43,11 @@ def _host(url: str | None) -> str | None:
 
 
 def _measurement_settings(row: G0Source, *, timeout_seconds: float) -> Settings:
-    hosts = {host for host in (_host(row.site_url), _host(row.feed_url), _host(row.canonical_url)) if host}
+    # The expected feed/canonical URLs are labels for scoring, never inputs to
+    # production discovery.  Including their hosts here would let the gold
+    # answer change URL-safety policy and would make cross-origin discovery
+    # appear better than the configured production path.
+    hosts = {host for host in (_host(row.site_url),) if host}
     aliases = set(hosts)
     for host in tuple(hosts):
         if host.startswith("www."):
@@ -78,6 +83,7 @@ async def measure_live_g1(
         raise ValueError("blind measurement requires allow_blind_final=True")
 
     sources = load_g0_sources(gold_dir / "sources.json")
+    freeze = json.loads((gold_dir / "g0_freeze.json").read_text(encoding="utf-8"))
     selected = [row for row in sources if row.split == split]
     if limit is not None:
         selected = selected[: max(0, int(limit))]
@@ -216,6 +222,7 @@ async def measure_live_g1(
     )
     return {
         "artifact_version": "product-gap-c1-g1-measurement-v1",
+        "dataset_version": freeze.get("dataset_version"),
         "path": "production_confirm",
         "sample_complete": limit is None,
         "split": split,
