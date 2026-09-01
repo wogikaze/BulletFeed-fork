@@ -194,6 +194,7 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
             report["useful_proxy_at_10"] = 0
             report["cards_to_first_useful"] = None
             report["unexpected_empty_feed"] = False
+            report["display_reason_missing"] = 0
             client.close()
             return report
 
@@ -434,11 +435,22 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
         first = items[0] if items else {}
         unexpected_empty = status == 200 and not items
         report["unexpected_empty_feed"] = unexpected_empty
+        reason_missing = sum(
+            1
+            for item in items
+            if isinstance(item, dict)
+            and (
+                not isinstance(item.get("displayReason"), dict)
+                or not str(item["displayReason"].get("text") or "").strip()
+                or not str(item["displayReason"].get("primaryCode") or "").strip()
+            )
+        )
+        report["display_reason_missing"] = reason_missing
         _stage(
             stages,
             "feed",
-            ok=status == 200 and bool(items),
-            detail=f"HTTP {status}; cards={len(items)}",
+            ok=status == 200 and bool(items) and reason_missing == 0,
+            detail=f"HTTP {status}; cards={len(items)}; reason_missing={reason_missing}",
         )
         status, detail = _call(
             client,
@@ -611,6 +623,9 @@ def run_qualification(personas: tuple[M1Persona, ...]) -> dict[str, Any]:
         ),
         "broken_evidence": sum(bool(report.get("broken_evidence")) for report in reports),
         "tenant_leak": sum(bool(report.get("tenant_leak")) for report in reports),
+        "display_reason_missing": sum(
+            int(report.get("display_reason_missing") or 0) for report in reports
+        ),
         "stage_failure_counts": stage_failure_counts,
         "metrics": _summary(reports),
         "reports": reports,
