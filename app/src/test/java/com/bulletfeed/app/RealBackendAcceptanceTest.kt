@@ -383,6 +383,32 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
+    fun `empty topics with github stay pending without a useful feed`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val snapshot =
+                repository.completeOnboarding(
+                    profile = UserProfile("Android engineer", setOf("mobile"), "US"),
+                    topics = emptyList(),
+                    connectGithub = true,
+                )
+            assertFalse(snapshot.completed)
+            assertEquals(OnboardingState.GITHUB_PENDING, snapshot.state)
+            assertTrue(snapshot.topics.isEmpty())
+            val persisted = repository.getOnboardingSnapshot()
+            assertFalse(persisted.completed)
+            assertEquals(OnboardingState.GITHUB_PENDING, persisted.state)
+            val feed = repository.getFeedPage(limit = 5)
+            assertTrue(feed.items.isEmpty())
+        }
+
+    @Test
     fun `invalid statuspage id is validation not offline`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
