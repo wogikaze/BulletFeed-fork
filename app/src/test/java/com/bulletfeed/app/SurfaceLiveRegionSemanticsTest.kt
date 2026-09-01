@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -59,6 +60,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("読み込みに失敗しました").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithTag("app-error-retry").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 
@@ -79,6 +81,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("Alertを読み込み中").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
+        composeRule.onNodeWithTag("detail-loading-back").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
     }
 
@@ -91,6 +94,8 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("詳細を表示できません").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+        composeRule.onNodeWithTag("detail-error-retry").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("detail-error-back").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("戻る").assertHeightIsAtLeast(48.dp)
     }
@@ -150,7 +155,39 @@ class SurfaceLiveRegionSemanticsTest {
             }
         }
 
+        composeRule.onNodeWithTag("app-error-retry").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsDetailErrorTouchTargets() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    DetailErrorScreen(message = "Alertを表示できません。", onBack = {}, onRetry = {})
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("detail-error-retry").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("detail-error-back").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsDetailLoadingBackTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    DetailLoadingScreen("Alertを読み込み中", onBack = {})
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("detail-loading-back").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -977,7 +979,11 @@ internal fun AppErrorScreen(message: String, onRetry: () -> Unit) =
             fontWeight = FontWeight.Bold,
         )
         Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
-        AccessiblePrimaryButton(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) {
+        Spacer(Modifier.height(18.dp))
+        AccessiblePrimaryButton(
+            onClick = onRetry,
+            modifier = Modifier.testTag("app-error-retry"),
+        ) {
             Text("再試行")
         }
     }
@@ -996,7 +1002,11 @@ internal fun DetailLoadingScreen(title: String, onBack: () -> Unit) =
             title,
             modifier = Modifier.padding(top = 12.dp).semantics { liveRegion = LiveRegionMode.Polite },
         )
-        AccessiblePrimaryButton(onClick = onBack, modifier = Modifier.padding(top = 18.dp)) {
+        Spacer(Modifier.height(18.dp))
+        AccessiblePrimaryButton(
+            onClick = onBack,
+            modifier = Modifier.testTag("detail-loading-back"),
+        ) {
             Text("戻る")
         }
     }
@@ -1023,10 +1033,18 @@ internal fun DetailErrorScreen(
         fontWeight = FontWeight.Bold,
     )
     Text(message, modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69))
-    AccessiblePrimaryButton(onClick = onRetry, modifier = Modifier.padding(top = 18.dp)) {
+    Spacer(Modifier.height(18.dp))
+    AccessiblePrimaryButton(
+        onClick = onRetry,
+        modifier = Modifier.testTag("detail-error-retry"),
+    ) {
         Text("再試行")
     }
-    AccessiblePrimaryButton(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) {
+    Spacer(Modifier.height(8.dp))
+    AccessiblePrimaryButton(
+        onClick = onBack,
+        modifier = Modifier.testTag("detail-error-back"),
+    ) {
         Text("戻る")
     }
 }
