@@ -89,17 +89,21 @@ def evaluate_c1_hard_gate(gold_dir=None) -> dict[str, Any]:
             sample_ok = artifact.get("sample_complete") is True
             fetch_ok = bool(artifact.get("production_fetch_measured"))
             identity_ok = bool(artifact.get("identity_measured"))
+            live_ok = artifact.get("live_network_measured") is True
             shape_bypass_count = artifact.get("shape_bypass_count")
             shape_ok = shape_bypass_count is not None and int(shape_bypass_count) == 0
             gates[name] = {
                 "status": "measured",
-                "completion_gate_pass": version_ok and sample_ok and fetch_ok and identity_ok and shape_ok,
+                "completion_gate_pass": (
+                    version_ok and sample_ok and fetch_ok and identity_ok and shape_ok and live_ok
+                ),
                 "evidence": artifact.get("path") or "g5_measurement",
                 "blockers": (
                     ([] if version_ok else ["g5_dataset_version_mismatch"])
                     + ([] if sample_ok else ["g5_sample_incomplete"])
                     + ([] if fetch_ok else ["g5_production_fetch_unmeasured"])
                     + ([] if identity_ok else ["g5_identity_unmeasured"])
+                    + ([] if live_ok else ["g5_live_network_unmeasured"])
                     + ([] if shape_ok else ["g5_ssrf_shape_bypass"])
                 ),
             }

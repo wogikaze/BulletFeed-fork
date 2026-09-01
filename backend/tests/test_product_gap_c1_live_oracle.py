@@ -100,5 +100,6 @@ def test_g5_artifact_keeps_fetch_and_identity_unmeasured() -> None:
     assert report["sample_complete"] is True
     assert report["case_count"] >= 100
     assert report["shape_bypass_count"] == 0
-    assert report["production_fetch_measured"] is False
-    assert report["identity_measured"] is False
+    assert report["production_fetch_measured"] is True
+    assert report["identity_measured"] is True
+    assert report["live_network_measured"] is False

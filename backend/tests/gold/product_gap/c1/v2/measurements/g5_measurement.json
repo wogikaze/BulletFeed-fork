@@ -1,20 +1,44 @@
 {
-  "artifact_version": "product-gap-c1-g5-measurement-v1",
+  "artifact_version": "product-gap-c1-g5-measurement-v2",
   "dataset_version": "product-gap-c1-g0-v2",
-  "path": "production_validate_url_shape",
+  "path": "production_fetch_and_url_safety_controlled_transport",
   "sample_complete": true,
   "case_count": 106,
   "shape_bypass_count": 0,
   "shape_rejected": 105,
-  "production_fetch_measured": false,
-  "identity_measured": false,
-  "redirect_same_source_measured": false,
-  "robots_not_success_measured": false,
+  "controlled_case_count": 4,
+  "controlled_case_passed": 4,
+  "controlled_cases": [
+    {
+      "case_id": "same_source_redirect",
+      "passed": true
+    },
+    {
+      "case_id": "robots_is_not_success",
+      "passed": true,
+      "detail": "Web fetch is disallowed by robots/crawl policy"
+    },
+    {
+      "case_id": "dns_private_resolution",
+      "passed": true,
+      "detail": "Web host resolves to a private address"
+    },
+    {
+      "case_id": "private_response_peer",
+      "passed": true,
+      "detail": "Web connection reached a private address"
+    }
+  ],
+  "production_fetch_measured": true,
+  "identity_measured": true,
+  "redirect_same_source_measured": true,
+  "robots_not_success_measured": true,
+  "dns_validation_measured": true,
+  "peer_validation_measured": true,
+  "live_network_measured": false,
   "bypasses": [],
   "unmeasured": [
-    "redirect_canonical_identity",
-    "dns_rebinding_and_resolution_to_peer",
-    "robots_policy_not_success",
-    "production_fetch_transport"
+    "real_live_network_transport",
+    "dns_rebinding_timing_window"
   ]
 }

@@ -87,10 +87,9 @@
     "g5": {
       "status": "measured",
       "completion_gate_pass": false,
-      "evidence": "production_validate_url_shape",
+      "evidence": "production_fetch_and_url_safety_controlled_transport",
       "blockers": [
-        "g5_production_fetch_unmeasured",
-        "g5_identity_unmeasured"
+        "g5_live_network_unmeasured"
       ]
     }
   },
@@ -115,7 +114,6 @@
     "g4:g4_boilerplate_fp",
     "g4:g4_article_split",
     "g4:g4_sample_incomplete",
-    "g5:g5_production_fetch_unmeasured",
-    "g5:g5_identity_unmeasured"
+    "g5:g5_live_network_unmeasured"
   ]
 }
