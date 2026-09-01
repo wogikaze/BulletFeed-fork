@@ -8,10 +8,13 @@ must lift held-out siblings of that type on the following feed page.
 from __future__ import annotations
 
 import math
+import time
 
 from fastapi.testclient import TestClient
 
+from app.config import get_settings
 from app.database import Database
+from app.security import TokenCipher
 from app.services.feedback_signals import (
     assert_feedback_does_not_mutate_ledger,
     ledger_world_state,
@@ -99,34 +102,69 @@ def _insert_item(
     )
 
 
-def _seed_same_candidate_set(database: Database, user_id: str) -> None:
+def _seed_same_candidate_set(
+    database: Database,
+    user_id: str,
+    *,
+    prefix: str = "nfeed",
+) -> None:
     with database.connect() as connection:
         for index in range(MIN_SAMPLE_SIZE):
             _insert_item(
                 connection,
                 user_id=user_id,
-                item_id=f"nfeed_train_{index}",
-                event_id=f"ev_nfeed_train_{index}",
+                item_id=f"{prefix}_train_{index}",
+                event_id=f"ev_{prefix}_train_{index}",
                 source_type="github_release",
                 updated_at=f"2026-08-20T00:0{index}:00Z",
             )
         _insert_item(
             connection,
             user_id=user_id,
-            item_id="nfeed_held_release",
-            event_id="ev_nfeed_held_release",
+            item_id=f"{prefix}_held_release",
+            event_id=f"ev_{prefix}_held_release",
             source_type="github_release",
             updated_at="2026-08-21T00:00:00Z",
         )
         _insert_item(
             connection,
             user_id=user_id,
-            item_id="nfeed_held_rss",
-            event_id="ev_nfeed_held_rss",
+            item_id=f"{prefix}_held_rss",
+            event_id=f"ev_{prefix}_held_rss",
             source_type="rss_atom",
             updated_at="2026-08-22T00:00:00Z",
             delta_type="new_fact",
         )
+
+
+def _new_session(
+    client: TestClient,
+    database: Database,
+    *,
+    github_user_id: int,
+    login: str,
+) -> tuple[str, dict[str, str]]:
+    response = client.post("/v1/sessions")
+    assert response.status_code == 200
+    body = response.json()
+    user_id = body["userId"]
+    settings = get_settings()
+    cipher = TokenCipher(settings.token_encryption_key.get_secret_value())
+    now = int(time.time())
+    with database.connect() as connection:
+        connection.execute(
+            """
+            INSERT OR IGNORE INTO github_connections (
+                github_user_id, login, github_token_encrypted, updated_at
+            ) VALUES (?, ?, ?, ?)
+            """,
+            (github_user_id, login, cipher.encrypt("ghp_test_token"), now),
+        )
+        connection.execute(
+            "UPDATE users SET github_connected = 1, github_user_id = ?, github_login = ? WHERE id = ?",
+            (github_user_id, login, user_id),
+        )
+    return user_id, {"Authorization": f"Bearer {body['accessToken']}"}
 
 
 def _feed_ids(client: TestClient, auth_headers: dict[str, str]) -> list[str]:
@@ -281,6 +319,65 @@ def test_enough_important_feedback_lifts_held_out_siblings_on_next_feed(
     assert PERSONALIZATION_VERSION in held["importance_reason"]
     assert rss["importance_level"] == "medium"
     assert PERSONALIZATION_VERSION not in rss["importance_reason"]
+
+
+def test_sparse_and_history_rich_cohorts_keep_separate_next_feed_safety(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    sparse_id = _user_id(database)
+    _seed_same_candidate_set(database, sparse_id, prefix="sparse")
+    rich_id, rich_headers = _new_session(client, database, github_user_id=456, login="richuser")
+    _seed_same_candidate_set(database, rich_id, prefix="rich")
+
+    sparse_before = _feed_ids(client, auth_headers)
+    rich_before = _feed_ids(client, rich_headers)
+    assert sparse_before.index("sparse_held_rss") < sparse_before.index("sparse_held_release")
+    assert rich_before.index("rich_held_rss") < rich_before.index("rich_held_release")
+
+    with database.connect() as connection:
+        ledger_before = ledger_world_state(connection)
+
+    sparse_mark = client.post(
+        "/v1/feed/items/sparse_train_0/feedback",
+        headers=auth_headers,
+        json={"type": "important"},
+    )
+    assert sparse_mark.status_code == 200
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/rich_train_{index}/feedback",
+            headers=rich_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    sparse_after = _feed_ids(client, auth_headers)
+    rich_after = _feed_ids(client, rich_headers)
+    assert sparse_after.index("sparse_held_rss") < sparse_after.index("sparse_held_release")
+    assert rich_after.index("rich_held_release") < rich_after.index("rich_held_rss")
+    assert set(sparse_before) == set(sparse_after)
+    assert set(rich_before) == set(rich_after)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        sparse_held = connection.execute(
+            "SELECT importance_reason FROM feed_items WHERE id = ?",
+            ("sparse_held_release",),
+        ).fetchone()
+        rich_held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("rich_held_release",),
+        ).fetchone()
+        rich_on_sparse = connection.execute(
+            "SELECT 1 FROM feed_items WHERE user_id = ? AND id LIKE 'rich_%'",
+            (sparse_id,),
+        ).fetchone()
+    assert PERSONALIZATION_VERSION not in sparse_held["importance_reason"]
+    assert rich_held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in rich_held["importance_reason"]
+    assert rich_on_sparse is None
 
 
 def test_undo_after_learned_ranking_restores_next_feed_order(
