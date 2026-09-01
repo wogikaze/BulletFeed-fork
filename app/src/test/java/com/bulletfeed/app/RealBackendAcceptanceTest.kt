@@ -97,6 +97,46 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
+    fun `enough important feedback lifts held-out siblings on the next feed page`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val userId = sessionManager.userId
+            assertNotNull(userId)
+            val seeded = seedFeedbackRanking(baseUrl, userId!!)
+            assertEquals(3, seeded.trainItemIds.size)
+
+            fun feedIds(): List<String> = repository.getFeedPage(limit = 50).items.map { it.id }
+
+            val before = feedIds()
+            val rssBefore = before.indexOf(seeded.heldRssItemId)
+            val releaseBefore = before.indexOf(seeded.heldReleaseItemId)
+            assertTrue("held-out rss should start above release: $before", rssBefore >= 0 && rssBefore < releaseBefore)
+
+            repository.sendFeedFeedback(seeded.trainItemIds.first(), FeedFeedbackType.IMPORTANT)
+            val afterOne = feedIds()
+            assertTrue(
+                "one important mark must not reorder held-out siblings: $afterOne",
+                afterOne.indexOf(seeded.heldRssItemId) < afterOne.indexOf(seeded.heldReleaseItemId),
+            )
+
+            for (itemId in seeded.trainItemIds) {
+                repository.sendFeedFeedback(itemId, FeedFeedbackType.IMPORTANT)
+            }
+            val afterEnough = feedIds()
+            assertTrue(
+                "three important marks should lift held-out github_release: $afterEnough",
+                afterEnough.indexOf(seeded.heldReleaseItemId) < afterEnough.indexOf(seeded.heldRssItemId),
+            )
+            assertEquals(before.toSet(), afterEnough.toSet())
+        }
+
+    @Test
     fun `unauthenticated feed is session expiry not offline`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
@@ -692,6 +732,18 @@ class RealBackendAcceptanceTest {
         return executeJson(request, AcceptanceSeedResponse.serializer())
     }
 
+    private fun seedFeedbackRanking(
+        baseUrl: String,
+        userId: String,
+    ): FeedbackRankingSeedResponse {
+        val body = json.encodeToString(AcceptanceSeedRequest.serializer(), AcceptanceSeedRequest(userId))
+        val request = Request.Builder()
+            .url(baseUrl.trimEnd('/') + "/__acceptance__/seed-feedback-ranking")
+            .post(body.toRequestBody(JSON_MEDIA))
+            .build()
+        return executeJson(request, FeedbackRankingSeedResponse.serializer())
+    }
+
     private fun sourceSyncJobCount(
         baseUrl: String,
         userId: String,
@@ -783,6 +835,13 @@ class RealBackendAcceptanceTest {
     private data class AcceptanceSeedResponse(
         val eventIds: List<String>,
         val projectedItemCount: Int,
+    )
+
+    @Serializable
+    private data class FeedbackRankingSeedResponse(
+        val trainItemIds: List<String>,
+        val heldReleaseItemId: String,
+        val heldRssItemId: String,
     )
 
     @Serializable
