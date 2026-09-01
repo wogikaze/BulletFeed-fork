@@ -411,10 +411,10 @@ private fun TopicsStep(
                         color = Color(0xFF655F69),
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AccessiblePrimaryButton(onClick = { onToggle(item.name) }) { Text("追加") }
-                        AccessibleOutlinedButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
-                    }
+                    OnboardingTopicRecommendationActions(
+                        onAdd = { onToggle(item.name) },
+                        onIgnore = { onIgnoreRecommendation(item.id) },
+                    )
                 }
             }
         }
@@ -444,6 +444,23 @@ private fun TopicsStep(
 }
 
 @Composable
+internal fun OnboardingTopicRecommendationActions(
+    onAdd: () -> Unit,
+    onIgnore: () -> Unit,
+) {
+    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        AccessiblePrimaryButton(
+            onClick = onAdd,
+            modifier = Modifier.testTag("onboarding-recommendation-add"),
+        ) { Text("追加") }
+        AccessibleOutlinedButton(
+            onClick = onIgnore,
+            modifier = Modifier.testTag("onboarding-recommendation-ignore"),
+        ) { Text("無視") }
+    }
+}
+
+@Composable
 internal fun OnboardingCustomTopicRow(
     customTopic: String,
     onCustomTopicChange: (String) -> Unit,
@@ -463,7 +480,11 @@ internal fun OnboardingCustomTopicRow(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onAddCustom() }),
         )
-        AccessibleOutlinedButton(onClick = onAddCustom, enabled = customTopic.isNotBlank()) {
+        AccessibleOutlinedButton(
+            onClick = onAddCustom,
+            enabled = customTopic.isNotBlank(),
+            modifier = Modifier.testTag("onboarding-custom-topic-add"),
+        ) {
             Icon(Icons.Default.Add, contentDescription = "追加")
         }
     }
