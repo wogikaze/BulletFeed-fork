@@ -1,0 +1,17 @@
+{
+  "dataset_version": "m6-failure-taxonomy-classes-v2",
+  "label_source": "constructed",
+  "human_gold": false,
+  "independent_classes": [
+    "important_unknown_missed",
+    "unknown_but_hidden",
+    "known_but_reshown",
+    "personalization_insufficiency"
+  ],
+  "personalization_insufficiency": {
+    "independent": true,
+    "folded_into_ranking_bug": false,
+    "rule": "Kendall distance below 0.15 on a contrast persona pair is personalization insufficiency, not a ranking implementation defect.",
+    "evidence": "backend/tests/gold/product_gap/c2/"
+  }
+}

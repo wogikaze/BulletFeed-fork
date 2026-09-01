@@ -1,63 +1,140 @@
 {
-  "dataset_version": "product-gap-c2-persona-pairs-v1",
+  "dataset_version": "product-gap-c2-persona-pairs-v2",
   "label_source": "constructed",
   "human_gold": false,
+  "m6_taxonomy_class": "personalization_insufficiency",
+  "m6_taxonomy_independent": true,
   "pairs": [
     {
       "pair_id": "rust-vs-js",
-      "kendall_distance": 0.4,
+      "family": "topic_match",
+      "history": "cold_start",
+      "kendall_distance": 0.3333333333333333,
       "insufficient": false,
+      "known_item_demoted": null,
+      "everyone_important_dropped": [],
       "left_order": [
-        "rust-sec",
-        "old-rust-known",
-        "llvm-adj",
-        "js-noise",
-        "rust-dup"
+        "rust-compiler-change",
+        "rust-stable-release",
+        "llvm-pass",
+        "oss-advisory",
+        "react-concurrent",
+        "python-gil",
+        "android-compose",
+        "kotlin-multiplatform",
+        "cve-openssl",
+        "python-typing"
       ],
       "right_order": [
-        "js-noise",
-        "rust-sec",
-        "llvm-adj",
-        "old-rust-known",
-        "rust-dup"
+        "react-concurrent",
+        "oss-advisory",
+        "rust-compiler-change",
+        "python-gil",
+        "android-compose",
+        "llvm-pass",
+        "kotlin-multiplatform",
+        "cve-openssl",
+        "python-typing",
+        "rust-stable-release"
       ]
     },
     {
       "pair_id": "backend-vs-security",
-      "kendall_distance": 0.0,
-      "insufficient": true,
+      "family": "topic_match",
+      "history": "cold_start",
+      "kendall_distance": 0.3111111111111111,
+      "insufficient": false,
+      "known_item_demoted": null,
+      "everyone_important_dropped": [],
       "left_order": [
-        "rust-sec",
-        "llvm-adj",
-        "js-noise",
-        "old-rust-known",
-        "rust-dup"
+        "python-gil",
+        "python-typing",
+        "oss-advisory",
+        "rust-compiler-change",
+        "react-concurrent",
+        "android-compose",
+        "llvm-pass",
+        "kotlin-multiplatform",
+        "cve-openssl",
+        "rust-stable-release"
       ],
       "right_order": [
-        "rust-sec",
-        "llvm-adj",
-        "js-noise",
-        "old-rust-known",
-        "rust-dup"
+        "oss-advisory",
+        "cve-openssl",
+        "python-gil",
+        "rust-compiler-change",
+        "react-concurrent",
+        "android-compose",
+        "llvm-pass",
+        "kotlin-multiplatform",
+        "python-typing",
+        "rust-stable-release"
       ]
     },
     {
       "pair_id": "android-vs-llvm",
-      "kendall_distance": 0.1,
-      "insufficient": true,
+      "family": "concept_adjacent",
+      "history": "cold_start",
+      "kendall_distance": 0.37777777777777777,
+      "insufficient": false,
+      "known_item_demoted": null,
+      "everyone_important_dropped": [],
       "left_order": [
-        "rust-sec",
-        "llvm-adj",
-        "js-noise",
-        "old-rust-known",
-        "rust-dup"
+        "android-compose",
+        "kotlin-multiplatform",
+        "oss-advisory",
+        "rust-compiler-change",
+        "react-concurrent",
+        "python-gil",
+        "llvm-pass",
+        "cve-openssl",
+        "python-typing",
+        "rust-stable-release"
       ],
       "right_order": [
-        "llvm-adj",
-        "rust-sec",
-        "js-noise",
-        "old-rust-known",
-        "rust-dup"
+        "llvm-pass",
+        "rust-compiler-change",
+        "oss-advisory",
+        "react-concurrent",
+        "python-gil",
+        "android-compose",
+        "kotlin-multiplatform",
+        "rust-stable-release",
+        "cve-openssl",
+        "python-typing"
+      ]
+    },
+    {
+      "pair_id": "novice-vs-expert-rust",
+      "family": "knownness",
+      "history": "history_rich",
+      "kendall_distance": 0.022222222222222223,
+      "insufficient": false,
+      "known_item_demoted": true,
+      "everyone_important_dropped": [],
+      "left_order": [
+        "rust-compiler-change",
+        "rust-stable-release",
+        "llvm-pass",
+        "oss-advisory",
+        "react-concurrent",
+        "python-gil",
+        "android-compose",
+        "kotlin-multiplatform",
+        "cve-openssl",
+        "python-typing"
+      ],
+      "right_order": [
+        "rust-compiler-change",
+        "llvm-pass",
+        "rust-stable-release",
+        "oss-advisory",
+        "react-concurrent",
+        "python-gil",
+        "android-compose",
+        "kotlin-multiplatform",
+        "cve-openssl",
+        "python-typing"
       ]
     }
   ],
@@ -104,9 +181,11 @@
     }
   ],
   "adjacent_precision": 1.0,
+  "insufficient_pairs": [],
+  "knownness_miss_pairs": [],
+  "everyone_important_dropped": [],
   "pass": false,
   "failures": [
-    "persona_order_insufficient",
     "human_adjacent_sample_missing"
   ]
 }

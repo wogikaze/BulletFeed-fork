@@ -21,6 +21,7 @@ class CompareItem:
     duplicate: bool
     useful: bool
     candidate: RankerCandidate
+    everyone_important: bool = False
 
 
 def _sort_chrono(items: Sequence[CompareItem]) -> list[CompareItem]:

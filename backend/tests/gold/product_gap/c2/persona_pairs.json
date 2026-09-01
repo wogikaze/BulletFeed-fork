@@ -1,10 +1,12 @@
 {
-  "dataset_version": "product-gap-c2-persona-pairs-v1",
+  "dataset_version": "product-gap-c2-persona-pairs-v2",
   "label_source": "constructed",
   "human_gold": false,
   "pairs": [
     {
       "pair_id": "rust-vs-js",
+      "family": "topic_match",
+      "history": "cold_start",
       "left_persona": "rust_compiler_contributor",
       "right_persona": "web_frontend_engineer",
       "left_topics": ["rust"],
@@ -12,6 +14,8 @@
     },
     {
       "pair_id": "backend-vs-security",
+      "family": "topic_match",
+      "history": "cold_start",
       "left_persona": "python_backend_developer",
       "right_persona": "security_conscious_oss_maintainer",
       "left_topics": ["python"],
@@ -19,10 +23,24 @@
     },
     {
       "pair_id": "android-vs-llvm",
+      "family": "concept_adjacent",
+      "history": "cold_start",
       "left_persona": "android_app_developer",
       "right_persona": "student_learning_compilers",
       "left_topics": ["android", "kotlin"],
       "right_topics": ["llvm"]
+    },
+    {
+      "pair_id": "novice-vs-expert-rust",
+      "family": "knownness",
+      "history": "history_rich",
+      "left_persona": "student_learning_compilers",
+      "right_persona": "rust_compiler_contributor",
+      "left_topics": ["rust"],
+      "right_topics": ["rust"],
+      "left_known_item_ids": [],
+      "right_known_item_ids": ["rust-stable-release"],
+      "expect_demoted_item_id": "rust-stable-release"
     }
   ]
 }
