@@ -375,11 +375,13 @@ def replay_knowledge_state_for_identity(
     *,
     user_id: str,
     knowledge_id: str,
+    now: int | None = None,
 ) -> DerivedKnowledge:
     return derive_knowledge_state(
         list_knowledge_evidence_for_identity(
             connection, user_id=user_id, knowledge_id=knowledge_id
-        )
+        ),
+        now=now,
     )
 
 

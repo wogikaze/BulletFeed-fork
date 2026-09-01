@@ -1,0 +1,9 @@
+{
+  "dataset_version": "product-gap-c4-relation-human-v1",
+  "issue": 326,
+  "labels": ["direct", "adjacent", "almost_irrelevant", "cannot_judge"],
+  "min_labeled_items": 40,
+  "human_gold": false,
+  "status": "schema_ready_awaiting_labels",
+  "samples": []
+}

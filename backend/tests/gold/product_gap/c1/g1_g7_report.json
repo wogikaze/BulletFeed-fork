@@ -1,0 +1,270 @@
+{
+  "report_version": "product-gap-c1-g1g5-v1",
+  "g0": {
+    "dataset_version": "product-gap-c1-g0-v1",
+    "source_count": 341,
+    "topic_count": 24,
+    "families": {
+      "corp_tech_blog": 75,
+      "docs_changelog": 62,
+      "no_rss_web": 96,
+      "official_blog": 43,
+      "personal_dev_blog": 56,
+      "rss_atom_json": 89
+    },
+    "japanese_count": 103,
+    "no_rss_web_count": 96,
+    "blind_source_ratio": 0.3196480938416422,
+    "unique_domains": 233,
+    "attested": false,
+    "floors_pass": false,
+    "failures": [
+      "attestation_pending"
+    ]
+  },
+  "g1": {
+    "eligible_feed_count": 80,
+    "feed_recall": 1.0,
+    "precision_at_3": 1.0,
+    "japanese_recall": 1.0,
+    "family_recall": {
+      "official_blog": 1.0,
+      "corp_tech_blog": 1.0,
+      "personal_dev_blog": 1.0,
+      "rss_atom_json": 1.0
+    },
+    "no_feed_fallback": 1.0,
+    "subscribe_e2e_fixture": true,
+    "undiscovered": [],
+    "pass": true,
+    "failures": []
+  },
+  "g2": {
+    "primary_recall_at_20": 0.9904761904761905,
+    "relevant_recall_at_50": 1.0,
+    "precision_at_20": 1.0,
+    "japanese_recall_at_50": 1.0,
+    "blog_recall_at_50": 1.0,
+    "no_rss_recall_at_50": 1.0,
+    "weak_primary_topics": [],
+    "topics": [
+      {
+        "topic_id": "android",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "angular",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "cloudflare",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "deno",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "flutter",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "go",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "java",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "kotlin",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "kubernetes",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "linux",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "llvm",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "neovim",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "nextjs",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "oss_security",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "postgresql",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "python",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "react",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "redis",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "ruby",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "rust",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "swift",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "typescript",
+        "primary_recall_at_20": 0.9285714285714286,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "vue",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      },
+      {
+        "topic_id": "webassembly",
+        "primary_recall_at_20": 1.0,
+        "relevant_recall_at_50": 1.0
+      }
+    ],
+    "pass": true,
+    "failures": []
+  },
+  "g3": {
+    "raw_entry_recall": 1.0,
+    "important_update_recall": 1.0,
+    "duplicate_item_rate": 0.0,
+    "rss_subset_coverage": 1.0,
+    "breadth_superiority_pp": 76.53958944281524,
+    "rss_only_universe_recall": 0.23460410557184752,
+    "bulletfeed_universe_recall": 1.0,
+    "live_oracle_unmeasured": true,
+    "pass": true,
+    "failures": []
+  },
+  "g4": {
+    "body_success": 1.0,
+    "important_body_recall": 1.0,
+    "boilerplate_fp": 0.0,
+    "article_split": 0.0,
+    "evidence_locator": true,
+    "sufficient_feed_skips_fetch": true,
+    "pass": true,
+    "failures": [],
+    "floors": {
+      "g1_feed_recall": 0.98,
+      "g1_family_recall": 0.95,
+      "g1_japanese_recall": 0.95,
+      "g1_precision_at_3": 0.95,
+      "g1_no_feed_fallback": 0.98,
+      "g2_primary_recall_at_20": 0.9,
+      "g2_relevant_recall_at_50": 0.85,
+      "g2_precision_at_20": 0.8,
+      "g2_japanese_recall_at_50": 0.85,
+      "g2_blog_recall_at_50": 0.85,
+      "g2_no_rss_recall_at_50": 0.75,
+      "g2_min_topic_primary_recall": 0.7,
+      "g3_raw_entry_recall": 0.995,
+      "g3_important_update_recall": 1.0,
+      "g3_duplicate_item_rate": 0.005,
+      "g3_family_regression_pp": 1.0,
+      "g3_rss_subset_coverage": 0.99,
+      "g3_breadth_superiority_pp": 10.0,
+      "g4_body_success": 0.97,
+      "g4_important_body_recall": 0.95,
+      "g4_update_recall": 0.95,
+      "g4_update_precision": 0.95,
+      "g4_boilerplate_fp": 0.01,
+      "g4_article_split": 0.005
+    }
+  },
+  "g5": {
+    "ssrf": {
+      "suite_version": "product-gap-c1-ssrf-v1",
+      "case_count": 106,
+      "rejected": 105,
+      "bypasses": [],
+      "pass": true
+    },
+    "identity": {
+      "redirect_same_source": true,
+      "discovery_never_evidence": true,
+      "robots_not_success": true
+    },
+    "pass": true,
+    "failures": []
+  },
+  "pass": false,
+  "g6": {
+    "policy": {
+      "min_consecutive_days": 7,
+      "min_live_sources": 100,
+      "min_japanese_sources": 30,
+      "min_families": 5,
+      "min_observed_updates": 200,
+      "acquisition_success": 0.99,
+      "important_recall": 0.98,
+      "silent_miss_max": 0,
+      "stale_as_healthy_max": 0,
+      "unclassified_max": 0
+    },
+    "consecutive_days": 1,
+    "source_count": 100,
+    "japanese_sources": 40,
+    "family_count": 5,
+    "observed_updates": 0,
+    "pass": false,
+    "failures": [
+      "min_consecutive_days",
+      "min_observed_updates"
+    ],
+    "status": "calendar_or_capacity_unmet"
+  },
+  "g7": {
+    "one_command": true,
+    "deterministic": true,
+    "pass": false
+  }
+}

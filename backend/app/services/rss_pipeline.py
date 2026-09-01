@@ -49,7 +49,8 @@ def ingest_feed_events(
             or retrieved_at
         )
         source_updated_at = canonical_timestamp(payload.get("updated")) or valid_at
-        detail = summary.strip() or title.strip()
+        article_text = payload.get("article_text") if isinstance(payload.get("article_text"), str) else ""
+        detail = article_text.strip() or summary.strip() or title.strip()
         lifecycle = resolve_feed_lifecycle(title, observation.original_url)
         claim = ledger.ingest(
             observation,
@@ -90,6 +91,17 @@ async def crawl_feed_events(
 ) -> RssIngestResult:
     record("fetch", source_type="rss_atom")
     preview = await preview_feed(settings, url)
+    items = preview.get("items")
+    if isinstance(items, list):
+        from app.services.rss_article_enrichment import enrich_feed_item
+
+        enriched = []
+        for item in items:
+            if isinstance(item, dict):
+                enriched.append(await enrich_feed_item(settings, item, retrieved_at=retrieved_at))
+            else:
+                enriched.append(item)
+        preview = {**preview, "items": enriched}
     result = ingest_feed_events(database, preview=preview, retrieved_at=retrieved_at)
     source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""
     if url != source_url:

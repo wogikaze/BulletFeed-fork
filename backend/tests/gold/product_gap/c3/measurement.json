@@ -1,0 +1,43 @@
+{
+  "hard_metrics": [
+    "unknown_but_hidden",
+    "false_merge_misses"
+  ],
+  "unknown_but_hidden": 0,
+  "decay": {
+    "policy_version": "knownness-decay-v1",
+    "stale_displayed_state": "unknown",
+    "fixture_clock_state": "probably_known",
+    "already_knew_state": "known",
+    "already_knew_does_not_decay": true,
+    "stale_implicit_unknown": true
+  },
+  "protocol": {
+    "dataset_version": "product-gap-c3-human-protocol-v1",
+    "issue": 318,
+    "min_people": 5,
+    "consent_required": true,
+    "questions": [
+      "Did you already know this before BulletFeed showed it?",
+      "Did you learn it from BulletFeed?",
+      "Do you still not understand it?"
+    ],
+    "states": [
+      "known",
+      "probably_known",
+      "unknown"
+    ],
+    "hard_failure_metrics": [
+      "unknown_but_hidden"
+    ],
+    "do_not": [
+      "Write human answers into factual Event/Claim/Delta tables",
+      "Tune production thresholds after reading this holdout"
+    ],
+    "status": "protocol_ready_awaiting_participants"
+  },
+  "pass": false,
+  "failures": [
+    "human_knownness_n_lt_5"
+  ]
+}

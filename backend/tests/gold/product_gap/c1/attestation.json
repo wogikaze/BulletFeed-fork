@@ -1,0 +1,7 @@
+{
+  "dataset_version": "product-gap-c1-g0-v1",
+  "status": "awaiting_operator_attestation",
+  "attested_by": null,
+  "attested_at": null,
+  "instruction": "Review sources.json. If the public-URL set is accepted as human-curated gold, set status=attested, attested_by to the operator login, and attested_at to an ISO-8601 timestamp. Do not attest after reading blind results."
+}

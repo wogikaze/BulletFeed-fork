@@ -62,7 +62,7 @@ def _public_item(item: SourceCandidate) -> SourceRecommendationItem:
 def list_my_source_recommendations(
     user: Annotated[dict, Depends(require_user)],
     database: Annotated[Database, Depends(get_database)],
-    limit: Annotated[int, Query(ge=1, le=40)] = 20,
+    limit: Annotated[int, Query(ge=1, le=80)] = 20,
     include_ignored: Annotated[bool, Query(alias="includeIgnored")] = False,
 ) -> SourceRecommendationList:
     result = list_source_recommendations_for_user(

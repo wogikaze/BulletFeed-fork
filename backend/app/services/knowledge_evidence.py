@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Final, Literal
 
 from app.db.knowledge_evidence_schema import KNOWLEDGE_EVIDENCE_TABLE
+from app.services.knownness_decay import evidence_is_active
 
 # MeStore.delete_account must delete this user-scoped table. Factual ledger
 # tables (events, deltas, state_claims, observations, claim_relations, ...)
@@ -221,12 +222,23 @@ def evidence_matches_target(row: KnowledgeEvidence, target: KnowledgeTarget) -> 
     return True
 
 
-def derive_knowledge_state(evidence: Sequence[KnowledgeEvidence]) -> DerivedKnowledge:
-    """Deterministic fold. Replay is this function over history ordered by time, id."""
+def derive_knowledge_state(
+    evidence: Sequence[KnowledgeEvidence],
+    *,
+    now: int | None = None,
+) -> DerivedKnowledge:
+    """Deterministic fold. Replay is this function over history ordered by time, id.
+
+    ``now`` applies knownness-decay-v1 to implicit evidence. Explicit
+    already_knew / baseline never decay. ``now=None`` keeps prior behavior
+    for fixtures that do not model time.
+    """
     rows = sorted(evidence, key=lambda row: (row.created_at, row.id))
     state: KnowledgeState = STATE_UNKNOWN
     confidence: ConfidenceLevel = CONFIDENCE_NONE
     for row in rows:
+        if not evidence_is_active(kind=row.kind, created_at=row.created_at, now=now):
+            continue
         if row.kind == KIND_DELIVERED:
             if state == STATE_UNKNOWN and confidence == CONFIDENCE_NONE:
                 confidence = CONFIDENCE_LOW
@@ -340,6 +352,7 @@ def replay_knowledge_state(
     event_id: str | None = None,
     delta_id: str | None = None,
     knowledge_id: str | None = None,
+    now: int | None = None,
 ) -> DerivedKnowledge:
     return derive_knowledge_state(
         list_knowledge_evidence(
@@ -349,7 +362,8 @@ def replay_knowledge_state(
             event_id=event_id,
             delta_id=delta_id,
             knowledge_id=knowledge_id,
-        )
+        ),
+        now=now,
     )
 
 

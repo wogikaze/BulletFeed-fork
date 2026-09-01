@@ -1,0 +1,28 @@
+{
+  "dataset_version": "product-gap-c2-persona-pairs-v1",
+  "label_source": "constructed",
+  "human_gold": false,
+  "pairs": [
+    {
+      "pair_id": "rust-vs-js",
+      "left_persona": "rust_compiler_contributor",
+      "right_persona": "web_frontend_engineer",
+      "left_topics": ["rust"],
+      "right_topics": ["react", "typescript"]
+    },
+    {
+      "pair_id": "backend-vs-security",
+      "left_persona": "python_backend_developer",
+      "right_persona": "security_conscious_oss_maintainer",
+      "left_topics": ["python"],
+      "right_topics": ["oss_security"]
+    },
+    {
+      "pair_id": "android-vs-llvm",
+      "left_persona": "android_app_developer",
+      "right_persona": "student_learning_compilers",
+      "left_topics": ["android", "kotlin"],
+      "right_topics": ["llvm"]
+    }
+  ]
+}

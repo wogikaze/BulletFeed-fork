@@ -293,12 +293,17 @@ def run_persona_journey(database: Database, persona: M1Persona) -> PersonaReport
     if tenant_leak:
         shared = {item.id for item in items} & {item.id for item in outsider_items}
         tenant_leak = bool(shared)
+    reason_missing = sum(1 for item in items if item.display_reason is None)
     stages.append(
         StageResult(
             "feed",
-            not unexpected_empty,
+            not unexpected_empty and reason_missing == 0,
             persona.expect_empty_reason or "feed listed",
-            {"surfaced": len(items), "outsider_surfaced": len(outsider_items)},
+            {
+                "surfaced": len(items),
+                "outsider_surfaced": len(outsider_items),
+                "display_reason_missing": reason_missing,
+            },
         )
     )
 
@@ -462,6 +467,9 @@ def run_qualification(
         "broken_evidence": sum(1 for report in reports if report.broken_evidence),
         "tenant_leak": sum(1 for report in reports if report.tenant_leak),
         "unsafe_suppression": sum(1 for report in reports if report.unsafe_suppression),
+        "display_reason_missing": sum(
+            stage_metric(report, "feed", "display_reason_missing") for report in reports
+        ),
         "stage_failure_counts": stage_failure_counts,
         "metrics": {
             **summarize(reports),

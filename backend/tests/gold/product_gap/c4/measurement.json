@@ -1,0 +1,14 @@
+{
+  "fixture_reason_missing": 0,
+  "persona_reason_missing": null,
+  "human_gold": false,
+  "label_status": "schema_ready_awaiting_labels",
+  "pass": false,
+  "failures": [
+    "human_relation_labels_missing"
+  ],
+  "m1": {
+    "display_reason_missing": null,
+    "persona_count": null
+  }
+}

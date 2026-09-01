@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 import pytest
 from fastapi import HTTPException
@@ -86,6 +87,9 @@ class _ScriptedClient:
                 chunks=[b""],
             )
         if not items:
+            path = urlparse(url).path.lower()
+            if any(token in path for token in ("feed", "rss", "atom", "index.xml", "news.xml")):
+                return _FakeResponse(status_code=404, headers={"content-type": "text/plain"}, chunks=[b""])
             raise AssertionError(f"unexpected request {method} {url}")
         item = items[0] if len(items) == 1 else items.pop(0)
         if isinstance(item, Exception):

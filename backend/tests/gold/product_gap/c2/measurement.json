@@ -1,0 +1,112 @@
+{
+  "dataset_version": "product-gap-c2-persona-pairs-v1",
+  "label_source": "constructed",
+  "human_gold": false,
+  "pairs": [
+    {
+      "pair_id": "rust-vs-js",
+      "kendall_distance": 0.4,
+      "insufficient": false,
+      "left_order": [
+        "rust-sec",
+        "old-rust-known",
+        "llvm-adj",
+        "js-noise",
+        "rust-dup"
+      ],
+      "right_order": [
+        "js-noise",
+        "rust-sec",
+        "llvm-adj",
+        "old-rust-known",
+        "rust-dup"
+      ]
+    },
+    {
+      "pair_id": "backend-vs-security",
+      "kendall_distance": 0.0,
+      "insufficient": true,
+      "left_order": [
+        "rust-sec",
+        "llvm-adj",
+        "js-noise",
+        "old-rust-known",
+        "rust-dup"
+      ],
+      "right_order": [
+        "rust-sec",
+        "llvm-adj",
+        "js-noise",
+        "old-rust-known",
+        "rust-dup"
+      ]
+    },
+    {
+      "pair_id": "android-vs-llvm",
+      "kendall_distance": 0.1,
+      "insufficient": true,
+      "left_order": [
+        "rust-sec",
+        "llvm-adj",
+        "js-noise",
+        "old-rust-known",
+        "rust-dup"
+      ],
+      "right_order": [
+        "llvm-adj",
+        "rust-sec",
+        "js-noise",
+        "old-rust-known",
+        "rust-dup"
+      ]
+    }
+  ],
+  "adjacent": [
+    {
+      "case_id": "rust-to-llvm",
+      "predicted": "adjacent",
+      "expected": "adjacent",
+      "hit": true,
+      "useful": true,
+      "label_source": "constructed"
+    },
+    {
+      "case_id": "react-to-typescript",
+      "predicted": "adjacent",
+      "expected": "adjacent",
+      "hit": true,
+      "useful": true,
+      "label_source": "constructed"
+    },
+    {
+      "case_id": "python-to-oss-security",
+      "predicted": "adjacent",
+      "expected": "adjacent",
+      "hit": true,
+      "useful": true,
+      "label_source": "constructed"
+    },
+    {
+      "case_id": "android-to-kotlin",
+      "predicted": "adjacent",
+      "expected": "adjacent",
+      "hit": true,
+      "useful": true,
+      "label_source": "constructed"
+    },
+    {
+      "case_id": "unrelated-redis-to-swift",
+      "predicted": "reference",
+      "expected": "reference",
+      "hit": true,
+      "useful": false,
+      "label_source": "constructed"
+    }
+  ],
+  "adjacent_precision": 1.0,
+  "pass": false,
+  "failures": [
+    "persona_order_insufficient",
+    "human_adjacent_sample_missing"
+  ]
+}
