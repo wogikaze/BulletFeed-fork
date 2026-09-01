@@ -223,7 +223,7 @@ private fun TimelineEntryCard(entry: EventTimelineEntry) =
     }
 
 @Composable
-private fun EventSourceCard(source: EventSource) {
+internal fun EventSourceCard(source: EventSource) {
     val uriHandler = LocalUriHandler.current
     Card(
         modifier = Modifier.padding(vertical = 6.dp).fillMaxWidth(),
