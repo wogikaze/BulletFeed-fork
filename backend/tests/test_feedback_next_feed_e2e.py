@@ -301,9 +301,20 @@ def test_enough_important_feedback_lifts_held_out_siblings_on_next_feed(
         )
         assert response.status_code == 200
 
-    after = _feed_ids(client, auth_headers)
+    after_body = client.get("/v1/feed", headers=auth_headers, params={"limit": 50})
+    assert after_body.status_code == 200
+    after_items = {item["id"]: item for item in after_body.json()["items"]}
+    after = [item["id"] for item in after_body.json()["items"]]
     assert after.index("nfeed_held_release") < after.index("nfeed_held_rss")
     assert set(before) == set(after)
+    boosted_reason = after_items["nfeed_held_release"]["displayReason"]
+    untouched_reason = after_items["nfeed_held_rss"]["displayReason"]
+    assert "personalization.feedback_boost" in boosted_reason["codes"]
+    assert "重要マーク" in boosted_reason["text"]
+    assert PERSONALIZATION_VERSION not in boosted_reason["text"]
+    assert "personalization.feedback_boost" not in boosted_reason["text"]
+    assert "personalization.feedback_boost" not in untouched_reason["codes"]
+    assert "重要マーク" not in untouched_reason["text"]
 
     with database.connect() as connection:
         assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
