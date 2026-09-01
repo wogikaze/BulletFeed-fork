@@ -1,3 +1,5 @@
 # Preserve captured validation artifact bytes and their SHA-256 hashes across
 # Windows and Linux checkouts.
 backend/tests/gold/real_world_validation/v01/artifacts/**/*.bin -text
+backend/tests/gold/product_gap/c1/v2/*.json text eol=lf
+backend/tests/gold/product_gap/c1/v2/measurements/*.json text eol=lf

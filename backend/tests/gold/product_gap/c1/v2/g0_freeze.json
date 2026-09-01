@@ -106,5 +106,6 @@
     "blind_source_ratio": 0.31378299120234604,
     "unique_domains": 186,
     "policy_blocked_count": 8
-  }
+  },
+  "sources_sha256": "bee48367111dc586ceca0aaf1ed5f76c19b96f215830c7084fb63b06739f0467"
 }

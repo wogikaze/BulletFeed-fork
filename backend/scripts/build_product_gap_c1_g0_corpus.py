@@ -930,7 +930,10 @@ def write_g0_dataset(
         "summary": summary,
     }
     out.mkdir(parents=True, exist_ok=True)
-    (out / "sources.json").write_text(json.dumps(rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    sources_rendered = json.dumps(rows, ensure_ascii=False, indent=2) + "\n"
+    sources_path = out / "sources.json"
+    sources_path.write_text(sources_rendered, encoding="utf-8", newline="")
+    freeze["sources_sha256"] = hashlib.sha256(sources_path.read_bytes()).hexdigest()
     (out / "g0_freeze.json").write_text(
         json.dumps(freeze, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )

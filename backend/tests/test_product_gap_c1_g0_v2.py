@@ -12,6 +12,7 @@ def test_g0_v2_is_public_coverage_not_ssrf_padding() -> None:
     report = evaluate_g0(GOLD_V2)
     assert report.dataset_version == "product-gap-c1-g0-v2"
     assert report.attested is False
+    assert "sources_hash_mismatch" not in report.failures
     assert report.source_count >= 300
     assert report.japanese_count >= 100
     assert report.no_rss_web_count >= 60

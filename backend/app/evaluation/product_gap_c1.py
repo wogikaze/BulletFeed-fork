@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter
 from dataclasses import dataclass
@@ -90,6 +91,7 @@ def evaluate_g0(gold_dir: Path) -> G0Report:
     sources = load_g0_sources(gold_dir / "sources.json")
     attestation = load_attestation(gold_dir / "attestation.json")
     freeze = json.loads((gold_dir / "g0_freeze.json").read_text(encoding="utf-8"))
+    sources_path = gold_dir / "sources.json"
     eligible = [row for row in sources if row.policy_status == "eligible" and row.relevance == "relevant"]
     families = Counter(row.family for row in eligible)
     for row in eligible:
@@ -104,6 +106,10 @@ def evaluate_g0(gold_dir: Path) -> G0Report:
     policy_blocked = sum(1 for row in sources if row.policy_status == "policy_blocked")
     floors = freeze["floors"]
     failures: list[str] = []
+    expected_sources_hash = freeze.get("sources_sha256")
+    actual_sources_hash = hashlib.sha256(sources_path.read_bytes()).hexdigest()
+    if expected_sources_hash != actual_sources_hash:
+        failures.append("sources_hash_mismatch")
     if len(eligible) < floors["min_sources"]:
         failures.append("min_sources")
     if len(topics) < floors["min_topics"]:
