@@ -97,6 +97,49 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
+    fun `known user still receives a correction card on the next live feed`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val userId = sessionManager.userId
+            assertNotNull(userId)
+
+            val original = seedStatuspage(baseUrl, userId!!)
+            assertTrue(original.eventIds.isNotEmpty())
+            val before = repository.getFeedPage(limit = 50)
+            val known = before.items.firstOrNull { it.eventId in original.eventIds }
+            assertNotNull("statuspage seed must appear on GET /feed", known)
+            repository.recordExposures(
+                listOf(
+                    FeedExposure(
+                        deliveryId = known!!.deliveryId,
+                        displayedAt = "2026-08-22T00:12:00Z",
+                        dwellMs = 1_500,
+                        visibleRatio = 0.8f,
+                    ),
+                ),
+            )
+            repository.sendFeedFeedback(known.id, FeedFeedbackType.ALREADY_KNEW)
+
+            val seeded = seedCorrection(baseUrl, userId)
+            assertTrue(seeded.correctionDeltaCount >= 1)
+            assertEquals(original.eventIds.toSet(), seeded.eventIds.toSet())
+
+            val after = repository.getFeedPage(limit = 50)
+            assertTrue(
+                "correction must cross ordinary knownness: ${after.items.map { "${it.eventId}:${it.delta.type}" }}",
+                after.items.any {
+                    it.eventId in seeded.eventIds && it.delta.type == DeltaType.CORRECTION
+                },
+            )
+        }
+
+    @Test
     fun `enough important feedback lifts held-out siblings on the next feed page`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
@@ -774,6 +817,18 @@ class RealBackendAcceptanceTest {
         return executeJson(request, AcceptanceSeedResponse.serializer())
     }
 
+    private fun seedCorrection(
+        baseUrl: String,
+        userId: String,
+    ): CorrectionSeedResponse {
+        val body = json.encodeToString(AcceptanceSeedRequest.serializer(), AcceptanceSeedRequest(userId))
+        val request = Request.Builder()
+            .url(baseUrl.trimEnd('/') + "/__acceptance__/seed-correction")
+            .post(body.toRequestBody(JSON_MEDIA))
+            .build()
+        return executeJson(request, CorrectionSeedResponse.serializer())
+    }
+
     private fun seedFeedbackRanking(
         baseUrl: String,
         userId: String,
@@ -877,6 +932,13 @@ class RealBackendAcceptanceTest {
     private data class AcceptanceSeedResponse(
         val eventIds: List<String>,
         val projectedItemCount: Int,
+    )
+
+    @Serializable
+    private data class CorrectionSeedResponse(
+        val eventIds: List<String>,
+        val projectedItemCount: Int,
+        val correctionDeltaCount: Int,
     )
 
     @Serializable

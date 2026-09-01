@@ -31,6 +31,12 @@ class SeedResponse(ApiModel):
     projected_item_count: int
 
 
+class CorrectionSeedResponse(ApiModel):
+    event_ids: list[str]
+    projected_item_count: int
+    correction_delta_count: int
+
+
 class FeedbackRankingSeedResponse(ApiModel):
     train_item_ids: list[str]
     held_release_item_id: str
@@ -83,6 +89,33 @@ def _statuspage_summary() -> dict:
     }
 
 
+def _statuspage_correction_summary() -> dict:
+    return {
+        "incidents": [
+            {
+                "id": "inc_android_acceptance",
+                "name": "API latency",
+                "impact": "major",
+                "created_at": "2026-08-22T00:00:00Z",
+                "shortlink": "https://stspg.io/inc_android_acceptance",
+                "incident_updates": [
+                    {
+                        "id": "upd_android_acceptance_correction",
+                        "status": "identified",
+                        "body": (
+                            "Correction: the previous update was incorrect. "
+                            "Requests from Europe are affected."
+                        ),
+                        "created_at": "2026-08-22T00:20:00Z",
+                        "updated_at": "2026-08-22T00:20:00Z",
+                        "display_at": "2026-08-22T00:20:00Z",
+                    }
+                ],
+            }
+        ]
+    }
+
+
 def _require_user(database: Database, user_id: str) -> None:
     with database.connect() as connection:
         row = connection.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
@@ -107,6 +140,41 @@ def seed_statuspage(
         LedgerProjector(database).project_event(event_id)
         projected += len(projector.project_event_for_user(user_id=body.user_id, event_id=event_id))
     return SeedResponse(event_ids=list(result.event_ids), projected_item_count=projected)
+
+
+@router.post("/__acceptance__/seed-correction", response_model=CorrectionSeedResponse)
+def seed_correction(
+    body: SeedRequest,
+    database: Annotated[Database, Depends(get_database)],
+) -> CorrectionSeedResponse:
+    _require_user(database, body.user_id)
+    result = StatuspagePipeline(database).ingest_summary(
+        page_id="abcd1234",
+        summary=_statuspage_correction_summary(),
+        retrieved_at="2026-08-22T00:21:00Z",
+    )
+    projector = FeedProjector(database)
+    projected = 0
+    for event_id in result.event_ids:
+        LedgerProjector(database).project_event(event_id)
+        projected += len(projector.project_event_for_user(user_id=body.user_id, event_id=event_id))
+    correction_delta_count = 0
+    with database.connect() as connection:
+        for event_id in result.event_ids:
+            row = connection.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM deltas
+                WHERE event_id = ? AND type = 'correction' AND active = 1
+                """,
+                (event_id,),
+            ).fetchone()
+            correction_delta_count += int(row["count"]) if row is not None else 0
+    return CorrectionSeedResponse(
+        event_ids=list(result.event_ids),
+        projected_item_count=projected,
+        correction_delta_count=correction_delta_count,
+    )
 
 
 @router.get("/__acceptance__/claim-exposures", response_model=ExposureCountResponse)
