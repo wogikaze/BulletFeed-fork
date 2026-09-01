@@ -6,11 +6,12 @@ Blind rows are scored but never used to change thresholds.
 
 from __future__ import annotations
 
+import html
 import json
+import re
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
-from xml.etree import ElementTree
 
 import feedparser
 
@@ -24,6 +25,9 @@ from app.services.web_snapshots import RobotsDecision
 
 GOLD_C1 = Path(__file__).resolve().parents[2] / "tests" / "gold" / "product_gap" / "c1"
 FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
+_ITEM_RE = re.compile(r"<item\b[^>]*>(.*?)</item>", re.IGNORECASE | re.DOTALL)
+_TITLE_RE = re.compile(r"<title\b[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+_LINK_RE = re.compile(r"<link\b[^>]*>(.*?)</link>", re.IGNORECASE | re.DOTALL)
 
 
 def _canonical(url: str) -> str:
@@ -216,12 +220,22 @@ def evaluate_g2(sources: list[G0Source], *, floors: dict[str, float]) -> dict[st
     return {**metrics, "topics": topic_rows, "pass": not failures, "failures": failures}
 
 
+def _fixture_field(item_xml: str, pattern: re.Pattern[str]) -> str:
+    match = pattern.search(item_xml)
+    if match is None:
+        return ""
+    return html.unescape(match.group(1)).strip()
+
+
 def _oracle_entries(xml_bytes: bytes) -> list[dict[str, str]]:
-    root = ElementTree.fromstring(xml_bytes)
+    # This is deliberately a tiny parser for a repository-controlled RSS fixture.
+    # Production/untrusted XML remains on the hardened ingestion path; keeping the
+    # oracle independent from feedparser avoids comparing the parser with itself.
+    text = xml_bytes.decode("utf-8")
     items = []
-    for item in root.findall("./channel/item"):
-        title = (item.findtext("title") or "").strip()
-        link = (item.findtext("link") or "").strip()
+    for item_xml in _ITEM_RE.findall(text):
+        title = _fixture_field(item_xml, _TITLE_RE)
+        link = _fixture_field(item_xml, _LINK_RE)
         if title and link:
             items.append({"title": title, "link": link})
     return items
@@ -278,7 +292,7 @@ def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
 
 
 def evaluate_g4(*, fixtures: Path, floors: dict[str, float]) -> dict[str, Any]:
-    html = (fixtures / "rss" / "article_with_boilerplate.html").read_bytes()
+    article_html = (fixtures / "rss" / "article_with_boilerplate.html").read_bytes()
     robots = RobotsDecision(
         source_url="https://blog.example.com/compiler-change",
         robots_url=None,
@@ -288,7 +302,7 @@ def evaluate_g4(*, fixtures: Path, floors: dict[str, float]) -> dict[str, Any]:
     )
     enrichment = enrich_html_bytes(
         url="https://blog.example.com/compiler-change",
-        body=html,
+        body=article_html,
         robots=robots,
         retrieved_at="2026-08-01T00:00:00Z",
     )
