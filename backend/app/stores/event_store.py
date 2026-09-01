@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+import time
 
 from fastapi import HTTPException, status
 
@@ -54,7 +55,12 @@ def _fact_texts(detail: str, value: str) -> tuple[str, ...]:
 
 
 def _claim_is_explicitly_known(connection: sqlite3.Connection, *, user_id: str, claim_id: str) -> bool:
-    derived = replay_knowledge_state(connection, user_id=user_id, claim_id=claim_id)
+    derived = replay_knowledge_state(
+        connection,
+        user_id=user_id,
+        claim_id=claim_id,
+        now=int(time.time()),
+    )
     return derived.state == STATE_KNOWN and derived.confidence == CONFIDENCE_HIGH
 
 
