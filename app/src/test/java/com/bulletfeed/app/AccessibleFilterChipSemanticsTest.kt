@@ -328,6 +328,7 @@ class AccessibleFilterChipSemanticsTest {
 
         composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("github-repo-search-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-save-repositories-top-button").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("github-load-more-button").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("github-save-repositories-button").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("github-disconnect-button").performScrollTo().assertHeightIsAtLeast(48.dp)

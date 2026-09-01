@@ -45,6 +45,7 @@ fun FeedScreen(
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
+    hasFollowedTopics: Boolean = false,
     modifier: Modifier = Modifier,
 ) = Box(modifier = modifier.fillMaxSize()) {
     FeedScreen(
@@ -66,6 +67,7 @@ fun FeedScreen(
         onVisibleFeedItems = onVisibleFeedItems,
         onTopicsClick = onTopicsClick,
         onGithubClick = onGithubClick,
+        hasFollowedTopics = hasFollowedTopics,
         modifier = Modifier.fillMaxSize(),
     )
     Box(Modifier.align(Alignment.TopEnd).padding(top = 68.dp, end = 20.dp)) {

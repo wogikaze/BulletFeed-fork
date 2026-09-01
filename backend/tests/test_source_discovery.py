@@ -356,12 +356,20 @@ def test_api_lists_and_decides_without_subscribing(
         json={"name": "React", "type": "technology"},
     )
     assert created.status_code == 201
+    follow_subs = _count(database, "source_sync_subscriptions")
+    follow_jobs = _count(database, "source_sync_jobs")
+    assert follow_subs >= 1
+    assert follow_jobs >= 1
     listed = client.get("/v1/me/source-recommendations", headers=auth_headers)
     assert listed.status_code == 200
     body = listed.json()
     assert body["version"] == SOURCE_DISCOVERY_VERSION
     assert body["items"]
-    first = body["items"][0]
+    first = next(
+        item
+        for item in body["items"]
+        if item["family"] not in {"rss_atom", "json_feed", "generic_web", "statuspage"}
+    )
     assert first["evidenceEligible"] is False
     assert first["reason"]
     assert first["explanation"]
@@ -376,8 +384,8 @@ def test_api_lists_and_decides_without_subscribing(
     assert decided.status_code == 200
     assert decided.json()["recommendationStatus"] == "approved"
     assert decided.json()["evidenceEligible"] is False
-    assert _count(database, "source_sync_subscriptions") == 0
-    assert _count(database, "source_sync_jobs") == 0
+    assert _count(database, "source_sync_subscriptions") == follow_subs
+    assert _count(database, "source_sync_jobs") == follow_jobs
     assert client.get("/v1/me/source-recommendations").status_code == 401
     missing = client.post(
         "/v1/me/source-recommendations/ep_does_not_exist",

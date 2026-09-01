@@ -154,6 +154,95 @@ def ensure_source_sync_job(
         )
 
 
+def subscribe_official_feeds_for_followed_topic(
+    database: Database,
+    *,
+    user_id: str,
+    topic_name: str,
+    now: int | None = None,
+) -> int:
+    """Attach curated official RSS/JSON feeds when the user follows a topic.
+
+    This is a user-initiated follow side-effect, not discovery-as-evidence.
+    URLs come from code-reviewed seeds; the sync worker still SSRF-checks fetches.
+    """
+    from app.services.source_discovery_seeds import official_subscribe_seeds_for_topic
+
+    seeds = official_subscribe_seeds_for_topic(topic_name)
+    if not seeds:
+        return 0
+    registry = SourceRegistry(database)
+    attached = 0
+    followed_at = int(time.time()) if now is None else now
+    for seed in seeds:
+        try:
+            canonical = canonicalize_url(seed.url)
+        except ValueError:
+            continue
+        duplicate = registry.find_duplicate_endpoint(canonical, family=seed.family)
+        endpoint = duplicate or registry.register_endpoint(url=canonical, family=seed.family)
+        source_type = seed.family.value
+        source_key = endpoint.canonical_url
+        already = _user_has_subscription(
+            database,
+            user_id=user_id,
+            source_type=source_type,
+            source_key=source_key,
+        )
+        add_subscription_user(
+            database,
+            source_type=source_type,
+            source_key=source_key,
+            user_id=user_id,
+        )
+        if not already:
+            with database.connect() as connection:
+                record_follow_baseline(
+                    connection,
+                    user_id=user_id,
+                    subject_kind=SUBJECT_SOURCE,
+                    subject_id=f"{source_type}:{source_key}",
+                    catch_up=False,
+                    followed_at=followed_at,
+                    source_type=source_type,
+                    source_key=source_key,
+                )
+            attached += 1
+        ensure_source_sync_job(
+            database,
+            source_type=source_type,
+            source_key=source_key,
+            now=now,
+        )
+    return attached
+
+
+def ensure_official_feeds_for_user(
+    database: Database,
+    *,
+    user_id: str,
+    now: int | None = None,
+) -> int:
+    """Idempotently attach curated feeds for topics the user already follows."""
+    with database.connect() as connection:
+        names = [
+            str(row["name"])
+            for row in connection.execute(
+                "SELECT name FROM topics WHERE user_id = ? ORDER BY sort_order ASC, created_at ASC",
+                (user_id,),
+            ).fetchall()
+        ]
+    attached = 0
+    for name in names:
+        attached += subscribe_official_feeds_for_followed_topic(
+            database,
+            user_id=user_id,
+            topic_name=name,
+            now=now,
+        )
+    return attached
+
+
 def add_user_source_subscription(
     database: Database,
     settings: Settings,
@@ -363,7 +452,10 @@ def resolve_user_source_identity(
         endpoint = duplicate or registry.register_endpoint(url=canonical, family=family)
         return kind, endpoint.canonical_url, endpoint.canonical_url, None
     if not settings.rss_hosts:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="RSS fetching is disabled")
+        from app.services.source_discovery_seeds import is_curated_subscribe_feed_url
+
+        if not is_curated_subscribe_feed_url(url.strip()):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="RSS fetching is disabled")
     validated = validate_feed_url(url.strip(), settings.rss_hosts)
     try:
         canonical = canonicalize_url(validated)

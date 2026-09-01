@@ -409,6 +409,20 @@ class RemoteIntegrationRepository(
     override suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubTopicSyncResult =
         api.updateGithubRepositories(GithubRepositoryUpdateDto(repositoryIds.distinct())).toDomain()
 
+    override suspend fun updateGithubRepositorySelection(
+        addRepositoryIds: List<String>,
+        removeRepositoryIds: List<String>,
+    ): GithubTopicSyncResult =
+        api.patchGithubRepositories(
+            GithubRepositorySelectionPatchDto(
+                addRepositoryIds = addRepositoryIds.distinct(),
+                removeRepositoryIds = removeRepositoryIds.distinct(),
+            ),
+        ).toDomain()
+
+    override suspend fun getGithubTopicSyncStatus(): GithubTopicSyncStatus =
+        api.getGithubTopicSyncStatus().toDomain()
+
     override suspend fun importFromPublicRepo(fullName: String): GithubTopicSyncResult =
         api.importRepositoryKeywords(GithubRepoImportDto(fullName)).toSyncResult()
 

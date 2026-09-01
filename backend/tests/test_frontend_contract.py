@@ -84,7 +84,8 @@ async def test_github_callback_rotates_user_session_without_losing_user(
         state_value=state,
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 303
+    assert response.headers["location"] == "bulletfeed://oauth/github"
     status_result = database.get_oauth_status("bound-flow", poll_token, cipher)
     assert status_result is not None
     rotated_access_token = status_result["app_access_token"]

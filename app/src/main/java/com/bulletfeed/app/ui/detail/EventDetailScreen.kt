@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
@@ -32,12 +34,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -93,6 +100,8 @@ fun EventDetailScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(event.summary, style = MaterialTheme.typography.bodyLarge, color = Color(0xFF49454F), lineHeight = 24.sp)
                     Spacer(Modifier.height(18.dp))
+                    UnknownFactsCard(event.unknownFacts)
+                    Spacer(Modifier.height(20.dp))
                     CurrentStateCard(event.currentState)
                     Spacer(Modifier.height(12.dp))
                     KnowledgeBootstrapCard(
@@ -102,12 +111,7 @@ fun EventDetailScreen(
                         onMarkCurrentStateKnown = onMarkCurrentStateKnown,
                     )
                     Spacer(Modifier.height(20.dp))
-                    SectionHeading(
-                        "Delta",
-                        modifier = Modifier.padding(bottom = 8.dp),
-                        tag = "event-detail-delta-heading",
-                    )
-                    DeltaCard(event.openedDelta ?: event.latestDelta)
+                    DeltaAccordion(event.openedDelta ?: event.latestDelta)
                     event.impacts.forEach { impact ->
                         Spacer(Modifier.height(10.dp))
                         ImpactCard(impact)
@@ -149,6 +153,68 @@ private fun FeedContextHeader(event: FeedEvent) {
             StatusPill(event.relation.label, event.relation.color, pale = true)
         }
         FeedDisplayReasonLine(event.displayReason, modifier = Modifier.padding(top = 8.dp))
+    }
+}
+
+@Composable
+internal fun UnknownFactsCard(facts: List<UnknownFact>) {
+    SectionHeading(
+        if (facts.isEmpty()) "まだ知らない事実" else "まだ知らない事実（${facts.size}）",
+        modifier = Modifier.padding(bottom = 8.dp),
+        tag = "event-detail-unknown-facts-heading",
+    )
+    if (facts.isEmpty()) {
+        EmptyDetailSection("この出来事について、まだ知らない事実はありません。")
+        return
+    }
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            facts.forEach { fact ->
+                Row(Modifier.padding(vertical = 6.dp).fillMaxWidth()) {
+                    Text("・", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                    Text(
+                        fact.text,
+                        modifier = Modifier.padding(start = 6.dp).testTag("event-detail-unknown-fact"),
+                        style = MaterialTheme.typography.bodyLarge,
+                        lineHeight = 24.sp,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun DeltaAccordion(delta: FeedDelta) {
+    var expanded by remember { mutableStateOf(false) }
+    Column {
+        SectionHeading(
+            "世界側の変化",
+            modifier = Modifier.padding(bottom = 4.dp),
+            tag = "event-detail-delta-heading",
+        )
+        AccessibleOutlinedButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth().testTag("event-detail-delta-toggle"),
+        ) {
+            Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Text(
+                if (expanded) "前後の差分を閉じる" else "前後の差分を表示",
+                modifier = Modifier.padding(start = 5.dp),
+            )
+        }
+        if (expanded) {
+            Spacer(Modifier.height(8.dp))
+            DeltaCard(delta)
+        }
     }
 }
 
@@ -333,53 +399,99 @@ internal fun EventActionBar(
     onFeedback: (Feedback) -> Unit,
     onFollow: () -> Unit,
     onDismiss: () -> Unit,
-) = Surface(tonalElevation = 4.dp, shadowElevation = 8.dp, color = Color.White) {
-    Column(
-        modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+    selectedKnowledge: Feedback? = null,
+) {
+    var knowledgeSelection by remember(selectedKnowledge) { mutableStateOf(selectedKnowledge) }
+    Surface(tonalElevation = 4.dp, shadowElevation = 8.dp, color = Color.White) {
+        Column(
+            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (hasFeedContext) {
-                AccessibleTextButton(onClick = onDismiss) {
-                    Text("不要", color = Color(0xFF655F69))
-                }
-            }
-            AccessibleOutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) {
-                Icon(
-                    imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Text(if (following) "フォロー中" else "フォロー", modifier = Modifier.padding(start = 5.dp))
-            }
-            if (hasFeedContext) {
-                AccessiblePrimaryButton(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.StarBorder, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text("重要", modifier = Modifier.padding(start = 5.dp))
-                }
-            }
-        }
-        if (hasFeedContext) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                AccessibleOutlinedButton(
-                    onClick = { onFeedback(Feedback.ALREADY_KNEW) },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("知っていた")
+                if (hasFeedContext) {
+                    AccessibleTextButton(onClick = onDismiss) {
+                        Text("不要", color = Color(0xFF655F69))
+                    }
                 }
-                AccessibleOutlinedButton(
-                    onClick = { onFeedback(Feedback.LEARNED_NOW) },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("今知った")
+                AccessibleOutlinedButton(onClick = onFollow, modifier = Modifier.weight(1f)) {
+                    Icon(
+                        imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(if (following) "フォロー中" else "フォロー", modifier = Modifier.padding(start = 5.dp))
+                }
+                if (hasFeedContext) {
+                    AccessiblePrimaryButton(onClick = { onFeedback(Feedback.IMPORTANT) }, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Default.StarBorder, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text("重要", modifier = Modifier.padding(start = 5.dp))
+                    }
                 }
             }
+            if (hasFeedContext) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    KnowledgeChoiceButton(
+                        label = "知っていた",
+                        selected = knowledgeSelection == Feedback.ALREADY_KNEW,
+                        modifier = Modifier.weight(1f).testTag("event-detail-already-knew"),
+                        onClick = {
+                            knowledgeSelection = Feedback.ALREADY_KNEW
+                            onFeedback(Feedback.ALREADY_KNEW)
+                        },
+                    )
+                    KnowledgeChoiceButton(
+                        label = "今知った",
+                        selected = knowledgeSelection == Feedback.LEARNED_NOW,
+                        modifier = Modifier.weight(1f).testTag("event-detail-learned-now"),
+                        onClick = {
+                            knowledgeSelection = Feedback.LEARNED_NOW
+                            onFeedback(Feedback.LEARNED_NOW)
+                        },
+                    )
+                }
+                knowledgeSelection?.let { recorded ->
+                    Text(
+                        if (recorded == Feedback.ALREADY_KNEW) {
+                            "「知っていた」を記録しました"
+                        } else {
+                            "「今知った」を記録しました"
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("event-detail-knowledge-recorded")
+                            .semantics { liveRegion = LiveRegionMode.Polite },
+                        color = Color(0xFF006A67),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun KnowledgeChoiceButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val choiceModifier = modifier.semantics { this.selected = selected }
+    if (selected) {
+        AccessiblePrimaryButton(onClick = onClick, modifier = choiceModifier) {
+            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(label, modifier = Modifier.padding(start = 5.dp), fontWeight = FontWeight.Bold)
+        }
+    } else {
+        AccessibleOutlinedButton(onClick = onClick, modifier = choiceModifier) {
+            Text(label)
         }
     }
 }

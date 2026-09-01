@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import base64
 import binascii
+import json
+import secrets
 import time
+from dataclasses import dataclass
 
 from fastapi import HTTPException, status
 
@@ -14,6 +17,7 @@ from app.schemas.integrations import (
     GithubImportResult,
     GithubRepository,
     GithubRepositoryPage,
+    GithubTopicSyncStatus,
     NotificationItem,
     NotificationTarget,
     SecurityAlert,
@@ -26,6 +30,14 @@ from app.services.event_access import revoke_repository_access
 from app.stores.me_store import MeStore
 
 _ALERT_STATUSES = {"open", "in_progress", "resolved", "not_affected"}
+
+
+@dataclass(frozen=True)
+class GithubTopicSyncJob:
+    user_id: str
+    generation: int
+    attempt_count: int
+    lease_token: str
 
 
 def _encode_cursor(updated_at: str, repository_id: str) -> str:
@@ -254,6 +266,302 @@ class IntegrationStore:
             )
         return self.github_connection(user_id)
 
+    async def patch_repositories(
+        self,
+        user_id: str,
+        add_repository_ids: list[str],
+        remove_repository_ids: list[str],
+        settings: Settings,
+    ) -> GithubConnection:
+        """Apply only the changed repository selections.
+
+        The old full replacement endpoint remains available for compatibility,
+        but the mobile client uses this delta endpoint so saving does not first
+        re-fetch every repository in the user's GitHub account.
+        """
+        additions = set(add_repository_ids)
+        removals = set(remove_repository_ids)
+        if additions & removals:
+            raise unprocessable("a repository cannot be added and removed together")
+        if any(
+            not repository_id
+            or any(not (character.isalnum() or character in "-_") for character in repository_id)
+            for repository_id in additions | removals
+        ):
+            raise unprocessable("repository id is invalid")
+
+        github_token = self._get_github_token(user_id, required=True)
+        with self._database.connect() as connection:
+            existing_rows = connection.execute(
+                """
+                SELECT repository_id, full_name
+                FROM github_repo_watches
+                WHERE user_id = ? AND selected = 1
+                """,
+                (user_id,),
+            ).fetchall()
+            user_row = connection.execute(
+                "SELECT onboarding_state FROM users WHERE id = ?",
+                (user_id,),
+            ).fetchone()
+        existing_ids = {row["repository_id"] for row in existing_rows}
+        new_ids = (existing_ids - removals) | additions
+        if user_row is not None and user_row["onboarding_state"] == "repository_pending" and not new_ids:
+            raise unprocessable("select at least one GitHub repository to finish setup")
+
+        known: dict[str, dict[str, object]] = {}
+        for repository_id in additions - existing_ids:
+            try:
+                repo = await github.get_repository_by_id(settings, repository_id, github_token)
+            except HTTPException as exc:
+                if exc.status_code == status.HTTP_403_FORBIDDEN:
+                    self._mark_reauthorization_required(user_id)
+                raise
+            if repo is None:
+                raise unprocessable("unknown repository id")
+            known[repository_id] = repo
+
+        old_names = {
+            row["full_name"] for row in existing_rows if row["repository_id"] in removals
+        }
+        with self._database.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            for repository_id in removals:
+                connection.execute(
+                    "DELETE FROM github_repo_watches WHERE user_id = ? AND repository_id = ?",
+                    (user_id, repository_id),
+                )
+            for repository_id, repo in known.items():
+                full_name = repo.get("full_name")
+                html_url = repo.get("html_url")
+                if not isinstance(full_name, str) or not isinstance(html_url, str):
+                    raise unprocessable("GitHub returned invalid repository metadata")
+                connection.execute(
+                    """
+                    INSERT INTO github_repo_watches (
+                        user_id, repository_id, full_name, html_url, selected, private
+                    ) VALUES (?, ?, ?, ?, 1, ?)
+                    ON CONFLICT(user_id, repository_id) DO UPDATE SET
+                        full_name = excluded.full_name,
+                        html_url = excluded.html_url,
+                        selected = 1,
+                        private = excluded.private
+                    """,
+                    (user_id, repository_id, full_name, html_url, int(bool(repo.get("private")))),
+                )
+            connection.execute(
+                """
+                UPDATE users
+                SET github_connected = 1, github_credential_state = 'connected'
+                WHERE id = ?
+                """,
+                (user_id,),
+            )
+            connection.commit()
+        for repository_key in old_names:
+            revoke_repository_access(
+                self._database,
+                user_id=user_id,
+                repository_key=repository_key,
+            )
+        return self.github_connection(user_id)
+
+    def enqueue_github_topic_sync(self, user_id: str, *, now: int | None = None) -> None:
+        current = int(time.time()) if now is None else now
+        with self._database.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO github_topic_sync_jobs (
+                    user_id, generation, status, requested_at, next_run_at,
+                    started_at, finished_at, lease_until, lease_token, attempt_count,
+                    added_topics_json, already_tracked_topics_json,
+                    inspected_repository_count, failed_repository_count, last_error
+                ) VALUES (?, 1, 'pending', ?, ?, NULL, NULL, 0, NULL, 0, '[]', '[]', 0, 0, NULL)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    generation = github_topic_sync_jobs.generation + 1,
+                    status = 'pending',
+                    requested_at = excluded.requested_at,
+                    next_run_at = excluded.next_run_at,
+                    started_at = NULL,
+                    finished_at = NULL,
+                    lease_until = 0,
+                    lease_token = NULL,
+                    attempt_count = 0,
+                    added_topics_json = '[]',
+                    already_tracked_topics_json = '[]',
+                    inspected_repository_count = 0,
+                    failed_repository_count = 0,
+                    last_error = NULL
+                """,
+                (user_id, current, current),
+            )
+
+    def github_topic_sync_status(self, user_id: str) -> GithubTopicSyncStatus:
+        with self._database.connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM github_topic_sync_jobs WHERE user_id = ?",
+                (user_id,),
+            ).fetchone()
+        if row is None:
+            return GithubTopicSyncStatus(state="idle")
+        return GithubTopicSyncStatus(
+            state=row["status"],
+            requested_at=row["requested_at"],
+            finished_at=row["finished_at"],
+            added_topics=_decode_topic_names(row["added_topics_json"]),
+            already_tracked_topics=_decode_topic_names(row["already_tracked_topics_json"]),
+            inspected_repository_count=int(row["inspected_repository_count"]),
+            failed_repository_count=int(row["failed_repository_count"]),
+            error=row["last_error"],
+        )
+
+    def claim_github_topic_sync_jobs(
+        self,
+        *,
+        now: int | None = None,
+        limit: int = 1,
+        lease_seconds: int = 120,
+    ) -> list[GithubTopicSyncJob]:
+        current = int(time.time()) if now is None else now
+        claimed: list[GithubTopicSyncJob] = []
+        with self._database.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                """
+                UPDATE github_topic_sync_jobs
+                SET status = 'failed', next_run_at = ?, lease_until = 0,
+                    lease_token = NULL, last_error = 'previous worker lease expired'
+                WHERE status = 'running' AND lease_until <= ?
+                """,
+                (current, current),
+            )
+            rows = connection.execute(
+                """
+                SELECT user_id, generation, attempt_count
+                FROM github_topic_sync_jobs
+                WHERE status IN ('pending', 'failed')
+                  AND next_run_at <= ? AND lease_until <= ?
+                ORDER BY next_run_at, requested_at, user_id
+                LIMIT ?
+                """,
+                (current, current, max(1, limit)),
+            ).fetchall()
+            for row in rows:
+                lease_token = secrets.token_urlsafe(18)
+                changed = connection.execute(
+                    """
+                    UPDATE github_topic_sync_jobs
+                    SET status = 'running', started_at = ?, lease_until = ?,
+                        lease_token = ?, attempt_count = attempt_count + 1
+                    WHERE user_id = ? AND generation = ?
+                      AND status IN ('pending', 'failed') AND lease_until <= ?
+                    """,
+                    (
+                        current,
+                        current + lease_seconds,
+                        lease_token,
+                        row["user_id"],
+                        row["generation"],
+                        current,
+                    ),
+                ).rowcount
+                if changed == 1:
+                    claimed.append(
+                        GithubTopicSyncJob(
+                            user_id=row["user_id"],
+                            generation=int(row["generation"]),
+                            attempt_count=int(row["attempt_count"]) + 1,
+                            lease_token=lease_token,
+                        )
+                    )
+            connection.commit()
+        return claimed
+
+    def extend_github_topic_sync_lease(
+        self,
+        job: GithubTopicSyncJob,
+        *,
+        now: int | None = None,
+        lease_seconds: int = 120,
+    ) -> bool:
+        current = int(time.time()) if now is None else now
+        with self._database.connect() as connection:
+            changed = connection.execute(
+                """
+                UPDATE github_topic_sync_jobs
+                SET lease_until = ?
+                WHERE user_id = ? AND generation = ? AND status = 'running'
+                  AND lease_token = ?
+                """,
+                (current + lease_seconds, job.user_id, job.generation, job.lease_token),
+            ).rowcount
+        return changed == 1
+
+    def finish_github_topic_sync_success(
+        self,
+        job: GithubTopicSyncJob,
+        *,
+        added_topics: list[str],
+        already_tracked_topics: list[str],
+        inspected_repository_count: int,
+        failed_repository_count: int,
+        now: int | None = None,
+    ) -> bool:
+        current = int(time.time()) if now is None else now
+        with self._database.connect() as connection:
+            changed = connection.execute(
+                """
+                UPDATE github_topic_sync_jobs
+                SET status = 'completed', finished_at = ?, lease_until = 0,
+                    lease_token = NULL, next_run_at = ?,
+                    added_topics_json = ?, already_tracked_topics_json = ?,
+                    inspected_repository_count = ?, failed_repository_count = ?,
+                    last_error = NULL
+                WHERE user_id = ? AND generation = ? AND status = 'running'
+                  AND lease_token = ?
+                """,
+                (
+                    current,
+                    current,
+                    json.dumps(added_topics, ensure_ascii=False),
+                    json.dumps(already_tracked_topics, ensure_ascii=False),
+                    inspected_repository_count,
+                    failed_repository_count,
+                    job.user_id,
+                    job.generation,
+                    job.lease_token,
+                ),
+            ).rowcount
+        return changed == 1
+
+    def finish_github_topic_sync_failure(
+        self,
+        job: GithubTopicSyncJob,
+        error: Exception,
+        *,
+        now: int | None = None,
+        retry_base_seconds: int = 30,
+        retry_max_seconds: int = 3600,
+    ) -> bool:
+        current = int(time.time()) if now is None else now
+        retry_seconds = min(
+            retry_base_seconds * (2 ** min(job.attempt_count - 1, 16)),
+            retry_max_seconds,
+        )
+        detail = f"{type(error).__name__}: {error}"[:500]
+        with self._database.connect() as connection:
+            changed = connection.execute(
+                """
+                UPDATE github_topic_sync_jobs
+                SET status = 'failed', next_run_at = ?, lease_until = 0,
+                    lease_token = NULL, last_error = ?
+                WHERE user_id = ? AND generation = ? AND status = 'running'
+                  AND lease_token = ?
+                """,
+                (current + retry_seconds, detail, job.user_id, job.generation, job.lease_token),
+            ).rowcount
+        return changed == 1
+
     async def import_repository_keywords(
         self,
         user_id: str,
@@ -310,6 +618,7 @@ class IntegrationStore:
                 ).fetchall()
             ]
             connection.execute("DELETE FROM github_inferred_signals WHERE user_id = ?", (user_id,))
+            connection.execute("DELETE FROM github_topic_sync_jobs WHERE user_id = ?", (user_id,))
             connection.execute("DELETE FROM github_repo_watches WHERE user_id = ?", (user_id,))
             connection.execute(
                 """
@@ -453,3 +762,15 @@ def _notification_from_row(row) -> NotificationItem:
         read=bool(row["read"]),
         target=NotificationTarget(type=row["target_type"], id=row["target_id"]),
     )
+
+
+def _decode_topic_names(value: str | None) -> list[str]:
+    if not value:
+        return []
+    try:
+        decoded = json.loads(value)
+    except (TypeError, ValueError):
+        return []
+    if not isinstance(decoded, list):
+        return []
+    return [item for item in decoded if isinstance(item, str)]

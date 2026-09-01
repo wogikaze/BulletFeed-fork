@@ -15,6 +15,7 @@ from app.schemas.feed import (
     ReadResponse,
 )
 from app.services.ranking_feedback import reset_feedback_ranking
+from app.services.source_subscriptions import ensure_official_feeds_for_user
 from app.stores.feed_store import FeedStore
 
 router = APIRouter(prefix="/v1", tags=["feed"])
@@ -64,6 +65,7 @@ def get_feed(
     cursor: str | None = None,
     limit: int = 20,
 ) -> FeedPage:
+    ensure_official_feeds_for_user(database, user_id=user["user_id"])
     items, next_cursor = store.list_feed(
         user["user_id"],
         relation=relation,

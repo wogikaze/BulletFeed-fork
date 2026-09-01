@@ -138,6 +138,11 @@ data class EventImpact(
     val confidence: String,
 )
 
+data class UnknownFact(
+    val id: String,
+    val text: String,
+)
+
 data class EventDetail(
     val id: String,
     val title: String,
@@ -145,6 +150,7 @@ data class EventDetail(
     val currentState: CurrentState,
     val latestDelta: FeedDelta,
     val openedDelta: FeedDelta?,
+    val unknownFacts: List<UnknownFact> = emptyList(),
     val timeline: List<EventTimelineEntry>,
     val impacts: List<EventImpact>,
     val sources: List<EventSource>,
@@ -360,6 +366,24 @@ data class GithubTopicSyncResult(
     val alreadyTrackedTopics: List<String> = emptyList(),
     val inspectedRepositoryCount: Int = 0,
     val failedRepositoryCount: Int = 0,
+    val topicSyncState: GithubTopicSyncState = GithubTopicSyncState.COMPLETED,
+)
+
+enum class GithubTopicSyncState {
+    IDLE,
+    PENDING,
+    RUNNING,
+    COMPLETED,
+    FAILED,
+}
+
+data class GithubTopicSyncStatus(
+    val state: GithubTopicSyncState,
+    val addedTopics: List<String> = emptyList(),
+    val alreadyTrackedTopics: List<String> = emptyList(),
+    val inspectedRepositoryCount: Int = 0,
+    val failedRepositoryCount: Int = 0,
+    val error: String? = null,
 )
 
 data class GithubAuthorization(

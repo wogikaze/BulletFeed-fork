@@ -157,6 +157,14 @@ class MeStore:
                 followed_at=now,
                 topic_name=cleaned,
             )
+        from app.services.source_subscriptions import subscribe_official_feeds_for_followed_topic
+
+        subscribe_official_feeds_for_followed_topic(
+            self._database,
+            user_id=user_id,
+            topic_name=cleaned,
+            now=now,
+        )
         if reproject:
             self._projector.reproject_user(user_id=user_id)
         return _topic_from_row(row)
@@ -312,12 +320,14 @@ class MeStore:
                 (user_id, occupation, json.dumps(interests), region, now),
             )
             connection.execute("DELETE FROM topics WHERE user_id = ?", (user_id,))
+            stored_names: list[str] = []
             for index, name in enumerate(unique_topics):
                 catalog = connection.execute(
                     "SELECT name, type FROM topic_catalog WHERE lower(name) = lower(?) LIMIT 1",
                     (name,),
                 ).fetchone()
                 stored_name = catalog["name"] if catalog is not None else name
+                stored_names.append(stored_name)
                 topic_type = catalog["type"] if catalog is not None else "technology"
                 topic_id = f"topic_{secrets.token_urlsafe(8)}"
                 connection.execute(
@@ -343,6 +353,15 @@ class MeStore:
                 WHERE id = ?
                 """,
                 (int(next_state == "ready"), next_state, user_id),
+            )
+        from app.services.source_subscriptions import subscribe_official_feeds_for_followed_topic
+
+        for stored_name in stored_names:
+            subscribe_official_feeds_for_followed_topic(
+                self._database,
+                user_id=user_id,
+                topic_name=stored_name,
+                now=now,
             )
         self._projector.reproject_user(user_id=user_id)
         return {

@@ -1,6 +1,11 @@
 from app.schemas.common import ApiModel, CurrentState, Delta, Impact, SourceEvidence, TimelineEntry
 
 
+class UnknownFact(ApiModel):
+    id: str
+    text: str
+
+
 class EventDetail(ApiModel):
     id: str
     title: str
@@ -8,6 +13,7 @@ class EventDetail(ApiModel):
     current_state: CurrentState
     latest_delta: Delta
     opened_delta: Delta | None = None
+    unknown_facts: list[UnknownFact] = []
     timeline: list[TimelineEntry]
     impacts: list[Impact]
     sources: list[SourceEvidence]

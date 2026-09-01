@@ -361,6 +361,17 @@ fun GithubConnectionScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
                     }
                 },
+                actions = {
+                    if (connection.connected) {
+                        AccessibleTextButton(
+                            onClick = onSaveRepositories,
+                            enabled = !isSaving,
+                            modifier = Modifier.testTag("github-save-repositories-top-button"),
+                        ) {
+                            Text(if (isSaving) "保存中" else "保存")
+                        }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -376,7 +387,7 @@ fun GithubConnectionScreen(
                     Text("$it として連携中", color = Color(0xFF006A67), modifier = Modifier.padding(top = 5.dp))
                 }
                 Text(
-                    "選択したrepositoryのメタデータと依存関係を関連性判定に利用します。private repositoryは現在のGitHub accessに従います。",
+                    "選択したrepositoryのメタデータと依存関係を関連性判定に利用します。",
                     modifier = Modifier.padding(top = 8.dp),
                     color = Color(0xFF49454F),
                 )
@@ -707,19 +718,19 @@ private fun KnowledgeBootstrapSection(
     onReset: () -> Unit,
 ) {
     SectionHeading(
-        "既存知識の登録",
+        "既存知識の記録",
         style = MaterialTheme.typography.headlineSmall,
         tag = "settings-knowledge-heading",
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "BulletFeed 外ですでに知っている現在状態を、Event / Topic の確認から登録できます。Claim ID を手入力する画面はありません。低信頼の推定（inferred）は非表示に使いません。",
+        "記事への評価（重要・不要・知っていた・今知った）から、すでに知っている内容を推定します。フォロー時に自己申告は求めません。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "catch up は「これから追う」だけで、現在より前を既知にはしません。現在状態の確認は、その時点ですでに真だった事実だけを既知にします。",
+        "以前の確認で残った記録があれば、ここからリセットできます。低信頼の推定は非表示には使いません。",
         style = MaterialTheme.typography.bodySmall,
         color = Color(0xFF655F69),
     )
@@ -729,7 +740,7 @@ private fun KnowledgeBootstrapSection(
     InfoBlock("推定（非表示には未使用）", "${summary.inferredFactCount} 件")
     Spacer(Modifier.height(12.dp))
     if (summary.checkpoints.isEmpty()) {
-        PoliteEmptyStatus("まだ checkpoint はありません。Event 詳細または初回フォローで登録できます。")
+        PoliteEmptyStatus("以前の確認記録はありません。")
     } else {
         summary.checkpoints.forEach { item ->
             Card(

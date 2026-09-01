@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sqlite3
 
 from fastapi import HTTPException, status
@@ -7,9 +8,15 @@ from fastapi import HTTPException, status
 from app.database import Database
 from app.db.projection_schema import ensure_projection_schema
 from app.schemas.common import CurrentState, Delta, Impact, SourceEvidence, TimelineEntry
-from app.schemas.events import EventDetail
+from app.schemas.events import EventDetail, UnknownFact
 from app.services.event_access import user_can_access_event
 from app.services.follow_baseline import SUBJECT_EVENT, record_follow_baseline
+from app.services.knowledge_evidence import CONFIDENCE_HIGH, STATE_KNOWN, replay_knowledge_state
+
+_FACT_SENTENCE = re.compile(r"(?<=[。．！？])|(?<=[.!?])(?:\s+|$)")
+_MAX_FACT_BULLETS = 8
+_MAX_FACT_CHARS = 400
+_MIN_FACT_CHARS = 8
 
 
 def _delta_from_row(row: sqlite3.Row) -> Delta:
@@ -33,6 +40,58 @@ def _timeline_state(row: sqlite3.Row) -> dict[str, str] | None:
         if value is not None
     }
     return state or None
+
+
+def _fact_texts(detail: str, value: str) -> tuple[str, ...]:
+    raw = (detail or "").strip() or (value or "").strip()
+    if not raw:
+        return ()
+    parts = [part.strip(" \t\r\n-•") for part in _FACT_SENTENCE.split(raw)]
+    bullets = [part for part in parts if len(part) >= _MIN_FACT_CHARS]
+    if len(bullets) >= 2:
+        return tuple(item[:_MAX_FACT_CHARS] for item in bullets[:_MAX_FACT_BULLETS])
+    return (raw[:_MAX_FACT_CHARS],)
+
+
+def _claim_is_explicitly_known(connection: sqlite3.Connection, *, user_id: str, claim_id: str) -> bool:
+    derived = replay_knowledge_state(connection, user_id=user_id, claim_id=claim_id)
+    return derived.state == STATE_KNOWN and derived.confidence == CONFIDENCE_HIGH
+
+
+def _unknown_facts_for_event(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    event_id: str,
+) -> list[UnknownFact]:
+    rows = connection.execute(
+        """
+        SELECT id, slot, value_text, detail_text, valid_at
+        FROM state_claims
+        WHERE event_id = ?
+        ORDER BY slot ASC, valid_at DESC, id DESC
+        """,
+        (event_id,),
+    ).fetchall()
+    latest_by_slot: dict[str, sqlite3.Row] = {}
+    for row in rows:
+        slot = str(row["slot"])
+        if slot not in latest_by_slot:
+            latest_by_slot[slot] = row
+    facts: list[UnknownFact] = []
+    seen: set[str] = set()
+    for row in latest_by_slot.values():
+        claim_id = str(row["id"])
+        if _claim_is_explicitly_known(connection, user_id=user_id, claim_id=claim_id):
+            continue
+        for index, text in enumerate(_fact_texts(str(row["detail_text"]), str(row["value_text"]))):
+            if text in seen:
+                continue
+            seen.add(text)
+            facts.append(UnknownFact(id=f"{claim_id}:{index}", text=text))
+            if len(facts) >= _MAX_FACT_BULLETS:
+                return facts
+    return facts
 
 
 class EventStore:
@@ -89,6 +148,11 @@ class EventStore:
                 "SELECT * FROM event_sources WHERE event_id = ?",
                 (event_id,),
             ).fetchall()
+            unknown_facts = _unknown_facts_for_event(
+                connection,
+                user_id=user_id,
+                event_id=event_id,
+            )
         return EventDetail(
             id=event["id"],
             title=event["title"],
@@ -101,6 +165,7 @@ class EventStore:
             ),
             latest_delta=latest,
             opened_delta=opened,
+            unknown_facts=unknown_facts,
             timeline=[
                 TimelineEntry(
                     id=row["id"],

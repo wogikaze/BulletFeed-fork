@@ -83,6 +83,7 @@ fun FeedScreen(
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
+    hasFollowedTopics: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -145,7 +146,7 @@ fun FeedScreen(
             FeedHeading(filter, events.size)
         }
         if (events.isEmpty() && !isFiltering) {
-            item { EmptyFeed(filter, onFilterChange, onTopicsClick, onGithubClick) }
+            item { EmptyFeed(filter, onFilterChange, onTopicsClick, onGithubClick, hasFollowedTopics) }
         } else {
             items(events, key = { it.feedItemId }) { event ->
                 EventCard(event, onEventClick, onFeedback, onFollow)
@@ -270,6 +271,7 @@ internal fun EmptyFeed(
     onFilterChange: (FeedFilter) -> Unit,
     onTopicsClick: () -> Unit,
     onGithubClick: () -> Unit,
+    hasFollowedTopics: Boolean = false,
 ) = Column(
     Modifier
         .fillMaxWidth()
@@ -284,10 +286,11 @@ internal fun EmptyFeed(
     )
     Spacer(Modifier.height(6.dp))
     Text(
-        if (filter == FeedFilter.ALL) {
-            "追跡テーマやGitHub repositoryを追加すると、関係する変化がここに届きます。"
-        } else {
-            "${filter.label}に当てはまるEventはありません。"
+        when {
+            filter != FeedFilter.ALL -> "${filter.label}に当てはまるEventはありません。"
+            hasFollowedTopics ->
+                "公式の更新情報は購読しました。最初の変化が届くまで待つか、設定の情報源を確認してください。"
+            else -> "追跡テーマやGitHub repositoryを追加すると、関係する変化がここに届きます。"
         },
         color = Color(0xFF655F69),
         style = MaterialTheme.typography.bodyMedium,

@@ -26,6 +26,18 @@ class MockEventStore(
                 ),
             latestDelta = delta,
             openedDelta = if (fromFeedItemId == null) null else delta,
+            unknownFacts =
+                buildList {
+                    event.summary.trim().takeIf { it.isNotEmpty() }?.let {
+                        add(UnknownFact("uf_${event.id}_summary", it))
+                    }
+                    event.timeline.forEachIndexed { index, item ->
+                        val text = item.description.trim().ifEmpty { item.title.trim() }
+                        if (text.isNotEmpty()) {
+                            add(UnknownFact("uf_${event.id}_$index", text))
+                        }
+                    }
+                }.distinctBy { it.text },
             timeline =
                 event.timeline.mapIndexed { index, item ->
                     EventTimelineEntry(

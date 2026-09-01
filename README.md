@@ -27,7 +27,7 @@ cp .env.example .env
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-継続取得にはAPIとは別にsource-sync workerが必要です。公開MVPでは `backend/compose.release.yml` がAPI + worker + durable shared SQLite volume + worker health + maintenance backup jobを定義します。公開TLS、secret management、backupのoff-host保管等を含む運用条件は [backend/RELEASE_OPERATIONS.md](backend/RELEASE_OPERATIONS.md) を参照してください。
+ローカルの `uvicorn` は source-sync worker を同じプロセスに埋め込みます（テーマ追加後に公式RSSを取得するため）。`BULLETFEED_EMBED_SOURCE_SYNC_WORKER=0` で無効化できます。公開MVPでは `backend/compose.release.yml` がAPI + 専用 worker + durable shared SQLite volume + worker health + maintenance backup jobを定義し、API側では埋め込みworkerを止めます。公開TLS、secret management、backupのoff-host保管等を含む運用条件は [backend/RELEASE_OPERATIONS.md](backend/RELEASE_OPERATIONS.md) を参照してください。
 
 公開releaseでUvicornの8000番portを直接internetへ露出しません。所有HTTPS originのreverse proxy/load balancerの背後へ置き、GitHub callbackも同じ公開HTTPS構成で設定します。
 

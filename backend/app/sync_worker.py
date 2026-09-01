@@ -17,11 +17,14 @@ from app.security import TokenCipher
 from app.services import github
 from app.services.dependency_security_pipeline import crawl_sbom_security_events
 from app.services.event_access import revoke_repository_access
+from app.services.feed_projection import FeedProjector
 from app.services.github_release_pipeline import crawl_github_release_events
 from app.services.json_feed_pipeline import crawl_json_feed_events
+from app.services.repository_topic_inference import sync_selected_repository_topics
 from app.services.rss_pipeline import crawl_feed_events
 from app.services.statuspage_crawler import crawl_statuspage_events
 from app.services.web_watch_pipeline import crawl_web_watch, utc_stamp
+from app.stores.integration_store import GithubTopicSyncJob, IntegrationStore
 
 SOURCE_TYPES = ("github_release", "dependency_security")
 FEED_SOURCE_TYPES = ("rss_atom", "json_feed")
@@ -98,6 +101,7 @@ class WatchSyncWorker:
                 self._cipher = TokenCipher(key)
             except ValueError as exc:
                 self._cipher_error = str(exc)
+        self._integration_store = IntegrationStore(database, self._cipher)
 
     @property
     def batch_size(self) -> int:
@@ -216,6 +220,43 @@ class WatchSyncWorker:
         failed = 0
         while attempted < self._batch_size:
             job_started_at = int(time.time()) if now is None else scheduled_at
+            topic_jobs = self._integration_store.claim_github_topic_sync_jobs(
+                now=job_started_at,
+                limit=1,
+                lease_seconds=self._lease_seconds,
+            )
+            if topic_jobs:
+                topic_job = topic_jobs[0]
+                attempted += 1
+                job_fields = {
+                    "source_type": "github_topic_sync",
+                    "source_key_digest": source_key_digest("github_topic_sync", topic_job.user_id),
+                }
+                record("fetch", **job_fields)
+                try:
+                    await self._run_github_topic_sync_with_lease_heartbeat(
+                        topic_job,
+                        now=job_started_at,
+                    )
+                except Exception as exc:
+                    finished_at = int(time.time()) if now is None else scheduled_at
+                    self._integration_store.finish_github_topic_sync_failure(
+                        topic_job,
+                        exc,
+                        now=finished_at,
+                        retry_base_seconds=self._retry_base_seconds,
+                        retry_max_seconds=self._retry_max_seconds,
+                    )
+                    record(
+                        "sync_failure",
+                        **job_fields,
+                        error_type=type(exc).__name__,
+                    )
+                    failed += 1
+                else:
+                    record("sync_success", **job_fields)
+                    succeeded += 1
+                continue
             jobs = self.claim_due(now=job_started_at, limit=1)
             if not jobs:
                 break
@@ -253,6 +294,47 @@ class WatchSyncWorker:
                 )
                 succeeded += 1
         return SyncRunSummary(attempted=attempted, succeeded=succeeded, failed=failed)
+
+    async def _run_github_topic_sync_with_lease_heartbeat(
+        self,
+        job: GithubTopicSyncJob,
+        *,
+        now: int,
+    ) -> None:
+        heartbeat = asyncio.create_task(self._github_topic_lease_heartbeat(job))
+        try:
+            if self._cipher is None:
+                raise RuntimeError(self._cipher_error or "token encryption key is not configured")
+            result = await sync_selected_repository_topics(
+                self._database,
+                self._cipher,
+                user_id=job.user_id,
+                settings=self._settings,
+            )
+            FeedProjector(self._database).reproject_user(user_id=job.user_id)
+            finished_at = int(time.time()) if now is None else now
+            self._integration_store.finish_github_topic_sync_success(
+                job,
+                added_topics=result.added,
+                already_tracked_topics=result.already_tracked,
+                inspected_repository_count=result.inspected_repository_count,
+                failed_repository_count=result.failed_repository_count,
+                now=finished_at,
+            )
+        finally:
+            heartbeat.cancel()
+            with suppress(asyncio.CancelledError):
+                await heartbeat
+
+    async def _github_topic_lease_heartbeat(self, job: GithubTopicSyncJob) -> None:
+        interval = max(self._lease_seconds / 3, 1.0)
+        while True:
+            await asyncio.sleep(interval)
+            self._integration_store.extend_github_topic_sync_lease(
+                job,
+                now=int(time.time()),
+                lease_seconds=self._lease_seconds,
+            )
 
     async def _run_with_lease_heartbeat(self, job: SyncJob, *, now: int) -> None:
         heartbeat = asyncio.create_task(self._lease_heartbeat(job))

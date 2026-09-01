@@ -95,6 +95,9 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
   },
   "latestDelta": { "id": "delta_workers_identified", "type": "state_update", "summary": "...", "before": "...", "after": "...", "occurredAt": "2026-08-18T03:00:00Z" },
   "openedDelta": null,
+  "unknownFacts": [
+    { "id": "claim_workers_identified:0", "text": "Runtime saturation identified." }
+  ],
   "timeline": [
     {
       "id": "tl_workers_announced",
@@ -122,7 +125,7 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 }
 ```
 
-`GET /events/{eventId}?fromFeedItem=` があるとき `openedDelta` を返す。crawl 方式などの内部情報は返さない。
+`GET /events/{eventId}?fromFeedItem=` があるとき `openedDelta` を返す。`unknownFacts` は、このユーザーが明示的に既知としていない現行 Claim の箇条書きである（世界側 Delta ではない）。表示しただけでは既知にしない。crawl 方式などの内部情報は返さない。
 
 ## 4. エンドポイント
 

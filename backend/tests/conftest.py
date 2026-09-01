@@ -1,4 +1,7 @@
+import os
 import time
+
+os.environ["BULLETFEED_EMBED_SOURCE_SYNC_WORKER"] = "0"
 
 import pytest
 from cryptography.fernet import Fernet

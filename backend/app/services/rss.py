@@ -30,7 +30,9 @@ def _host_is_allowed(hostname: str, allowed_hosts: set[str]) -> bool:
 def validate_feed_url(url: str, allowed_hosts: set[str]) -> str:
     parsed = validate_url_shape(url, source_name="RSS")
     assert parsed.hostname is not None
-    if not host_is_allowed(parsed.hostname, allowed_hosts):
+    from app.services.source_discovery_seeds import is_curated_subscribe_feed_url
+
+    if not host_is_allowed(parsed.hostname, allowed_hosts) and not is_curated_subscribe_feed_url(url):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="RSS host is not in the allowlist")
     try:
         addresses = socket.getaddrinfo(parsed.hostname, 443, type=socket.SOCK_STREAM)

@@ -7,9 +7,13 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
@@ -64,52 +68,6 @@ class EventDetailEmptySemanticsTest {
     }
 
     @Test
-    fun knowledgeBootstrapActionsMeetMinimumTouchTargetHeight() {
-        composeRule.setContent {
-            MaterialTheme {
-                KnowledgeBootstrapCard(
-                    currentState = CurrentState(
-                        phase = "released",
-                        summary = "1.2.0 が利用可能",
-                        since = "2026-08-30T00:00:00Z",
-                        confidence = "high",
-                    ),
-                    following = false,
-                    isSaving = false,
-                    onMarkCurrentStateKnown = {},
-                )
-            }
-        }
-
-        composeRule.onNodeWithText("この現在状態はすでに知っている").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("これから追う（過去は既知にしない）").assertHeightIsAtLeast(48.dp)
-    }
-
-    @Test
-    fun knowledgeBootstrapPromptDialogButtonsMeetMinimumTouchTargetHeight() {
-        composeRule.setContent {
-            MaterialTheme {
-                KnowledgeBootstrapPromptDialog(
-                    prompt = KnowledgeBootstrapPrompt(
-                        subjectKind = BootstrapSubjectKind.EVENT,
-                        subjectId = "event-1",
-                        title = "Release 1.2.0",
-                        currentStateSummary = "1.2.0 が利用可能",
-                    ),
-                    isSaving = false,
-                    onAlreadyKnew = {},
-                    onCatchUp = {},
-                    onDismiss = {},
-                )
-            }
-        }
-
-        composeRule.onNodeWithText("この現在状態は知っている").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("これから追う").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("あとで").assertHeightIsAtLeast(48.dp)
-    }
-
-    @Test
     fun largeFontScaleKeepsSourceOpenTouchTarget() {
         composeRule.setContent {
             MaterialTheme {
@@ -132,5 +90,93 @@ class EventDetailEmptySemanticsTest {
         }
 
         composeRule.onNodeWithText("元ソースを開く").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun emptyUnknownFactsAnnouncesPoliteLiveRegion() {
+        composeRule.setContent { UnknownFactsCard(emptyList()) }
+
+        composeRule.onNodeWithText("この出来事について、まだ知らない事実はありません。").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        )
+    }
+
+    @Test
+    fun unknownFactsListShowsBulletText() {
+        composeRule.setContent {
+            MaterialTheme {
+                UnknownFactsCard(listOf(UnknownFact("f1", "原因はランタイム飽和です。")))
+            }
+        }
+
+        composeRule.onNodeWithText("まだ知らない事実（1）").assertExists()
+        composeRule.onNodeWithText("原因はランタイム飽和です。").assertExists()
+    }
+
+    @Test
+    fun eventDetailShowsUnknownFactsAndHidesDeltaUntilExpanded() {
+        composeRule.setContent {
+            MaterialTheme {
+                EventDetailScreen(
+                    event = EventDetail(
+                        id = "event-1",
+                        title = "Release",
+                        summary = "Summary",
+                        currentState = CurrentState(
+                            phase = "identified",
+                            summary = "Shipping",
+                            since = "2026-08-31T00:00:00Z",
+                            confidence = "high",
+                        ),
+                        latestDelta = FeedDelta(
+                            id = "delta-1",
+                            type = DeltaType.NEW_FACT,
+                            summary = "shipped",
+                            before = "なし",
+                            after = "1.0",
+                            occurredAt = "2026-08-31T00:00:00Z",
+                        ),
+                        openedDelta = null,
+                        unknownFacts = listOf(UnknownFact("f1", "1.0 が公開された。")),
+                        timeline = emptyList(),
+                        impacts = emptyList(),
+                        sources = emptyList(),
+                        following = false,
+                    ),
+                    feedContext = null,
+                    onBack = {},
+                    onFeedback = {},
+                    onFollow = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("1.0 が公開された。").assertExists()
+        composeRule.onAllNodesWithText("変更前").assertCountEquals(0)
+        composeRule.onNodeWithText("前後の差分を表示").assertExists()
+    }
+
+    @Test
+    fun deltaAccordionStartsCollapsedAndExpands() {
+        composeRule.setContent {
+            MaterialTheme {
+                DeltaAccordion(
+                    FeedDelta(
+                        id = "delta-1",
+                        type = DeltaType.NEW_FACT,
+                        summary = "shipped",
+                        before = "なし",
+                        after = "1.0",
+                        occurredAt = "2026-08-31T00:00:00Z",
+                    ),
+                )
+            }
+        }
+
+        composeRule.onAllNodesWithText("変更前").assertCountEquals(0)
+        composeRule.onNodeWithTag("event-detail-delta-toggle").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("event-detail-delta-toggle").performClick()
+        composeRule.onNodeWithText("変更前").assertExists()
+        composeRule.onNodeWithText("なし").assertExists()
     }
 }

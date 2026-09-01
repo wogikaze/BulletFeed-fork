@@ -151,6 +151,22 @@ interface IntegrationRepository {
 
     suspend fun updateGithubRepositories(repositoryIds: List<String>): GithubTopicSyncResult
 
+    suspend fun updateGithubRepositorySelection(
+        addRepositoryIds: List<String>,
+        removeRepositoryIds: List<String>,
+    ): GithubTopicSyncResult {
+        val selectedIds = listGithubRepositories()
+            .filter { it.selected }
+            .map { it.id }
+            .toMutableSet()
+        selectedIds += addRepositoryIds
+        selectedIds -= removeRepositoryIds.toSet()
+        return updateGithubRepositories(selectedIds.toList())
+    }
+
+    suspend fun getGithubTopicSyncStatus(): GithubTopicSyncStatus =
+        GithubTopicSyncStatus(state = GithubTopicSyncState.COMPLETED)
+
     suspend fun importFromPublicRepo(fullName: String): GithubTopicSyncResult
 
     suspend fun disconnectGithub()

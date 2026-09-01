@@ -1,11 +1,10 @@
-import html
 import secrets
 import time
 from typing import Annotated
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
-from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse
 
 from app.config import Settings, get_settings
 from app.database import Database
@@ -20,6 +19,7 @@ router = APIRouter(prefix="/v1", tags=["authentication"])
 
 _USER_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60
 _REFRESH_TTL_SECONDS = 365 * 24 * 60 * 60
+_ANDROID_OAUTH_RETURN_URI = "bulletfeed://oauth/github"
 
 
 def _require_github_config(settings: Settings) -> None:
@@ -120,14 +120,14 @@ def start_github_account_recovery(
     )
 
 
-@router.get("/auth/github/callback", response_class=HTMLResponse)
+@router.get("/auth/github/callback", response_class=RedirectResponse)
 async def github_callback(
     settings: Annotated[Settings, Depends(get_settings)],
     database: Annotated[Database, Depends(get_database)],
     cipher: Annotated[TokenCipher, Depends(get_cipher)],
     code: Annotated[str, Query(min_length=1, max_length=300)],
     state_value: Annotated[str, Query(alias="state", min_length=20, max_length=300)],
-) -> HTMLResponse:
+) -> RedirectResponse:
     _require_github_config(settings)
     flow = database.claim_oauth_flow(state_value)
     if flow is None:
@@ -175,13 +175,9 @@ async def github_callback(
             detail="GitHub authorization failed",
         ) from exc
 
-    login = html.escape(str(github_user["login"]))
-    return HTMLResponse(
-        "<!doctype html><html lang='ja'><meta charset='utf-8'>"
-        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-        "<title>BulletFeed</title><body style='font-family:sans-serif;padding:32px'>"
-        f"<h1>GitHub認証が完了しました</h1><p>{login} として確認しました。</p>"
-        "</body></html>"
+    return RedirectResponse(
+        url=_ANDROID_OAUTH_RETURN_URI,
+        status_code=status.HTTP_303_SEE_OTHER,
     )
 
 

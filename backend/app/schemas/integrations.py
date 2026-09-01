@@ -38,10 +38,30 @@ class GithubRepositoryUpdate(ApiModel):
     repository_ids: list[str]
 
 
+class GithubRepositorySelectionPatch(ApiModel):
+    add_repository_ids: list[str] = []
+    remove_repository_ids: list[str] = []
+
+
+GithubTopicSyncState = Literal["idle", "pending", "running", "completed", "failed"]
+
+
+class GithubTopicSyncStatus(ApiModel):
+    state: GithubTopicSyncState
+    requested_at: int | None = None
+    finished_at: int | None = None
+    added_topics: list[str] = []
+    already_tracked_topics: list[str] = []
+    inspected_repository_count: int = 0
+    failed_repository_count: int = 0
+    error: str | None = None
+
+
 class GithubRepositoryUpdateResult(ApiModel):
     connected: bool
     credential_state: GithubCredentialState
     account_login: str | None = None
+    topic_sync_state: GithubTopicSyncState = "completed"
     added_topics: list[str] = []
     already_tracked_topics: list[str] = []
     inspected_repository_count: int = 0
