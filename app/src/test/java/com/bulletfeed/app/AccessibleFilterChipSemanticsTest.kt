@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
@@ -290,6 +291,7 @@ class AccessibleFilterChipSemanticsTest {
         composeRule.onNodeWithTag("github-authorize-button").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("github-import-repo-field").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-import-repo-button").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -303,7 +305,7 @@ class AccessibleFilterChipSemanticsTest {
                         GithubConnectionScreen(
                             connection = GithubConnection(connected = true, accountLogin = "octocat"),
                             repositories = emptyList(),
-                            nextCursor = null,
+                            nextCursor = "cursor-2",
                             query = "",
                             isLoading = false,
                             isLoadingMore = false,
@@ -326,8 +328,9 @@ class AccessibleFilterChipSemanticsTest {
 
         composeRule.onNodeWithContentDescription("戻る").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("github-repo-search-button").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithTag("github-save-repositories-button").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithTag("github-disconnect-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-load-more-button").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-save-repositories-button").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("github-disconnect-button").performScrollTo().assertHeightIsAtLeast(48.dp)
     }
 
     @Test

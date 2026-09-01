@@ -530,9 +530,10 @@ internal fun OfflineRecoveryBanner(
             color = Color(0xFF5C3B00),
             style = MaterialTheme.typography.bodySmall,
         )
+        Spacer(Modifier.height(8.dp))
         AccessiblePrimaryButton(
             onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().testTag("offline-recovery-retry"),
         ) {
             Text("再試行")
         }
@@ -869,10 +870,11 @@ internal fun ReauthenticationScreen(
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
+    Spacer(Modifier.height(18.dp))
     AccessiblePrimaryButton(
         onClick = onReauthenticate,
         enabled = !isAuthorizing,
-        modifier = Modifier.padding(top = 18.dp),
+        modifier = Modifier.testTag("session-reauth-button"),
     ) {
         if (isAuthorizing) CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp))
         Text(if (isAuthorizing) "GitHub認証を確認中" else "アカウントを復旧")
@@ -906,10 +908,11 @@ internal fun GithubAuthorizationRequiredScreen(
         color = Color(0xFF655F69),
     )
     errorMessage?.let { Text(it, modifier = Modifier.padding(top = 12.dp), color = Color(0xFF8F1D18)) }
+    Spacer(Modifier.height(18.dp))
     AccessiblePrimaryButton(
         onClick = onAuthorize,
         enabled = !isAuthorizing,
-        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+        modifier = Modifier.fillMaxWidth().testTag("github-oauth-required-authorize"),
     ) {
         Text(if (isAuthorizing) "認可完了を確認中" else "GitHubで認可する")
     }
@@ -945,18 +948,20 @@ internal fun GithubReauthorizationRequiredScreen(
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
+    Spacer(Modifier.height(18.dp))
     AccessiblePrimaryButton(
         onClick = onAuthorize,
         enabled = !isAuthorizing,
-        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+        modifier = Modifier.fillMaxWidth().testTag("github-reauthorize-button"),
     ) {
         Text(if (isAuthorizing) "認可完了を確認中" else "GitHubを再認証")
     }
     if (showBack) {
+        Spacer(Modifier.height(8.dp))
         AccessiblePrimaryButton(
             onClick = onBack,
             enabled = !isAuthorizing,
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.testTag("github-reauthorize-back"),
         ) {
             Text("戻る")
         }

@@ -418,12 +418,13 @@ fun GithubConnectionScreen(
                         label = { Text("owner/repo") },
                         singleLine = true,
                     )
+                    Spacer(Modifier.height(8.dp))
                     AccessiblePrimaryButton(
                         onClick = {
                             onImportRepo(repoInput)
                             repoInput = ""
                         },
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        modifier = Modifier.fillMaxWidth().testTag("github-import-repo-button"),
                         enabled = repoInput.isNotBlank(),
                     ) {
                         Text("技術・ライブラリを取り込む")
@@ -464,10 +465,11 @@ fun GithubConnectionScreen(
                 }
                 if (nextCursor != null) {
                     item {
+                        Spacer(Modifier.height(10.dp))
                         AccessibleOutlinedButton(
                             onClick = onLoadMore,
                             enabled = !isLoadingMore,
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("github-load-more-button"),
+                            modifier = Modifier.fillMaxWidth().testTag("github-load-more-button"),
                         ) {
                             if (isLoadingMore) {
                                 CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
@@ -478,10 +480,11 @@ fun GithubConnectionScreen(
                     }
                 }
                 item {
+                    Spacer(Modifier.height(18.dp))
                     AccessiblePrimaryButton(
                         onClick = onSaveRepositories,
                         enabled = !isSaving,
-                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp).testTag("github-save-repositories-button"),
+                        modifier = Modifier.fillMaxWidth().testTag("github-save-repositories-button"),
                     ) {
                         if (isSaving) {
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
@@ -497,9 +500,10 @@ fun GithubConnectionScreen(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
+                    Spacer(Modifier.height(10.dp))
                     AccessibleTextButton(
                         onClick = onDisconnect,
-                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("github-disconnect-button"),
+                        modifier = Modifier.fillMaxWidth().testTag("github-disconnect-button"),
                     ) {
                         Text("GitHub連携を解除", color = Color(0xFF8F1D18))
                     }
@@ -749,10 +753,11 @@ private fun KnowledgeBootstrapSection(
             }
         }
     }
+    Spacer(Modifier.height(8.dp))
     AccessibleOutlinedButton(
         onClick = onReset,
         enabled = !isSaving && (summary.checkpoints.isNotEmpty() || summary.explicitKnownFactCount > 0),
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-reset"),
     ) {
         Text(if (isSaving) "リセット中" else "bootstrap だけをリセット")
     }
@@ -1005,10 +1010,11 @@ private fun SourceSubscriptionsSection(
     if (errorMessage != null) {
         SourceSubscriptionErrorStatus(errorMessage)
     }
+    Spacer(Modifier.height(12.dp))
     AccessiblePrimaryButton(
         onClick = { onAdd(selectedKind, url.trim(), pageId.trim()) },
         enabled = !isSaving && (url.isNotBlank() || (selectedKind == UserSourceKind.STATUSPAGE && pageId.isNotBlank())),
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        modifier = Modifier.fillMaxWidth().testTag("source-subscribe-add"),
     ) {
         if (isSaving) {
             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)

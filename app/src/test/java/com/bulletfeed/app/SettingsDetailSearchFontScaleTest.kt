@@ -46,6 +46,7 @@ class SettingsDetailSearchFontScaleTest {
         composeRule.onNodeWithText("保存").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("キャンセル").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("情報源を追加").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("source-subscribe-add").performScrollTo().assertHeightIsAtLeast(48.dp)
     }
 
     @Test

@@ -71,6 +71,7 @@ class SurfaceLiveRegionSemanticsTest {
         composeRule.onNodeWithText("オフラインです").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
+        composeRule.onNodeWithTag("offline-recovery-retry").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 
@@ -140,6 +141,7 @@ class SurfaceLiveRegionSemanticsTest {
             }
         }
 
+        composeRule.onNodeWithTag("offline-recovery-retry").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("再試行").assertHeightIsAtLeast(48.dp)
     }
 
