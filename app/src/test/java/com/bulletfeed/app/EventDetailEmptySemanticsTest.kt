@@ -1,6 +1,8 @@
 package com.bulletfeed.app
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -8,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -104,5 +107,30 @@ class EventDetailEmptySemanticsTest {
         composeRule.onNodeWithText("この現在状態は知っている").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("これから追う").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("あとで").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsSourceOpenTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    EventSourceCard(
+                        source = EventSource(
+                            publisher = "Statuspage",
+                            kind = SourceKind.STATUSPAGE,
+                            title = "API latency",
+                            url = "https://stspg.io/inc_android_acceptance",
+                            publishedAt = "2026-08-22T00:00:00Z",
+                            retrievedAt = "2026-08-22T00:11:00Z",
+                            evidence = "Investigating elevated latency.",
+                        ),
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("元ソースを開く").assertHeightIsAtLeast(48.dp)
     }
 }
