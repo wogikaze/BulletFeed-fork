@@ -5,12 +5,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -147,6 +150,46 @@ class M1AndroidOnboardingJourneyTest {
         composeRule.onNodeWithTag("onboarding-continue-button").performClick()
         composeRule.waitForIdle()
         assertNull(completedTopics)
+    }
+
+    @Test
+    fun addingFiveManualTopicsEnablesFinishWithoutGithub() {
+        val persona = loadPersonas().first { it.expectEmptyReason == "no_topics_abstention" }
+        var completedTopics: List<String>? = null
+        var completedGithub: Boolean? = null
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(
+                    initialProfile = profileFor(persona),
+                    initialTopics = persona.topics,
+                    isSaving = false,
+                    onComplete = { _, topics, connectGithub ->
+                        completedTopics = topics
+                        completedGithub = connectGithub
+                    },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.onNodeWithText("手動でテーマを選ぶ").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.waitForIdle()
+        val names = listOf("Kotlin", "Android", "Rust", "React", "Linux")
+        for (name in names) {
+            composeRule
+                .onNodeWithTag("onboarding-custom-topic-field", useUnmergedTree = true)
+                .performScrollTo()
+                .performTextInput(name)
+            composeRule.onNodeWithContentDescription("追加").performClick()
+            composeRule.waitForIdle()
+        }
+        composeRule.onNodeWithTag("onboarding-continue-button").assertIsEnabled()
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.waitForIdle()
+        assertEquals(names, completedTopics)
+        assertEquals(false, completedGithub)
     }
 }
 
