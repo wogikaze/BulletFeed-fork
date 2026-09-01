@@ -1,0 +1,151 @@
+{
+  "hard_gate": {
+    "report_version": "product-gap-c1-hard-gate-audit-v2",
+    "dataset_version": "product-gap-c1-g0-v2",
+    "completion_gate_pass": false,
+    "gates": {
+      "g0": {
+        "completion_gate_pass": false,
+        "evidence": "frozen_corpus_and_operator_attestation",
+        "dataset_version": "product-gap-c1-g0-v2",
+        "blockers": [
+          "operator_attestation_pending",
+          "attestation_pending"
+        ]
+      },
+      "g1": {
+        "status": "measured",
+        "completion_gate_pass": false,
+        "evidence": "production_confirm",
+        "metric_failures": [
+          "g1_feed_recall",
+          "g1_precision_at_3",
+          "g1_japanese_recall",
+          "g1_no_feed_fallback"
+        ],
+        "blockers": [
+          "g1_feed_recall",
+          "g1_precision_at_3",
+          "g1_japanese_recall",
+          "g1_no_feed_fallback"
+        ]
+      },
+      "g2": {
+        "status": "measured",
+        "completion_gate_pass": false,
+        "evidence": "production_discovery",
+        "metric_failures": [
+          "g2_primary_recall_at_20",
+          "g2_relevant_recall_at_50",
+          "g2_precision_at_20"
+        ],
+        "blockers": [
+          "g2_primary_recall_at_20",
+          "g2_relevant_recall_at_50",
+          "g2_precision_at_20"
+        ]
+      },
+      "g3": {
+        "status": "measured",
+        "completion_gate_pass": false,
+        "evidence": "same_feed_url_independent_oracle_vs_production_preview",
+        "metric_failures": [
+          "g3_raw_entry_recall",
+          "g3_important_update_recall",
+          "g3_family_regression_unmeasured"
+        ],
+        "blockers": [
+          "g3_raw_entry_recall",
+          "g3_important_update_recall",
+          "g3_family_regression_unmeasured"
+        ]
+      },
+      "g4": {
+        "status": "measured",
+        "completion_gate_pass": false,
+        "evidence": "production_preview_then_enrich_feed_item",
+        "metric_failures": [
+          "g4_body_success",
+          "g4_important_body_recall",
+          "g4_update_recall",
+          "g4_update_precision",
+          "g4_boilerplate_fp",
+          "g4_article_split",
+          "g4_sample_incomplete"
+        ],
+        "blockers": [
+          "g4_body_success",
+          "g4_important_body_recall",
+          "g4_update_recall",
+          "g4_update_precision",
+          "g4_boilerplate_fp",
+          "g4_article_split",
+          "g4_sample_incomplete"
+        ]
+      },
+      "g5": {
+        "status": "measured",
+        "completion_gate_pass": false,
+        "evidence": "production_validate_url_shape",
+        "blockers": [
+          "g5_production_fetch_unmeasured",
+          "g5_identity_unmeasured"
+        ]
+      }
+    },
+    "blockers": [
+      "g0:operator_attestation_pending",
+      "g0:attestation_pending",
+      "g1:g1_feed_recall",
+      "g1:g1_precision_at_3",
+      "g1:g1_japanese_recall",
+      "g1:g1_no_feed_fallback",
+      "g2:g2_primary_recall_at_20",
+      "g2:g2_relevant_recall_at_50",
+      "g2:g2_precision_at_20",
+      "g3:g3_raw_entry_recall",
+      "g3:g3_important_update_recall",
+      "g3:g3_family_regression_unmeasured",
+      "g4:g4_body_success",
+      "g4:g4_important_body_recall",
+      "g4:g4_update_recall",
+      "g4:g4_update_precision",
+      "g4:g4_boilerplate_fp",
+      "g4:g4_article_split",
+      "g4:g4_sample_incomplete",
+      "g5:g5_production_fetch_unmeasured",
+      "g5:g5_identity_unmeasured"
+    ]
+  },
+  "g6": {
+    "policy": {
+      "min_consecutive_days": 7,
+      "min_live_sources": 100,
+      "min_japanese_sources": 30,
+      "min_families": 5,
+      "min_observed_updates": 200,
+      "acquisition_success": 0.99,
+      "important_recall": 0.98,
+      "silent_miss_max": 0,
+      "stale_as_healthy_max": 0,
+      "unclassified_max": 0
+    },
+    "consecutive_days": 1,
+    "source_count": 100,
+    "japanese_sources": 40,
+    "family_count": 5,
+    "observed_updates": 0,
+    "pass": false,
+    "failures": [
+      "min_consecutive_days",
+      "min_observed_updates"
+    ],
+    "status": "calendar_or_capacity_unmet"
+  },
+  "g7": {
+    "one_command": true,
+    "deterministic": true,
+    "pass": false
+  },
+  "pass": false
+}
