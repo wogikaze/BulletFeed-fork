@@ -5,14 +5,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -116,6 +120,32 @@ class M1AndroidOnboardingJourneyTest {
             assertEquals(persona.personaId, persona.topics.distinct(), completedTopics)
             assertEquals(persona.personaId, true, completedGithub)
         }
+    }
+
+    @Test
+    fun emptyTopicsWithoutGithubCannotFinishOnboarding() {
+        val persona = loadPersonas().first { it.expectEmptyReason == "no_topics_abstention" }
+        var completedTopics: List<String>? = null
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(
+                    initialProfile = profileFor(persona),
+                    initialTopics = persona.topics,
+                    isSaving = false,
+                    onComplete = { _, topics, _ -> completedTopics = topics },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.onNodeWithText("手動でテーマを選ぶ").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("onboarding-continue-button").assertIsNotEnabled()
+        composeRule.onNodeWithTag("onboarding-continue-button").performClick()
+        composeRule.waitForIdle()
+        assertNull(completedTopics)
     }
 }
 
