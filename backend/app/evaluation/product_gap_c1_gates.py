@@ -205,6 +205,17 @@ def evaluate_g2(sources: list[G0Source], *, floors: dict[str, float]) -> dict[st
                 "primary_recall_at_20": topic_primary_recall,
                 "relevant_recall_at_50": topic_relevant_recall,
                 "predicted_count": len(predicted),
+                "predicted_urls": predicted,
+                "predicted_provenance": [
+                    {
+                        "url": _canonical(item.canonical_url),
+                        "family": item.family,
+                        "discovery_provenance": item.discovery_provenance,
+                        "authority_status": item.authority_status,
+                        "verification_status": item.verification_status,
+                    }
+                    for item in result.items
+                ],
             }
         )
         if primary and topic_primary_recall < floors["g2_min_topic_primary_recall"]:
