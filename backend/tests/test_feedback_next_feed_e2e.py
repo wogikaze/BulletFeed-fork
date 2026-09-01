@@ -280,6 +280,52 @@ def test_enough_important_feedback_lifts_held_out_siblings_on_next_feed(
     assert PERSONALIZATION_VERSION not in rss["importance_reason"]
 
 
+def test_undo_after_learned_ranking_restores_next_feed_order(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    _seed_same_candidate_set(database, user_id)
+    before = _feed_ids(client, auth_headers)
+    assert before.index("nfeed_held_rss") < before.index("nfeed_held_release")
+
+    with database.connect() as connection:
+        ledger_before = ledger_world_state(connection)
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    learned = _feed_ids(client, auth_headers)
+    assert learned.index("nfeed_held_release") < learned.index("nfeed_held_rss")
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "undo"},
+        )
+        assert response.status_code == 200
+
+    restored = _feed_ids(client, auth_headers)
+    assert restored.index("nfeed_held_rss") < restored.index("nfeed_held_release")
+    assert set(before) == set(restored)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_held_release",),
+        ).fetchone()
+    assert held["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in held["importance_reason"]
+
+
 def test_feedback_ranking_does_not_drop_correction_from_next_feed(
     client: TestClient,
     auth_headers: dict[str, str],
