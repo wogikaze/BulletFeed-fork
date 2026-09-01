@@ -1,0 +1,20 @@
+{
+  "artifact_version": "product-gap-c1-g5-measurement-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "path": "production_validate_url_shape",
+  "sample_complete": true,
+  "case_count": 106,
+  "shape_bypass_count": 0,
+  "shape_rejected": 105,
+  "production_fetch_measured": false,
+  "identity_measured": false,
+  "redirect_same_source_measured": false,
+  "robots_not_success_measured": false,
+  "bypasses": [],
+  "unmeasured": [
+    "redirect_canonical_identity",
+    "dns_rebinding_and_resolution_to_peer",
+    "robots_policy_not_success",
+    "production_fetch_transport"
+  ]
+}

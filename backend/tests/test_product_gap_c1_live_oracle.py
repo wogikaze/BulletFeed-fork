@@ -89,5 +89,6 @@ def test_g5_artifact_keeps_fetch_and_identity_unmeasured() -> None:
     report = measure_g5_shape(GOLD_V2)
     assert report["sample_complete"] is True
     assert report["case_count"] >= 100
+    assert report["shape_bypass_count"] == 0
     assert report["production_fetch_measured"] is False
     assert report["identity_measured"] is False
