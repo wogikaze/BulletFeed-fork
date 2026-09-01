@@ -310,7 +310,7 @@ def test_reproject_user_dismisses_unmatched_reference_when_follow_empty(database
             """
             INSERT INTO topics (
                 id, user_id, name, type, priority, sort_order, created_at
-            ) VALUES ('topic_android', 'user_1', 'Android', 'technology', 'normal', 0, 0)
+            ) VALUES ('topic_aws', 'user_1', 'AWS', 'technology', 'normal', 0, 0)
             """
         )
     projector.reproject_user(user_id="user_1")

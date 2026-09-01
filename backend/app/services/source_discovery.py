@@ -248,8 +248,31 @@ def discover_sources(
         tenant_id=state.tenant_id,
         interest_version=state.version or INTEREST_STATE_VERSION,
         interest_fingerprint=state.signal_fingerprint,
-        items=tuple(ranked[:capped]),
+        items=_select_ranked_items(ranked, capped),
     )
+
+
+def _select_ranked_items(ranked: list[SourceCandidate], capped: int) -> tuple[SourceCandidate, ...]:
+    """Keep short recommendation pages from filling with neighbor seeds.
+
+    Longer lists (limit > 10), including G2 recall@20/@50, keep score order
+    and the full neighbor expansion. A 6-item gold page keeps at most
+    limit/3 neighbor hits so official React sources are not crowded out.
+    """
+    if capped > 10 or not any(item.match_kind == "direct" for item in ranked):
+        return tuple(ranked[:capped])
+    neighbor_budget = capped // 3
+    chosen: list[SourceCandidate] = []
+    neighbors_used = 0
+    for item in ranked:
+        if len(chosen) >= capped:
+            break
+        if item.match_kind != "direct":
+            if neighbors_used >= neighbor_budget:
+                continue
+            neighbors_used += 1
+        chosen.append(item)
+    return tuple(chosen)
 
 
 def discover_sources_for_topics(
