@@ -7,6 +7,7 @@ They are not claimed as Human Gold until attestation.json is signed.
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -828,7 +829,36 @@ def assemble_v2_rows() -> list[dict]:
     rows = _dedupe(_english_official() + _english_corp() + _english_personal_and_feeds() + _japanese())
     rows = _topic_faithful_extras(rows)
     rows = _dedupe(rows + _v2_coverage() + _public_policy_blocked_rows())
-    return _assign_splits(rows)
+    rows = _assign_splits(rows)
+    _validate_v2_rows(rows)
+    return rows
+
+
+def _validate_v2_rows(rows: list[dict]) -> None:
+    """Reject the padding and policy-label mistakes that invalidated G0 v1."""
+    seen_splits: dict[str, str] = {}
+    for row in rows:
+        if row["topic_id"] not in TOPICS:
+            raise ValueError(f"unknown G0 v2 topic: {row['topic_id']}")
+        parsed = urlparse(row["site_url"])
+        if parsed.scheme != "https" or not parsed.hostname:
+            raise ValueError(f"G0 v2 source must be public HTTPS: {row['site_url']}")
+        domain = row["registrable_domain"]
+        previous_split = seen_splits.setdefault(domain, row["split"])
+        if previous_split != row["split"]:
+            raise ValueError(f"G0 v2 split crosses registrable domain: {domain}")
+        if row["policy_status"] == "policy_blocked":
+            if not row["curation"].startswith("policy_blocked:"):
+                raise ValueError(f"policy_blocked row lacks reason: {row['source_id']}")
+            try:
+                address = ipaddress.ip_address(parsed.hostname.strip("[]"))
+            except ValueError:
+                address = None
+            if address is not None and not address.is_global:
+                raise ValueError(f"private address must remain in G5, not G0: {row['site_url']}")
+        if row["family"] == "personal_dev_blog" and parsed.hostname in {"zenn.dev", "qiita.com"}:
+            if not [part for part in parsed.path.split("/") if part]:
+                raise ValueError(f"platform index is not a personal blog: {row['site_url']}")
 
 
 def write_g0_dataset(
