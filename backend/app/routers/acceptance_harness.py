@@ -15,6 +15,8 @@ from app.services.feed_projection import FeedProjector
 from app.services.knowledge_evidence import replay_knowledge_state
 from app.services.knowledge_identity import resolve_claim_knowledge_id
 from app.services.ledger_projection import LedgerProjector
+from app.services.ranking import evaluate_importance
+from app.services.ranking_feedback import MIN_SAMPLE_SIZE
 from app.services.statuspage_pipeline import StatuspagePipeline
 
 router = APIRouter(tags=["acceptance-harness"])
@@ -27,6 +29,12 @@ class SeedRequest(ApiModel):
 class SeedResponse(ApiModel):
     event_ids: list[str]
     projected_item_count: int
+
+
+class FeedbackRankingSeedResponse(ApiModel):
+    train_item_ids: list[str]
+    held_release_item_id: str
+    held_rss_item_id: str
 
 
 class ExposureCountResponse(ApiModel):
@@ -199,3 +207,108 @@ def bootstrap_knownness(
             ).action
             items.append(KnownnessRow(claim_id=claim_id, state=derived.state, action=action))
     return KnownnessInspectResponse(items=items)
+
+
+def _insert_feedback_ranking_item(
+    connection,
+    *,
+    user_id: str,
+    item_id: str,
+    event_id: str,
+    source_type: str,
+    updated_at: str,
+    delta_type: str = "detail",
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO events (
+            id, title, summary, current_phase, current_summary,
+            current_since, current_confidence, updated_at
+        ) VALUES (?, ?, '', 'published', '', ?, 'high', ?)
+        """,
+        (event_id, f"{source_type} {event_id}", updated_at, updated_at),
+    )
+    connection.execute(
+        """
+        INSERT INTO ledger_events (
+            id, source_type, source_key, source_event_id, title, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (event_id, source_type, event_id, event_id, event_id, updated_at),
+    )
+    delta_id = f"d_{item_id}"
+    connection.execute(
+        """
+        INSERT INTO deltas (
+            id, event_id, type, summary, before_text, after_text, occurred_at
+        ) VALUES (?, ?, ?, '', '', '', ?)
+        """,
+        (delta_id, event_id, delta_type, updated_at),
+    )
+    importance = evaluate_importance(source_type=source_type, delta_type=delta_type)
+    connection.execute(
+        """
+        INSERT INTO feed_items (
+            id, user_id, event_id, delta_id, title,
+            importance_level, importance_reason, importance_confidence,
+            relation_level, relation_reason, matched_topics_json,
+            matched_repos_json, personalization_rank,
+            status, dismissed, marked_important, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'reference', '', '[]', '[]', 0, 'unread', 0, 0, ?)
+        """,
+        (
+            item_id,
+            user_id,
+            event_id,
+            delta_id,
+            event_id,
+            importance.level,
+            importance.reason,
+            importance.confidence,
+            updated_at,
+        ),
+    )
+
+
+@router.post("/__acceptance__/seed-feedback-ranking", response_model=FeedbackRankingSeedResponse)
+def seed_feedback_ranking(
+    body: SeedRequest,
+    database: Annotated[Database, Depends(get_database)],
+) -> FeedbackRankingSeedResponse:
+    _require_user(database, body.user_id)
+    suffix = body.user_id.replace("-", "")[-12:]
+    train_ids = [f"nfeed_train_{index}_{suffix}" for index in range(MIN_SAMPLE_SIZE)]
+    held_release = f"nfeed_held_release_{suffix}"
+    held_rss = f"nfeed_held_rss_{suffix}"
+    with database.connect() as connection:
+        for index, item_id in enumerate(train_ids):
+            _insert_feedback_ranking_item(
+                connection,
+                user_id=body.user_id,
+                item_id=item_id,
+                event_id=f"ev_{item_id}",
+                source_type="github_release",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+            )
+        _insert_feedback_ranking_item(
+            connection,
+            user_id=body.user_id,
+            item_id=held_release,
+            event_id=f"ev_{held_release}",
+            source_type="github_release",
+            updated_at="2026-08-21T00:00:00Z",
+        )
+        _insert_feedback_ranking_item(
+            connection,
+            user_id=body.user_id,
+            item_id=held_rss,
+            event_id=f"ev_{held_rss}",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            delta_type="new_fact",
+        )
+    return FeedbackRankingSeedResponse(
+        train_item_ids=train_ids,
+        held_release_item_id=held_release,
+        held_rss_item_id=held_rss,
+    )
