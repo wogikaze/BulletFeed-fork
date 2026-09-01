@@ -46,8 +46,11 @@ def _insert_item(
     source_type: str,
     updated_at: str,
     delta_type: str = "detail",
+    title: str | None = None,
+    source_key: str | None = None,
 ) -> None:
     connection.execute("INSERT OR IGNORE INTO users (id, created_at) VALUES (?, 0)", (user_id,))
+    event_title = title or f"{source_type} {event_id}"
     connection.execute(
         """
         INSERT INTO events (
@@ -55,7 +58,7 @@ def _insert_item(
             current_since, current_confidence, updated_at
         ) VALUES (?, ?, '', 'published', '', ?, 'high', ?)
         """,
-        (event_id, f"{source_type} {event_id}", updated_at, updated_at),
+        (event_id, event_title, updated_at, updated_at),
     )
     connection.execute(
         """
@@ -63,7 +66,7 @@ def _insert_item(
             id, source_type, source_key, source_event_id, title, created_at
         ) VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (event_id, source_type, event_id, event_id, event_id, updated_at),
+        (event_id, source_type, source_key or event_id, event_id, event_id, updated_at),
     )
     delta_id = f"d_{item_id}"
     connection.execute(
@@ -321,6 +324,267 @@ def test_feedback_ranking_is_per_user_and_resettable(database) -> None:
     assert restored["importance_level"] == "medium"
     assert PERSONALIZATION_VERSION not in restored["importance_reason"]
     assert leftover is None
+
+
+def test_concept_feedback_lifts_same_source_type_held_out(database) -> None:
+    with database.connect() as connection:
+        for index in range(MIN_SAMPLE_SIZE):
+            _insert_item(
+                connection,
+                user_id="learner",
+                item_id=f"train_react_{index}",
+                event_id=f"ev_train_react_{index}",
+                source_type="github_release",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                title=f"React 19 train {index}",
+            )
+            _mark(
+                connection,
+                user_id="learner",
+                item_id=f"train_react_{index}",
+                feedback_type="important",
+                created_at=40 + index,
+            )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_react",
+            event_id="ev_held_react",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            title="React 19 release",
+        )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_other",
+            event_id="ev_held_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="PostgreSQL 18 notes",
+        )
+        apply_feedback_ranking(connection, user_id="learner")
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_react'"
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_other'"
+        ).fetchone()
+        concept = connection.execute(
+            """
+            SELECT important_count FROM user_ranking_features
+            WHERE user_id = 'learner' AND feature_kind = 'concept' AND feature_value = 'react'
+            """
+        ).fetchone()
+
+    assert concept is not None
+    assert concept["important_count"] == MIN_SAMPLE_SIZE
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "react" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
+def test_topic_feedback_lifts_same_source_type_held_out(database) -> None:
+    with database.connect() as connection:
+        connection.execute("INSERT OR IGNORE INTO users (id, created_at) VALUES ('learner', 0)")
+        connection.execute(
+            """
+            INSERT INTO topics (id, user_id, name, type, priority, sort_order, created_at)
+            VALUES ('topic_kotlin', 'learner', 'Kotlin', 'technology', 'high', 0, 0)
+            """
+        )
+        for index in range(MIN_SAMPLE_SIZE):
+            _insert_item(
+                connection,
+                user_id="learner",
+                item_id=f"train_kotlin_{index}",
+                event_id=f"ev_train_kotlin_{index}",
+                source_type="github_release",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                title=f"Kotlin 2.1 train {index}",
+            )
+            _mark(
+                connection,
+                user_id="learner",
+                item_id=f"train_kotlin_{index}",
+                feedback_type="important",
+                created_at=40 + index,
+            )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_kotlin",
+            event_id="ev_held_kotlin",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            title="Kotlin 2.1 notes",
+        )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_other",
+            event_id="ev_held_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="PostgreSQL 18 notes",
+        )
+        apply_feedback_ranking(connection, user_id="learner")
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_kotlin'"
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_other'"
+        ).fetchone()
+        topic = connection.execute(
+            """
+            SELECT important_count FROM user_ranking_features
+            WHERE user_id = 'learner' AND feature_kind = 'topic' AND feature_value = 'Kotlin'
+            """
+        ).fetchone()
+
+    assert topic is not None
+    assert topic["important_count"] == MIN_SAMPLE_SIZE
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "Kotlin" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
+def test_repository_feedback_lifts_held_out_without_source_type_threshold(database) -> None:
+    with database.connect() as connection:
+        connection.execute("INSERT OR IGNORE INTO users (id, created_at) VALUES ('learner', 0)")
+        connection.execute(
+            """
+            INSERT INTO github_repo_watches (
+                user_id, repository_id, full_name, html_url, selected, private
+            ) VALUES ('learner', 'repo-react', 'facebook/react', 'https://github.com/facebook/react', 1, 0)
+            """
+        )
+        for index, source_type in enumerate(("github_release", "github_advisory", "osv")):
+            _insert_item(
+                connection,
+                user_id="learner",
+                item_id=f"train_repo_{index}",
+                event_id=f"ev_train_repo_{index}",
+                source_type=source_type,
+                source_key="facebook/react",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                title=f"Unrelated kitchen notes {index}",
+            )
+            _mark(
+                connection,
+                user_id="learner",
+                item_id=f"train_repo_{index}",
+                feedback_type="important",
+                created_at=40 + index,
+            )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_react_repo",
+            event_id="ev_held_react_repo",
+            source_type="github_release",
+            source_key="facebook/react",
+            updated_at="2026-08-21T00:00:00Z",
+            title="Unrelated desk lamp manual",
+        )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_go_repo",
+            event_id="ev_held_go_repo",
+            source_type="github_release",
+            source_key="golang/go",
+            updated_at="2026-08-22T00:00:00Z",
+            title="Unrelated garden hose specs",
+        )
+        apply_feedback_ranking(connection, user_id="learner")
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_react_repo'"
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_go_repo'"
+        ).fetchone()
+        repo = connection.execute(
+            """
+            SELECT important_count FROM user_ranking_features
+            WHERE user_id = 'learner' AND feature_kind = 'repository'
+              AND feature_value = 'facebook/react'
+            """
+        ).fetchone()
+
+    assert repo is not None
+    assert repo["important_count"] == MIN_SAMPLE_SIZE
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "facebook/react" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
+
+
+def test_impact_feedback_lifts_same_source_type_held_out(database) -> None:
+    with database.connect() as connection:
+        for index, source_type in enumerate(("rss_atom", "github_release", "package_registry")):
+            _insert_item(
+                connection,
+                user_id="learner",
+                item_id=f"train_impact_{index}",
+                event_id=f"ev_train_impact_{index}",
+                source_type=source_type,
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                delta_type="state_update",
+                title=f"Unrelated kitchen notes {index}",
+            )
+            _mark(
+                connection,
+                user_id="learner",
+                item_id=f"train_impact_{index}",
+                feedback_type="important",
+                created_at=40 + index,
+            )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_state",
+            event_id="ev_held_state",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            delta_type="state_update",
+            title="Unrelated desk lamp manual",
+        )
+        _insert_item(
+            connection,
+            user_id="learner",
+            item_id="held_other",
+            event_id="ev_held_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="Unrelated garden hose specs",
+        )
+        apply_feedback_ranking(connection, user_id="learner")
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_state'"
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = 'held_other'"
+        ).fetchone()
+        impact = connection.execute(
+            """
+            SELECT important_count FROM user_ranking_features
+            WHERE user_id = 'learner' AND feature_kind = 'impact' AND feature_value = 'state_update'
+            """
+        ).fetchone()
+
+    assert impact is not None
+    assert impact["important_count"] == MIN_SAMPLE_SIZE
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "state_update" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
 
 
 def test_replay_matches_with_and_without_feedback(tmp_path: Path) -> None:

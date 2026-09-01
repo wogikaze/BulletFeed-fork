@@ -139,6 +139,8 @@ class RemoteFeedRepository(
         api.sendFeedFeedback(feedItemId, FeedbackDto(type.name.lowercase()))
     }
 
+    override suspend fun resetLearnedRanking(): Long = api.resetLearnedRanking().resetAt
+
     override suspend fun recordExposures(items: List<FeedExposure>) {
         if (items.isEmpty()) return
         api.recordExposures(

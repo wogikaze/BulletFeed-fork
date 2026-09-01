@@ -121,3 +121,126 @@ def test_additional_and_duplicate_provenance_codes() -> None:
     )
     assert "provenance.syndication" in syndicated.codes
     assert syndicated.independent_evidence_count == 1
+
+
+def test_feedback_overlay_is_explained_without_version_codes() -> None:
+    boosted = build_display_reason(
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            personalization_adjustment="boost_importance",
+        )
+    )
+    assert "personalization.feedback_boost" in boosted.codes
+    assert "重要マーク" in boosted.text
+    assert "ranking-feedback" not in boosted.text
+    assert "personalization.feedback_boost" not in boosted.text
+    assert (
+        reason_inconsistencies(
+            boosted,
+            _inputs(
+                relation_level="direct",
+                relation_reason="selected topic",
+                personalization_adjustment="boost_importance",
+            ),
+        )
+        == []
+    )
+
+    demoted = build_display_reason(
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            personalization_adjustment="demote_relation",
+        )
+    )
+    assert "personalization.feedback_demote" in demoted.codes
+    assert "無関係マーク" in demoted.text
+    assert (
+        reason_inconsistencies(
+            demoted,
+            _inputs(
+                relation_level="direct",
+                relation_reason="selected topic",
+                personalization_adjustment="demote_relation",
+            ),
+        )
+        == []
+    )
+
+    invented = boosted.model_copy(
+        update={"codes": [*boosted.codes, "personalization.feedback_demote"]}
+    )
+    problems = reason_inconsistencies(
+        invented,
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            personalization_adjustment="boost_importance",
+        ),
+    )
+    assert problems
+
+    unbacked = build_display_reason(
+        _inputs(relation_level="direct", relation_reason="selected topic")
+    )
+    assert "personalization.feedback_boost" not in unbacked.codes
+    assert "重要マーク" not in unbacked.text
+    leaked = unbacked.model_copy(
+        update={
+            "codes": [*unbacked.codes, "personalization.feedback_boost"],
+            "text": f"{unbacked.text}これまでの重要マークに合わせて並びを調整しています。",
+        }
+    )
+    assert reason_inconsistencies(
+        leaked, _inputs(relation_level="direct", relation_reason="selected topic")
+    )
+
+
+def test_preference_overlay_is_explained_when_discrete_feedback_did_not_apply() -> None:
+    preferred = build_display_reason(
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            preference_overlay_applied=True,
+        )
+    )
+    assert "personalization.preference_overlay" in preferred.codes
+    assert "評価傾向" in preferred.text
+    assert "offline-preference" not in preferred.text
+    assert "personalization.preference_overlay" not in preferred.text
+    assert (
+        reason_inconsistencies(
+            preferred,
+            _inputs(
+                relation_level="direct",
+                relation_reason="selected topic",
+                preference_overlay_applied=True,
+            ),
+        )
+        == []
+    )
+
+    discrete_wins = build_display_reason(
+        _inputs(
+            relation_level="direct",
+            relation_reason="selected topic",
+            personalization_adjustment="boost_importance",
+            preference_overlay_applied=True,
+        )
+    )
+    assert "personalization.feedback_boost" in discrete_wins.codes
+    assert "personalization.preference_overlay" not in discrete_wins.codes
+    assert "評価傾向" not in discrete_wins.text
+    assert (
+        reason_inconsistencies(
+            discrete_wins,
+            _inputs(
+                relation_level="direct",
+                relation_reason="selected topic",
+                personalization_adjustment="boost_importance",
+                preference_overlay_applied=True,
+            ),
+        )
+        == []
+    )

@@ -137,6 +137,48 @@ class RealBackendAcceptanceTest {
         }
 
     @Test
+    fun `ranking reset restores held-out siblings on the next feed page`() =
+        runTest {
+            val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
+            assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
+
+            val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+            val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+            val repository = RemoteBulletFeedRepository(api, sessionManager)
+            repository.initialize()
+            val userId = sessionManager.userId
+            assertNotNull(userId)
+            val seeded = seedFeedbackRanking(baseUrl, userId!!)
+            assertEquals(3, seeded.trainItemIds.size)
+
+            suspend fun feedIds(): List<String> = repository.getFeedPage(limit = 50).items.map { it.id }
+
+            val before = feedIds()
+            assertTrue(
+                "held-out rss should start above release: $before",
+                before.indexOf(seeded.heldRssItemId) < before.indexOf(seeded.heldReleaseItemId),
+            )
+
+            for (itemId in seeded.trainItemIds) {
+                repository.sendFeedFeedback(itemId, FeedFeedbackType.IMPORTANT)
+            }
+            val learned = feedIds()
+            assertTrue(
+                "three important marks should lift held-out github_release: $learned",
+                learned.indexOf(seeded.heldReleaseItemId) < learned.indexOf(seeded.heldRssItemId),
+            )
+
+            val resetAt = repository.resetLearnedRanking()
+            assertTrue("reset must return a cutoff timestamp, got $resetAt", resetAt > 0)
+            val restored = feedIds()
+            assertTrue(
+                "reset must restore pre-learning held-out order: $restored",
+                restored.indexOf(seeded.heldRssItemId) < restored.indexOf(seeded.heldReleaseItemId),
+            )
+            assertEquals(before.toSet(), restored.toSet())
+        }
+
+    @Test
     fun `unauthenticated feed is session expiry not offline`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()

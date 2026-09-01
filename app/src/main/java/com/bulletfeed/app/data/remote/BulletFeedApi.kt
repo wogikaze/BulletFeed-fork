@@ -43,6 +43,9 @@ interface BulletFeedApi {
         @Body body: FeedbackDto,
     ): FeedFeedbackResponseDto
 
+    @POST("v1/feed/ranking/reset")
+    suspend fun resetLearnedRanking(): RankingResetResponseDto
+
     @POST("v1/feed/exposures")
     suspend fun recordExposures(
         @Body body: ExposuresDto,
@@ -308,6 +311,11 @@ data class FeedFeedbackResponseDto(
     val feedItemId: String,
     val type: String,
     val status: String,
+)
+
+@Serializable
+data class RankingResetResponseDto(
+    val resetAt: Long,
 )
 
 @Serializable

@@ -9,13 +9,25 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Final
+from typing import Final, Literal
 
 from app.schemas.feed import DisplayDeltaKind, DisplayMatchKind, DisplayReason
 from app.services.knowledge_evidence import STATE_PROBABLY_KNOWN, STATE_UNKNOWN
 from app.services.multiobjective_ranker import RANKING_POLICY_VERSION
 
 DISPLAY_REASON_POLICY_VERSION: Final = "display-reason-v1"
+PersonalizationAdjustment = Literal["boost_importance", "demote_relation"]
+
+_PERSONALIZATION_CODES: Final[dict[PersonalizationAdjustment, str]] = {
+    "boost_importance": "personalization.feedback_boost",
+    "demote_relation": "personalization.feedback_demote",
+}
+_PERSONALIZATION_TEXT: Final[dict[PersonalizationAdjustment, str]] = {
+    "boost_importance": "これまでの重要マークに合わせて並びを調整しています",
+    "demote_relation": "これまでの無関係マークに合わせて並びを調整しています",
+}
+_PREFERENCE_CODE: Final = "personalization.preference_overlay"
+_PREFERENCE_TEXT: Final = "これまでの評価傾向に合わせて並びを調整しています"
 
 _CORRECTION_DELTAS = frozenset({"correction"})
 _CONFLICT_DELTAS = frozenset({"unresolved_contradiction", "unresolved_conflict", "conflict"})
@@ -39,6 +51,8 @@ class DisplayReasonInputs:
     knownness_confidence: str
     additional_source_roles: tuple[str, ...]
     independent_evidence_count: int = 1
+    personalization_adjustment: PersonalizationAdjustment | None = None
+    preference_overlay_applied: bool = False
 
 
 def delta_kind_for(
@@ -134,6 +148,16 @@ def build_display_reason(inputs: DisplayReasonInputs) -> DisplayReason:
         codes.append(code)
         fragments.append(_provenance_text(role))
 
+    personalization_code, personalization_text = _personalization_code_and_text(
+        inputs.personalization_adjustment
+    )
+    if personalization_code is not None and personalization_text:
+        codes.append(personalization_code)
+        fragments.append(personalization_text)
+    elif inputs.preference_overlay_applied:
+        codes.append(_PREFERENCE_CODE)
+        fragments.append(_PREFERENCE_TEXT)
+
     if not fragments:
         fragments.append("追跡中の情報源に新しい事実があります")
     primary = codes[0] if codes else "delta.new_fact"
@@ -175,6 +199,31 @@ def reason_inconsistencies(reason: DisplayReason, inputs: DisplayReasonInputs) -
         problems.append("security text is not backed by the ranker priority rule")
     if "redundancy.topic_occupancy" in reason.codes and inputs.redundancy_penalty <= 0:
         problems.append("redundancy text is not backed by a live redundancy penalty")
+    adjustment = inputs.personalization_adjustment
+    personalization_codes = [
+        code for code in reason.codes if code.startswith("personalization.feedback_")
+    ]
+    if adjustment is not None:
+        expected_code = _PERSONALIZATION_CODES[adjustment]
+        if expected_code not in reason.codes:
+            problems.append("personalization code is not backed by the live overlay")
+        if _PERSONALIZATION_TEXT[adjustment] not in reason.text:
+            problems.append("personalization text is not backed by the live overlay")
+        unexpected = [code for code in personalization_codes if code != expected_code]
+        if unexpected:
+            problems.append("personalization text is not backed by the live overlay")
+    elif personalization_codes:
+        problems.append("personalization text is not backed by a live overlay")
+    prefer_preference = (
+        inputs.preference_overlay_applied and inputs.personalization_adjustment is None
+    )
+    if prefer_preference:
+        if _PREFERENCE_CODE not in reason.codes:
+            problems.append("preference overlay code is not backed by the live overlay")
+        if _PREFERENCE_TEXT not in reason.text:
+            problems.append("preference overlay text is not backed by the live overlay")
+    elif _PREFERENCE_CODE in reason.codes:
+        problems.append("preference overlay text is not backed by a live overlay")
     allowed_names = {name.casefold() for name in inputs.matched_topics}
     allowed_names.update(name.casefold() for name in inputs.matched_repository_names)
     for token in _named_entities(reason.text):
@@ -251,6 +300,33 @@ def _relation_code_and_text(
     if match_kind == "adjacent":
         return "relation.adjacent_topic", "フォロー中トピックの周辺に関連"
     return "relation.reference", "参考情報として表示しています"
+
+
+def preference_overlay_applied_from_reason(importance_reason: str, *, version: str) -> bool:
+    """True when the rank-only offline preference overlay wrote its versioned suffix."""
+    return bool(version) and version in (importance_reason or "")
+
+
+def personalization_adjustment_from_reasons(
+    importance_reason: str,
+    relation_reason: str,
+    *,
+    version: str,
+) -> PersonalizationAdjustment | None:
+    """Map live overlay reason suffixes onto the user-facing personalization axis."""
+    if version and version in (importance_reason or ""):
+        return "boost_importance"
+    if version and version in (relation_reason or ""):
+        return "demote_relation"
+    return None
+
+
+def _personalization_code_and_text(
+    adjustment: PersonalizationAdjustment | None,
+) -> tuple[str | None, str]:
+    if adjustment is None:
+        return None, ""
+    return _PERSONALIZATION_CODES[adjustment], _PERSONALIZATION_TEXT[adjustment]
 
 
 def _provenance_text(role: str) -> str:

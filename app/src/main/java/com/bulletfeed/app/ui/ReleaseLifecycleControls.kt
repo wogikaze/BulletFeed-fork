@@ -107,6 +107,7 @@ fun SettingsScreen(
     ),
     isSavingKnowledgeBootstrap: Boolean = false,
     onResetKnowledgeBootstrap: () -> Unit = {},
+    onResetLearnedRanking: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -131,6 +132,7 @@ fun SettingsScreen(
             knowledgeBootstrap = knowledgeBootstrap,
             isSavingKnowledgeBootstrap = isSavingKnowledgeBootstrap,
             onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
+            onResetLearnedRanking = onResetLearnedRanking,
             modifier = Modifier.weight(1f),
         )
         Spacer(Modifier.height(12.dp))

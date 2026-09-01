@@ -17,7 +17,12 @@ from app.errors import not_found, unprocessable
 from app.schemas.common import Delta, Importance, MatchedRepository, Relation, SourceEvidence
 from app.schemas.feed import PublicFeedItem
 from app.services.cross_source_suppress import SourceCandidate, project_candidates
-from app.services.display_reason import DisplayReasonInputs, build_display_reason
+from app.services.display_reason import (
+    DisplayReasonInputs,
+    build_display_reason,
+    personalization_adjustment_from_reasons,
+    preference_overlay_applied_from_reason,
+)
 from app.services.feedback_signals import (
     FAMILY_FOLLOW,
     FAMILY_KNOWLEDGE,
@@ -58,7 +63,8 @@ from app.services.multiobjective_ranker import (
     paginate_ranked,
     rank_candidates,
 )
-from app.services.ranking_feedback import apply_feedback_ranking
+from app.services.offline_preference import POLICY_VERSION as PREFERENCE_POLICY_VERSION
+from app.services.ranking_feedback import PERSONALIZATION_VERSION, apply_feedback_ranking
 from app.services.relation import RELATION_FEATURE_VERSION, evaluate_relation
 from app.services.session_telemetry import (
     KIND_CARD_DISPLAYED,
@@ -353,6 +359,15 @@ def _row_to_item(
         knownness_state=STATE_UNKNOWN,
         knownness_confidence=CONFIDENCE_NONE,
         additional_source_roles=tuple(item.role for item in extras if item.role),
+        personalization_adjustment=personalization_adjustment_from_reasons(
+            row["importance_reason"],
+            row["relation_reason"],
+            version=PERSONALIZATION_VERSION,
+        ),
+        preference_overlay_applied=preference_overlay_applied_from_reason(
+            row["importance_reason"],
+            version=PREFERENCE_POLICY_VERSION,
+        ),
     )
     return PublicFeedItem(
         id=row["id"],
@@ -934,6 +949,15 @@ class FeedStore:
                     knownness_confidence=known_confidence,
                     additional_source_roles=tuple(item.role for item in extras if item.role),
                     independent_evidence_count=evidence_count_by_id.get(row["id"], 1),
+                    personalization_adjustment=personalization_adjustment_from_reasons(
+                        row["importance_reason"],
+                        row["relation_reason"],
+                        version=PERSONALIZATION_VERSION,
+                    ),
+                    preference_overlay_applied=preference_overlay_applied_from_reason(
+                        row["importance_reason"],
+                        version=PREFERENCE_POLICY_VERSION,
+                    ),
                 )
                 items.append(
                     _row_to_item(
