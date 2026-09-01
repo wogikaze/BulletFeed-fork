@@ -111,8 +111,11 @@ def main(argv: list[str] | None = None) -> int:
             "BULLETFEED_GITHUB_CLIENT_SECRET": "",
             "BULLETFEED_RSS_ALLOWED_HOSTS": "react.dev",
             "BULLETFEED_WEB_ALLOWED_HOSTS": "cisa.gov,react.dev",
+            "BULLETFEED_EMBED_SOURCE_SYNC_WORKER": "0",
             "BULLETFEED_WORKER_IDLE_SECONDS": "0.25",
             "BULLETFEED_WORKER_POLL_SECONDS": "1",
+            # Seed fixture supplies events; do not live-crawl official RSS during the short journey.
+            "BULLETFEED_WORKER_BATCH_SIZE": "0",
         }
     )
     api = None

@@ -143,6 +143,7 @@ def main(argv: list[str] | None = None) -> int:
             "BULLETFEED_TOKEN_ENCRYPTION_KEY": Fernet.generate_key().decode(),
             "BULLETFEED_GITHUB_CLIENT_ID": "",
             "BULLETFEED_GITHUB_CLIENT_SECRET": "",
+            "BULLETFEED_EMBED_SOURCE_SYNC_WORKER": "0",
             "BULLETFEED_WORKER_IDLE_SECONDS": "0.25",
             "BULLETFEED_WORKER_POLL_SECONDS": "1",
         }

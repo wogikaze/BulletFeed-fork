@@ -579,6 +579,7 @@ def run_qualification(personas: tuple[M1Persona, ...]) -> dict[str, Any]:
                 "bun.sh,svelte.dev"
             ),
             "BULLETFEED_WEB_ALLOWED_HOSTS": "react.dev,cisa.gov",
+            "BULLETFEED_EMBED_SOURCE_SYNC_WORKER": "0",
         }
     )
     from app.main import app
