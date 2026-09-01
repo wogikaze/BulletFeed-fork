@@ -1,6 +1,8 @@
 {
   "freeze_version": "m6-capacity-production-freeze-v1",
-  "status": "frozen_on_branch_pending_main_merge",
+  "status": "frozen_on_main",
+  "frozen_on_sha": "b1befc9ee4ab04eefe64820ca27332438f8946ce",
+  "frozen_on_pr": 349,
   "label_source": "AI-silver",
   "human_gold": false,
   "blind_read": false,
@@ -9,7 +11,10 @@
   "relation_feature_version": "relation-features-v02",
   "production_ranking_contract": "app.services.multiobjective_ranker.rank_candidates",
   "weights_unchanged": true,
-  "oneshot_blind_ran": false,
+  "oneshot_blind_ran": true,
   "oneshot_blind_issue": 171,
-  "note": "Capacity policy is frozen for this remediation. #171 one-shot blind waits for merge to main and an evaluation-only loader that does not share the production-scoring import path."
+  "oneshot_blind_aggregate_status": "not_scorable",
+  "oneshot_blind_pass": false,
+  "do_not_rerun_same_holdout": true,
+  "note": "Capacity policy is frozen on main via #349 (b1befc9). #171 ran once after that freeze; aggregate_status=not_scorable because the reserved holdout is thin (1 judgment, 0 scored). This is not M6 blind PASS. Do not retune or rerun against the same holdout."
 }

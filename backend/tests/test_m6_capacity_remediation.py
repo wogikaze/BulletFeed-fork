@@ -46,9 +46,14 @@ def test_capacity_before_after_is_dev_only_and_separates_policies() -> None:
     freeze = json.loads(
         (REPORT.parent / "capacity_production_freeze.json").read_text(encoding="utf-8")
     )
+    assert freeze["status"] == "frozen_on_main"
+    assert freeze["frozen_on_sha"] == "b1befc9ee4ab04eefe64820ca27332438f8946ce"
     assert freeze["capacity_policy_version"] == CAPACITY_POLICY_VERSION
     assert freeze["ranking_policy_version"] == RANKING_POLICY_VERSION
-    assert freeze["oneshot_blind_ran"] is False
+    assert freeze["oneshot_blind_ran"] is True
+    assert freeze["oneshot_blind_pass"] is False
+    assert freeze["oneshot_blind_aggregate_status"] == "not_scorable"
+    assert freeze["do_not_rerun_same_holdout"] is True
     assert freeze["weights_unchanged"] is True
     for family in FAMILIES:
         before = payload["before"]["persona_families"][family]["summary"]
