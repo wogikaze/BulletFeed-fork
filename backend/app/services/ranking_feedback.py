@@ -7,6 +7,7 @@ from typing import Literal
 
 from app.services.feedback_signals import RANKING_FEATURE_TYPES
 from app.services.offline_preference import (
+    FEATURE_KIND_CONCEPT,
     UserPreferenceState,
     preference_overlay,
     reset_user_preference,
@@ -14,6 +15,7 @@ from app.services.offline_preference import (
 )
 from app.services.ranking import evaluate_importance
 from app.services.relation import evaluate_relation
+from app.services.user_interest import detect_concepts_in_text
 
 MIN_SAMPLE_SIZE = 3
 FEATURE_KIND_SOURCE_TYPE = "source_type"
@@ -70,50 +72,79 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
     connection.execute("DELETE FROM user_ranking_features WHERE user_id = ?", (user_id,))
     rows = connection.execute(
         """
-        WITH latest AS (
+        SELECT
+            fb.type AS feedback_type,
+            COALESCE(le.source_type, 'unknown') AS source_type,
+            e.title AS title,
+            e.summary AS summary
+        FROM (
             SELECT
-                fb.type AS feedback_type,
-                COALESCE(le.source_type, 'unknown') AS feature_value
-            FROM (
-                SELECT
-                    user_id,
-                    feed_item_id,
-                    type,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY user_id, feed_item_id, COALESCE(
-                            family,
-                            CASE type
-                                WHEN 'important' THEN 'ranking'
-                                WHEN 'not_relevant' THEN 'ranking'
-                                WHEN 'already_knew' THEN 'knowledge'
-                                WHEN 'learned_now' THEN 'knowledge'
-                                WHEN 'follow' THEN 'follow'
-                                WHEN 'less_like_this' THEN 'preference'
-                                ELSE type
-                            END
-                        )
-                        ORDER BY created_at DESC, id DESC
-                    ) AS rn
-                FROM feedback
-                WHERE user_id = ? AND created_at > ?
-            ) fb
-            JOIN feed_items f ON f.id = fb.feed_item_id AND f.user_id = fb.user_id
-            LEFT JOIN ledger_events le ON le.id = f.event_id
-            WHERE fb.rn = 1 AND fb.type != 'undo'
-        )
-        SELECT feature_value, feedback_type, COUNT(*) AS n
-        FROM latest
-        GROUP BY feature_value, feedback_type
+                user_id,
+                feed_item_id,
+                type,
+                ROW_NUMBER() OVER (
+                    PARTITION BY user_id, feed_item_id, COALESCE(
+                        family,
+                        CASE type
+                            WHEN 'important' THEN 'ranking'
+                            WHEN 'not_relevant' THEN 'ranking'
+                            WHEN 'already_knew' THEN 'knowledge'
+                            WHEN 'learned_now' THEN 'knowledge'
+                            WHEN 'follow' THEN 'follow'
+                            WHEN 'less_like_this' THEN 'preference'
+                            ELSE type
+                        END
+                    )
+                    ORDER BY created_at DESC, id DESC
+                ) AS rn
+            FROM feedback
+            WHERE user_id = ? AND created_at > ?
+        ) fb
+        JOIN feed_items f ON f.id = fb.feed_item_id AND f.user_id = fb.user_id
+        LEFT JOIN ledger_events le ON le.id = f.event_id
+        LEFT JOIN events e ON e.id = f.event_id
+        WHERE fb.rn = 1 AND fb.type != 'undo'
         """,
         (user_id, reset_at),
     ).fetchall()
-    empty = {name: 0 for name in RANKING_FEATURE_TYPES}
-    tallies: dict[str, dict[str, int]] = {}
+    source_tallies: dict[str, dict[str, int]] = {}
+    concept_tallies: dict[str, dict[str, int]] = {}
     for row in rows:
-        bucket = tallies.setdefault(row["feature_value"], dict(empty))
-        feedback_type = row["feedback_type"]
-        if feedback_type in bucket:
-            bucket[feedback_type] = int(row["n"])
+        _add_tally(source_tallies, row["source_type"], row["feedback_type"])
+        text = " ".join(part for part in (row["title"], row["summary"]) if part)
+        for concept_id in detect_concepts_in_text(text):
+            _add_tally(concept_tallies, concept_id, row["feedback_type"])
+    _persist_feature_tallies(
+        connection,
+        user_id=user_id,
+        feature_kind=FEATURE_KIND_SOURCE_TYPE,
+        tallies=source_tallies,
+    )
+    _persist_feature_tallies(
+        connection,
+        user_id=user_id,
+        feature_kind=FEATURE_KIND_CONCEPT,
+        tallies=concept_tallies,
+    )
+
+
+def _empty_tally() -> dict[str, int]:
+    return {name: 0 for name in RANKING_FEATURE_TYPES}
+
+
+def _add_tally(tallies: dict[str, dict[str, int]], feature_value: str, feedback_type: str) -> None:
+    bucket = tallies.setdefault(feature_value, _empty_tally())
+    if feedback_type in bucket:
+        bucket[feedback_type] += 1
+
+
+def _persist_feature_tallies(
+    connection: sqlite3.Connection,
+    *,
+    user_id: str,
+    feature_kind: str,
+    tallies: dict[str, dict[str, int]],
+) -> None:
     for feature_value, counts in tallies.items():
         connection.execute(
             """
@@ -125,7 +156,7 @@ def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: st
             """,
             (
                 user_id,
-                FEATURE_KIND_SOURCE_TYPE,
+                feature_kind,
                 feature_value,
                 counts["important"],
                 counts["not_relevant"],
@@ -161,7 +192,11 @@ def _shift(level: str, order: tuple[str, ...], delta: int) -> str:
     return order[max(0, min(len(order) - 1, index + delta))]
 
 
-def _features(connection: sqlite3.Connection, user_id: str) -> dict[str, tuple[int, int]]:
+def _features(
+    connection: sqlite3.Connection,
+    user_id: str,
+    feature_kind: str = FEATURE_KIND_SOURCE_TYPE,
+) -> dict[str, tuple[int, int]]:
     return {
         row["feature_value"]: (int(row["important_count"]), int(row["not_relevant_count"]))
         for row in connection.execute(
@@ -170,18 +205,18 @@ def _features(connection: sqlite3.Connection, user_id: str) -> dict[str, tuple[i
             FROM user_ranking_features
             WHERE user_id = ? AND feature_kind = ?
             """,
-            (user_id, FEATURE_KIND_SOURCE_TYPE),
+            (user_id, feature_kind),
         )
     }
 
 
-def _explain(kind: Adjustment, count: int, source_type: str) -> str:
+def _explain(kind: Adjustment, count: int, feature_value: str) -> str:
     if kind == "boost_importance":
         action = f"{count} important marks"
     else:
         action = f"{count} not_relevant marks"
     return (
-        f"Personalized from {action} on {source_type} items "
+        f"Personalized from {action} on {feature_value} items "
         f"[{PERSONALIZATION_VERSION}]."
     )
 
@@ -192,6 +227,7 @@ def _apply_adjustments(
     preference: UserPreferenceState,
 ) -> int:
     features = _features(connection, user_id)
+    concept_features = _features(connection, user_id, FEATURE_KIND_CONCEPT)
     items = connection.execute(
         """
         SELECT f.id, f.event_id, d.type AS delta_type, e.title, e.summary,
@@ -227,13 +263,24 @@ def _apply_adjustments(
         personalization_rank = relation.personalization_rank
         counts = features.get(source_type, (0, 0))
         kind = adjustment_for_counts(*counts)
+        feature_value = source_type
+        if kind is None:
+            text = " ".join(part for part in (item["title"], item["summary"]) if part)
+            for concept_id in detect_concepts_in_text(text):
+                concept_counts = concept_features.get(concept_id, (0, 0))
+                concept_kind = adjustment_for_counts(*concept_counts)
+                if concept_kind is not None:
+                    kind = concept_kind
+                    counts = concept_counts
+                    feature_value = concept_id
+                    break
         if kind == "boost_importance":
             importance_level = _shift(importance_level, _IMPORTANCE_ORDER, 1)
-            importance_reason = f"{importance.reason} {_explain(kind, counts[0], source_type)}"
+            importance_reason = f"{importance.reason} {_explain(kind, counts[0], feature_value)}"
             personalization_rank = relation.personalization_rank + RANK_BONUS
         elif kind == "demote_relation":
             relation_level = _shift(relation_level, _RELATION_ORDER, -1)
-            suffix = _explain(kind, counts[1], source_type)
+            suffix = _explain(kind, counts[1], feature_value)
             relation_reason = f"{relation.reason} {suffix}".strip()
             personalization_rank = max(0, relation.personalization_rank - RANK_BONUS)
         has_explicit = relation.level == "direct" or bool(relation.matched_topics) or bool(

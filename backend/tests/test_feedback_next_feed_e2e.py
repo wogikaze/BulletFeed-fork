@@ -44,7 +44,9 @@ def _insert_item(
     source_type: str,
     updated_at: str,
     delta_type: str = "detail",
+    title: str | None = None,
 ) -> None:
+    event_title = title or f"{source_type} {event_id}"
     connection.execute(
         """
         INSERT INTO events (
@@ -52,7 +54,7 @@ def _insert_item(
             current_since, current_confidence, updated_at
         ) VALUES (?, ?, '', 'published', '', ?, 'high', ?)
         """,
-        (event_id, f"{source_type} {event_id}", updated_at, updated_at),
+        (event_id, event_title, updated_at, updated_at),
     )
     connection.execute(
         """
@@ -382,6 +384,75 @@ def test_http_reset_after_learned_ranking_restores_next_feed_order(
     assert PERSONALIZATION_VERSION not in held["importance_reason"]
     assert remaining["n"] == MIN_SAMPLE_SIZE
     assert other is None
+
+
+def test_concept_feedback_lifts_held_out_on_next_feed_same_source_type(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    with database.connect() as connection:
+        for index in range(MIN_SAMPLE_SIZE):
+            _insert_item(
+                connection,
+                user_id=user_id,
+                item_id=f"nfeed_c_train_{index}",
+                event_id=f"ev_nfeed_c_train_{index}",
+                source_type="github_release",
+                updated_at=f"2026-08-20T00:0{index}:00Z",
+                title=f"React 19 train {index}",
+            )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_c_react",
+            event_id="ev_nfeed_c_react",
+            source_type="rss_atom",
+            updated_at="2026-08-21T00:00:00Z",
+            title="React 19 release",
+        )
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_c_other",
+            event_id="ev_nfeed_c_other",
+            source_type="rss_atom",
+            updated_at="2026-08-22T00:00:00Z",
+            title="PostgreSQL 18 notes",
+        )
+        ledger_before = ledger_world_state(connection)
+
+    before = _feed_ids(client, auth_headers)
+    assert before.index("nfeed_c_other") < before.index("nfeed_c_react")
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_c_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    after = _feed_ids(client, auth_headers)
+    assert after.index("nfeed_c_react") < after.index("nfeed_c_other")
+    assert set(before) == set(after)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_c_react",),
+        ).fetchone()
+        other = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_c_other",),
+        ).fetchone()
+    assert held["importance_level"] == "high"
+    assert PERSONALIZATION_VERSION in held["importance_reason"]
+    assert "react" in held["importance_reason"]
+    assert other["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in other["importance_reason"]
 
 
 def test_feedback_ranking_does_not_drop_correction_from_next_feed(
