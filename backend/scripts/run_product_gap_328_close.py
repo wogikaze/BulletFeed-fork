@@ -59,7 +59,7 @@ def build_report() -> dict:
     g6 = evaluate_g6_journal(G6_JOURNAL)
     items, compare = _compare_from_fixture()
     compare = attach_source_coverage(compare, g3=c1_gates["g3"])
-    c2 = evaluate_c2(GOLD / "c2", items)
+    c2 = evaluate_c2(GOLD / "c2")
     field = (
         json.loads((GOLD / "c5" / "field_journal.json").read_text(encoding="utf-8"))
         if (GOLD / "c5" / "field_journal.json").exists()

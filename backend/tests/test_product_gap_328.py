@@ -232,26 +232,46 @@ def test_decay_and_reason_fixtures() -> None:
 
 
 def test_c2_constructed_pairs_are_not_human_gold() -> None:
-    payload = json.loads((GOLD / "c5" / "compare_fixture.json").read_text(encoding="utf-8"))
-    items = [
-        CompareItem(
-            item_id=row["item_id"],
-            published_at=row["published_at"],
-            topic_key=row["topic_key"],
-            important_unknown=row["important_unknown"],
-            already_known=row["already_known"],
-            duplicate=row["duplicate"],
-            useful=row["useful"],
-            candidate=RankerCandidate(
-                item_id=row["item_id"],
-                topic_key=row["topic_key"],
-                relation_level=row["relation_level"],
-                importance_level=row["importance_level"],
-                updated_at=row["published_at"],
-            ),
-        )
-        for row in payload["items"]
-    ]
-    report = evaluate_c2(GOLD / "c2", items)
+    report = evaluate_c2(GOLD / "c2")
     assert report["human_gold"] is False
     assert "human_adjacent_sample_missing" in report["failures"]
+    assert report["pass"] is False
+
+
+def test_c2_contrast_pairs_differ_without_dropping_everyone_important() -> None:
+    report = evaluate_c2(GOLD / "c2")
+    by_id = {row["pair_id"]: row for row in report["pairs"]}
+    assert by_id["rust-vs-js"]["family"] == "topic_match"
+    assert by_id["android-vs-llvm"]["family"] == "concept_adjacent"
+    assert by_id["novice-vs-expert-rust"]["family"] == "knownness"
+    assert by_id["novice-vs-expert-rust"]["known_item_demoted"] is True
+    assert "persona_order_insufficient" not in report["failures"]
+    assert "everyone_important_dropped" not in report["failures"]
+    assert "knownness_not_demoted" not in report["failures"]
+    assert report["m6_taxonomy_class"] == "personalization_insufficiency"
+    assert report["m6_taxonomy_independent"] is True
+
+
+def test_m6_taxonomy_keeps_personalization_insufficiency_independent() -> None:
+    from app.evaluation.product_gap_c2 import m6_taxonomy_lists_personalization_insufficiency
+
+    assert m6_taxonomy_lists_personalization_insufficiency() is True
+
+
+def test_collapsed_persona_topics_are_detected_as_insufficient() -> None:
+    from app.evaluation.product_gap_c2 import load_compare_items
+
+    items = load_compare_items(GOLD / "c2")
+    report = score_pair(
+        items,
+        PersonaPair(
+            pair_id="collapsed",
+            left_persona="same",
+            right_persona="same",
+            left_topics=(),
+            right_topics=(),
+            family="topic_match",
+        ),
+    )
+    assert report["kendall_distance"] == 0.0
+    assert report["insufficient"] is True

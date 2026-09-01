@@ -1,0 +1,118 @@
+{
+  "dataset_version": "product-gap-c2-compare-items-v1",
+  "label_source": "constructed",
+  "human_gold": false,
+  "k": 5,
+  "items": [
+    {
+      "item_id": "rust-compiler-change",
+      "published_at": "2026-08-08T00:00:00Z",
+      "topic_key": "rust",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "high"
+    },
+    {
+      "item_id": "react-concurrent",
+      "published_at": "2026-08-07T00:00:00Z",
+      "topic_key": "react",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "high"
+    },
+    {
+      "item_id": "python-gil",
+      "published_at": "2026-08-06T00:00:00Z",
+      "topic_key": "python",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "high"
+    },
+    {
+      "item_id": "oss-advisory",
+      "published_at": "2026-08-05T00:00:00Z",
+      "topic_key": "oss_security",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": true,
+      "importance_level": "critical"
+    },
+    {
+      "item_id": "android-compose",
+      "published_at": "2026-08-04T00:00:00Z",
+      "topic_key": "android",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "high"
+    },
+    {
+      "item_id": "llvm-pass",
+      "published_at": "2026-08-03T00:00:00Z",
+      "topic_key": "llvm",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "high"
+    },
+    {
+      "item_id": "kotlin-multiplatform",
+      "published_at": "2026-08-02T00:00:00Z",
+      "topic_key": "kotlin",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "medium"
+    },
+    {
+      "item_id": "python-typing",
+      "published_at": "2026-08-01T12:00:00Z",
+      "topic_key": "python",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "medium"
+    },
+    {
+      "item_id": "cve-openssl",
+      "published_at": "2026-08-01T06:00:00Z",
+      "topic_key": "oss_security",
+      "important_unknown": true,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "high"
+    },
+    {
+      "item_id": "rust-stable-release",
+      "published_at": "2026-08-01T00:00:00Z",
+      "topic_key": "rust",
+      "important_unknown": false,
+      "already_known": false,
+      "duplicate": false,
+      "useful": true,
+      "everyone_important": false,
+      "importance_level": "medium"
+    }
+  ]
+}
