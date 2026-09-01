@@ -10,7 +10,7 @@ from app.evaluation.product_gap_c1_gates import evaluate_c1_gates
 from app.evaluation.product_gap_compare import (
     CompareItem,
     attach_source_coverage,
-    compare_modes,
+    compare_cohorts,
 )
 from app.services.multiobjective_ranker import RankerCandidate
 
@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=GOLD / "c5" / "compare_table.json")
     args = parser.parse_args(argv)
     items, followed, k = items_from_fixture()
-    table = compare_modes(items, followed_topics=followed, k=k)
+    table = compare_cohorts(items, followed_topics=followed, k=k)
     g3 = evaluate_c1_gates(GOLD / "c1")["g3"]
     table = attach_source_coverage(table, g3=g3)
     field = json.loads((GOLD / "c5" / "field_journal.json").read_text(encoding="utf-8"))
