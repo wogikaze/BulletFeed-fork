@@ -110,7 +110,15 @@ def _host_is_not_public_shape(hostname: str) -> bool:
         if 1 <= len(parts) <= 4 and all(_ip_like_label(part) for part in parts):
             return True
         return False
-    return not ip.is_global
+    return (
+        ip.is_multicast
+        or ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_reserved
+        or ip.is_unspecified
+        or not ip.is_global
+    )
 
 
 def reject_private_resolved_addresses(addresses: list, *, source_name: str) -> None:

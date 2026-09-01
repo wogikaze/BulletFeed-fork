@@ -7,6 +7,7 @@ to invent a pass, and it does not keep unmeasured constants in source.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from app.evaluation.product_gap_c1 import evaluate_g0
@@ -16,7 +17,8 @@ from app.evaluation.product_gap_c1_artifacts import (
     load_freeze,
     load_measurement,
 )
-from app.evaluation.product_gap_c1_gates import GOLD_C1
+
+GOLD_C1 = Path(__file__).resolve().parents[2] / "tests" / "gold" / "product_gap" / "c1" / "v2"
 
 _G1_REQUIRED = {
     "g1_feed_recall": "feed_recall",
@@ -83,15 +85,20 @@ def evaluate_c1_hard_gate(gold_dir=None) -> dict[str, Any]:
             }
             continue
         if name == "g5":
+            version_ok = artifact.get("dataset_version") == freeze.get("dataset_version")
+            sample_ok = artifact.get("sample_complete") is True
             fetch_ok = bool(artifact.get("production_fetch_measured"))
             identity_ok = bool(artifact.get("identity_measured"))
-            shape_ok = int(artifact.get("shape_bypass_count") or 0) == 0
+            shape_bypass_count = artifact.get("shape_bypass_count")
+            shape_ok = shape_bypass_count is not None and int(shape_bypass_count) == 0
             gates[name] = {
                 "status": "measured",
-                "completion_gate_pass": fetch_ok and identity_ok and shape_ok,
+                "completion_gate_pass": version_ok and sample_ok and fetch_ok and identity_ok and shape_ok,
                 "evidence": artifact.get("path") or "g5_measurement",
                 "blockers": (
-                    ([] if fetch_ok else ["g5_production_fetch_unmeasured"])
+                    ([] if version_ok else ["g5_dataset_version_mismatch"])
+                    + ([] if sample_ok else ["g5_sample_incomplete"])
+                    + ([] if fetch_ok else ["g5_production_fetch_unmeasured"])
                     + ([] if identity_ok else ["g5_identity_unmeasured"])
                     + ([] if shape_ok else ["g5_ssrf_shape_bypass"])
                 ),
@@ -99,14 +106,18 @@ def evaluate_c1_hard_gate(gold_dir=None) -> dict[str, Any]:
             continue
         metrics = artifact.get("metrics") or {}
         failures = compare_metrics(metrics, floors, _REQUIRED.get(name, {}))
+        if artifact.get("dataset_version") != freeze.get("dataset_version"):
+            failures.append(f"{name}_dataset_version_mismatch")
+        if artifact.get("sample_complete") is not True:
+            failures.append(f"{name}_sample_incomplete")
         if name == "g1" and artifact.get("path") != "production_confirm":
             failures.append("g1_not_production_confirm")
-        if name == "g1" and artifact.get("sample_complete") is not True:
-            failures.append("g1_sample_incomplete")
         if name == "g2" and artifact.get("gold_injected"):
             failures.append("g2_gold_injected")
         if name == "g3" and artifact.get("live_oracle") is not True:
             failures.append("g3_live_oracle_unmeasured")
+        if name == "g3" and artifact.get("family_regression_measured") is not True:
+            failures.append("g3_family_regression_unmeasured")
         gates[name] = {
             "status": "measured",
             "completion_gate_pass": len(failures) == 0,

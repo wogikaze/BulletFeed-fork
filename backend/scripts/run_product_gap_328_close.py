@@ -9,7 +9,8 @@ from tempfile import TemporaryDirectory
 
 from app.database import Database
 from app.evaluation.m1_zero_to_useful import load_persona_manifest, run_qualification
-from app.evaluation.product_gap_c1_gates import evaluate_c1_gates
+from app.evaluation.product_gap_c1_artifacts import load_measurement
+from app.evaluation.product_gap_c1_hard_gate import evaluate_c1_hard_gate
 from app.evaluation.product_gap_c2 import evaluate_c2
 from app.evaluation.product_gap_c3 import evaluate_c3
 from app.evaluation.product_gap_c4 import evaluate_c4
@@ -25,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GOLD = ROOT / "tests" / "gold" / "product_gap"
 PERSONAS = ROOT / "tests" / "gold" / "m1_personas" / "v01" / "personas.json"
 G6_JOURNAL = GOLD / "c1" / "g6_journal.json"
+C1_GOLD = GOLD / "c1" / "v2"
 
 
 def _compare_from_fixture() -> dict:
@@ -55,10 +57,10 @@ def _compare_from_fixture() -> dict:
 
 
 def build_report() -> dict:
-    c1_gates = evaluate_c1_gates(GOLD / "c1")
+    c1_hard_gate = evaluate_c1_hard_gate(C1_GOLD)
     g6 = evaluate_g6_journal(G6_JOURNAL)
     items, compare = _compare_from_fixture()
-    compare = attach_source_coverage(compare, g3=c1_gates["g3"])
+    compare = attach_source_coverage(compare, g3=load_measurement(C1_GOLD, "g3"))
     c2 = evaluate_c2(GOLD / "c2", items)
     field = (
         json.loads((GOLD / "c5" / "field_journal.json").read_text(encoding="utf-8"))
@@ -90,23 +92,16 @@ def build_report() -> dict:
     c5_failures = []
     if int(field.get("people") or 0) < 5 or field.get("status") != "completed":
         c5_failures.append("field_week_lt_5_people")
-    if c1_gates["g3"].get("live_oracle_unmeasured"):
+    if not c1_hard_gate["gates"]["g3"].get("completion_gate_pass"):
         c5_failures.append("rss_oracle_live_unmeasured")
     c5_pass = not c5_failures
-    c1_failures = list(c1_gates["g0"]["failures"])
-    for name in ("g1", "g2", "g3", "g4", "g5"):
-        c1_failures.extend(c1_gates[name].get("failures") or [])
+    c1_failures = list(c1_hard_gate["blockers"])
     c1_failures.extend(g6["failures"])
     challenges = {
         "c1_source": {
-            "g0": c1_gates["g0"],
-            "g1": c1_gates["g1"],
-            "g2": c1_gates["g2"],
-            "g3": c1_gates["g3"],
-            "g4": c1_gates["g4"],
-            "g5": c1_gates["g5"],
+            "hard_gate": c1_hard_gate,
             "g6": g6,
-            "pass": bool(c1_gates["passed"] and g6["pass"]),
+            "pass": bool(c1_hard_gate["completion_gate_pass"] and g6["pass"]),
             "failures": c1_failures,
         },
         "c2_recommend": c2,
