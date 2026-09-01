@@ -2,17 +2,17 @@
   "artifact_version": "product-gap-c1-g2-measurement-v1",
   "dataset_version": "product-gap-c1-g0-v2",
   "path": "production_discovery",
-  "production_version": "source-discovery-v3",
+  "production_version": "source-discovery-v4",
   "sample_complete": true,
   "split": "dev",
   "gold_injected": false,
   "metrics": {
-    "primary_recall_at_20": 0.25609756097560976,
-    "relevant_recall_at_50": 0.22466960352422907,
-    "precision_at_20": 0.31875,
-    "japanese_recall_at_50": 0.10588235294117647,
-    "blog_recall_at_50": 0.29285714285714287,
-    "no_rss_recall_at_50": 0.14285714285714285
+    "primary_recall_at_20": 0.2682926829268293,
+    "relevant_recall_at_50": 0.2775330396475771,
+    "precision_at_20": 0.3387096774193548,
+    "japanese_recall_at_50": 0.1411764705882353,
+    "blog_recall_at_50": 0.3,
+    "no_rss_recall_at_50": 0.45714285714285713
   },
   "weak_primary_topics": [
     "android",
@@ -37,15 +37,17 @@
     {
       "topic_id": "android",
       "primary_recall_at_20": 0.4,
-      "relevant_recall_at_50": 0.2222222222222222,
-      "predicted_count": 6,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 8,
       "predicted_urls": [
         "https://android-developers.googleblog.com/feeds/posts/default",
         "https://developer.android.com/",
         "https://medium.com/androiddevelopers",
         "https://github.com/JetBrains/kotlin/releases",
         "https://blog.jetbrains.com/kotlin/feed",
-        "https://blog.kotlin-academy.com/"
+        "https://blog.kotlin-academy.com/",
+        "https://android-review.googlesource.com/",
+        "https://discuss.kotlinlang.org/"
       ],
       "predicted_provenance": [
         {
@@ -89,6 +91,20 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://android-review.googlesource.com/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://discuss.kotlinlang.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -122,11 +138,12 @@
       "topic_id": "cloudflare",
       "primary_recall_at_20": 0.0,
       "relevant_recall_at_50": 0.0,
-      "predicted_count": 3,
+      "predicted_count": 4,
       "predicted_urls": [
         "https://blog.cloudflare.com/rss",
         "https://blog.cloudflare.com/tag/engineering",
-        "https://developers.cloudflare.com/workers"
+        "https://developers.cloudflare.com/workers",
+        "https://status.cloudflare.com/"
       ],
       "predicted_provenance": [
         {
@@ -147,6 +164,13 @@
           "url": "https://developers.cloudflare.com/workers",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://status.cloudflare.com/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
         }
@@ -215,8 +239,8 @@
     {
       "topic_id": "go",
       "primary_recall_at_20": 0.5,
-      "relevant_recall_at_50": 0.29411764705882354,
-      "predicted_count": 11,
+      "relevant_recall_at_50": 0.35294117647058826,
+      "predicted_count": 12,
       "predicted_urls": [
         "https://dave.cheney.net/feed",
         "https://go.dev/blog/feed.atom",
@@ -228,7 +252,8 @@
         "https://blog.cybozu.io/feed",
         "https://tech.layerx.co.jp/feed",
         "https://tech.mercari.com/feed",
-        "https://techblog.zozo.com/rss"
+        "https://techblog.zozo.com/rss",
+        "https://pkg.go.dev/"
       ],
       "predicted_provenance": [
         {
@@ -307,14 +332,21 @@
           "discovery_provenance": "publisher_graph",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://pkg.go.dev/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "java",
       "primary_recall_at_20": 0.3333333333333333,
-      "relevant_recall_at_50": 0.25,
-      "predicted_count": 9,
+      "relevant_recall_at_50": 0.3,
+      "predicted_count": 11,
       "predicted_urls": [
         "https://inside.java/feed.xml",
         "https://spring.io/blog.atom",
@@ -324,7 +356,9 @@
         "https://android-developers.googleblog.com/feeds/posts/default",
         "https://blog.kotlin-academy.com/",
         "https://developer.mamezou-tech.com/feed",
-        "https://engineering.linecorp.com/ja/feed"
+        "https://engineering.linecorp.com/ja/feed",
+        "https://central.sonatype.com/",
+        "https://discuss.kotlinlang.org/"
       ],
       "predicted_provenance": [
         {
@@ -389,14 +423,28 @@
           "discovery_provenance": "publisher_graph",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://central.sonatype.com/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://discuss.kotlinlang.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "kotlin",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.2222222222222222,
-      "predicted_count": 11,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 14,
       "predicted_urls": [
         "https://github.com/JetBrains/kotlin/releases",
         "https://android-developers.googleblog.com/feeds/posts/default",
@@ -407,8 +455,11 @@
         "https://developer.android.com/",
         "https://infoq.com/java",
         "https://medium.com/androiddevelopers",
+        "https://discuss.kotlinlang.org/",
         "https://developer.mamezou-tech.com/feed",
-        "https://engineering.linecorp.com/ja/feed"
+        "https://engineering.linecorp.com/ja/feed",
+        "https://android-review.googlesource.com/",
+        "https://central.sonatype.com/"
       ],
       "predicted_provenance": [
         {
@@ -475,6 +526,13 @@
           "verification_status": "discovery_only"
         },
         {
+          "url": "https://discuss.kotlinlang.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://developer.mamezou-tech.com/feed",
           "family": "rss_atom",
           "discovery_provenance": "publisher_graph",
@@ -487,6 +545,20 @@
           "discovery_provenance": "publisher_graph",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://android-review.googlesource.com/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://central.sonatype.com/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -494,7 +566,7 @@
       "topic_id": "kubernetes",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 11,
+      "predicted_count": 12,
       "predicted_urls": [
         "https://github.com/kubernetes/kubernetes/releases",
         "https://cncf.io/blog/feed",
@@ -506,7 +578,8 @@
         "https://blog.cybozu.io/feed",
         "https://tech.layerx.co.jp/feed",
         "https://tech.mercari.com/feed",
-        "https://techblog.zozo.com/rss"
+        "https://techblog.zozo.com/rss",
+        "https://pkg.go.dev/"
       ],
       "predicted_provenance": [
         {
@@ -585,6 +658,13 @@
           "discovery_provenance": "publisher_graph",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://pkg.go.dev/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -642,7 +722,7 @@
       "topic_id": "llvm",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 7,
+      "predicted_count": 8,
       "predicted_urls": [
         "https://github.com/llvm/llvm-project/releases",
         "https://llvm.org/docs",
@@ -650,7 +730,8 @@
         "https://github.com/rust-lang/rust/releases",
         "https://aws.amazon.com/blogs/opensource/feed",
         "https://blog.rust-lang.org/feed.xml",
-        "https://this-week-in-rust.org/rss.xml"
+        "https://this-week-in-rust.org/rss.xml",
+        "https://crates.io/"
       ],
       "predicted_provenance": [
         {
@@ -701,6 +782,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://crates.io/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -823,8 +911,8 @@
     {
       "topic_id": "oss_security",
       "primary_recall_at_20": 1.0,
-      "relevant_recall_at_50": 0.2727272727272727,
-      "predicted_count": 10,
+      "relevant_recall_at_50": 0.45454545454545453,
+      "predicted_count": 14,
       "predicted_urls": [
         "https://api.github.com/advisories",
         "https://api.osv.dev/v1/query",
@@ -835,7 +923,11 @@
         "https://realpython.com/atom.xml",
         "https://docs.python.org/3",
         "https://engineering.atspotify.com/",
-        "https://jpcert.or.jp/"
+        "https://ipa.go.jp/security",
+        "https://jpcert.or.jp/",
+        "https://jvndb.jvn.jp/",
+        "https://nvd.nist.gov/",
+        "https://pypi.org/"
       ],
       "predicted_provenance": [
         {
@@ -902,7 +994,35 @@
           "verification_status": "discovery_only"
         },
         {
+          "url": "https://ipa.go.jp/security",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://jpcert.or.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://jvndb.jvn.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://nvd.nist.gov/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://pypi.org/",
           "family": "generic_web",
           "discovery_provenance": "publisher_graph",
           "authority_status": "non_authoritative",
@@ -912,13 +1032,15 @@
     },
     {
       "topic_id": "postgresql",
-      "primary_recall_at_20": 0.14285714285714285,
-      "relevant_recall_at_50": 0.2,
-      "predicted_count": 3,
+      "primary_recall_at_20": 0.2857142857142857,
+      "relevant_recall_at_50": 0.4,
+      "predicted_count": 5,
       "predicted_urls": [
         "https://depesz.com/feed",
         "https://postgresql.org/news.rss",
-        "https://citusdata.com/blog"
+        "https://citusdata.com/blog",
+        "https://postgresql.jp/",
+        "https://wiki.postgresql.org/"
       ],
       "predicted_provenance": [
         {
@@ -941,14 +1063,28 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://postgresql.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://wiki.postgresql.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "python",
       "primary_recall_at_20": 0.2857142857142857,
-      "relevant_recall_at_50": 0.15789473684210525,
-      "predicted_count": 13,
+      "relevant_recall_at_50": 0.21052631578947367,
+      "predicted_count": 17,
       "predicted_urls": [
         "https://github.com/python/cpython/releases",
         "https://blog.python.org/feeds/posts/default",
@@ -962,7 +1098,11 @@
         "https://openwall.com/lists/oss-security",
         "https://pypi.org/project/fastapi",
         "https://cisa.gov/news-events/cybersecurity-advisories",
-        "https://jpcert.or.jp/"
+        "https://pypi.org/",
+        "https://ipa.go.jp/security",
+        "https://jpcert.or.jp/",
+        "https://jvndb.jvn.jp/",
+        "https://nvd.nist.gov/"
       ],
       "predicted_provenance": [
         {
@@ -1050,7 +1190,35 @@
           "verification_status": "discovery_only"
         },
         {
+          "url": "https://pypi.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://ipa.go.jp/security",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://jpcert.or.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://jvndb.jvn.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://nvd.nist.gov/",
           "family": "generic_web",
           "discovery_provenance": "publisher_graph",
           "authority_status": "non_authoritative",
@@ -1193,8 +1361,8 @@
     {
       "topic_id": "ruby",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.2857142857142857,
-      "predicted_count": 8,
+      "relevant_recall_at_50": 0.35714285714285715,
+      "predicted_count": 10,
       "predicted_urls": [
         "https://ruby-lang.org/en/feeds/news.rss",
         "https://shopify.engineering/blog.atom",
@@ -1203,7 +1371,9 @@
         "https://developers.freee.co.jp/feed",
         "https://moneyforward-dev.jp/feed",
         "https://tech.pepabo.com/atom.xml",
-        "https://techblog.cookpad.com/feed"
+        "https://techblog.cookpad.com/feed",
+        "https://bugs.ruby-lang.org/",
+        "https://rubygems.org/"
       ],
       "predicted_provenance": [
         {
@@ -1261,14 +1431,28 @@
           "discovery_provenance": "publisher_graph",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://bugs.ruby-lang.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://rubygems.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "rust",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 9,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 10,
       "predicted_urls": [
         "https://github.com/rust-lang/rust/releases",
         "https://aws.amazon.com/blogs/opensource/feed",
@@ -1278,7 +1462,8 @@
         "https://surma.dev/index.xml",
         "https://llvm.org/docs",
         "https://reviews.llvm.org/",
-        "https://webassembly.org/news"
+        "https://webassembly.org/news",
+        "https://crates.io/"
       ],
       "predicted_provenance": [
         {
@@ -1343,17 +1528,25 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://crates.io/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "swift",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.14285714285714285,
-      "predicted_count": 2,
+      "relevant_recall_at_50": 0.2857142857142857,
+      "predicted_count": 3,
       "predicted_urls": [
         "https://developer.apple.com/news/rss/news.rss",
-        "https://swift.org/atom.xml"
+        "https://swift.org/atom.xml",
+        "https://forums.swift.org/"
       ],
       "predicted_provenance": [
         {
@@ -1369,6 +1562,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://forums.swift.org/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -1500,14 +1700,15 @@
       "topic_id": "webassembly",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 6,
+      "predicted_count": 7,
       "predicted_urls": [
         "https://surma.dev/index.xml",
         "https://webassembly.org/news",
         "https://github.com/rust-lang/rust/releases",
         "https://aws.amazon.com/blogs/opensource/feed",
         "https://blog.rust-lang.org/feed.xml",
-        "https://this-week-in-rust.org/rss.xml"
+        "https://this-week-in-rust.org/rss.xml",
+        "https://crates.io/"
       ],
       "predicted_provenance": [
         {
@@ -1551,6 +1752,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://crates.io/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     }
