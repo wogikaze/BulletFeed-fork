@@ -23,6 +23,7 @@ from app.services.web_snapshots import (
 ENRICHMENT_VERSION = "rss-article-enrichment-v1"
 SUMMARY_ONLY_MAX_CHARS = 280
 ARTICLE_TEXT_MAX_CHARS = 4000
+_EVIDENCE_LOCATOR_PREFIX = "根拠位置: "
 
 
 @dataclass(frozen=True)
@@ -62,6 +63,15 @@ def is_summary_only(summary: str, *, feed_body: str = "") -> bool:
     if feed_body.strip() and len(feed_body.strip()) > SUMMARY_ONLY_MAX_CHARS:
         return False
     return len(summary.strip()) <= SUMMARY_ONLY_MAX_CHARS
+
+
+def format_claim_evidence(*, detail: str, evidence_locator: str = "") -> str:
+    """Keep the extracted body first; append a locator so GET /events can trace it."""
+    body = detail.strip()
+    locator = evidence_locator.strip()
+    if not locator:
+        return body
+    return f"{body}\n\n{_EVIDENCE_LOCATOR_PREFIX}{locator}"
 
 
 def snapshot_from_html(
@@ -110,14 +120,14 @@ def enrich_html_bytes(
         return ArticleEnrichment(
             article_text="",
             evidence_locator="",
-            article_content_hash=snapshot.content_hash,
+            article_content_hash=hashlib.sha256(b"").hexdigest(),
             fetched=True,
             reason="empty_main_text",
         )
     return ArticleEnrichment(
         article_text=text,
         evidence_locator=first_evidence_locator(document),
-        article_content_hash=snapshot.content_hash,
+        article_content_hash=hashlib.sha256(text.encode("utf-8")).hexdigest(),
         fetched=True,
         reason="enriched",
     )

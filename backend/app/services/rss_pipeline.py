@@ -9,6 +9,7 @@ from app.observability import record
 from app.services.feed_lifecycle import resolve_feed_lifecycle
 from app.services.ledger_projection import LedgerProjector
 from app.services.rss import preview_feed
+from app.services.rss_article_enrichment import format_claim_evidence
 from app.services.rss_source import normalize_feed_preview
 from app.services.source_ingestion import SourceIngestionPipeline
 from app.services.source_subscriptions import project_events_for_subscription_audience
@@ -50,6 +51,9 @@ def ingest_feed_events(
         )
         source_updated_at = canonical_timestamp(payload.get("updated")) or valid_at
         article_text = payload.get("article_text") if isinstance(payload.get("article_text"), str) else ""
+        locator = (
+            payload.get("evidence_locator") if isinstance(payload.get("evidence_locator"), str) else ""
+        )
         detail = article_text.strip() or summary.strip() or title.strip()
         lifecycle = resolve_feed_lifecycle(title, observation.original_url)
         claim = ledger.ingest(
@@ -62,7 +66,7 @@ def ingest_feed_events(
             detail=detail,
             valid_at=valid_at,
             source_updated_at=source_updated_at,
-            evidence_text=detail,
+            evidence_text=format_claim_evidence(detail=detail, evidence_locator=locator),
         )
         projector.project_event(claim.event_id)
         event_ids.append(claim.event_id)
