@@ -46,7 +46,7 @@
     {
       "filename": "backend/app/services/url_safety.py",
       "test_id": "B101",
-      "line_number": 80,
+      "line_number": 100,
       "reason": "Hostname non-null is enforced by validate_url_shape before this type-narrowing assertion; SSRF checks do not rely on the assert."
     },
     {
