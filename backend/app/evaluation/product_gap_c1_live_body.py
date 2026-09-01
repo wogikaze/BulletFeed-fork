@@ -112,7 +112,17 @@ async def measure_live_g4(
     boilerplate_signals = 0
     item_count = 0
     for source_index, row in enumerate(selected):
-        assert row.feed_url is not None
+        if row.feed_url is None:
+            status_counts["invalid_fixture"] += 1
+            rows.append(
+                {
+                    "source_id": row.source_id,
+                    "family": row.family,
+                    "status": "invalid_fixture",
+                    "detail": "feed_url_required_for_g4",
+                }
+            )
+            continue
         feed_settings = _settings_for_urls((row.site_url, row.feed_url), timeout_seconds=timeout_seconds)
         retrieved_at = datetime.now(UTC).isoformat()
         try:
