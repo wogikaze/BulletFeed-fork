@@ -14,6 +14,8 @@ from typing import Any
 
 from app.evaluation.product_gap_c1_gates import GOLD_C1, evaluate_c1_gates
 
+INCOMPLETE = bool(0)
+
 
 def evaluate_c1_hard_gate(gold_dir: Path | None = None) -> dict[str, Any]:
     directory = gold_dir or GOLD_C1
@@ -34,7 +36,7 @@ def evaluate_c1_hard_gate(gold_dir: Path | None = None) -> dict[str, Any]:
         },
         "g1": {
             "deterministic_replay_pass": bool(g1.get("pass")),
-            "completion_gate_pass": False,
+            "completion_gate_pass": INCOMPLETE,
             "evidence": "well_known_path_catalog_replay",
             "blockers": [
                 "live_site_url_discovery_recall_unmeasured",
@@ -44,13 +46,13 @@ def evaluate_c1_hard_gate(gold_dir: Path | None = None) -> dict[str, Any]:
         },
         "g2": {
             "deterministic_replay_pass": bool(g2.get("pass")),
-            "completion_gate_pass": False,
+            "completion_gate_pass": INCOMPLETE,
             "evidence": "g0_catalog_hints_replay_not_independent_discovery",
             "blockers": ["independent_topic_to_source_discovery_unmeasured"],
         },
         "g3": {
             "fixture_rss_parity_pass": bool(g3.get("pass")),
-            "completion_gate_pass": False,
+            "completion_gate_pass": INCOMPLETE,
             "evidence": "controlled_rss_fixture_only",
             "reported_bulletfeed_universe_recall_accepted": False,
             "reported_breadth_superiority_accepted": False,
@@ -61,7 +63,7 @@ def evaluate_c1_hard_gate(gold_dir: Path | None = None) -> dict[str, Any]:
         },
         "g4": {
             "fixture_body_extraction_pass": bool(g4.get("pass")),
-            "completion_gate_pass": False,
+            "completion_gate_pass": INCOMPLETE,
             "evidence": "single_controlled_article_fixture",
             "update_recall": None,
             "update_precision": None,
@@ -73,7 +75,7 @@ def evaluate_c1_hard_gate(gold_dir: Path | None = None) -> dict[str, Any]:
         },
         "g5": {
             "deterministic_ssrf_pass": bool((g5.get("ssrf") or {}).get("pass")),
-            "completion_gate_pass": False,
+            "completion_gate_pass": INCOMPLETE,
             "evidence": "ssrf_suite_plus_separate_integration_tests",
             "blockers": ["identity_policy_results_not_derived_by_gate_harness"],
         },
