@@ -1,7 +1,7 @@
 {
-  "artifact_version": "product-gap-c1-g5-measurement-v2",
+  "artifact_version": "product-gap-c1-g5-measurement-v3",
   "dataset_version": "product-gap-c1-g0-v2",
-  "path": "production_fetch_and_url_safety_controlled_transport",
+  "path": "production_fetch_and_url_safety_controlled_plus_live_transport",
   "sample_complete": true,
   "case_count": 106,
   "shape_bypass_count": 0,
@@ -35,10 +35,33 @@
   "robots_not_success_measured": true,
   "dns_validation_measured": true,
   "peer_validation_measured": true,
+  "live_case_count": 2,
+  "live_case_passed": 1,
+  "live_cases": [
+    {
+      "case_id": "example",
+      "url": "https://example.com/",
+      "retrieved_at": "2026-09-01T13:13:20.597511+00:00",
+      "status": "failed",
+      "exception_type": "HTTPException",
+      "detail": "403: Web host resolves to a private address",
+      "passed": false
+    },
+    {
+      "case_id": "iana_example",
+      "url": "https://www.iana.org/help/example-domains",
+      "retrieved_at": "2026-09-01T13:13:20.639204+00:00",
+      "status": "ok",
+      "body_bytes": 6639,
+      "final_url": "https://iana.org/help/example-domains",
+      "robots_allowed": true,
+      "same_host": true,
+      "passed": true
+    }
+  ],
   "live_network_measured": false,
   "bypasses": [],
   "unmeasured": [
-    "real_live_network_transport",
     "dns_rebinding_timing_window"
   ]
 }

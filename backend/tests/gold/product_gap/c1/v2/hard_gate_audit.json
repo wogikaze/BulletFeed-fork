@@ -101,7 +101,7 @@
     "g5": {
       "status": "measured",
       "completion_gate_pass": false,
-      "evidence": "production_fetch_and_url_safety_controlled_transport",
+      "evidence": "production_fetch_and_url_safety_controlled_plus_live_transport",
       "blockers": [
         "g5_live_network_unmeasured"
       ]

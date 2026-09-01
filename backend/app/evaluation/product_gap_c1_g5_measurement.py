@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -72,6 +73,12 @@ class _FakeClient:
 
 def _public_dns():
     return [(2, 1, 6, "", ("93.184.216.34", 443))]
+
+
+def _same_source_host(left: str, right: str) -> bool:
+    left_host = (urlparse(left).hostname or "").removeprefix("www.")
+    right_host = (urlparse(right).hostname or "").removeprefix("www.")
+    return bool(left_host) and left_host == right_host
 
 
 def _controlled_cases() -> list[dict[str, Any]]:
@@ -192,15 +199,63 @@ def _controlled_cases() -> list[dict[str, Any]]:
     return cases
 
 
-def measure_g5_shape(gold_dir: Path) -> dict[str, Any]:
+def _live_cases() -> list[dict[str, Any]]:
+    targets = (
+        ("example", "https://example.com/", "example.com"),
+        ("iana_example", "https://www.iana.org/help/example-domains", "www.iana.org"),
+    )
+    cases: list[dict[str, Any]] = []
+    for case_id, url, host in targets:
+        settings = Settings(
+            web_allowed_hosts=f"{host},{host[4:]}" if host.startswith("www.") else host,
+            request_timeout_seconds=10.0,
+        )
+        retrieved_at = datetime.now(UTC).isoformat()
+        try:
+            body, final_url, robots = asyncio.run(fetch_html_page(settings, url))
+            cases.append(
+                {
+                    "case_id": case_id,
+                    "url": url,
+                    "retrieved_at": retrieved_at,
+                    "status": "ok",
+                    "body_bytes": len(body),
+                    "final_url": final_url,
+                    "robots_allowed": robots.allowed,
+                    "same_host": _same_source_host(url, final_url),
+                    "passed": bool(body and robots.allowed and _same_source_host(url, final_url)),
+                }
+            )
+        except Exception as exc:  # noqa: BLE001 - live failure remains evidence
+            cases.append(
+                {
+                    "case_id": case_id,
+                    "url": url,
+                    "retrieved_at": retrieved_at,
+                    "status": "failed",
+                    "exception_type": type(exc).__name__,
+                    "detail": str(exc),
+                    "passed": False,
+                }
+            )
+    return cases
+
+
+def measure_g5_shape(gold_dir: Path, *, include_live: bool = False) -> dict[str, Any]:
     freeze = json.loads((gold_dir / "g0_freeze.json").read_text(encoding="utf-8"))
     suite = evaluate_ssrf_suite(gold_dir.parent / "ssrf_adversarial.json")
     controlled = _controlled_cases()
     controlled_pass = sum(1 for case in controlled if case["passed"])
+    live = _live_cases() if include_live else []
+    live_pass = sum(1 for case in live if case["passed"])
     return {
-        "artifact_version": "product-gap-c1-g5-measurement-v2",
+        "artifact_version": "product-gap-c1-g5-measurement-v3",
         "dataset_version": freeze.get("dataset_version"),
-        "path": "production_fetch_and_url_safety_controlled_transport",
+        "path": (
+            "production_fetch_and_url_safety_controlled_plus_live_transport"
+            if include_live
+            else "production_fetch_and_url_safety_controlled_transport"
+        ),
         "sample_complete": True,
         "case_count": suite.get("case_count"),
         "shape_bypass_count": suite.get("shape_bypass_count"),
@@ -226,10 +281,13 @@ def measure_g5_shape(gold_dir: Path) -> dict[str, Any]:
             (case["passed"] for case in controlled if case["case_id"] == "private_response_peer"),
             False,
         ),
-        "live_network_measured": False,
+        "live_case_count": len(live),
+        "live_case_passed": live_pass,
+        "live_cases": live,
+        "live_network_measured": include_live and live_pass == len(live) and len(live) >= 2,
         "bypasses": suite.get("bypasses"),
         "unmeasured": [
-            "real_live_network_transport",
             "dns_rebinding_timing_window",
+            *([] if include_live else ["real_live_network_transport"]),
         ],
     }

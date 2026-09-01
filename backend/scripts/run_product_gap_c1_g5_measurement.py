@@ -15,12 +15,17 @@ GOLD = ROOT / "tests" / "gold" / "product_gap" / "c1" / "v2"
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Also run two safe public live fetches; ordinary CI should omit this flag.",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=GOLD / "measurements" / "g5_measurement.json",
     )
     args = parser.parse_args(argv)
-    report = measure_g5_shape(GOLD)
+    report = measure_g5_shape(GOLD, include_live=args.live)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(
@@ -29,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
                 "output": str(args.output),
                 "case_count": report["case_count"],
                 "production_fetch_measured": report["production_fetch_measured"],
+                "live_network_measured": report["live_network_measured"],
             },
             indent=2,
         )

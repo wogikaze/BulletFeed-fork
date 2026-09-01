@@ -6,7 +6,10 @@ import pytest
 
 from app.evaluation import product_gap_c1_live_body as body
 from app.evaluation import product_gap_c1_live_oracle as oracle
-from app.evaluation.product_gap_c1_g5_measurement import measure_g5_shape
+from app.evaluation.product_gap_c1_g5_measurement import (
+    _same_source_host,
+    measure_g5_shape,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 GOLD_V2 = Path(__file__).parent / "gold" / "product_gap" / "c1" / "v2"
@@ -103,3 +106,4 @@ def test_g5_artifact_keeps_fetch_and_identity_unmeasured() -> None:
     assert report["production_fetch_measured"] is True
     assert report["identity_measured"] is True
     assert report["live_network_measured"] is False
+    assert _same_source_host("https://www.iana.org/help/example-domains", "https://iana.org/help")
