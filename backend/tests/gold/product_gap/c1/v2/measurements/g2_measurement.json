@@ -2,16 +2,16 @@
   "artifact_version": "product-gap-c1-g2-measurement-v1",
   "dataset_version": "product-gap-c1-g0-v2",
   "path": "production_discovery",
-  "production_version": "source-discovery-v2",
+  "production_version": "source-discovery-v3",
   "sample_complete": true,
   "split": "dev",
   "gold_injected": false,
   "metrics": {
-    "primary_recall_at_20": 0.24390243902439024,
-    "relevant_recall_at_50": 0.18502202643171806,
-    "precision_at_20": 0.3088235294117647,
-    "japanese_recall_at_50": 0.0,
-    "blog_recall_at_50": 0.22857142857142856,
+    "primary_recall_at_20": 0.25609756097560976,
+    "relevant_recall_at_50": 0.22466960352422907,
+    "precision_at_20": 0.31875,
+    "japanese_recall_at_50": 0.10588235294117647,
+    "blog_recall_at_50": 0.29285714285714287,
     "no_rss_recall_at_50": 0.14285714285714285
   },
   "weak_primary_topics": [
@@ -26,7 +26,6 @@
     "linux",
     "llvm",
     "neovim",
-    "oss_security",
     "postgresql",
     "python",
     "redis",
@@ -216,8 +215,8 @@
     {
       "topic_id": "go",
       "primary_recall_at_20": 0.5,
-      "relevant_recall_at_50": 0.17647058823529413,
-      "predicted_count": 7,
+      "relevant_recall_at_50": 0.29411764705882354,
+      "predicted_count": 11,
       "predicted_urls": [
         "https://dave.cheney.net/feed",
         "https://go.dev/blog/feed.atom",
@@ -225,7 +224,11 @@
         "https://go.dev/doc",
         "https://github.com/kubernetes/kubernetes/releases",
         "https://cncf.io/blog/feed",
-        "https://kubernetes.io/feed.xml"
+        "https://kubernetes.io/feed.xml",
+        "https://blog.cybozu.io/feed",
+        "https://tech.layerx.co.jp/feed",
+        "https://tech.mercari.com/feed",
+        "https://techblog.zozo.com/rss"
       ],
       "predicted_provenance": [
         {
@@ -276,14 +279,42 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://blog.cybozu.io/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tech.layerx.co.jp/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tech.mercari.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://techblog.zozo.com/rss",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },
     {
       "topic_id": "java",
       "primary_recall_at_20": 0.3333333333333333,
-      "relevant_recall_at_50": 0.15,
-      "predicted_count": 7,
+      "relevant_recall_at_50": 0.25,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://inside.java/feed.xml",
         "https://spring.io/blog.atom",
@@ -291,7 +322,9 @@
         "https://github.com/JetBrains/kotlin/releases",
         "https://blog.jetbrains.com/kotlin/feed",
         "https://android-developers.googleblog.com/feeds/posts/default",
-        "https://blog.kotlin-academy.com/"
+        "https://blog.kotlin-academy.com/",
+        "https://developer.mamezou-tech.com/feed",
+        "https://engineering.linecorp.com/ja/feed"
       ],
       "predicted_provenance": [
         {
@@ -342,6 +375,20 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://developer.mamezou-tech.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://engineering.linecorp.com/ja/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },
@@ -349,7 +396,7 @@
       "topic_id": "kotlin",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.2222222222222222,
-      "predicted_count": 9,
+      "predicted_count": 11,
       "predicted_urls": [
         "https://github.com/JetBrains/kotlin/releases",
         "https://android-developers.googleblog.com/feeds/posts/default",
@@ -359,7 +406,9 @@
         "https://spring.io/blog.atom",
         "https://developer.android.com/",
         "https://infoq.com/java",
-        "https://medium.com/androiddevelopers"
+        "https://medium.com/androiddevelopers",
+        "https://developer.mamezou-tech.com/feed",
+        "https://engineering.linecorp.com/ja/feed"
       ],
       "predicted_provenance": [
         {
@@ -424,6 +473,20 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://developer.mamezou-tech.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://engineering.linecorp.com/ja/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },
@@ -431,7 +494,7 @@
       "topic_id": "kubernetes",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 7,
+      "predicted_count": 11,
       "predicted_urls": [
         "https://github.com/kubernetes/kubernetes/releases",
         "https://cncf.io/blog/feed",
@@ -439,7 +502,11 @@
         "https://dave.cheney.net/feed",
         "https://go.dev/blog/feed.atom",
         "https://engineering.grab.com/",
-        "https://go.dev/doc"
+        "https://go.dev/doc",
+        "https://blog.cybozu.io/feed",
+        "https://tech.layerx.co.jp/feed",
+        "https://tech.mercari.com/feed",
+        "https://techblog.zozo.com/rss"
       ],
       "predicted_provenance": [
         {
@@ -490,6 +557,34 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://blog.cybozu.io/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tech.layerx.co.jp/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tech.mercari.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://techblog.zozo.com/rss",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },
@@ -497,11 +592,13 @@
       "topic_id": "linux",
       "primary_recall_at_20": 0.09090909090909091,
       "relevant_recall_at_50": 0.13636363636363635,
-      "predicted_count": 3,
+      "predicted_count": 5,
       "predicted_urls": [
         "https://lwn.net/headlines/rss",
         "https://kernel.org/category/releases.html",
-        "https://lore.kernel.org/"
+        "https://lore.kernel.org/",
+        "https://developers.gmo.jp/feed",
+        "https://tech.sreake.com/"
       ],
       "predicted_provenance": [
         {
@@ -522,6 +619,20 @@
           "url": "https://lore.kernel.org/",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://developers.gmo.jp/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tech.sreake.com/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
         }
@@ -623,7 +734,7 @@
       "topic_id": "nextjs",
       "primary_recall_at_20": 0.0,
       "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 9,
+      "predicted_count": 10,
       "predicted_urls": [
         "https://github.com/vercel/next.js/releases",
         "https://nextjs.org/feed.xml",
@@ -633,7 +744,8 @@
         "https://react.dev/blog/rss.xml",
         "https://totaltypescript.com/rss.xml",
         "https://dev.to/t/typescript",
-        "https://react.dev/learn"
+        "https://react.dev/learn",
+        "https://developers.cyberagent.co.jp/blog/feed"
       ],
       "predicted_provenance": [
         {
@@ -698,14 +810,21 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://developers.cyberagent.co.jp/blog/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },
     {
       "topic_id": "oss_security",
-      "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.18181818181818182,
-      "predicted_count": 9,
+      "primary_recall_at_20": 1.0,
+      "relevant_recall_at_50": 0.2727272727272727,
+      "predicted_count": 10,
       "predicted_urls": [
         "https://api.github.com/advisories",
         "https://api.osv.dev/v1/query",
@@ -715,7 +834,8 @@
         "https://blog.python.org/feeds/posts/default",
         "https://realpython.com/atom.xml",
         "https://docs.python.org/3",
-        "https://engineering.atspotify.com/"
+        "https://engineering.atspotify.com/",
+        "https://jpcert.or.jp/"
       ],
       "predicted_provenance": [
         {
@@ -780,6 +900,13 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://jpcert.or.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -821,7 +948,7 @@
       "topic_id": "python",
       "primary_recall_at_20": 0.2857142857142857,
       "relevant_recall_at_50": 0.15789473684210525,
-      "predicted_count": 12,
+      "predicted_count": 13,
       "predicted_urls": [
         "https://github.com/python/cpython/releases",
         "https://blog.python.org/feeds/posts/default",
@@ -834,7 +961,8 @@
         "https://fastapi.tiangolo.com/",
         "https://openwall.com/lists/oss-security",
         "https://pypi.org/project/fastapi",
-        "https://cisa.gov/news-events/cybersecurity-advisories"
+        "https://cisa.gov/news-events/cybersecurity-advisories",
+        "https://jpcert.or.jp/"
       ],
       "predicted_provenance": [
         {
@@ -920,6 +1048,13 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://jpcert.or.jp/",
+          "family": "generic_web",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -927,7 +1062,7 @@
       "topic_id": "react",
       "primary_recall_at_20": 1.0,
       "relevant_recall_at_50": 0.25,
-      "predicted_count": 11,
+      "predicted_count": 12,
       "predicted_urls": [
         "https://github.com/facebook/react/releases",
         "https://react.dev/blog/rss.xml",
@@ -938,6 +1073,7 @@
         "https://totaltypescript.com/rss.xml",
         "https://dev.to/t/typescript",
         "https://vercel.com/blog/category/nextjs",
+        "https://developers.cyberagent.co.jp/blog/feed",
         "https://engineering.fb.com/feed",
         "https://reactnative.dev/blog/rss.xml"
       ],
@@ -1006,6 +1142,13 @@
           "verification_status": "discovery_only"
         },
         {
+          "url": "https://developers.cyberagent.co.jp/blog/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://engineering.fb.com/feed",
           "family": "rss_atom",
           "discovery_provenance": "publisher_graph",
@@ -1050,12 +1193,17 @@
     {
       "topic_id": "ruby",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.07142857142857142,
-      "predicted_count": 3,
+      "relevant_recall_at_50": 0.2857142857142857,
+      "predicted_count": 8,
       "predicted_urls": [
         "https://ruby-lang.org/en/feeds/news.rss",
         "https://shopify.engineering/blog.atom",
-        "https://tenderlovemaking.com/atom.xml"
+        "https://tenderlovemaking.com/atom.xml",
+        "https://developer.hatena.ne.jp/feed",
+        "https://developers.freee.co.jp/feed",
+        "https://moneyforward-dev.jp/feed",
+        "https://tech.pepabo.com/atom.xml",
+        "https://techblog.cookpad.com/feed"
       ],
       "predicted_provenance": [
         {
@@ -1076,6 +1224,41 @@
           "url": "https://tenderlovemaking.com/atom.xml",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://developer.hatena.ne.jp/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://developers.freee.co.jp/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://moneyforward-dev.jp/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tech.pepabo.com/atom.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://techblog.cookpad.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
           "authority_status": "authoritative",
           "verification_status": "verified"
         }
@@ -1192,8 +1375,8 @@
     {
       "topic_id": "typescript",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.08,
-      "predicted_count": 9,
+      "relevant_recall_at_50": 0.12,
+      "predicted_count": 10,
       "predicted_urls": [
         "https://devblogs.microsoft.com/typescript/feed",
         "https://totaltypescript.com/rss.xml",
@@ -1203,7 +1386,8 @@
         "https://nextjs.org/feed.xml",
         "https://react.dev/blog/rss.xml",
         "https://react.dev/learn",
-        "https://vercel.com/blog/category/nextjs"
+        "https://vercel.com/blog/category/nextjs",
+        "https://developers.cyberagent.co.jp/blog/feed"
       ],
       "predicted_provenance": [
         {
@@ -1268,6 +1452,13 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://developers.cyberagent.co.jp/blog/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },

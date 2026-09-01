@@ -51,7 +51,7 @@ from app.services.user_interest import (
     signals_from_sources,
 )
 
-SOURCE_DISCOVERY_VERSION = "source-discovery-v2"
+SOURCE_DISCOVERY_VERSION = "source-discovery-v3"
 RecommendationStatus = Literal["pending", "approved", "ignored"]
 MatchKind = Literal["direct", "neighbor"]
 
