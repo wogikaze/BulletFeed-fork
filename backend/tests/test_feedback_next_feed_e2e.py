@@ -326,6 +326,64 @@ def test_undo_after_learned_ranking_restores_next_feed_order(
     assert PERSONALIZATION_VERSION not in held["importance_reason"]
 
 
+def test_http_reset_after_learned_ranking_restores_next_feed_order(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    _seed_same_candidate_set(database, user_id)
+    before = _feed_ids(client, auth_headers)
+    assert before.index("nfeed_held_rss") < before.index("nfeed_held_release")
+
+    with database.connect() as connection:
+        ledger_before = ledger_world_state(connection)
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    learned = _feed_ids(client, auth_headers)
+    assert learned.index("nfeed_held_release") < learned.index("nfeed_held_rss")
+
+    denied = client.post("/v1/feed/ranking/reset")
+    assert denied.status_code == 401
+
+    response = client.post("/v1/feed/ranking/reset", headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["resetAt"] > 0
+
+    restored = _feed_ids(client, auth_headers)
+    assert restored.index("nfeed_held_rss") < restored.index("nfeed_held_release")
+    assert set(before) == set(restored)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        held = connection.execute(
+            "SELECT importance_level, importance_reason FROM feed_items WHERE id = ?",
+            ("nfeed_held_release",),
+        ).fetchone()
+        remaining = connection.execute(
+            """
+            SELECT COUNT(*) AS n FROM feedback
+            WHERE user_id = ? AND type = 'important'
+            """,
+            (user_id,),
+        ).fetchone()
+        other = connection.execute(
+            "SELECT reset_at FROM user_ranking_resets WHERE user_id != ?",
+            (user_id,),
+        ).fetchone()
+    assert held["importance_level"] == "medium"
+    assert PERSONALIZATION_VERSION not in held["importance_reason"]
+    assert remaining["n"] == MIN_SAMPLE_SIZE
+    assert other is None
+
+
 def test_feedback_ranking_does_not_drop_correction_from_next_feed(
     client: TestClient,
     auth_headers: dict[str, str],

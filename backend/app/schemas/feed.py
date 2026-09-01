@@ -67,6 +67,10 @@ class FeedFeedbackResponse(ApiModel):
     status: FeedItemStatus
 
 
+class RankingResetResponse(ApiModel):
+    reset_at: int
+
+
 class ReadResponse(ApiModel):
     feed_item_id: str
     status: FeedItemStatus

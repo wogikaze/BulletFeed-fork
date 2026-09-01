@@ -47,7 +47,11 @@ def reset_feedback_ranking(
     user_id: str,
     reset_at: int | None = None,
 ) -> int:
-    """Forget learned ranking features for one user and restore baseline ranks."""
+    """Forget learned ranking features for one user and restore baseline ranks.
+
+    Returns the cutoff written to user_ranking_resets. Feedback rows stay;
+    rebuilds ignore rows at or before this timestamp.
+    """
     at = int(time.time()) if reset_at is None else reset_at
     connection.execute(
         """
@@ -57,7 +61,8 @@ def reset_feedback_ranking(
         (user_id, at),
     )
     reset_user_preference(connection, user_id=user_id)
-    return apply_feedback_ranking(connection, user_id=user_id)
+    apply_feedback_ranking(connection, user_id=user_id)
+    return at
 
 
 def rebuild_user_ranking_features(connection: sqlite3.Connection, *, user_id: str) -> None:
