@@ -1,0 +1,40 @@
+{
+  "dataset_version": "product-gap-c2-adjacent-human-review-v1",
+  "label_source": "constructed",
+  "human_gold": false,
+  "purpose": "Reviewer sample for adjacent useful discovery (#322). Exact topic match cannot solve these cases. Not Human Gold.",
+  "items": [
+    {
+      "sample_id": "rust-llvm",
+      "persona_topics": ["rust"],
+      "item_title": "LLVM 20.1 pass manager",
+      "expected_match": "adjacent",
+      "useful": true,
+      "rationale": "Rust compiler work is adjacent to LLVM releases."
+    },
+    {
+      "sample_id": "react-typescript",
+      "persona_topics": ["react"],
+      "item_title": "TypeScript 6.0 iterator helpers",
+      "expected_match": "adjacent",
+      "useful": true,
+      "rationale": "React app maintenance is adjacent to TypeScript compiler changes."
+    },
+    {
+      "sample_id": "android-kotlin",
+      "persona_topics": ["android"],
+      "item_title": "Kotlin 2.3 migration guide",
+      "expected_match": "adjacent",
+      "useful": true,
+      "rationale": "Android apps depend on Kotlin toolchain updates."
+    },
+    {
+      "sample_id": "redis-swift-unrelated",
+      "persona_topics": ["redis"],
+      "item_title": "Swift 6.2 language mode",
+      "expected_match": "reference",
+      "useful": false,
+      "rationale": "Broad association must not invent relevance."
+    }
+  ]
+}
