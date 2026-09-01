@@ -15,6 +15,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
@@ -105,6 +106,25 @@ class FeedScreenSemanticsTest {
 
         composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("event-card").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun eventCardImportantMenuSendsImportantFeedback() {
+        val received = mutableListOf<Pair<String, Feedback>>()
+        composeRule.setContent {
+            MaterialTheme {
+                EventCard(
+                    event = feedEventWithReason(null),
+                    onClick = {},
+                    onFeedback = { id, feedback -> received += id to feedback },
+                    onFollow = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Event操作").performClick()
+        composeRule.onNodeWithText("重要").performClick()
+        assertEquals(listOf("event-1" to Feedback.IMPORTANT), received)
     }
 
     @Test
