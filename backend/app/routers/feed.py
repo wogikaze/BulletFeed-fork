@@ -11,8 +11,10 @@ from app.schemas.feed import (
     FeedFeedbackRequest,
     FeedFeedbackResponse,
     FeedPage,
+    RankingResetResponse,
     ReadResponse,
 )
+from app.services.ranking_feedback import reset_feedback_ranking
 from app.stores.feed_store import FeedStore
 
 router = APIRouter(prefix="/v1", tags=["feed"])
@@ -91,6 +93,17 @@ def submit_feed_feedback(
     store: Annotated[FeedStore, Depends(_store)],
 ) -> FeedFeedbackResponse:
     return FeedFeedbackResponse.model_validate(store.save_feedback(user["user_id"], feed_item_id, body.type))
+
+
+@router.post("/feed/ranking/reset", response_model=RankingResetResponse)
+def reset_learned_feed_ranking(
+    user: Annotated[dict, Depends(require_user)],
+    database: Annotated[Database, Depends(get_database)],
+) -> RankingResetResponse:
+    user_id = user["user_id"]
+    with database.connect() as connection:
+        reset_at = reset_feedback_ranking(connection, user_id=user_id)
+    return RankingResetResponse(reset_at=reset_at)
 
 
 @router.post("/feed/exposures", response_model=ExposuresResponse)
