@@ -192,3 +192,47 @@ def test_enough_important_feedback_lifts_held_out_siblings_on_next_feed(
     assert PERSONALIZATION_VERSION in held["importance_reason"]
     assert rss["importance_level"] == "medium"
     assert PERSONALIZATION_VERSION not in rss["importance_reason"]
+
+
+def test_feedback_ranking_does_not_drop_correction_from_next_feed(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    user_id = _user_id(database)
+    _seed_same_candidate_set(database, user_id)
+    with database.connect() as connection:
+        _insert_item(
+            connection,
+            user_id=user_id,
+            item_id="nfeed_correction",
+            event_id="ev_nfeed_correction",
+            source_type="rss_atom",
+            updated_at="2026-08-23T00:00:00Z",
+            delta_type="correction",
+        )
+        ledger_before = ledger_world_state(connection)
+
+    before = _feed_ids(client, auth_headers)
+    assert "nfeed_correction" in before
+
+    for index in range(MIN_SAMPLE_SIZE):
+        response = client.post(
+            f"/v1/feed/items/nfeed_train_{index}/feedback",
+            headers=auth_headers,
+            json={"type": "important"},
+        )
+        assert response.status_code == 200
+
+    after = _feed_ids(client, auth_headers)
+    assert "nfeed_correction" in after
+    assert set(before) == set(after)
+
+    with database.connect() as connection:
+        assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
+        row = connection.execute(
+            "SELECT status, dismissed FROM feed_items WHERE id = ?",
+            ("nfeed_correction",),
+        ).fetchone()
+    assert row["status"] == "unread"
+    assert int(row["dismissed"]) == 0
