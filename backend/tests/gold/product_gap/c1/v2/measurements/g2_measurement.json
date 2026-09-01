@@ -2,16 +2,17 @@
   "artifact_version": "product-gap-c1-g2-measurement-v1",
   "dataset_version": "product-gap-c1-g0-v2",
   "path": "production_discovery",
+  "production_version": "source-discovery-v2",
   "sample_complete": true,
   "split": "dev",
   "gold_injected": false,
   "metrics": {
-    "primary_recall_at_20": 0.23170731707317074,
-    "relevant_recall_at_50": 0.09251101321585903,
-    "precision_at_20": 0.25609756097560976,
+    "primary_recall_at_20": 0.24390243902439024,
+    "relevant_recall_at_50": 0.18502202643171806,
+    "precision_at_20": 0.3088235294117647,
     "japanese_recall_at_50": 0.0,
-    "blog_recall_at_50": 0.1,
-    "no_rss_recall_at_50": 0.05714285714285714
+    "blog_recall_at_50": 0.22857142857142856,
+    "no_rss_recall_at_50": 0.14285714285714285
   },
   "weak_primary_topics": [
     "android",
@@ -28,7 +29,6 @@
     "oss_security",
     "postgresql",
     "python",
-    "react",
     "redis",
     "swift",
     "typescript",
@@ -39,12 +39,14 @@
       "topic_id": "android",
       "primary_recall_at_20": 0.4,
       "relevant_recall_at_50": 0.2222222222222222,
-      "predicted_count": 4,
+      "predicted_count": 6,
       "predicted_urls": [
         "https://android-developers.googleblog.com/feeds/posts/default",
         "https://developer.android.com/",
+        "https://medium.com/androiddevelopers",
         "https://github.com/JetBrains/kotlin/releases",
-        "https://blog.jetbrains.com/kotlin/feed"
+        "https://blog.jetbrains.com/kotlin/feed",
+        "https://blog.kotlin-academy.com/"
       ],
       "predicted_provenance": [
         {
@@ -56,6 +58,13 @@
         },
         {
           "url": "https://developer.android.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://medium.com/androiddevelopers",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -74,20 +83,35 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://blog.kotlin-academy.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "angular",
       "primary_recall_at_20": 0.2,
-      "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 2,
       "predicted_urls": [
-        "https://blog.angular.dev/feed"
+        "https://blog.angular.dev/feed",
+        "https://blog.nrwl.io/feed"
       ],
       "predicted_provenance": [
         {
           "url": "https://blog.angular.dev/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://blog.nrwl.io/feed",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
@@ -99,9 +123,10 @@
       "topic_id": "cloudflare",
       "primary_recall_at_20": 0.0,
       "relevant_recall_at_50": 0.0,
-      "predicted_count": 2,
+      "predicted_count": 3,
       "predicted_urls": [
         "https://blog.cloudflare.com/rss",
+        "https://blog.cloudflare.com/tag/engineering",
         "https://developers.cloudflare.com/workers"
       ],
       "predicted_provenance": [
@@ -111,6 +136,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://blog.cloudflare.com/tag/engineering",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://developers.cloudflare.com/workers",
@@ -124,10 +156,11 @@
     {
       "topic_id": "deno",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 2,
       "predicted_urls": [
-        "https://deno.com/blog/rss.xml"
+        "https://deno.com/blog/rss.xml",
+        "https://kitsonkelly.com/"
       ],
       "predicted_provenance": [
         {
@@ -136,6 +169,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://kitsonkelly.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -143,10 +183,11 @@
       "topic_id": "flutter",
       "primary_recall_at_20": 0.3333333333333333,
       "relevant_recall_at_50": 0.2,
-      "predicted_count": 2,
+      "predicted_count": 3,
       "predicted_urls": [
         "https://github.com/flutter/flutter/releases",
-        "https://blog.flutter.dev/feed"
+        "https://blog.flutter.dev/feed",
+        "https://medium.com/flutter"
       ],
       "predicted_provenance": [
         {
@@ -162,27 +203,51 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://medium.com/flutter",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "go",
       "primary_recall_at_20": 0.5,
-      "relevant_recall_at_50": 0.11764705882352941,
-      "predicted_count": 4,
+      "relevant_recall_at_50": 0.17647058823529413,
+      "predicted_count": 7,
       "predicted_urls": [
+        "https://dave.cheney.net/feed",
         "https://go.dev/blog/feed.atom",
+        "https://engineering.grab.com/",
         "https://go.dev/doc",
         "https://github.com/kubernetes/kubernetes/releases",
+        "https://cncf.io/blog/feed",
         "https://kubernetes.io/feed.xml"
       ],
       "predicted_provenance": [
+        {
+          "url": "https://dave.cheney.net/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
         {
           "url": "https://go.dev/blog/feed.atom",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://engineering.grab.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://go.dev/doc",
@@ -195,6 +260,13 @@
           "url": "https://github.com/kubernetes/kubernetes/releases",
           "family": "github_release",
           "discovery_provenance": "repository_metadata",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://cncf.io/blog/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
         },
@@ -210,13 +282,16 @@
     {
       "topic_id": "java",
       "primary_recall_at_20": 0.3333333333333333,
-      "relevant_recall_at_50": 0.05,
-      "predicted_count": 4,
+      "relevant_recall_at_50": 0.15,
+      "predicted_count": 7,
       "predicted_urls": [
         "https://inside.java/feed.xml",
+        "https://spring.io/blog.atom",
+        "https://infoq.com/java",
         "https://github.com/JetBrains/kotlin/releases",
         "https://blog.jetbrains.com/kotlin/feed",
-        "https://android-developers.googleblog.com/feeds/posts/default"
+        "https://android-developers.googleblog.com/feeds/posts/default",
+        "https://blog.kotlin-academy.com/"
       ],
       "predicted_provenance": [
         {
@@ -225,6 +300,20 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://spring.io/blog.atom",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://infoq.com/java",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://github.com/JetBrains/kotlin/releases",
@@ -246,20 +335,31 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://blog.kotlin-academy.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "kotlin",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.1111111111111111,
-      "predicted_count": 5,
+      "relevant_recall_at_50": 0.2222222222222222,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://github.com/JetBrains/kotlin/releases",
         "https://android-developers.googleblog.com/feeds/posts/default",
         "https://blog.jetbrains.com/kotlin/feed",
+        "https://blog.kotlin-academy.com/",
         "https://inside.java/feed.xml",
-        "https://developer.android.com/"
+        "https://spring.io/blog.atom",
+        "https://developer.android.com/",
+        "https://infoq.com/java",
+        "https://medium.com/androiddevelopers"
       ],
       "predicted_provenance": [
         {
@@ -284,7 +384,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://blog.kotlin-academy.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://inside.java/feed.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://spring.io/blog.atom",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
@@ -296,6 +410,20 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://infoq.com/java",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://medium.com/androiddevelopers",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -303,11 +431,14 @@
       "topic_id": "kubernetes",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 4,
+      "predicted_count": 7,
       "predicted_urls": [
         "https://github.com/kubernetes/kubernetes/releases",
+        "https://cncf.io/blog/feed",
         "https://kubernetes.io/feed.xml",
+        "https://dave.cheney.net/feed",
         "https://go.dev/blog/feed.atom",
+        "https://engineering.grab.com/",
         "https://go.dev/doc"
       ],
       "predicted_provenance": [
@@ -319,7 +450,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://cncf.io/blog/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://kubernetes.io/feed.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://dave.cheney.net/feed",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
@@ -333,6 +478,13 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://engineering.grab.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://go.dev/doc",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
@@ -344,14 +496,30 @@
     {
       "topic_id": "linux",
       "primary_recall_at_20": 0.09090909090909091,
-      "relevant_recall_at_50": 0.045454545454545456,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.13636363636363635,
+      "predicted_count": 3,
       "predicted_urls": [
-        "https://kernel.org/category/releases.html"
+        "https://lwn.net/headlines/rss",
+        "https://kernel.org/category/releases.html",
+        "https://lore.kernel.org/"
       ],
       "predicted_provenance": [
         {
+          "url": "https://lwn.net/headlines/rss",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://kernel.org/category/releases.html",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://lore.kernel.org/",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -362,13 +530,16 @@
     {
       "topic_id": "llvm",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 4,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 7,
       "predicted_urls": [
         "https://github.com/llvm/llvm-project/releases",
         "https://llvm.org/docs",
+        "https://reviews.llvm.org/",
         "https://github.com/rust-lang/rust/releases",
-        "https://blog.rust-lang.org/feed.xml"
+        "https://aws.amazon.com/blogs/opensource/feed",
+        "https://blog.rust-lang.org/feed.xml",
+        "https://this-week-in-rust.org/rss.xml"
       ],
       "predicted_provenance": [
         {
@@ -386,6 +557,13 @@
           "verification_status": "discovery_only"
         },
         {
+          "url": "https://reviews.llvm.org/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://github.com/rust-lang/rust/releases",
           "family": "github_release",
           "discovery_provenance": "repository_metadata",
@@ -393,7 +571,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://aws.amazon.com/blogs/opensource/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://blog.rust-lang.org/feed.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://this-week-in-rust.org/rss.xml",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
@@ -404,10 +596,11 @@
     {
       "topic_id": "neovim",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.125,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.25,
+      "predicted_count": 2,
       "predicted_urls": [
-        "https://neovim.io/news.xml"
+        "https://neovim.io/news.xml",
+        "https://tjdevries.com/"
       ],
       "predicted_provenance": [
         {
@@ -416,20 +609,30 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://tjdevries.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "nextjs",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.0,
-      "predicted_count": 6,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://github.com/vercel/next.js/releases",
         "https://nextjs.org/feed.xml",
+        "https://vercel.com/blog/category/nextjs",
         "https://github.com/facebook/react/releases",
         "https://devblogs.microsoft.com/typescript/feed",
         "https://react.dev/blog/rss.xml",
+        "https://totaltypescript.com/rss.xml",
+        "https://dev.to/t/typescript",
         "https://react.dev/learn"
       ],
       "predicted_provenance": [
@@ -446,6 +649,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://vercel.com/blog/category/nextjs",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://github.com/facebook/react/releases",
@@ -469,6 +679,20 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://totaltypescript.com/rss.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://dev.to/t/typescript",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://react.dev/learn",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
@@ -481,7 +705,7 @@
       "topic_id": "oss_security",
       "primary_recall_at_20": 0.0,
       "relevant_recall_at_50": 0.18181818181818182,
-      "predicted_count": 7,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://api.github.com/advisories",
         "https://api.osv.dev/v1/query",
@@ -489,7 +713,9 @@
         "https://openwall.com/lists/oss-security",
         "https://github.com/python/cpython/releases",
         "https://blog.python.org/feeds/posts/default",
-        "https://docs.python.org/3"
+        "https://realpython.com/atom.xml",
+        "https://docs.python.org/3",
+        "https://engineering.atspotify.com/"
       ],
       "predicted_provenance": [
         {
@@ -535,7 +761,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://realpython.com/atom.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://docs.python.org/3",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://engineering.atspotify.com/",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -546,30 +786,48 @@
     {
       "topic_id": "postgresql",
       "primary_recall_at_20": 0.14285714285714285,
-      "relevant_recall_at_50": 0.1,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.2,
+      "predicted_count": 3,
       "predicted_urls": [
-        "https://postgresql.org/news.rss"
+        "https://depesz.com/feed",
+        "https://postgresql.org/news.rss",
+        "https://citusdata.com/blog"
       ],
       "predicted_provenance": [
+        {
+          "url": "https://depesz.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
         {
           "url": "https://postgresql.org/news.rss",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://citusdata.com/blog",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "python",
       "primary_recall_at_20": 0.2857142857142857,
-      "relevant_recall_at_50": 0.10526315789473684,
-      "predicted_count": 10,
+      "relevant_recall_at_50": 0.15789473684210525,
+      "predicted_count": 12,
       "predicted_urls": [
         "https://github.com/python/cpython/releases",
         "https://blog.python.org/feeds/posts/default",
+        "https://realpython.com/atom.xml",
         "https://docs.python.org/3",
+        "https://engineering.atspotify.com/",
         "https://api.github.com/advisories",
         "https://github.com/fastapi/fastapi/releases",
         "https://api.osv.dev/v1/query",
@@ -594,7 +852,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://realpython.com/atom.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://docs.python.org/3",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://engineering.atspotify.com/",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -653,16 +925,21 @@
     },
     {
       "topic_id": "react",
-      "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.0,
-      "predicted_count": 6,
+      "primary_recall_at_20": 1.0,
+      "relevant_recall_at_50": 0.25,
+      "predicted_count": 11,
       "predicted_urls": [
         "https://github.com/facebook/react/releases",
         "https://react.dev/blog/rss.xml",
         "https://react.dev/learn",
         "https://github.com/vercel/next.js/releases",
         "https://devblogs.microsoft.com/typescript/feed",
-        "https://nextjs.org/feed.xml"
+        "https://nextjs.org/feed.xml",
+        "https://totaltypescript.com/rss.xml",
+        "https://dev.to/t/typescript",
+        "https://vercel.com/blog/category/nextjs",
+        "https://engineering.fb.com/feed",
+        "https://reactnative.dev/blog/rss.xml"
       ],
       "predicted_provenance": [
         {
@@ -706,16 +983,52 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://totaltypescript.com/rss.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://dev.to/t/typescript",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://vercel.com/blog/category/nextjs",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://engineering.fb.com/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://reactnative.dev/blog/rss.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "publisher_graph",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
         }
       ]
     },
     {
       "topic_id": "redis",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 2,
       "predicted_urls": [
-        "https://redis.io/blog/feed"
+        "https://redis.io/blog/feed",
+        "https://antirez.com/"
       ],
       "predicted_provenance": [
         {
@@ -724,20 +1037,43 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://antirez.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "ruby",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.0,
-      "predicted_count": 1,
+      "relevant_recall_at_50": 0.07142857142857142,
+      "predicted_count": 3,
       "predicted_urls": [
-        "https://ruby-lang.org/en/feeds/news.rss"
+        "https://ruby-lang.org/en/feeds/news.rss",
+        "https://shopify.engineering/blog.atom",
+        "https://tenderlovemaking.com/atom.xml"
       ],
       "predicted_provenance": [
         {
           "url": "https://ruby-lang.org/en/feeds/news.rss",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://shopify.engineering/blog.atom",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://tenderlovemaking.com/atom.xml",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
@@ -748,13 +1084,17 @@
     {
       "topic_id": "rust",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.0,
-      "predicted_count": 5,
+      "relevant_recall_at_50": 0.16666666666666666,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://github.com/rust-lang/rust/releases",
+        "https://aws.amazon.com/blogs/opensource/feed",
         "https://blog.rust-lang.org/feed.xml",
+        "https://this-week-in-rust.org/rss.xml",
         "https://github.com/llvm/llvm-project/releases",
+        "https://surma.dev/index.xml",
         "https://llvm.org/docs",
+        "https://reviews.llvm.org/",
         "https://webassembly.org/news"
       ],
       "predicted_provenance": [
@@ -766,7 +1106,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://aws.amazon.com/blogs/opensource/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://blog.rust-lang.org/feed.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://this-week-in-rust.org/rss.xml",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
@@ -780,7 +1134,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://surma.dev/index.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://llvm.org/docs",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://reviews.llvm.org/",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -799,11 +1167,19 @@
       "topic_id": "swift",
       "primary_recall_at_20": 0.25,
       "relevant_recall_at_50": 0.14285714285714285,
-      "predicted_count": 1,
+      "predicted_count": 2,
       "predicted_urls": [
+        "https://developer.apple.com/news/rss/news.rss",
         "https://swift.org/atom.xml"
       ],
       "predicted_provenance": [
+        {
+          "url": "https://developer.apple.com/news/rss/news.rss",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
         {
           "url": "https://swift.org/atom.xml",
           "family": "rss_atom",
@@ -816,15 +1192,18 @@
     {
       "topic_id": "typescript",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.0,
-      "predicted_count": 6,
+      "relevant_recall_at_50": 0.08,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://devblogs.microsoft.com/typescript/feed",
+        "https://totaltypescript.com/rss.xml",
+        "https://dev.to/t/typescript",
         "https://github.com/facebook/react/releases",
         "https://github.com/vercel/next.js/releases",
         "https://nextjs.org/feed.xml",
         "https://react.dev/blog/rss.xml",
-        "https://react.dev/learn"
+        "https://react.dev/learn",
+        "https://vercel.com/blog/category/nextjs"
       ],
       "predicted_provenance": [
         {
@@ -833,6 +1212,20 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://totaltypescript.com/rss.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://dev.to/t/typescript",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://github.com/facebook/react/releases",
@@ -868,16 +1261,24 @@
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
           "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://vercel.com/blog/category/nextjs",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
     {
       "topic_id": "vue",
       "primary_recall_at_20": 0.0,
-      "relevant_recall_at_50": 0.0,
-      "predicted_count": 2,
+      "relevant_recall_at_50": 1.0,
+      "predicted_count": 3,
       "predicted_urls": [
         "https://blog.vuejs.org/feed.rss",
+        "https://blog.evanyou.me/",
         "https://vuejs.org/guide/introduction.html"
       ],
       "predicted_provenance": [
@@ -887,6 +1288,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://blog.evanyou.me/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://vuejs.org/guide/introduction.html",
@@ -900,14 +1308,24 @@
     {
       "topic_id": "webassembly",
       "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.16666666666666666,
-      "predicted_count": 3,
+      "relevant_recall_at_50": 0.3333333333333333,
+      "predicted_count": 6,
       "predicted_urls": [
+        "https://surma.dev/index.xml",
         "https://webassembly.org/news",
         "https://github.com/rust-lang/rust/releases",
-        "https://blog.rust-lang.org/feed.xml"
+        "https://aws.amazon.com/blogs/opensource/feed",
+        "https://blog.rust-lang.org/feed.xml",
+        "https://this-week-in-rust.org/rss.xml"
       ],
       "predicted_provenance": [
+        {
+          "url": "https://surma.dev/index.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
         {
           "url": "https://webassembly.org/news",
           "family": "generic_web",
@@ -923,7 +1341,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://aws.amazon.com/blogs/opensource/feed",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
           "url": "https://blog.rust-lang.org/feed.xml",
+          "family": "rss_atom",
+          "discovery_provenance": "website_feed",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
+        {
+          "url": "https://this-week-in-rust.org/rss.xml",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",

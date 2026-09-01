@@ -8,6 +8,7 @@ from pathlib import Path
 
 from app.evaluation.product_gap_c1 import load_g0_sources
 from app.evaluation.product_gap_c1_gates import evaluate_g2
+from app.services.source_discovery import SOURCE_DISCOVERY_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_GOLD = ROOT / "tests" / "gold" / "product_gap" / "c1" / "v2"
@@ -26,6 +27,7 @@ def main(argv: list[str] | None = None) -> int:
         "artifact_version": "product-gap-c1-g2-measurement-v1",
         "dataset_version": freeze.get("dataset_version"),
         "path": "production_discovery",
+        "production_version": SOURCE_DISCOVERY_VERSION,
         "sample_complete": True,
         "split": args.split,
         "gold_injected": bool(g2.get("gold_injected")),

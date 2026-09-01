@@ -1,0 +1,16 @@
+{
+  "artifact_version": "product-gap-c1-g2-measurement-baseline-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "production_version": "source-discovery-v1",
+  "split": "dev",
+  "gold_injected": false,
+  "metrics": {
+    "primary_recall_at_20": 0.23170731707317074,
+    "relevant_recall_at_50": 0.09251101321585903,
+    "precision_at_20": 0.25609756097560976,
+    "japanese_recall_at_50": 0.0,
+    "blog_recall_at_50": 0.1,
+    "no_rss_recall_at_50": 0.05714285714285714
+  },
+  "note": "Baseline captured before the publisher-graph expansion. It is retained for before/after comparison and is not a tuning label."
+}

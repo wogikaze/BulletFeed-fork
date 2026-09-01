@@ -51,16 +51,17 @@ from app.services.user_interest import (
     signals_from_sources,
 )
 
-SOURCE_DISCOVERY_VERSION = "source-discovery-v1"
+SOURCE_DISCOVERY_VERSION = "source-discovery-v2"
 RecommendationStatus = Literal["pending", "approved", "ignored"]
 MatchKind = Literal["direct", "neighbor"]
 
 _DEFAULT_LIMIT = 20
 _MAX_LIMIT = 80
-_NEIGHBOR_SCALE = 0.55
+_NEIGHBOR_SCALE = 0.35
 _INFERRED_SCALE = 0.75
 _EXTERNAL_INDEX_SCALE = 0.35
 _EXTERNAL_INDEX_CAP = 0.4
+_PUBLISHER_GRAPH_SCALE = 0.15
 _PROVENANCE_RANK = {
     DiscoveryProvenance.CURATED_SEED.value: 0,
     DiscoveryProvenance.REPOSITORY_METADATA.value: 1,
@@ -69,6 +70,7 @@ _PROVENANCE_RANK = {
     DiscoveryProvenance.SITEMAP_LINK.value: 4,
     DiscoveryProvenance.PACKAGE_HOMEPAGE.value: 5,
     DiscoveryProvenance.EXTERNAL_INDEX.value: 6,
+    DiscoveryProvenance.PUBLISHER_GRAPH.value: 7,
 }
 
 
@@ -704,6 +706,8 @@ def _score(
     score = base * 0.65 + authority_confidence * 0.35
     if provenance == DiscoveryProvenance.EXTERNAL_INDEX.value:
         score = min(_EXTERNAL_INDEX_CAP, score * _EXTERNAL_INDEX_SCALE)
+    elif provenance == DiscoveryProvenance.PUBLISHER_GRAPH.value:
+        score = round(score * _PUBLISHER_GRAPH_SCALE, 4)
     return round(score, 4)
 
 
