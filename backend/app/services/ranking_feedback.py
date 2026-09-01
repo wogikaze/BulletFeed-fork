@@ -264,7 +264,7 @@ def _apply_adjustments(
         counts = features.get(source_type, (0, 0))
         kind = adjustment_for_counts(*counts)
         feature_value = source_type
-        if kind is None:
+        if kind is None and concept_features:
             text = " ".join(part for part in (item["title"], item["summary"]) if part)
             for concept_id in detect_concepts_in_text(text):
                 concept_counts = concept_features.get(concept_id, (0, 0))
