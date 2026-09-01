@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import math
 
+from fastapi.testclient import TestClient
+
 from app.database import Database
 from app.services.feedback_signals import (
     assert_feedback_does_not_mutate_ledger,
@@ -16,7 +18,6 @@ from app.services.feedback_signals import (
 )
 from app.services.ranking import evaluate_importance
 from app.services.ranking_feedback import MIN_SAMPLE_SIZE, PERSONALIZATION_VERSION
-from fastapi.testclient import TestClient
 
 _HELD_K = 5
 _HELD_RELEVANT = tuple(f"nfeed_ho_rel_{index}" for index in range(4))
