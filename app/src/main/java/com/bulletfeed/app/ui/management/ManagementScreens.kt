@@ -176,39 +176,26 @@ fun TopicsScreen(
                             color = Color(0xFF655F69),
                             style = MaterialTheme.typography.bodySmall,
                         )
-                        Row(Modifier.padding(top = 8.dp)) {
-                            AccessiblePrimaryButton(onClick = { onAddRecommendation(item) }, enabled = !topicLimitReached) {
-                                Text("追加")
-                            }
-                            Spacer(Modifier.width(8.dp))
-                            AccessibleTextButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
-                        }
+                        TopicRecommendationActions(
+                            enabled = !topicLimitReached,
+                            onAdd = { onAddRecommendation(item) },
+                            onIgnore = { onIgnoreRecommendation(item.id) },
+                        )
                     }
                 }
             }
             item {
                 Spacer(Modifier.height(18.dp))
                 Text("候補を検索", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AccessibleOutlinedTextField(
-                        value = query,
-                        onValueChange = {
-                            query = it
-                            if (it.isBlank()) onSearchTopics("")
-                        },
-                        modifier = Modifier.weight(1f).testTag("topic-search-field"),
-                        label = { Text("技術・サービス・企業") },
-                        singleLine = true,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    AccessiblePrimaryButton(onClick = { onSearchTopics(query) }, enabled = query.isNotBlank() && !isSearching) {
-                        if (isSearching) {
-                            CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
-                        } else {
-                            Text("検索")
-                        }
-                    }
-                }
+                TopicSearchBar(
+                    query = query,
+                    onQueryChange = {
+                        query = it
+                        if (it.isBlank()) onSearchTopics("")
+                    },
+                    isSearching = isSearching,
+                    onSearch = { onSearchTopics(query) },
+                )
                 if (isSearching) {
                     Text("候補を検索中…", modifier = Modifier.padding(top = 8.dp), color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
                 }
@@ -227,6 +214,7 @@ fun TopicsScreen(
                         AccessiblePrimaryButton(
                             onClick = { onAddSearchResult(result) },
                             enabled = !topicLimitReached,
+                            modifier = Modifier.testTag("topic-search-result-add"),
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(17.dp))
                             Text(if (topicLimitReached) "上限" else "追加", modifier = Modifier.padding(start = 4.dp))
@@ -237,38 +225,19 @@ fun TopicsScreen(
             item {
                 Spacer(Modifier.height(22.dp))
                 Text("自由入力", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    TopicType.entries.forEach { type ->
-                        AccessibleFilterChip(
-                            selected = selectedType == type,
-                            onClick = { newTopicType = type.name },
-                            label = type.label(),
-                            modifier = Modifier.padding(end = 6.dp),
-                        )
-                    }
-                }
-                Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AccessibleOutlinedTextField(
-                        value = newTopic,
-                        onValueChange = { newTopic = it },
-                        modifier = Modifier.weight(1f).testTag("topic-add-field"),
-                        label = { Text("テーマを追加") },
-                        singleLine = true,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    AccessiblePrimaryButton(
-                        onClick = {
-                            onAddTopic(newTopic, selectedType)
-                            newTopic = ""
-                        },
-                        enabled = newTopic.isNotBlank() && !topicLimitReached,
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "追加", modifier = Modifier.size(18.dp))
-                    }
-                }
+                TopicTypeFilterRow(
+                    selectedType = selectedType,
+                    onTypeSelected = { newTopicType = it.name },
+                )
+                TopicFreeformAddBar(
+                    value = newTopic,
+                    onValueChange = { newTopic = it },
+                    enabled = newTopic.isNotBlank() && !topicLimitReached,
+                    onAdd = {
+                        onAddTopic(newTopic, selectedType)
+                        newTopic = ""
+                    },
+                )
                 Spacer(Modifier.height(24.dp))
                 Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F3F1)), shape = RoundedCornerShape(20.dp)) {
                     Column(Modifier.padding(18.dp)) {
@@ -283,12 +252,10 @@ fun TopicsScreen(
                             color = Color(0xFF3D5A56),
                         )
                         Spacer(Modifier.height(12.dp))
-                        AccessiblePrimaryButton(
+                        TopicGithubConnectButton(
+                            githubConnected = githubConnected,
                             onClick = onGithubClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006A67)),
-                        ) {
-                            Text(if (githubConnected) "連携設定を見る" else "GitHubを連携する")
-                        }
+                        )
                     }
                 }
                 Spacer(Modifier.height(24.dp))
@@ -298,7 +265,119 @@ fun TopicsScreen(
 }
 
 @Composable
-private fun TopicManagementCard(
+internal fun TopicGithubConnectButton(
+    githubConnected: Boolean,
+    onClick: () -> Unit,
+) {
+    AccessiblePrimaryButton(
+        onClick = onClick,
+        modifier = Modifier.testTag("topic-github-connect"),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006A67)),
+    ) {
+        Text(if (githubConnected) "連携設定を見る" else "GitHubを連携する")
+    }
+}
+
+@Composable
+internal fun TopicTypeFilterRow(
+    selectedType: TopicType,
+    onTypeSelected: (TopicType) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TopicType.entries.forEach { type ->
+            AccessibleFilterChip(
+                selected = selectedType == type,
+                onClick = { onTypeSelected(type) },
+                label = type.label(),
+                modifier = Modifier.padding(end = 6.dp).testTag("topic-type-${type.name.lowercase()}"),
+            )
+        }
+    }
+}
+
+@Composable
+internal fun TopicRecommendationActions(
+    enabled: Boolean,
+    onAdd: () -> Unit,
+    onIgnore: () -> Unit,
+) {
+    Row(Modifier.padding(top = 8.dp)) {
+        AccessiblePrimaryButton(
+            onClick = onAdd,
+            enabled = enabled,
+            modifier = Modifier.testTag("topic-recommendation-add"),
+        ) {
+            Text("追加")
+        }
+        Spacer(Modifier.width(8.dp))
+        AccessibleTextButton(
+            onClick = onIgnore,
+            modifier = Modifier.testTag("topic-recommendation-ignore"),
+        ) { Text("無視") }
+    }
+}
+
+@Composable
+internal fun TopicSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    isSearching: Boolean,
+    onSearch: () -> Unit,
+) {
+    Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        AccessibleOutlinedTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = Modifier.weight(1f).testTag("topic-search-field"),
+            label = { Text("技術・サービス・企業") },
+            singleLine = true,
+        )
+        Spacer(Modifier.width(8.dp))
+        AccessiblePrimaryButton(
+            onClick = onSearch,
+            enabled = query.isNotBlank() && !isSearching,
+            modifier = Modifier.testTag("topic-search-button"),
+        ) {
+            if (isSearching) {
+                CircularProgressIndicator(modifier = Modifier.size(17.dp), strokeWidth = 2.dp)
+            } else {
+                Text("検索")
+            }
+        }
+    }
+}
+
+@Composable
+internal fun TopicFreeformAddBar(
+    value: String,
+    onValueChange: (String) -> Unit,
+    enabled: Boolean,
+    onAdd: () -> Unit,
+) {
+    Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        AccessibleOutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.weight(1f).testTag("topic-add-field"),
+            label = { Text("テーマを追加") },
+            singleLine = true,
+        )
+        Spacer(Modifier.width(8.dp))
+        AccessiblePrimaryButton(
+            onClick = onAdd,
+            enabled = enabled,
+            modifier = Modifier.testTag("topic-add-button"),
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "追加", modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+@Composable
+internal fun TopicManagementCard(
     topic: UserTopic,
     dragging: Boolean,
     dragHandleModifier: Modifier,
@@ -311,7 +390,7 @@ private fun TopicManagementCard(
     shape = RoundedCornerShape(16.dp),
 ) {
     Row(Modifier.padding(horizontal = 8.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        AccessibleIconButton(onClick = {}, modifier = dragHandleModifier) {
+        AccessibleIconButton(onClick = {}, modifier = dragHandleModifier.testTag("topic-reorder")) {
             Icon(Icons.Default.DragHandle, contentDescription = "並び替え", tint = Color(0xFF655F69))
         }
         Column(Modifier.weight(1f)) {
@@ -321,9 +400,13 @@ private fun TopicManagementCard(
         AccessibleAssistChip(
             label = topic.priority.label(),
             onClick = { onPriorityChange(topic.id, topic.priority.next()) },
+            modifier = Modifier.testTag("topic-priority"),
             labelColor = topic.priority.chipColor(),
         )
-        AccessibleTextButton(onClick = { onRemoveTopic(topic.id) }) { Text("削除", color = Color(0xFF8F1D18)) }
+        AccessibleTextButton(
+            onClick = { onRemoveTopic(topic.id) },
+            modifier = Modifier.testTag("topic-remove"),
+        ) { Text("削除", color = Color(0xFF8F1D18)) }
     }
 }
 
