@@ -2,14 +2,14 @@
   "artifact_version": "product-gap-c1-g2-measurement-v1",
   "dataset_version": "product-gap-c1-g0-v2",
   "path": "production_discovery",
-  "production_version": "source-discovery-v4",
+  "production_version": "source-discovery-v5",
   "sample_complete": true,
   "split": "dev",
   "gold_injected": false,
   "metrics": {
-    "primary_recall_at_20": 0.2682926829268293,
-    "relevant_recall_at_50": 0.2775330396475771,
-    "precision_at_20": 0.3387096774193548,
+    "primary_recall_at_20": 0.4024390243902439,
+    "relevant_recall_at_50": 0.32599118942731276,
+    "precision_at_20": 0.3645320197044335,
     "japanese_recall_at_50": 0.1411764705882353,
     "blog_recall_at_50": 0.3,
     "no_rss_recall_at_50": 0.45714285714285713
@@ -28,10 +28,8 @@
     "neovim",
     "postgresql",
     "python",
-    "redis",
     "swift",
-    "typescript",
-    "webassembly"
+    "typescript"
   ],
   "topics": [
     {
@@ -110,12 +108,14 @@
     },
     {
       "topic_id": "angular",
-      "primary_recall_at_20": 0.2,
-      "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 2,
+      "primary_recall_at_20": 0.6,
+      "relevant_recall_at_50": 0.6666666666666666,
+      "predicted_count": 4,
       "predicted_urls": [
         "https://blog.angular.dev/feed",
-        "https://blog.nrwl.io/feed"
+        "https://blog.nrwl.io/feed",
+        "https://angular.dev/overview",
+        "https://angular.dev/reference/releases"
       ],
       "predicted_provenance": [
         {
@@ -131,6 +131,20 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://angular.dev/overview",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://angular.dev/reference/releases",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         }
       ]
     },
@@ -138,10 +152,12 @@
       "topic_id": "cloudflare",
       "primary_recall_at_20": 0.0,
       "relevant_recall_at_50": 0.0,
-      "predicted_count": 4,
+      "predicted_count": 6,
       "predicted_urls": [
         "https://blog.cloudflare.com/rss",
+        "https://blog.cloudflare.com/",
         "https://blog.cloudflare.com/tag/engineering",
+        "https://developers.cloudflare.com/",
         "https://developers.cloudflare.com/workers",
         "https://status.cloudflare.com/"
       ],
@@ -154,7 +170,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://blog.cloudflare.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://blog.cloudflare.com/tag/engineering",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://developers.cloudflare.com/",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -178,20 +208,36 @@
     },
     {
       "topic_id": "deno",
-      "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 2,
+      "primary_recall_at_20": 0.5,
+      "relevant_recall_at_50": 0.5,
+      "predicted_count": 4,
       "predicted_urls": [
+        "https://github.com/denoland/deno/releases",
         "https://deno.com/blog/rss.xml",
+        "https://docs.deno.com/",
         "https://kitsonkelly.com/"
       ],
       "predicted_provenance": [
+        {
+          "url": "https://github.com/denoland/deno/releases",
+          "family": "github_release",
+          "discovery_provenance": "repository_metadata",
+          "authority_status": "authoritative",
+          "verification_status": "verified"
+        },
         {
           "url": "https://deno.com/blog/rss.xml",
           "family": "rss_atom",
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://docs.deno.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://kitsonkelly.com/",
@@ -204,12 +250,13 @@
     },
     {
       "topic_id": "flutter",
-      "primary_recall_at_20": 0.3333333333333333,
-      "relevant_recall_at_50": 0.2,
-      "predicted_count": 3,
+      "primary_recall_at_20": 0.6666666666666666,
+      "relevant_recall_at_50": 0.4,
+      "predicted_count": 4,
       "predicted_urls": [
         "https://github.com/flutter/flutter/releases",
         "https://blog.flutter.dev/feed",
+        "https://docs.flutter.dev/",
         "https://medium.com/flutter"
       ],
       "predicted_provenance": [
@@ -226,6 +273,13 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://docs.flutter.dev/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://medium.com/flutter",
@@ -794,11 +848,13 @@
     },
     {
       "topic_id": "neovim",
-      "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.25,
-      "predicted_count": 2,
+      "primary_recall_at_20": 0.5,
+      "relevant_recall_at_50": 0.375,
+      "predicted_count": 4,
       "predicted_urls": [
         "https://neovim.io/news.xml",
+        "https://neovim.io/doc",
+        "https://neovim.io/news",
         "https://tjdevries.com/"
       ],
       "predicted_provenance": [
@@ -808,6 +864,20 @@
           "discovery_provenance": "website_feed",
           "authority_status": "authoritative",
           "verification_status": "verified"
+        },
+        {
+          "url": "https://neovim.io/doc",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://neovim.io/news",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
         },
         {
           "url": "https://tjdevries.com/",
@@ -1032,13 +1102,15 @@
     },
     {
       "topic_id": "postgresql",
-      "primary_recall_at_20": 0.2857142857142857,
-      "relevant_recall_at_50": 0.4,
-      "predicted_count": 5,
+      "primary_recall_at_20": 0.5714285714285714,
+      "relevant_recall_at_50": 0.6,
+      "predicted_count": 7,
       "predicted_urls": [
         "https://depesz.com/feed",
         "https://postgresql.org/news.rss",
         "https://citusdata.com/blog",
+        "https://postgresql.org/docs/current",
+        "https://postgresql.org/docs/release",
         "https://postgresql.jp/",
         "https://wiki.postgresql.org/"
       ],
@@ -1059,6 +1131,20 @@
         },
         {
           "url": "https://citusdata.com/blog",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://postgresql.org/docs/current",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://postgresql.org/docs/release",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -1334,12 +1420,14 @@
     },
     {
       "topic_id": "redis",
-      "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 2,
+      "primary_recall_at_20": 0.75,
+      "relevant_recall_at_50": 0.6666666666666666,
+      "predicted_count": 4,
       "predicted_urls": [
         "https://redis.io/blog/feed",
-        "https://antirez.com/"
+        "https://antirez.com/",
+        "https://redis.io/docs",
+        "https://redis.io/docs/latest/operate/oss_and_stack/install/release-notes"
       ],
       "predicted_provenance": [
         {
@@ -1351,6 +1439,20 @@
         },
         {
           "url": "https://antirez.com/",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://redis.io/docs",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://redis.io/docs/latest/operate/oss_and_stack/install/release-notes",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -1452,7 +1554,7 @@
       "topic_id": "rust",
       "primary_recall_at_20": 0.0,
       "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 10,
+      "predicted_count": 12,
       "predicted_urls": [
         "https://github.com/rust-lang/rust/releases",
         "https://aws.amazon.com/blogs/opensource/feed",
@@ -1462,7 +1564,9 @@
         "https://surma.dev/index.xml",
         "https://llvm.org/docs",
         "https://reviews.llvm.org/",
+        "https://webassembly.org/docs/core",
         "https://webassembly.org/news",
+        "https://webassembly.org/roadmap",
         "https://crates.io/"
       ],
       "predicted_provenance": [
@@ -1523,7 +1627,21 @@
           "verification_status": "discovery_only"
         },
         {
+          "url": "https://webassembly.org/docs/core",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://webassembly.org/news",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://webassembly.org/roadmap",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
@@ -1698,12 +1816,14 @@
     },
     {
       "topic_id": "webassembly",
-      "primary_recall_at_20": 0.25,
-      "relevant_recall_at_50": 0.3333333333333333,
-      "predicted_count": 7,
+      "primary_recall_at_20": 0.75,
+      "relevant_recall_at_50": 0.6666666666666666,
+      "predicted_count": 9,
       "predicted_urls": [
         "https://surma.dev/index.xml",
+        "https://webassembly.org/docs/core",
         "https://webassembly.org/news",
+        "https://webassembly.org/roadmap",
         "https://github.com/rust-lang/rust/releases",
         "https://aws.amazon.com/blogs/opensource/feed",
         "https://blog.rust-lang.org/feed.xml",
@@ -1719,7 +1839,21 @@
           "verification_status": "verified"
         },
         {
+          "url": "https://webassembly.org/docs/core",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
           "url": "https://webassembly.org/news",
+          "family": "generic_web",
+          "discovery_provenance": "curated_seed",
+          "authority_status": "non_authoritative",
+          "verification_status": "discovery_only"
+        },
+        {
+          "url": "https://webassembly.org/roadmap",
           "family": "generic_web",
           "discovery_provenance": "curated_seed",
           "authority_status": "non_authoritative",
