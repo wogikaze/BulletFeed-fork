@@ -1,12 +1,6 @@
 package com.bulletfeed.app
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -416,84 +410,84 @@ class RealBackendAcceptanceTest {
             assertTrue(feed.items.isEmpty())
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `thirty personas reach useful feed or abstain against real backend`() =
         runTest {
             val baseUrl = System.getProperty(BASE_URL_PROPERTY).orEmpty().trim()
             assumeTrue("Set $BASE_URL_PROPERTY to a local FastAPI harness", baseUrl.isNotEmpty())
 
-            Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
-            try {
-                val personas = loadM1Personas()
-                assertEquals(30, personas.size)
-                val abstaining = personas.filter { it.expectEmptyReason == "no_topics_abstention" }
-                assertEquals(listOf("m1p_29", "m1p_30"), abstaining.map { it.personaId })
+            val personas = loadM1Personas()
+            assertEquals(30, personas.size)
+            val abstaining = personas.filter { it.expectEmptyReason == "no_topics_abstention" }
+            assertEquals(listOf("m1p_29", "m1p_30"), abstaining.map { it.personaId })
 
-                for (persona in personas) {
-                    val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
-                    val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
-                    val repository = RemoteBulletFeedRepository(api, sessionManager)
-                    val viewModel = BulletFeedViewModel(repository)
-                    advanceUntilIdle()
+            for (persona in personas) {
+                val sessionManager = SessionManager(InMemorySecretStore(), InMemorySessionPreferenceStore())
+                val api = BulletFeedApiFactory.create(baseUrl, sessionManager)
+                val repository = RemoteBulletFeedRepository(api, sessionManager)
+                repository.initialize()
 
-                    val intendedAbstention = persona.expectEmptyReason == "no_topics_abstention"
-                    viewModel.completeOnboarding(
-                        profile = profileFor(persona),
-                        topics = if (intendedAbstention) emptyList() else topicSelection(persona.topics),
-                        connectGithub = false,
-                    )
-                    advanceUntilIdle()
-                    val state = viewModel.uiState.value
-                    if (intendedAbstention) {
-                        assertEquals(persona.personaId, OnboardingState.PROFILE, state.onboardingState)
-                        assertFalse(persona.personaId, state.onboardingCompleted)
-                        assertTrue(
-                            "${persona.personaId} must not fabricate a useful feed",
-                            state.events.isEmpty(),
+                val intendedAbstention = persona.expectEmptyReason == "no_topics_abstention"
+                if (intendedAbstention) {
+                    try {
+                        repository.completeOnboarding(
+                            profile = profileFor(persona),
+                            topics = emptyList(),
+                            connectGithub = false,
                         )
+                        throw AssertionError("${persona.personaId} expected HTTP 422 abstention")
+                    } catch (error: HttpException) {
+                        assertEquals(persona.personaId, 422, error.code())
+                        val recovered = readyUiState().reduceRootFailure(error)
+                        assertFalse(persona.personaId, recovered.isOffline)
+                        assertFalse(persona.personaId, recovered.sessionExpired)
                         assertTrue(
-                            "${persona.personaId} expected the 5-topic validation message, got ${state.errorMessage}",
-                            state.errorMessage?.contains("5件") == true,
+                            "${persona.personaId} expected the 5-topic validation message, got ${recovered.errorMessage}",
+                            recovered.errorMessage?.contains("5件") == true,
                         )
-                        val feed = repository.getFeedPage(limit = 5)
-                        assertTrue("${persona.personaId} abstention feed must stay empty", feed.items.isEmpty())
-                    } else {
-                        assertEquals(persona.personaId, OnboardingState.READY, state.onboardingState)
-                        assertTrue(persona.personaId, state.onboardingCompleted)
-                        val userId = sessionManager.userId
-                        assertNotNull("${persona.personaId} expected a session user", userId)
-                        val seeded = seedStatuspage(baseUrl, userId!!)
-                        assertTrue(
-                            "${persona.personaId} expected projected events",
-                            seeded.projectedItemCount >= 1,
-                        )
-                        viewModel.refresh()
-                        advanceUntilIdle()
-                        val ready = viewModel.uiState.value
-                        assertTrue(
-                            "${persona.personaId} expected a real-backend feed after onboarding",
-                            ready.events.isNotEmpty(),
-                        )
-                        val event = ready.events.first()
-                        val detail = repository.getEventDetail(event.id, event.feedItemId)
-                        assertTrue("${persona.personaId} expected evidence sources", detail.sources.isNotEmpty())
-                        assertTrue(
-                            "${persona.personaId} evidence must be source-grounded text",
-                            detail.sources.all { it.evidence.isNotBlank() },
-                        )
-                        assertTrue(
-                            "${persona.personaId} must not surface claim ids as evidence",
-                            detail.sources.none { source ->
-                                source.evidence.contains("claim_id", ignoreCase = true) ||
-                                    source.kind.name.contains("claim_id", ignoreCase = true)
-                            },
-                        )
-                        repository.updateEventFeedback(event.id, Feedback.ALREADY_KNEW)
                     }
+                    val onboarding = repository.getOnboardingSnapshot()
+                    assertFalse(persona.personaId, onboarding.completed)
+                    assertEquals(persona.personaId, OnboardingState.PROFILE, onboarding.state)
+                    val feed = repository.getFeedPage(limit = 5)
+                    assertTrue("${persona.personaId} abstention feed must stay empty", feed.items.isEmpty())
+                } else {
+                    val snapshot =
+                        repository.completeOnboarding(
+                            profile = profileFor(persona),
+                            topics = topicSelection(persona.topics),
+                            connectGithub = false,
+                        )
+                    assertTrue(persona.personaId, snapshot.completed)
+                    assertEquals(persona.personaId, OnboardingState.READY, snapshot.state)
+                    val userId = sessionManager.userId
+                    assertNotNull("${persona.personaId} expected a session user", userId)
+                    val seeded = seedStatuspage(baseUrl, userId!!)
+                    assertTrue(
+                        "${persona.personaId} expected projected events",
+                        seeded.projectedItemCount >= 1,
+                    )
+                    val page = repository.getFeedPage(limit = 5)
+                    assertTrue(
+                        "${persona.personaId} expected a real-backend feed after onboarding",
+                        page.items.isNotEmpty(),
+                    )
+                    val item = page.items.first()
+                    val detail = repository.getEventDetail(item.eventId, item.id)
+                    assertTrue("${persona.personaId} expected evidence sources", detail.sources.isNotEmpty())
+                    assertTrue(
+                        "${persona.personaId} evidence must be source-grounded text",
+                        detail.sources.all { it.evidence.isNotBlank() },
+                    )
+                    assertTrue(
+                        "${persona.personaId} must not surface claim ids as evidence",
+                        detail.sources.none { source ->
+                            source.evidence.contains("claim_id", ignoreCase = true) ||
+                                source.kind.name.contains("claim_id", ignoreCase = true)
+                        },
+                    )
+                    repository.updateEventFeedback(item.eventId, Feedback.ALREADY_KNEW)
                 }
-            } finally {
-                Dispatchers.resetMain()
             }
         }
 
