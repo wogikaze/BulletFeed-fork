@@ -57,6 +57,7 @@ from app.services.multiobjective_ranker import (
     paginate_ranked,
     rank_candidates,
 )
+from app.services.ranking_feedback import apply_feedback_ranking
 from app.services.relation import RELATION_FEATURE_VERSION, evaluate_relation
 from app.services.session_telemetry import (
     KIND_CARD_DISPLAYED,
@@ -1070,6 +1071,7 @@ class FeedStore:
                 family=family,
                 created_at=now,
             )
+            apply_feedback_ranking(connection, user_id=user_id)
             current = connection.execute(
                 "SELECT status FROM feed_items WHERE id = ?",
                 (feed_item_id,),
