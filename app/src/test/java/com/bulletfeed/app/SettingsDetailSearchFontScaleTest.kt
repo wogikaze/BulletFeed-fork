@@ -44,6 +44,7 @@ class SettingsDetailSearchFontScaleTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("profile-role-field", useUnmergedTree = true).assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("保存").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithTag("settings-profile-save").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("キャンセル").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("情報源を追加").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("source-subscribe-add").performScrollTo().assertHeightIsAtLeast(48.dp)
@@ -111,5 +112,41 @@ class SettingsDetailSearchFontScaleTest {
 
         composeRule.onNodeWithTag("search-query-field", useUnmergedTree = true).assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("search-result-card").assertHeightIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun largeFontScaleKeepsFeedRefreshTouchTarget() {
+        composeRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
+                ) {
+                    FeedScreen(
+                        events = emptyList(),
+                        filter = FeedFilter.ALL,
+                        onFilterChange = {},
+                        onEventClick = {},
+                        onFeedback = { _, _ -> },
+                        onFollow = {},
+                        securityActionCount = 0,
+                        onSecurityClick = {},
+                        unreadNotificationCount = 0,
+                        onNotificationsClick = {},
+                        nextCursor = null,
+                        isLoadingMore = false,
+                        isFiltering = false,
+                        loadMoreError = null,
+                        onRefresh = {},
+                        onLoadMore = {},
+                        onVisibleFeedItems = {},
+                        onTopicsClick = {},
+                        onGithubClick = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("feed-refresh-button").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("更新").assertHeightIsAtLeast(48.dp)
     }
 }
