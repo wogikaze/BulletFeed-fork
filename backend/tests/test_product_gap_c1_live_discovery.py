@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from app.config import Settings
 from app.evaluation.product_gap_c1 import G0Source
 from app.evaluation.product_gap_c1_live_discovery import _measurement_settings, measure_live_g1
+from app.services.source_discovery import _activation_host_is_configured
 
 GOLD = Path(__file__).parent / "gold" / "product_gap" / "c1"
 
@@ -46,3 +49,12 @@ def test_g1_allowlist_does_not_use_expected_feed_host() -> None:
     settings = _measurement_settings(row, timeout_seconds=1.0)
     assert "site.example" in settings.rss_hosts
     assert "gold.example" not in settings.rss_hosts
+
+
+def test_user_recommendation_does_not_expose_unconfigured_feed() -> None:
+    item = SimpleNamespace(
+        family="rss_atom",
+        canonical_url="https://unconfigured.example/feed.xml",
+    )
+    settings = Settings(rss_allowed_hosts="allowed.example")
+    assert _activation_host_is_configured(item, settings) is False

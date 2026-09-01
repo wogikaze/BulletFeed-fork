@@ -39,6 +39,7 @@ from app.services.source_registry import (
     endpoint_id,
     publisher_id,
 )
+from app.services.url_safety import host_is_allowed
 from app.services.user_interest import (
     INTEREST_STATE_VERSION,
     InterestSources,
@@ -378,11 +379,31 @@ def list_source_recommendations_for_user(
             hn_items=hn_items,
             persist_registry=False,
         )
+    from app.config import get_settings
+
+    settings = get_settings()
+    configured_items = tuple(
+        item for item in result.items if _activation_host_is_configured(item, settings)
+    )
     return replace(
         result,
+        items=configured_items,
         runtime_hint_count=len(runtime_hints),
         seed_fallback_used=refresh.seed_fallback_used,
     )
+
+
+def _activation_host_is_configured(item: SourceCandidate, settings: Any) -> bool:
+    """Do not expose approval choices that server policy will reject."""
+    parsed = urlparse(item.canonical_url)
+    hostname = parsed.hostname
+    if hostname is None:
+        return False
+    if item.family in {SourceKind.RSS_ATOM.value, SourceKind.JSON_FEED.value}:
+        return not settings.rss_hosts or host_is_allowed(hostname, settings.rss_hosts)
+    if item.family == SourceKind.GENERIC_WEB.value:
+        return not settings.web_hosts or host_is_allowed(hostname, settings.web_hosts)
+    return True
 
 
 def recommendation_can_subscribe(item: SourceCandidate) -> bool:
