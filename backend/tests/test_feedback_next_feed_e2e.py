@@ -562,8 +562,12 @@ def test_http_reset_after_learned_ranking_restores_next_feed_order(
         )
         assert response.status_code == 200
 
-    learned = _feed_ids(client, auth_headers)
+    learned_body = client.get("/v1/feed", headers=auth_headers, params={"limit": 50})
+    assert learned_body.status_code == 200
+    learned_items = {item["id"]: item for item in learned_body.json()["items"]}
+    learned = [item["id"] for item in learned_body.json()["items"]]
     assert learned.index("nfeed_held_release") < learned.index("nfeed_held_rss")
+    assert "personalization.feedback_boost" in learned_items["nfeed_held_release"]["displayReason"]["codes"]
 
     denied = client.post("/v1/feed/ranking/reset")
     assert denied.status_code == 401
@@ -572,9 +576,17 @@ def test_http_reset_after_learned_ranking_restores_next_feed_order(
     assert response.status_code == 200
     assert response.json()["resetAt"] > 0
 
-    restored = _feed_ids(client, auth_headers)
+    restored_body = client.get("/v1/feed", headers=auth_headers, params={"limit": 50})
+    assert restored_body.status_code == 200
+    restored_items = {item["id"]: item for item in restored_body.json()["items"]}
+    restored = [item["id"] for item in restored_body.json()["items"]]
     assert restored.index("nfeed_held_rss") < restored.index("nfeed_held_release")
     assert set(before) == set(restored)
+    restored_reason = restored_items["nfeed_held_release"]["displayReason"]
+    assert "personalization.feedback_boost" not in restored_reason["codes"]
+    assert "personalization.preference_overlay" not in restored_reason["codes"]
+    assert "重要マーク" not in restored_reason["text"]
+    assert "評価傾向" not in restored_reason["text"]
 
     with database.connect() as connection:
         assert_feedback_does_not_mutate_ledger(ledger_before, ledger_world_state(connection))
