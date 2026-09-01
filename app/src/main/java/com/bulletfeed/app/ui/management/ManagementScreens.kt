@@ -639,6 +639,7 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     singleLine = true,
                 )
+                Spacer(Modifier.height(16.dp))
                 AccessiblePrimaryButton(
                     onClick = {
                         val interests = interestsText
@@ -650,7 +651,7 @@ fun SettingsScreen(
                         editing = false
                     },
                     enabled = role.isNotBlank() && !isSaving,
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth().testTag("settings-profile-save"),
                 ) {
                     if (isSaving) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)

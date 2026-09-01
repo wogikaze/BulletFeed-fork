@@ -2,8 +2,10 @@ package com.bulletfeed.app
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 /**
@@ -65,12 +68,14 @@ fun FeedScreen(
         onGithubClick = onGithubClick,
         modifier = Modifier.fillMaxSize(),
     )
-    AccessibleOutlinedButton(
-        onClick = onRefresh,
-        enabled = !isFiltering,
-        modifier = Modifier.align(Alignment.TopEnd).padding(top = 68.dp, end = 20.dp),
-    ) {
-        Text("更新")
+    Box(Modifier.align(Alignment.TopEnd).padding(top = 68.dp, end = 20.dp)) {
+        AccessibleOutlinedButton(
+            onClick = onRefresh,
+            enabled = !isFiltering,
+            modifier = Modifier.testTag("feed-refresh-button"),
+        ) {
+            Text("更新")
+        }
     }
 }
 
@@ -128,10 +133,14 @@ fun SettingsScreen(
             onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
             modifier = Modifier.weight(1f),
         )
+        Spacer(Modifier.height(12.dp))
         AccessibleOutlinedButton(
             onClick = { confirmDelete = true },
             enabled = !isDeletingAccount,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .testTag("settings-delete-account"),
         ) {
             if (isDeletingAccount) {
                 CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp))
@@ -154,10 +163,15 @@ fun SettingsScreen(
                         onDeleteAccount()
                     },
                     enabled = !isDeletingAccount,
+                    modifier = Modifier.testTag("settings-delete-confirm"),
                 ) { Text("削除する") }
             },
             dismissButton = {
-                AccessibleTextButton(onClick = { confirmDelete = false }, enabled = !isDeletingAccount) {
+                AccessibleTextButton(
+                    onClick = { confirmDelete = false },
+                    enabled = !isDeletingAccount,
+                    modifier = Modifier.testTag("settings-delete-cancel"),
+                ) {
                     Text("キャンセル")
                 }
             },
