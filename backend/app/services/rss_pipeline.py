@@ -77,6 +77,21 @@ def ingest_feed_events(
 
     unique_event_ids = tuple(dict.fromkeys(event_ids))
     source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""
+    items = preview.get("items")
+    if source_url and isinstance(items, list):
+        from app.services.index_publisher_discovery import publisher_feed_hints_from_index_preview
+        from app.services.japanese_source_catalog import japanese_broad_tech_concepts
+        from app.services.source_discovery_runtime import persist_runtime_discovery_hints
+
+        persist_runtime_discovery_hints(
+            database,
+            publisher_feed_hints_from_index_preview(
+                items,
+                index_url=source_url,
+                concept_ids=japanese_broad_tech_concepts(),
+            ),
+            persist_registry=False,
+        )
     project_events_for_subscription_audience(
         database,
         source_type="rss_atom",

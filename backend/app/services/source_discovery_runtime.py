@@ -179,6 +179,9 @@ def persist_runtime_discovery_hints(
         )
         if persist_registry:
             family = hint.family or infer_source_family(hint.url)
+            from app.services.source_discovery import _hint_registry_status
+
+            verification, authority = _hint_registry_status(hint, family)
             if hint.publisher_slug:
                 source_registry.register_publisher(
                     slug=hint.publisher_slug,
@@ -189,6 +192,8 @@ def persist_runtime_discovery_hints(
                 url=hint.url,
                 family=family,
                 publisher_slug=hint.publisher_slug,
+                verification_status=verification,
+                authority_status=authority,
             )
         persisted += 1
     return persisted
