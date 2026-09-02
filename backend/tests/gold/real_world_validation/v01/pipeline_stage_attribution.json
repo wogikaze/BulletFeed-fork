@@ -1,0 +1,1688 @@
+{
+  "attribution_version": "pipeline-stage-attribution-v1",
+  "status": "available",
+  "coverage_status": "complete",
+  "attribution_basis": "explicit stage ok flags only",
+  "labels_loaded": false,
+  "ranking_inference_used": false,
+  "trace_count": 30,
+  "complete_trace_count": 30,
+  "provenance": {
+    "source_artifact": "tests/gold/m1_personas/v01/deterministic_baseline.json",
+    "source_artifact_sha256": "b44b7d035d6f9bec2e956553299ff2f5562243d451424e25aa012790ff669963",
+    "trace_version": null,
+    "harness_version": "m1-zero-to-useful-v02",
+    "mode": "deterministic_fixture",
+    "repository_sha": null,
+    "label_source": "constructed"
+  },
+  "tenant_boundary": {
+    "mode": "trace_local",
+    "cross_tenant_joins": false,
+    "trace_count": 30,
+    "unique_tenant_count": 30,
+    "tenant_boundary_unknown_count": 0,
+    "tenant_boundary_violation_count": 0
+  },
+  "coverage": {
+    "acquisition": {
+      "observed_trace_count": 30,
+      "failure_trace_count": 0,
+      "missing_trace_count": 0
+    },
+    "projection": {
+      "observed_trace_count": 30,
+      "failure_trace_count": 0,
+      "missing_trace_count": 0
+    },
+    "evidence": {
+      "observed_trace_count": 30,
+      "failure_trace_count": 0,
+      "missing_trace_count": 0
+    }
+  },
+  "observed_stage_counts": {
+    "acquisition": 30,
+    "projection": 30,
+    "evidence": 30,
+    "ranking": 0
+  },
+  "failure_counts": {
+    "acquisition": 0,
+    "projection": 0,
+    "evidence": 0,
+    "ranking": 0,
+    "unattributed": 0
+  },
+  "unattributed_failure_stages": {},
+  "earliest_failure_counts": {
+    "acquisition": 0,
+    "projection": 0,
+    "evidence": 0,
+    "ranking": 0,
+    "unattributed": 0,
+    "ok": 30
+  },
+  "traces": [
+    {
+      "trace_id": "m1p_01",
+      "tenant_id": "m1p_01",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_02",
+      "tenant_id": "m1p_02",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_03",
+      "tenant_id": "m1p_03",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_04",
+      "tenant_id": "m1p_04",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_05",
+      "tenant_id": "m1p_05",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_06",
+      "tenant_id": "m1p_06",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_07",
+      "tenant_id": "m1p_07",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_08",
+      "tenant_id": "m1p_08",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_09",
+      "tenant_id": "m1p_09",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_10",
+      "tenant_id": "m1p_10",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_11",
+      "tenant_id": "m1p_11",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_12",
+      "tenant_id": "m1p_12",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_13",
+      "tenant_id": "m1p_13",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_14",
+      "tenant_id": "m1p_14",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_15",
+      "tenant_id": "m1p_15",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_16",
+      "tenant_id": "m1p_16",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_17",
+      "tenant_id": "m1p_17",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_18",
+      "tenant_id": "m1p_18",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_19",
+      "tenant_id": "m1p_19",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_20",
+      "tenant_id": "m1p_20",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_21",
+      "tenant_id": "m1p_21",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_22",
+      "tenant_id": "m1p_22",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_23",
+      "tenant_id": "m1p_23",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_24",
+      "tenant_id": "m1p_24",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_25",
+      "tenant_id": "m1p_25",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_26",
+      "tenant_id": "m1p_26",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_27",
+      "tenant_id": "m1p_27",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_28",
+      "tenant_id": "m1p_28",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "claim_evidence present",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_29",
+      "tenant_id": "m1p_29",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    },
+    {
+      "trace_id": "m1p_30",
+      "tenant_id": "m1p_30",
+      "tenant_identity_source": "persona_id",
+      "observed_stages": [
+        "account",
+        "interests",
+        "discovery",
+        "activation",
+        "acquisition",
+        "projection",
+        "feed",
+        "evidence",
+        "feedback",
+        "subsequent_feed"
+      ],
+      "observed_pipeline_stages": [
+        "acquisition",
+        "projection",
+        "evidence"
+      ],
+      "missing_pipeline_stages": [],
+      "failed_stages": [],
+      "unattributed_failed_stages": [],
+      "earliest_observed_failure": null,
+      "failure_scope": null,
+      "stage_observations": {
+        "acquisition": {
+          "ok": true,
+          "detail": "statuspage fixture ingested",
+          "metrics": {
+            "event_ids": [
+              "evt_532aece99bf503972e5b8b02"
+            ]
+          }
+        },
+        "projection": {
+          "ok": true,
+          "detail": "projected",
+          "metrics": {
+            "feed_item_count": 1,
+            "outsider_count": 1
+          }
+        },
+        "evidence": {
+          "ok": true,
+          "detail": "no cards",
+          "metrics": {
+            "broken_evidence": false
+          }
+        }
+      },
+      "tenant_boundary_ok": true
+    }
+  ]
+}

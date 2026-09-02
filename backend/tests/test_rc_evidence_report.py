@@ -16,6 +16,10 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m1"]["evidence_checks"]["persona_count"] is True
     assert report["missions"]["m1"]["api_qualification"]["evidence_checks"]["stage_failures"] is True
     assert report["missions"]["m2"]["evidence_checks"]["blind_isolation"] is True
+    assert report["missions"]["m2"]["evidence_checks"]["full_pipeline_attribution"] is True
+    assert report["missions"]["m2"]["pipeline_artifact"].endswith(
+        "pipeline_stage_attribution.json"
+    )
     assert report["missions"]["m3"]["evidence_checks"]["replay_failures"] is True
     assert report["missions"]["m3"]["live_sample"]["evidence_checks"]["success_rate"] is True
     quality = report["missions"]["m3"]["source_discovery_quality"]

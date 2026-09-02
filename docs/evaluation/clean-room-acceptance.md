@@ -12,11 +12,19 @@ python scripts/run_clean_room_backend_acceptance.py
 report は token と ephemeral user ID を保存せず、各 stage の pass/fail だけを記録する。
 
 検証する順序は representative schema upgrade、fresh stack/readiness、session、profile/topic onboarding、source
-discovery、activation、subscription、acceptance acquisition/projection、feed、
-Event evidence、meaningful exposure、feedback、subsequent feed である。worker/API
+discovery、activation、subscription、acceptance acquisition、projection、feed、
+Event evidence、meaningful exposure、feedback、subsequent feed である。acquisition と projection は
+seed response の event ID と projected item count を別々に検証する。worker/API
 process recovery と Android release build は M5/M4 の専用 gate で別途実行する。
 schema upgrade stage は別の一時DBで旧migration markerを再適用し、既存user stateが保持され、
 current `KNOWN_REVISIONS` へ到達することを確認する。
+この report は `trace_id=m7-clean-room` の単一 ephemeral tenant trace であり、
+次のコマンドで provenance を保ったまま stage attribution を再生成できる。
+
+```text
+python backend/scripts/run_pipeline_stage_attribution.py \
+  --trace backend/tests/gold/clean_room/v01/backend_report.json
+```
 
 Android の real-backend acceptance は `com.bulletfeed.app.RealBackendAcceptanceTest` を
 fresh ephemeral backendへ接続して実行する。結果は

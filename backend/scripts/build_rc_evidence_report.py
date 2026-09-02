@@ -20,6 +20,10 @@ ARTIFACTS = {
     "m1": EVIDENCE_ROOT / "m1_personas" / "v01" / "deterministic_baseline.json",
     "m1_api": EVIDENCE_ROOT / "m1_personas" / "v01" / "api_qualification.json",
     "m2": EVIDENCE_ROOT / "real_world_validation" / "v01" / "m2_readiness_report.json",
+    "m2_pipeline": EVIDENCE_ROOT
+    / "real_world_validation"
+    / "v01"
+    / "pipeline_stage_attribution.json",
     "m3": EVIDENCE_ROOT / "source_qualification" / "v01" / "report.json",
     "m3_live": EVIDENCE_ROOT / "source_qualification" / "v01" / "live_sample_200_report.json",
     "m3_t1": EVIDENCE_ROOT / "source_qualification" / "v01" / "longitudinal_t1_report.json",
@@ -86,9 +90,13 @@ def _m1_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _m2_gate(report: dict[str, Any]) -> dict[str, Any]:
+def _m2_gate(
+    report: dict[str, Any],
+    pipeline_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     capacity = report.get("capacity", {})
     metrics = report.get("metrics", {})
+    pipeline = pipeline_report or report.get("pipeline_attribution", {})
     checks = {
         "capacity_targets": bool(capacity.get("meets_targets")),
         "blind_isolation": metrics.get("blind_records_loaded") is False,
@@ -98,15 +106,22 @@ def _m2_gate(report: dict[str, Any]) -> dict[str, Any]:
         .get("status")
         == "available",
         "failure_taxonomy": metrics.get("failure_taxonomy", {}).get("status") == "available",
+        "full_pipeline_attribution": (
+            pipeline.get("status") == "available"
+            and pipeline.get("coverage_status") == "complete"
+            and pipeline.get("labels_loaded") is False
+            and pipeline.get("ranking_inference_used") is False
+        ),
     }
     return {
         "status": "partial" if all(checks.values()) else "fail",
         "evidence_checks": checks,
         "capacity": capacity,
         "stage_attribution": metrics.get("stage_attribution", {}),
+        "pipeline_attribution": pipeline,
         "note": (
-            "Ranking misses are attributed; acquisition/projection/evidence still require "
-            "journey traces."
+            "Ranking misses remain ranking-only; acquisition/projection/evidence attribution "
+            "uses explicit journey trace stages only."
         ),
     }
 
@@ -471,7 +486,11 @@ def build_report() -> dict[str, Any]:
             **_m1_gate(loaded["m1"]),
             "api_qualification": _m1_api_gate(loaded["m1_api"]),
         },
-        "m2": {"artifact": _relative(ARTIFACTS["m2"]), **_m2_gate(loaded["m2"])},
+        "m2": {
+            "artifact": _relative(ARTIFACTS["m2"]),
+            "pipeline_artifact": _relative(ARTIFACTS["m2_pipeline"]),
+            **_m2_gate(loaded["m2"], loaded["m2_pipeline"]),
+        },
         "m3": {
             "artifact": _relative(ARTIFACTS["m3"]),
             "live_artifact": _relative(ARTIFACTS["m3_live"]),

@@ -1,6 +1,8 @@
 {
   "acceptance_version": "m7-clean-room-backend-v1",
   "mode": "fresh_ephemeral_backend",
+  "trace_id": "m7-clean-room",
+  "tenant_scope": "single_ephemeral_user",
   "stages": [
     {
       "stage": "schema_upgrade",
@@ -48,9 +50,14 @@
       "detail": "HTTP 200; subscriptions=1"
     },
     {
-      "stage": "acquisition_projection",
+      "stage": "acquisition",
       "ok": true,
       "detail": "HTTP 200; events=1"
+    },
+    {
+      "stage": "projection",
+      "ok": true,
+      "detail": "HTTP 200; projected_items=2"
     },
     {
       "stage": "feed",

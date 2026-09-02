@@ -126,6 +126,8 @@ def main(argv: list[str] | None = None) -> int:
     result: dict[str, Any] = {
         "acceptance_version": "m7-clean-room-backend-v1",
         "mode": "fresh_ephemeral_backend",
+        "trace_id": "m7-clean-room",
+        "tenant_scope": "single_ephemeral_user",
         "stages": stages,
         "limitations": [
             "source acquisition uses the local acceptance seed fixture; "
@@ -261,9 +263,17 @@ def main(argv: list[str] | None = None) -> int:
         event_ids = seeded.get("eventIds", [])
         _stage(
             stages,
-            "acquisition_projection",
-            ok=status == 200 and bool(event_ids) and seeded.get("projectedItemCount", 0) > 0,
+            "acquisition",
+            ok=status == 200 and bool(event_ids),
             detail=f"HTTP {status}; events={len(event_ids)}",
+        )
+        _stage(
+            stages,
+            "projection",
+            ok=status == 200 and seeded.get("projectedItemCount", 0) > 0,
+            detail=(
+                f"HTTP {status}; projected_items={seeded.get('projectedItemCount', 0)}"
+            ),
         )
         status, feed = _json_request(
             base_url,

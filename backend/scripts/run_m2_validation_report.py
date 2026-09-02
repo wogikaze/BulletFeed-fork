@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from app.evaluation.m2_validation_metrics import evaluate_m2_production_scoring
+from app.evaluation.pipeline_attribution import load_pipeline_trace
 from app.evaluation.real_world_validation import (
     CONTRACT_VERSION,
     DATASET_VERSION,
@@ -21,7 +22,11 @@ from app.evaluation.real_world_validation import (
     load_real_world_validation_for_production_scoring,
 )
 
-CORPUS = Path(__file__).resolve().parents[1] / "tests" / "gold" / "real_world_validation" / "v01"
+BACKEND = Path(__file__).resolve().parents[1]
+CORPUS = BACKEND / "tests" / "gold" / "real_world_validation" / "v01"
+PIPELINE_TRACE = (
+    BACKEND / "tests" / "gold" / "m1_personas" / "v01" / "deterministic_baseline.json"
+)
 
 
 def _git_sha() -> str | None:
@@ -32,10 +37,21 @@ def _counts(rows: list[dict[str, Any]], key: str) -> dict[str, int]:
     return dict(sorted(Counter(str(row[key]) for row in rows).items()))
 
 
-def build_report() -> dict[str, Any]:
+def _relative_backend_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(BACKEND.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def build_report(*, pipeline_trace: Path = PIPELINE_TRACE) -> dict[str, Any]:
     corpus = load_real_world_validation(CORPUS)
     status = capacity_status(corpus)
     production = load_real_world_validation_for_production_scoring(CORPUS)
+    pipeline_attribution = load_pipeline_trace(
+        pipeline_trace,
+        source_artifact=_relative_backend_path(pipeline_trace),
+    )
     report = {
         "report_version": "m2-corpus-readiness-v1",
         "dataset_version": DATASET_VERSION,
@@ -47,6 +63,7 @@ def build_report() -> dict[str, Any]:
             "splits": sorted(production.indexes),
             "blind_records_loaded": False,
         },
+        "pipeline_attribution": pipeline_attribution,
         "splits": {},
         "judgments": {
             "label_source": "AI-silver",
@@ -93,15 +110,25 @@ def _check_report(report: dict[str, Any]) -> tuple[str, ...]:
         violations.append("headline at_10 uncertainty is unavailable")
     if metrics["failure_taxonomy"]["status"] != "available":
         violations.append("failure taxonomy is unavailable")
+    pipeline = report.get("pipeline_attribution", {})
+    if pipeline.get("status") != "available":
+        violations.append("full-pipeline stage attribution is unavailable")
+    if pipeline.get("coverage_status") != "complete":
+        violations.append("full-pipeline trace coverage is incomplete")
+    if pipeline.get("labels_loaded") is not False:
+        violations.append("pipeline attribution loaded labels")
+    if pipeline.get("ranking_inference_used") is not False:
+        violations.append("pipeline attribution inferred failures from ranking")
     return tuple(violations)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--pipeline-trace", type=Path, default=PIPELINE_TRACE)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
-    report = build_report()
+    report = build_report(pipeline_trace=args.pipeline_trace)
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
