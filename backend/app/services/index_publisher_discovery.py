@@ -12,6 +12,7 @@ from urllib.parse import unquote, urlparse
 
 from fastapi import HTTPException
 
+from app.config import Settings
 from app.services.japanese_source_catalog import (
     INDEX_DERIVED_SLUG_PREFIX,
     japanese_feed_authority_class,
@@ -121,6 +122,76 @@ def publisher_feed_hints_from_hosts(
             )
         )
     return tuple(hints)
+
+
+def homepage_url_from_probe(probe_url: str) -> str:
+    """Same-origin homepage for an unconfirmed well-known feed probe."""
+    host = (urlparse(probe_url).hostname or "").lower().rstrip(".")
+    if host.startswith("www."):
+        host = host[4:]
+    return f"https://{host}/"
+
+
+def settings_allowing_probe_host(settings: Settings, probe_url: str) -> Settings:
+    """Permit HTML confirmation for one already-shape-checked public host.
+
+    The host must come from an index-derived probe, not arbitrary user input.
+    SSRF checks still run at fetch time.
+    """
+    host = (urlparse(probe_url).hostname or "").lower().rstrip(".")
+    if not host:
+        return settings
+    aliases = {host, f"www.{host}"} if not host.startswith("www.") else {host, host[4:]}
+    web = {item.strip().lower().rstrip(".") for item in settings.web_allowed_hosts.split(",") if item.strip()}
+    rss = {item.strip().lower().rstrip(".") for item in settings.rss_allowed_hosts.split(",") if item.strip()}
+    web.update(aliases)
+    rss.update(aliases)
+    return settings.model_copy(
+        update={
+            "web_allowed_hosts": ",".join(sorted(web)),
+            "rss_allowed_hosts": ",".join(sorted(rss)),
+        }
+    )
+
+
+async def confirm_index_publisher_feed(
+    settings: Settings,
+    *,
+    probe_url: str,
+) -> str:
+    """Replace an unconfirmed ``/feed`` probe with HTML ``rel=alternate`` when present.
+
+    Does not subscribe, persist the registry, or write Claims. Fetch failures
+    keep the original probe so approval can still attach the unverified URL.
+    """
+    from app.services.source_feed_discover import discover_feeds_from_site_url
+
+    homepage = homepage_url_from_probe(probe_url)
+    try:
+        validate_url_shape(homepage, source_name="index-publisher")
+    except HTTPException:
+        return probe_url
+    scoped = settings_allowing_probe_host(settings, probe_url)
+    try:
+        result = await discover_feeds_from_site_url(
+            scoped,
+            homepage,
+            persist_registry=False,
+            probe_well_known=False,
+        )
+    except HTTPException:
+        return probe_url
+    except Exception:  # noqa: BLE001 - live HTML confirm must not fail approval
+        return probe_url
+    for item in result.items:
+        if item.family != SourceKind.RSS_ATOM.value:
+            continue
+        if item.discovery_method != "html_link_alternate":
+            continue
+        if not item.canonical_url:
+            continue
+        return item.canonical_url
+    return probe_url
 
 
 def publisher_feed_hints_from_index_preview(
