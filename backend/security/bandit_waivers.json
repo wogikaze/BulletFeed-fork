@@ -26,12 +26,6 @@
       "reason": "Module-level developer invariant over static constants; it is not a runtime security control."
     },
     {
-      "filename": "backend/app/services/rss.py",
-      "test_id": "B101",
-      "line_number": 32,
-      "reason": "Hostname non-null is already enforced by validate_url_shape before this type-narrowing assertion; URL safety does not rely on the assert."
-    },
-    {
       "filename": "backend/app/services/source_registry.py",
       "test_id": "B101",
       "line_number": 595,

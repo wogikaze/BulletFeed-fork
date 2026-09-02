@@ -232,6 +232,8 @@ def test_c1_gate_harness_does_not_invent_pass() -> None:
     assert report["g2"]["gold_injected"] is False
     assert report["g3"]["passed"] is False
     assert report["g3"]["live_oracle_unmeasured"] is True
+    assert report["g3"]["family_regression_measured"] is True
+    assert "g3_family_regression_unmeasured" not in report["g3"]["failures"]
     assert report["g4"]["passed"] is False
     assert report["g5"]["passed"] is False
     assert report["passed"] is False
@@ -280,6 +282,20 @@ def test_adjacent_human_review_sample_is_not_gold() -> None:
     assert unrelated
     assert all(row["expected_match"] == "adjacent" for row in useful)
     assert all(row["expected_match"] == "reference" for row in unrelated)
+
+
+def test_knownness_and_relation_review_queues_are_not_human_gold() -> None:
+    c3 = json.loads((GOLD / "c3" / "review_queue.json").read_text(encoding="utf-8"))
+    c4 = json.loads((GOLD / "c4" / "review_queue.json").read_text(encoding="utf-8"))
+    schema = json.loads((GOLD / "c4" / "label_schema.json").read_text(encoding="utf-8"))
+    assert c3["human_gold"] is False
+    assert c4["human_gold"] is False
+    assert schema["human_gold"] is False
+    assert schema["samples"] == []
+    assert all(item["label"] is None for item in c3["items"])
+    assert all(item["label"] is None for item in c4["items"])
+    assert c3["status"] == "queue_ready_awaiting_human_labels"
+    assert c4["status"] == "queue_ready_awaiting_human_labels"
 
 
 def test_adjacent_rust_llvm_is_not_exact_match() -> None:

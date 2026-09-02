@@ -14,5 +14,7 @@
     "Write human answers into factual Event/Claim/Delta tables",
     "Tune production thresholds after reading this holdout"
   ],
-  "status": "protocol_ready_awaiting_participants"
+  "status": "protocol_ready_awaiting_participants",
+  "review_queue": "review_queue.json",
+  "human_gold": false
 }

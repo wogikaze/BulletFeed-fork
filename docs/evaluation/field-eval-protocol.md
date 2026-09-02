@@ -128,3 +128,29 @@ field 週の前後で current SHA の RC report を再生成する。手順は
 [RC 証跡の再生成](../operations/rc-evidence.md)。
 再生成は `pre_field_release_candidate` のまま残り、`completion_gate_pass` は false のままである。
 field を回しただけでは M7 Completion Gate は PASS にならない。
+
+## 6. 運営者1人 Day 0 キット（#327）
+
+公開 HTTPS と GitHub OAuth secret が揃うまで **開始しない**。ローカル / emulator / clean-room backend で
+`c5/field_journal.json` を `started` にしない。C1 の `g6_journal.json` は source 日記であり、field 週の正ではない。
+
+チェックリスト（ソフトウェア手順。secret 投入は人間）:
+
+1. 公開 backend の `GET $BASE_URL/health/ready` が 200。
+2. `BULLETFEED_SESSION_TELEMETRY_ENABLED=true`。
+3. 署名済み APK の `BULLETFEED_RELEASE_BASE_URL` が同じ公開 origin。
+4. 運営者自身の同意記録（いつ・どの版の説明を読んだか）。他人は集めない。
+5. 興味・購読を日常どおり設定する。Gold / blind を書き換えない。
+6. Android で feed を開くか `POST /v1/me/feed-sessions` で session を開始する。`GET /feed` だけでは session も knownness も作らない。
+7. ベースライン:
+
+```text
+curl -sS -H "Authorization: Bearer $ACCESS_TOKEN" \
+  "$BASE_URL/v1/me/feed-sessions/metrics" \
+  > "field-metrics/day-0-p1.json"
+```
+
+8. 開始後に `c5/field_journal.json` の `status` を `started` にし、`people: 1` を記録してよい。これは #327 完了ではない。
+
+人間ブロッカーのまま残るもの: 公開 HTTPS、OAuth secret、有料ホスト、他人の同意。
+詳細は [field-eval-human-blockers.md](../operations/field-eval-human-blockers.md)。

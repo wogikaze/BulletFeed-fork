@@ -9,12 +9,15 @@ from app.observability import record
 from app.services.feed_lifecycle import resolve_feed_lifecycle
 from app.services.ledger_projection import LedgerProjector
 from app.services.rss import preview_feed
-from app.services.rss_article_enrichment import format_claim_evidence
+from app.services.rss_article_enrichment import format_claim_evidence, is_summary_only
 from app.services.rss_source import normalize_feed_preview
 from app.services.source_ingestion import SourceIngestionPipeline
 from app.services.source_subscriptions import project_events_for_subscription_audience
 from app.services.timestamps import canonical_timestamp
 from app.stores.claim_ledger_store import ClaimLedgerStore
+
+# Worker-path cap. The G4 live harness still calls enrich_feed_item per item.
+MAX_ARTICLE_FETCHES_PER_FEED = 3
 
 
 @dataclass(frozen=True)
@@ -100,11 +103,21 @@ async def crawl_feed_events(
         from app.services.rss_article_enrichment import enrich_feed_item
 
         enriched = []
+        article_fetches = 0
         for item in items:
-            if isinstance(item, dict):
-                enriched.append(await enrich_feed_item(settings, item, retrieved_at=retrieved_at))
-            else:
+            if not isinstance(item, dict):
                 enriched.append(item)
+                continue
+            summary = item.get("summary") if isinstance(item.get("summary"), str) else ""
+            feed_body = item.get("content") if isinstance(item.get("content"), str) else ""
+            link = item.get("link") if isinstance(item.get("link"), str) else ""
+            needs_fetch = bool(link) and is_summary_only(summary, feed_body=feed_body)
+            if needs_fetch and article_fetches >= MAX_ARTICLE_FETCHES_PER_FEED:
+                enriched.append({**item, "article_fetch_skipped": True})
+                continue
+            enriched.append(await enrich_feed_item(settings, item, retrieved_at=retrieved_at))
+            if needs_fetch:
+                article_fetches += 1
         preview = {**preview, "items": enriched}
     result = ingest_feed_events(database, preview=preview, retrieved_at=retrieved_at)
     source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""

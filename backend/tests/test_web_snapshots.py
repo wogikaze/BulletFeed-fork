@@ -418,12 +418,28 @@ async def test_fetch_rejects_oversize_body(tmp_path: Path, monkeypatch) -> None:
     with _public_dns():
         with pytest.raises(HTTPException) as exc_info:
             await fetch_web_snapshot(
-                _settings(max_response_bytes=4),
+                _settings(max_html_response_bytes=4),
                 PAGE_URL,
                 store=SnapshotStore(tmp_path / "snaps"),
                 check_robots=False,
             )
     assert exc_info.value.status_code == 413
+
+
+@pytest.mark.asyncio
+async def test_fetch_uses_html_limit_separate_from_feed_limit(tmp_path: Path, monkeypatch) -> None:
+    _install_client(
+        monkeypatch,
+        _ScriptedClient({PAGE_URL: _FakeResponse(chunks=[b"123456"])}),
+    )
+    with _public_dns():
+        snapshot = await fetch_web_snapshot(
+            _settings(max_response_bytes=4, max_html_response_bytes=100),
+            PAGE_URL,
+            store=SnapshotStore(tmp_path / "snaps"),
+            check_robots=False,
+        )
+    assert snapshot.body == b"123456"
 
 
 @pytest.mark.asyncio
