@@ -280,14 +280,25 @@ async def discover_feeds_from_site_url(
         links=alternates,
         persist_registry=persist_registry,
     )
-    if not feed_items and probe_well_known:
-        feed_items = await _probe_well_known_feeds(
+    if probe_well_known and len(feed_items) < _MAX_CANDIDATES:
+        extra = await _probe_well_known_feeds(
             settings,
             source_registry,
             site_url=final_site_url,
             hosts=hosts,
             persist_registry=persist_registry,
+            skip_canonicals={item.canonical_url for item in feed_items},
         )
+        seen = {item.canonical_url for item in feed_items}
+        merged = list(feed_items)
+        for item in extra:
+            if item.canonical_url in seen:
+                continue
+            seen.add(item.canonical_url)
+            merged.append(item)
+            if len(merged) >= _MAX_CANDIDATES:
+                break
+        feed_items = tuple(merged)
     if feed_items:
         preferred = _preferred_feed_family(feed_items)
         ranked = tuple(item for item in feed_items if item.family != SourceKind.GENERIC_WEB.value)
@@ -382,13 +393,20 @@ async def _probe_well_known_feeds(
     site_url: str,
     hosts: set[str],
     persist_registry: bool,
+    skip_canonicals: set[str] | None = None,
 ) -> tuple[SiteFeedCandidate, ...]:
     items: list[SiteFeedCandidate] = []
-    seen: set[str] = set()
+    skip = set(skip_canonicals or ())
+    seen_ids: set[str] = set()
     for probe_url in well_known_feed_urls(site_url):
         try:
             validated = _validate_feed_candidate(probe_url, hosts)
         except HTTPException:
+            continue
+        try:
+            if canonicalize_url(validated) in skip:
+                continue
+        except ValueError:
             continue
         robots = await evaluate_robots(settings, validated, allowed_hosts=hosts)
         if not robots.allowed:
@@ -423,9 +441,10 @@ async def _probe_well_known_feeds(
             title="",
             persist_registry=persist_registry,
         )
-        if candidate.candidate_id in seen:
+        if candidate.candidate_id in seen_ids or candidate.canonical_url in skip:
             continue
-        seen.add(candidate.candidate_id)
+        seen_ids.add(candidate.candidate_id)
+        skip.add(candidate.canonical_url)
         items.append(candidate)
     return tuple(items)
 
