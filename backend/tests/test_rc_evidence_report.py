@@ -1,5 +1,5 @@
-import json
 import hashlib
+import json
 from pathlib import Path
 
 from scripts.build_rc_evidence_report import _m2_gate, _repository_sha, build_report
