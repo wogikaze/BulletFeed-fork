@@ -26,6 +26,10 @@ def test_v2_hard_gate_reads_artifacts_only() -> None:
     assert report["dataset_version"] == "product-gap-c1-g0-v2"
     assert report["completion_gate_pass"] is False
     assert "operator_attestation_pending" in report["gates"]["g0"]["blockers"]
+    assert report["gates"]["g3"]["completion_gate_pass"] is False
+    assert report["gates"]["g4"]["completion_gate_pass"] is False
+    assert "g4_n_lt_10" in report["gates"]["g4"]["blockers"]
+    assert "g4_live_blog_unmeasured" in report["gates"]["g4"]["blockers"]
 
 
 def test_perfect_g4_fixture_scores_do_not_pass_hard_gate_when_n_lt_10(tmp_path: Path) -> None:

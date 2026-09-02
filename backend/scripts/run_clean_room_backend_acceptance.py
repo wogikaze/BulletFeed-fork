@@ -269,6 +269,7 @@ def main(argv: list[str] | None = None) -> int:
             base_url,
             "/v1/feed?limit=5",
             access_token=access_token,
+            timeout=8,
         )
         feed_items = feed.get("items", [])
         first = feed_items[0] if feed_items else {}
@@ -282,6 +283,7 @@ def main(argv: list[str] | None = None) -> int:
             base_url,
             f"/v1/events/{first.get('eventId')}?fromFeedItem={first.get('id')}",
             access_token=access_token,
+            timeout=8,
         )
         _stage(
             stages,
@@ -305,6 +307,7 @@ def main(argv: list[str] | None = None) -> int:
                 ]
             },
             access_token=access_token,
+            timeout=8,
         )
         _stage(
             stages,
@@ -318,6 +321,7 @@ def main(argv: list[str] | None = None) -> int:
             method="POST",
             payload={"type": "learned_now"},
             access_token=access_token,
+            timeout=8,
         )
         _stage(stages, "feedback", ok=status == 200, detail=f"HTTP {status}")
         status, read = _json_request(
