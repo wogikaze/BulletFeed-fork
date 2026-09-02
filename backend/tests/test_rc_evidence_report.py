@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from scripts.build_rc_evidence_report import _m2_gate, _repository_sha, build_report
 
 
@@ -104,3 +107,53 @@ def test_rc_evidence_report_resolves_git_sha_when_env_missing(monkeypatch) -> No
     assert report["repository_sha"] == sha
     assert report["completion_gate_pass"] is False
     assert report["status"] == "pre_field_release_candidate"
+
+
+def test_rc_evidence_report_can_include_runtime_android_report(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("GITHUB_SHA", "test-sha")
+    android_report = {
+        "repository_sha": "test-sha",
+        "backend_status": "passed",
+        "field_validation": False,
+        "completion_gate_pass": False,
+        "android": {
+            "acceptance": {
+                "status": "passed",
+                "gradle_exit_code": 0,
+                "backend": "same_clean_room_backend",
+            },
+            "release_build": {
+                "status": "passed",
+                "artifact_present": True,
+            },
+            "lifecycle": {
+                "status": "not_available",
+                "install": {"status": "not_available"},
+                "upgrade": {"status": "not_available"},
+                "recovery": {"status": "not_available"},
+            },
+            "limitations": ["field excluded"],
+        },
+    }
+    path = tmp_path / "m7-android.json"
+    path.write_text(json.dumps(android_report), encoding="utf-8")
+
+    report = build_report(path)
+
+    integrated = report["missions"]["m7"]["integrated_android"]
+    assert integrated["status"] == "partial"
+    assert integrated["lifecycle_status"] == "not_available"
+    assert integrated["evidence_checks"]["same_clean_room_backend"] is True
+    assert integrated["evidence_checks"]["repository_sha_matches"] is True
+    assert integrated["evidence_checks"]["signed_release"] is False
+    assert integrated["evidence_checks"]["install_evidence"] is False
+    assert integrated["evidence_checks"]["upgrade_evidence"] is False
+    assert integrated["evidence_checks"]["recovery_evidence"] is False
+    assert integrated["evidence_checks"]["field_validation_excluded"] is True
+    assert integrated["evidence_checks"]["completion_gate_not_claimed"] is True
+
+    android_report["repository_sha"] = "different-sha"
+    path.write_text(json.dumps(android_report), encoding="utf-8")
+    mismatched = build_report(path)["missions"]["m7"]["integrated_android"]
+    assert mismatched["status"] == "fail"
+    assert mismatched["evidence_checks"]["repository_sha_matches"] is False
