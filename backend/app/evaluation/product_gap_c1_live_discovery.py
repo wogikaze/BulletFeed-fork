@@ -19,8 +19,15 @@ from fastapi import HTTPException
 from app.config import Settings
 from app.evaluation.product_gap_c1 import G0Source, load_g0_sources
 from app.services.source_catalog import SourceKind
-from app.services.source_feed_discover import discover_feeds_from_site_url
+from app.services.source_feed_discover import SiteFeedDiscoverResult, discover_feeds_from_site_url
 from app.services.source_registry import SourceRegistry, canonicalize_url
+
+_SUBSCRIBE_FAMILIES = frozenset(
+    {
+        SourceKind.RSS_ATOM.value,
+        SourceKind.JSON_FEED.value,
+    }
+)
 
 Split = Literal["dev", "blind"]
 
@@ -63,6 +70,23 @@ def _classify_http_failure(exc: HTTPException) -> str:
     if exc.status_code in {401, 407, 422}:
         return "unsubscribable"
     return "acquisition_failed"
+
+
+def _no_feed_fallback_ok(result: SiteFeedDiscoverResult) -> bool:
+    """Homepage watch is enough; a discovered subscribe feed is a stronger outcome.
+
+    Gold ``has_feed=false`` rows used to fail when production found RSS/Atom/JSON
+    instead of GENERIC_WEB. That treated extra subscribe paths as fallback failure.
+    """
+    items = result.items or ()
+    if not items:
+        return False
+    if any(item.family in _SUBSCRIBE_FAMILIES for item in items):
+        return True
+    return (
+        result.preferred_family == SourceKind.GENERIC_WEB.value
+        and items[0].family == SourceKind.GENERIC_WEB.value
+    )
 
 
 async def measure_live_g1(
@@ -182,11 +206,7 @@ async def measure_live_g1(
             )
         else:
             no_feed_total += 1
-            fallback = bool(
-                result.preferred_family == SourceKind.GENERIC_WEB.value
-                and result.items
-                and result.items[0].family == SourceKind.GENERIC_WEB.value
-            )
+            fallback = _no_feed_fallback_ok(result)
             fallback_hits += int(fallback)
             rows.append(
                 {
