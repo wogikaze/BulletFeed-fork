@@ -1,0 +1,22 @@
+{
+  "artifact_version": "product-gap-c1-g3-measurement-baseline-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "path": "same_feed_url_independent_oracle_vs_production_preview",
+  "split": "dev",
+  "live_oracle": true,
+  "selected_sources": 55,
+  "measured_sources": 37,
+  "failed_sources": 18,
+  "metrics": {
+    "raw_entry_recall": 0.6727272727272727,
+    "important_update_recall": 0.6727272727272727,
+    "duplicate_item_rate": 0.0,
+    "family_recall": {
+      "corp_tech_blog": 0.5833333333333334,
+      "official_blog": 0.625,
+      "personal_dev_blog": 0.8333333333333334,
+      "rss_atom_json": 1.0
+    }
+  },
+  "note": "Before G3 production fetch remediations (content-type sniff, bounded gzip, feed size, redirect hop SSRF-only). Inflated success-only recall 0.9459 is not this baseline. Not a tuning label."
+}

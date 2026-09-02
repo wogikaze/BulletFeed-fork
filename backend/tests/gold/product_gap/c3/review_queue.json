@@ -1,0 +1,45 @@
+{
+  "dataset_version": "product-gap-c3-knownness-review-queue-v1",
+  "issue": 318,
+  "human_gold": false,
+  "label_source": "unlabeled_review_queue",
+  "status": "queue_ready_awaiting_human_labels",
+  "form": {
+    "states": ["known", "probably_known", "unknown"],
+    "questions": [
+      "Did you already know this before BulletFeed showed it?",
+      "Did you learn it from BulletFeed?",
+      "Do you still not understand it?"
+    ]
+  },
+  "items": [
+    {
+      "sample_id": "c3-q-rust-compiler",
+      "persona_topics": ["rust"],
+      "item_title": "Important compiler change",
+      "label": null,
+      "notes": "Reviewer fills knownness only. Do not write the answer into Event/Claim/Delta."
+    },
+    {
+      "sample_id": "c3-q-react-concurrent",
+      "persona_topics": ["react"],
+      "item_title": "React concurrent renderer note",
+      "label": null,
+      "notes": "Reviewer fills knownness only. Do not write the answer into Event/Claim/Delta."
+    },
+    {
+      "sample_id": "c3-q-android-kotlin",
+      "persona_topics": ["android"],
+      "item_title": "Kotlin 2.3 migration guide",
+      "label": null,
+      "notes": "Reviewer fills knownness only. Do not write the answer into Event/Claim/Delta."
+    },
+    {
+      "sample_id": "c3-q-redis-unrelated",
+      "persona_topics": ["redis"],
+      "item_title": "Swift 6.2 language mode",
+      "label": null,
+      "notes": "Likely unknown-and-irrelevant. Still label knownness; do not hide by default."
+    }
+  ]
+}

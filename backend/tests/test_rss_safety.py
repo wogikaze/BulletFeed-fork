@@ -1,3 +1,4 @@
+import gzip
 from unittest.mock import patch
 
 import pytest
@@ -37,8 +38,15 @@ class _FakeNetworkStream:
 
 
 class _FakeResponse:
-    def __init__(self, *, peer: str, headers: dict[str, str], chunks: list[bytes]) -> None:
-        self.status_code = 200
+    def __init__(
+        self,
+        *,
+        peer: str,
+        headers: dict[str, str],
+        chunks: list[bytes],
+        status_code: int = 200,
+    ) -> None:
+        self.status_code = status_code
         self.headers = headers
         self.extensions = {"network_stream": _FakeNetworkStream(peer)}
         self._chunks = chunks
@@ -71,6 +79,26 @@ class _FakeClient:
         return self.response
 
 
+class _MappedClient:
+    def __init__(self, routes: dict[str, _FakeResponse]) -> None:
+        self.routes = routes
+        self.request_headers: dict[str, str] | None = None
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, traceback):
+        return False
+
+    def stream(self, method: str, url: str, **kwargs):
+        del method
+        self.request_headers = kwargs["headers"]
+        return self.routes[url]
+
+
+_XML_FEED = b'<?xml version="1.0"?><rss version="2.0"><channel><title>t</title></channel></rss>'
+
+
 @pytest.mark.asyncio
 @patch("app.services.rss.socket.getaddrinfo")
 async def test_download_rejects_dns_rebinding_peer(mock_getaddrinfo, monkeypatch) -> None:
@@ -92,7 +120,7 @@ async def test_download_rejects_dns_rebinding_peer(mock_getaddrinfo, monkeypatch
 
 @pytest.mark.asyncio
 @patch("app.services.rss.socket.getaddrinfo")
-async def test_download_rejects_compressed_response_and_requests_identity(
+async def test_download_rejects_invalid_gzip_and_requests_identity(
     mock_getaddrinfo,
     monkeypatch,
 ) -> None:
@@ -119,6 +147,85 @@ async def test_download_rejects_compressed_response_and_requests_identity(
 
 @pytest.mark.asyncio
 @patch("app.services.rss.socket.getaddrinfo")
+async def test_download_decodes_bounded_gzip_xml(
+    mock_getaddrinfo,
+    monkeypatch,
+) -> None:
+    mock_getaddrinfo.return_value = [(2, 1, 6, "", ("93.184.216.34", 443))]
+    fake = _FakeClient(
+        _FakeResponse(
+            peer="93.184.216.34",
+            headers={
+                "content-type": "application/rss+xml",
+                "content-encoding": "gzip",
+            },
+            chunks=[gzip.compress(_XML_FEED)],
+        )
+    )
+    monkeypatch.setattr("app.services.rss.httpx.AsyncClient", lambda **kwargs: fake)
+    settings = Settings(rss_allowed_hosts="example.com")
+    body, final_url = await _download(settings, "https://feeds.example.com/feed.xml")
+    assert body.startswith(b"<?xml")
+    assert final_url == "https://feeds.example.com/feed.xml"
+    assert fake.request_headers is not None
+    assert fake.request_headers["Accept-Encoding"] == "identity"
+
+
+@pytest.mark.asyncio
+@patch("app.services.rss.socket.getaddrinfo")
+async def test_download_sniffs_octet_stream_xml(
+    mock_getaddrinfo,
+    monkeypatch,
+) -> None:
+    mock_getaddrinfo.return_value = [(2, 1, 6, "", ("93.184.216.34", 443))]
+    fake = _FakeClient(
+        _FakeResponse(
+            peer="93.184.216.34",
+            headers={"content-type": "application/octet-stream"},
+            chunks=[_XML_FEED],
+        )
+    )
+    monkeypatch.setattr("app.services.rss.httpx.AsyncClient", lambda **kwargs: fake)
+    body, _final_url = await _download(
+        Settings(rss_allowed_hosts="example.com"),
+        "https://feeds.example.com/feed.xml",
+    )
+    assert body.startswith(b"<?xml")
+
+
+@pytest.mark.asyncio
+@patch("app.services.rss.socket.getaddrinfo")
+async def test_download_follows_https_redirect_off_allowlist_host(
+    mock_getaddrinfo,
+    monkeypatch,
+) -> None:
+    mock_getaddrinfo.return_value = [(2, 1, 6, "", ("93.184.216.34", 443))]
+    fake = _MappedClient(
+        {
+            "https://feeds.example.com/feed.xml": _FakeResponse(
+                peer="93.184.216.34",
+                status_code=301,
+                headers={"location": "https://cdn.other.example/feed.xml"},
+                chunks=[],
+            ),
+            "https://cdn.other.example/feed.xml": _FakeResponse(
+                peer="93.184.216.34",
+                headers={"content-type": "application/rss+xml"},
+                chunks=[_XML_FEED],
+            ),
+        }
+    )
+    monkeypatch.setattr("app.services.rss.httpx.AsyncClient", lambda **kwargs: fake)
+    body, final_url = await _download(
+        Settings(rss_allowed_hosts="example.com"),
+        "https://feeds.example.com/feed.xml",
+    )
+    assert body.startswith(b"<?xml")
+    assert final_url == "https://cdn.other.example/feed.xml"
+
+
+@pytest.mark.asyncio
+@patch("app.services.rss.socket.getaddrinfo")
 async def test_download_bounds_raw_response_before_extending_buffer(
     mock_getaddrinfo,
     monkeypatch,
@@ -133,7 +240,7 @@ async def test_download_bounds_raw_response_before_extending_buffer(
     )
     monkeypatch.setattr("app.services.rss.httpx.AsyncClient", lambda **kwargs: fake)
 
-    settings = Settings(rss_allowed_hosts="example.com", max_response_bytes=4)
+    settings = Settings(rss_allowed_hosts="example.com", max_feed_response_bytes=4)
     with pytest.raises(HTTPException) as exc_info:
         await _download(settings, "https://feeds.example.com/feed.xml")
     assert exc_info.value.status_code == 413

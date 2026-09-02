@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     web_allowed_hosts: str = ""
     request_timeout_seconds: float = 10.0
     max_response_bytes: int = 1_048_576
+    max_feed_response_bytes: int = 8_388_608
+    max_html_response_bytes: int = 4_194_304
     session_telemetry_enabled: bool = True
     dynamic_web_enabled: bool = False
     dynamic_web_allowed_hosts: str = ""

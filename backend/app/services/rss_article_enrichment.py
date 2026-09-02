@@ -60,9 +60,8 @@ def first_evidence_locator(document: NormalizedDocument) -> str:
 
 
 def is_summary_only(summary: str, *, feed_body: str = "") -> bool:
-    if feed_body.strip() and len(feed_body.strip()) > SUMMARY_ONLY_MAX_CHARS:
-        return False
-    return len(summary.strip()) <= SUMMARY_ONLY_MAX_CHARS
+    del summary
+    return len(feed_body.strip()) <= SUMMARY_ONLY_MAX_CHARS
 
 
 def format_claim_evidence(*, detail: str, evidence_locator: str = "") -> str:

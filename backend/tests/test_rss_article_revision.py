@@ -56,6 +56,11 @@ def test_long_feed_body_skips_article_fetch() -> None:
     assert is_summary_only("Short teaser.", feed_body="") is True
 
 
+def test_long_summary_without_feed_body_still_needs_article_fetch() -> None:
+    assert is_summary_only("s" * 400, feed_body="") is True
+    assert is_summary_only("s" * 400, feed_body="x" * 281) is False
+
+
 def test_boilerplate_only_html_keeps_main_text_hash() -> None:
     original = _enrich("article_with_boilerplate.html")
     chrome = _enrich("article_boilerplate_only.html")

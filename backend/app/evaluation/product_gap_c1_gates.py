@@ -277,7 +277,13 @@ def _oracle_entries(xml_bytes: bytes) -> list[dict[str, str]]:
     return items
 
 
-def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: Path) -> dict[str, Any]:
+def evaluate_g3(
+    sources: list[G0Source],
+    *,
+    floors: dict[str, float],
+    fixtures: Path,
+    gold_dir: Path | None = None,
+) -> dict[str, Any]:
     xml_path = fixtures / "rss" / "g3_oracle_feed.xml"
     xml_bytes = xml_path.read_bytes()
     oracle = _oracle_entries(xml_bytes)
@@ -297,6 +303,35 @@ def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
     rss_subset = [row for row in sources if row.has_feed and row.policy_status == "eligible"]
     all_eligible = [row for row in sources if row.policy_status == "eligible"]
     rss_only_share = len(rss_subset) / len(all_eligible) if all_eligible else 0.0
+    live_path = (gold_dir or GOLD_C1) / "v2" / "measurements" / "g3_measurement.json"
+    family_recall: dict[str, float] = {}
+    family_regression_measured = False
+    family_regression_pp = None
+    if live_path.is_file():
+        live = json.loads(live_path.read_text(encoding="utf-8"))
+        family_recall = dict((live.get("metrics") or {}).get("family_recall") or {})
+        baseline_path = live_path.with_name("g3_measurement_baseline.json")
+        baseline_family = family_recall
+        if baseline_path.is_file():
+            baseline_family = dict(
+                (json.loads(baseline_path.read_text(encoding="utf-8")).get("metrics") or {}).get(
+                    "family_recall"
+                )
+                or family_recall
+            )
+        family_regression_measured = bool(family_recall)
+        family_regression_pp = 0.0
+        for family, current in family_recall.items():
+            previous = float(baseline_family.get(family, current))
+            family_regression_pp = max(family_regression_pp, max(0.0, (previous - current) * 100.0))
+    failures = [
+        "g3_live_oracle_unmeasured",
+        "g3_breadth_not_acquisition",
+    ]
+    if not family_regression_measured:
+        failures.append("g3_family_regression_unmeasured")
+    elif family_regression_pp is not None and family_regression_pp > floors["g3_family_regression_pp"]:
+        failures.append("g3_family_regression_pp")
     return {
         "fixture_raw_entry_recall": raw_recall,
         "fixture_important_update_recall": important_recall,
@@ -305,14 +340,12 @@ def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
         "catalog_breadth_note": "catalog inclusion is not RSS oracle parity",
         "bulletfeed_universe_recall": None,
         "breadth_superiority_pp": None,
-        "family_regression_measured": False,
+        "family_recall": family_recall,
+        "family_regression_pp": family_regression_pp,
+        "family_regression_measured": family_regression_measured,
         "live_oracle_unmeasured": True,
         "passed": False,
-        "failures": [
-            "g3_live_oracle_unmeasured",
-            "g3_family_regression_unmeasured",
-            "g3_breadth_not_acquisition",
-        ],
+        "failures": failures,
         "floors": floors,
     }
 
@@ -507,7 +540,7 @@ def evaluate_c1_gates(gold_dir: Path | None = None) -> dict[str, Any]:
     g0 = evaluate_g0(directory)
     g1 = evaluate_g1(sources, floors=floors)
     g2 = evaluate_g2(sources, floors=floors)
-    g3 = evaluate_g3(sources, floors=floors, fixtures=FIXTURES)
+    g3 = evaluate_g3(sources, floors=floors, fixtures=FIXTURES, gold_dir=directory)
     g4 = evaluate_g4(fixtures=FIXTURES, floors=floors)
     g5 = evaluate_g5(directory)
     return {

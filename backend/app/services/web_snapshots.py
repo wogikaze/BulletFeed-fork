@@ -684,7 +684,10 @@ async def _download_web_page(
                         )
                     _reject_unsafe_encoding(response.headers)
                     _require_allowed_content_type(response.headers)
-                    body = await _bounded_body(response, settings.max_response_bytes, source_name="Web")
+                    html_limit = int(
+                        getattr(settings, "max_html_response_bytes", settings.max_response_bytes)
+                    )
+                    body = await _bounded_body(response, html_limit, source_name="Web")
                     return _DownloadedPage(
                         status_code=response.status_code,
                         headers=_frozen_headers(response.headers),

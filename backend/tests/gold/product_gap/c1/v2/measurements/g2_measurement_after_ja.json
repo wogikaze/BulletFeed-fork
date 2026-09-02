@@ -1,0 +1,52 @@
+{
+  "artifact_version": "product-gap-c1-g2-measurement-after-ja-v1",
+  "dataset_version": "product-gap-c1-g0-v2",
+  "path": "production_discovery",
+  "gold_injected": false,
+  "passed": false,
+  "metrics": {
+    "primary_recall_at_20": 0.12173913043478261,
+    "relevant_recall_at_50": 0.06606606606606606,
+    "precision_at_20": 0.2018348623853211,
+    "japanese_recall_at_50": 0.008695652173913044,
+    "blog_recall_at_50": 0.050505050505050504,
+    "no_rss_recall_at_50": 0.09230769230769231,
+    "weak_primary_topics": [
+      "android",
+      "angular",
+      "cloudflare",
+      "deno",
+      "flutter",
+      "go",
+      "java",
+      "kotlin",
+      "kubernetes",
+      "linux",
+      "llvm",
+      "neovim",
+      "nextjs",
+      "oss_security",
+      "postgresql",
+      "python",
+      "react",
+      "redis",
+      "ruby",
+      "rust",
+      "swift",
+      "typescript",
+      "vue",
+      "webassembly"
+    ]
+  },
+  "failures": [
+    "g2_production_retrieval_below_floor",
+    "g2_primary_recall_at_20",
+    "g2_relevant_recall_at_50",
+    "g2_precision_at_20",
+    "g2_japanese_recall_at_50",
+    "g2_blog_recall_at_50",
+    "g2_no_rss_recall_at_50",
+    "g2_weak_primary_topic"
+  ],
+  "note": "PR #425 Japanese catalog connected. Floors are not lowered. Not Human Gold."
+}

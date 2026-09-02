@@ -1,0 +1,39 @@
+{
+  "dataset_version": "product-gap-c4-relation-review-queue-v1",
+  "issue": 326,
+  "human_gold": false,
+  "label_source": "unlabeled_review_queue",
+  "status": "queue_ready_awaiting_human_labels",
+  "labels": ["direct", "adjacent", "almost_irrelevant", "cannot_judge"],
+  "min_labeled_items": 40,
+  "items": [
+    {
+      "sample_id": "rust-llvm",
+      "persona_topics": ["rust"],
+      "item_title": "LLVM 20.1 pass manager",
+      "label": null,
+      "notes": "Constructed adjacent candidate from c2. Human fills label."
+    },
+    {
+      "sample_id": "react-typescript",
+      "persona_topics": ["react"],
+      "item_title": "TypeScript 6.0 iterator helpers",
+      "label": null,
+      "notes": "Constructed adjacent candidate from c2. Human fills label."
+    },
+    {
+      "sample_id": "android-kotlin",
+      "persona_topics": ["android"],
+      "item_title": "Kotlin 2.3 migration guide",
+      "label": null,
+      "notes": "Constructed adjacent candidate from c2. Human fills label."
+    },
+    {
+      "sample_id": "redis-swift-unrelated",
+      "persona_topics": ["redis"],
+      "item_title": "Swift 6.2 language mode",
+      "label": null,
+      "notes": "Constructed non-relevant candidate from c2. Human fills label."
+    }
+  ]
+}
