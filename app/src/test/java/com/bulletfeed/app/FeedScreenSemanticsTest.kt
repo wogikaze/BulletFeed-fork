@@ -61,6 +61,7 @@ class FeedScreenSemanticsTest {
 
     @Test
     fun feedKeepsExistingEventWhenLoadMoreFails() {
+        var retries = 0
         composeRule.setContent {
             MaterialTheme {
                 Box(Modifier.requiredSize(width = 400.dp, height = 2000.dp)) {
@@ -79,7 +80,7 @@ class FeedScreenSemanticsTest {
                         isLoadingMore = false,
                         isFiltering = false,
                         loadMoreError = "次のページを読み込めませんでした",
-                        onLoadMore = {},
+                        onLoadMore = { retries += 1 },
                         onVisibleFeedItems = {},
                         onTopicsClick = {},
                         onGithubClick = {},
@@ -89,24 +90,10 @@ class FeedScreenSemanticsTest {
         }
 
         assertEquals(1, composeRule.onAllNodesWithTag("event-card").fetchSemanticsNodes().size)
+        composeRule.onNodeWithText("Release").assertExists()
         composeRule.onNodeWithText("次のページを読み込めませんでした").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
-    }
-
-    @Test
-    fun loadMoreButtonInvokesRetryAction() {
-        var retries = 0
-        composeRule.setContent {
-            MaterialTheme {
-                FeedLoadMoreButton(
-                    isLoadingMore = false,
-                    enabled = true,
-                    onLoadMore = { retries += 1 },
-                )
-            }
-        }
-
         composeRule.onNodeWithTag("feed-load-more").performClick()
         assertEquals(1, retries)
     }
