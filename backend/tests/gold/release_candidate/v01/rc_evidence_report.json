@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "98117a28608f29adf6ef04f2a40f0affb5391163",
+  "repository_sha": "727c9ea96954f50d2a0e1202718b658daef25f49",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -148,6 +148,44 @@
           "statuspage": 90
         },
         "note": "This is a recorded live sample; deterministic replay remains the CI qualification."
+      },
+      "source_discovery_quality": {
+        "artifact": "tests/gold/source_discovery/v02/current_main_measurement.json",
+        "status": "partial",
+        "evidence_checks": {
+          "deterministic_execution": true,
+          "blind_not_read": true,
+          "gold_not_injected": true,
+          "live_qualification_separate": true,
+          "authority_breakdown": true,
+          "topic_breakdown": true,
+          "family_breakdown": true,
+          "failure_breakdown": true,
+          "quality_floors": false
+        },
+        "metrics": {
+          "precision_at_20": 0.5128205128205128,
+          "relevant_recall_at_50": 0.9523809523809523,
+          "primary_recall_at_20": 0.9090909090909091,
+          "japanese_recall_at_50": 1.0,
+          "authority_match_rate": 1.0
+        },
+        "outcome_counts": {
+          "found": 18,
+          "found_but_unsubscribable": 2,
+          "undiscovered": 1
+        },
+        "failure_class_counts": {
+          "acquisition_failed": 1,
+          "extraction_failed": 1,
+          "undiscovered": 1,
+          "unsubscribable": 2
+        },
+        "violations": [
+          "precision_at_20 0.513 < 0.800",
+          "topic:React:primary_recall_at_20 0.667 < 0.700"
+        ],
+        "note": "Deterministic topic discovery quality is reported separately from live source qualification; a partial status preserves observed floor failures."
       },
       "observed_failure_remediation": {
         "status": "partial",
@@ -320,6 +358,7 @@
   },
   "unmet_gate_items": [
     "M1 Android journey and cross-surface breadth for all 30 personas",
+    "Source-discovery topic/family quality floors and failure taxonomy remain unmet",
     "M4 broad phone/tablet/a11y/error/offline qualification and release field validation",
     "M6 one-shot blind (#171) ran once after freeze; aggregate_status=not_scorable (thin holdout); not PASS",
     "M7 integrated Android clean-room install/upgrade/recovery and final field-readiness decision"

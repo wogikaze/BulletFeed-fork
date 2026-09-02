@@ -7,6 +7,8 @@
 このスクリプトは、すでに versioned されている M1–M7 artifact を読み、
 current SHA を刻んだ **pre-field** RC bundle を作る。Gold / blind ラベルは読まない。
 Mission を PASS に書き換えない。`completion_gate_pass` は常に `false` である。
+M3 には `source_discovery/v02/current_main_measurement.json` の topic/family 品質、
+authority 分類、失敗分類を含める。source qualification の live artifact とは別集計である。
 
 ## 再生成
 

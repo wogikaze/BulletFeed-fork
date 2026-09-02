@@ -18,6 +18,10 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m2"]["evidence_checks"]["blind_isolation"] is True
     assert report["missions"]["m3"]["evidence_checks"]["replay_failures"] is True
     assert report["missions"]["m3"]["live_sample"]["evidence_checks"]["success_rate"] is True
+    quality = report["missions"]["m3"]["source_discovery_quality"]
+    assert quality["evidence_checks"]["deterministic_execution"] is True
+    assert quality["evidence_checks"]["live_qualification_separate"] is True
+    assert quality["evidence_checks"]["quality_floors"] is False
     assert (
         report["missions"]["m3"]["observed_failure_remediation"]["decision"]
         == "remediation_not_required"
@@ -53,6 +57,7 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     ] is True
     assert any("#171" in item for item in report["unmet_gate_items"])
     assert any("not_scorable" in item for item in report["unmet_gate_items"])
+    assert any("Source-discovery" in item for item in report["unmet_gate_items"])
     assert any("not PASS" in item for item in report["unmet_gate_items"])
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True
     assert any("GitHub OAuth" in item for item in report["human_only_or_field_validation"])

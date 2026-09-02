@@ -23,6 +23,10 @@ ARTIFACTS = {
     "m3": EVIDENCE_ROOT / "source_qualification" / "v01" / "report.json",
     "m3_live": EVIDENCE_ROOT / "source_qualification" / "v01" / "live_sample_200_report.json",
     "m3_t1": EVIDENCE_ROOT / "source_qualification" / "v01" / "longitudinal_t1_report.json",
+    "source_discovery_quality": EVIDENCE_ROOT
+    / "source_discovery"
+    / "v02"
+    / "current_main_measurement.json",
     "m4_android": EVIDENCE_ROOT / "android_acceptance" / "v01" / "acceptance_report.json",
     "m5": EVIDENCE_ROOT / "recovery" / "v01" / "process_recovery_report.json",
     "m5_host": EVIDENCE_ROOT / "recovery" / "v01" / "host_recovery_report.json",
@@ -141,6 +145,40 @@ def _m3_gate(report: dict[str, Any]) -> dict[str, Any]:
         "source_family_counts": report.get("source_family_counts", {}),
         "scenario_counts": report.get("scenario_counts", {}),
         "limitations": report.get("limitations", []),
+    }
+
+
+def _source_discovery_quality_gate(report: dict[str, Any]) -> dict[str, Any]:
+    live = report.get("live_qualification") or {}
+    authority = report.get("authority") or {}
+    checks = {
+        "deterministic_execution": report.get("execution_mode") == "deterministic_fixture",
+        "blind_not_read": report.get("blind_read") is False,
+        "gold_not_injected": report.get("gold_injected") is False,
+        "live_qualification_separate": live.get("included_in_metrics") is False,
+        "authority_breakdown": all(
+            name in authority for name in ("primary", "secondary", "discovery_only")
+        ),
+        "topic_breakdown": bool(report.get("by_topic")),
+        "family_breakdown": bool(report.get("by_family")),
+        "failure_breakdown": all(
+            name in (report.get("failure_class_counts") or {})
+            for name in ("acquisition_failed", "extraction_failed")
+        ),
+    }
+    quality_floors_pass = report.get("passed") is True
+    evidence_pass = all(checks.values())
+    return {
+        "status": "pass" if evidence_pass and quality_floors_pass else "partial" if evidence_pass else "fail",
+        "evidence_checks": {**checks, "quality_floors": quality_floors_pass},
+        "metrics": report.get("metrics", {}),
+        "outcome_counts": report.get("outcome_counts", {}),
+        "failure_class_counts": report.get("failure_class_counts", {}),
+        "violations": report.get("violations", []),
+        "note": (
+            "Deterministic topic discovery quality is reported separately from live source "
+            "qualification; a partial status preserves observed floor failures."
+        ),
     }
 
 
@@ -399,6 +437,11 @@ def _unmet_gate_items(missions: dict[str, Any]) -> list[str]:
     unmet = [
         "M1 Android journey and cross-surface breadth for all 30 personas",
     ]
+    source_quality = missions.get("m3", {}).get("source_discovery_quality", {})
+    if not source_quality.get("evidence_checks", {}).get("quality_floors", False):
+        unmet.append(
+            "Source-discovery topic/family quality floors and failure taxonomy remain unmet"
+        )
     t1 = missions.get("m3", {}).get("longitudinal_t1", {})
     if t1.get("status") != "partial":
         unmet.append("M3 longitudinal per-source update evidence (#283)")
@@ -435,6 +478,10 @@ def build_report() -> dict[str, Any]:
             "longitudinal_t1_artifact": _relative(ARTIFACTS["m3_t1"]),
             **_m3_gate(loaded["m3"]),
             "live_sample": _m3_live_gate(loaded["m3_live"]),
+            "source_discovery_quality": {
+                "artifact": _relative(ARTIFACTS["source_discovery_quality"]),
+                **_source_discovery_quality_gate(loaded["source_discovery_quality"]),
+            },
             "observed_failure_remediation": _m3_observed_failure_gate(
                 loaded["m3"],
                 loaded["m3_live"],
