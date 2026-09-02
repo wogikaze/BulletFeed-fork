@@ -1,7 +1,10 @@
 package com.bulletfeed.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -54,6 +57,58 @@ class FeedScreenSemanticsTest {
         composeRule.onNodeWithText("次のページを読み込めませんでした").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
+    }
+
+    @Test
+    fun feedKeepsExistingEventWhenLoadMoreFails() {
+        composeRule.setContent {
+            MaterialTheme {
+                Box(Modifier.requiredSize(width = 400.dp, height = 2000.dp)) {
+                    FeedScreen(
+                        events = listOf(feedEventWithReason(null)),
+                        filter = FeedFilter.ALL,
+                        onFilterChange = {},
+                        onEventClick = {},
+                        onFeedback = { _, _ -> },
+                        onFollow = {},
+                        securityActionCount = 0,
+                        onSecurityClick = {},
+                        unreadNotificationCount = 0,
+                        onNotificationsClick = {},
+                        nextCursor = "cursor-2",
+                        isLoadingMore = false,
+                        isFiltering = false,
+                        loadMoreError = "次のページを読み込めませんでした",
+                        onLoadMore = {},
+                        onVisibleFeedItems = {},
+                        onTopicsClick = {},
+                        onGithubClick = {},
+                    )
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithTag("event-card").fetchSemanticsNodes().size)
+        composeRule.onNodeWithText("次のページを読み込めませんでした").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
+        )
+    }
+
+    @Test
+    fun loadMoreButtonInvokesRetryAction() {
+        var retries = 0
+        composeRule.setContent {
+            MaterialTheme {
+                FeedLoadMoreButton(
+                    isLoadingMore = false,
+                    enabled = true,
+                    onLoadMore = { retries += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("feed-load-more").performClick()
+        assertEquals(1, retries)
     }
 
     @Test
