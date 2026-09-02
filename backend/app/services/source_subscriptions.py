@@ -166,19 +166,42 @@ def subscribe_official_feeds_for_followed_topic(
     This is a user-initiated follow side-effect, not discovery-as-evidence.
     URLs come from code-reviewed seeds; the sync worker still SSRF-checks fetches.
     """
-    from app.services.source_discovery_seeds import official_subscribe_seeds_for_topic
+    from app.services.source_discovery_seeds import SourceSeed, official_subscribe_seeds_for_topic
 
     seeds = official_subscribe_seeds_for_topic(topic_name)
     if not seeds:
         return 0
+    wanted: list[tuple[SourceSeed, str]] = []
+    for seed in seeds:
+        try:
+            wanted.append((seed, canonicalize_url(seed.url)))
+        except ValueError:
+            continue
+    if not wanted:
+        return 0
+    with database.connect() as connection:
+        existing = {
+            (str(row["source_type"]), str(row["source_key"]))
+            for row in connection.execute(
+                """
+                SELECT source_type, source_key
+                FROM source_sync_subscription_users
+                WHERE user_id = ?
+                """,
+                (user_id,),
+            ).fetchall()
+        }
+    pending = [
+        (seed, canonical)
+        for seed, canonical in wanted
+        if (seed.family.value, canonical) not in existing
+    ]
+    if not pending:
+        return 0
     registry = SourceRegistry(database)
     attached = 0
     followed_at = int(time.time()) if now is None else now
-    for seed in seeds:
-        try:
-            canonical = canonicalize_url(seed.url)
-        except ValueError:
-            continue
+    for seed, canonical in pending:
         duplicate = registry.find_duplicate_endpoint(canonical, family=seed.family)
         endpoint = duplicate or registry.register_endpoint(url=canonical, family=seed.family)
         source_type = seed.family.value
