@@ -197,6 +197,30 @@ async def test_html_alternate_is_preferred_over_generic_web(tmp_path, monkeypatc
 
 
 @pytest.mark.asyncio
+async def test_html_alternate_keeps_well_known_official_feed(tmp_path, monkeypatch) -> None:
+    web = _ScriptedClient(
+        {
+            "https://notes.example.com/": _html("hugo.html", url="https://notes.example.com/"),
+            "https://notes.example.com/feeds/posts/default": _feed_response(),
+        }
+    )
+    _install_clients(monkeypatch, web)
+    database = Database(tmp_path / "html-plus-known.db")
+    database.initialize()
+    with _public_dns(), _rss_dns():
+        result = await discover_feeds_from_site_url(
+            _settings(),
+            "https://notes.example.com/",
+            database=database,
+        )
+    urls = [item.canonical_url for item in result.items]
+    assert canonicalize_url("https://notes.example.com/index.xml") in urls
+    assert canonicalize_url("https://notes.example.com/feeds/posts/default") in urls
+    assert result.items[0].discovery_method == "html_link_alternate"
+    assert any(item.discovery_method == "well_known_path" for item in result.items)
+
+
+@pytest.mark.asyncio
 async def test_no_feed_site_falls_back_to_generic_web(tmp_path, monkeypatch) -> None:
     missing = _FakeResponse(status_code=404, headers={"content-type": "text/plain"}, chunks=[b""])
     web = _ScriptedClient(
