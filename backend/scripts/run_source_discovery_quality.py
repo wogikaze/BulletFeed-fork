@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -14,6 +17,26 @@ DEFAULT_CORPUS = ROOT / "tests" / "gold" / "source_discovery" / "v02" / "corpus.
 DEFAULT_OUTPUT = (
     ROOT / "tests" / "gold" / "source_discovery" / "v02" / "current_main_measurement.json"
 )
+
+
+def _repository_sha() -> str | None:
+    env_sha = os.environ.get("GITHUB_SHA")
+    if env_sha:
+        return env_sha
+    git = shutil.which("git")
+    if git is None:
+        return None
+    try:
+        completed = subprocess.run(  # noqa: S603
+            [git, "rev-parse", "HEAD"],
+            cwd=ROOT.parent,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return None
+    return completed.stdout.strip() or None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -28,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     corpus = load_source_discovery_quality_corpus(args.corpus)
-    report = evaluate_source_discovery_quality(corpus)
+    report = evaluate_source_discovery_quality(corpus, source_sha=_repository_sha())
     payload = report.as_dict()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

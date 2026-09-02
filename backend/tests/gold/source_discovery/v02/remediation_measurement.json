@@ -1,0 +1,43 @@
+{
+  "artifact_version": "source-discovery-quality-remediation-v0.2",
+  "dataset_version": "source-discovery-quality-v0.1",
+  "production_version": "source-discovery-v1",
+  "split": "dev",
+  "execution_mode": "deterministic_fixture",
+  "hint_scope": "no_builtin_hints",
+  "blind_read": false,
+  "gold_injected": false,
+  "human_gold": false,
+  "baseline_source_sha": "f6219695eeb4c3360b08c72e22e1baee1f5ec4b4",
+  "remediated_source_sha": "be8ae80aaf732088767b74b779b22cb37346fcd2",
+  "baseline_artifact": "current_main_measurement.json",
+  "remediated_artifact": "remediated_measurement.json",
+  "baseline_status": "not_evaluable",
+  "after_status": "not_evaluable",
+  "comparison_status": "not_comparable",
+  "reason": "The former dev corpus overlaps built-in hints. The corrected no-built-in scope has no independent candidate input, so the source fix cannot be credited by this artifact.",
+  "before": {
+    "metrics": {
+      "precision_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "primary_recall_at_20": 0.0,
+      "japanese_recall_at_50": 0.0,
+      "authority_match_rate": 0.0
+    },
+    "evaluation_status": "not_evaluable",
+    "violations": ["evaluation_not_evaluable:no_independent_hints"],
+    "passed": false
+  },
+  "after": {
+    "metrics": {
+      "precision_at_20": 0.0,
+      "relevant_recall_at_50": 0.0,
+      "primary_recall_at_20": 0.0,
+      "japanese_recall_at_50": 0.0,
+      "authority_match_rate": 0.0
+    },
+    "evaluation_status": "not_evaluable",
+    "violations": ["evaluation_not_evaluable:no_independent_hints"],
+    "passed": false
+  }
+}
