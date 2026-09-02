@@ -17,7 +17,12 @@ from fastapi import HTTPException, status
 
 from app.config import Settings
 from app.database import Database
-from app.services.rss import ALLOWED_FEED_CONTENT_TYPES, require_global_response_peer, validate_feed_url
+from app.services.rss import (
+    ALLOWED_FEED_CONTENT_TYPES,
+    require_global_response_peer,
+    rewrite_http_redirect_to_https,
+    validate_feed_url,
+)
 from app.services.source_actionability import resolve_source_actionability
 from app.services.source_catalog import SourceKind, get_source_policy
 from app.services.source_discovery import infer_source_family
@@ -483,7 +488,10 @@ async def _download_feed_probe(
                                 status_code=status.HTTP_502_BAD_GATEWAY,
                                 detail="Feed redirect is invalid",
                             )
-                        current_url = validate_feed_url(urljoin(current_url, location), hosts)
+                        current_url = validate_feed_url(
+                            rewrite_http_redirect_to_https(current_url, location),
+                            hosts,
+                        )
                         continue
                     if response.status_code >= 400:
                         raise HTTPException(

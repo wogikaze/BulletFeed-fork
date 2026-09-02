@@ -82,6 +82,7 @@ class _FakeClient:
 class _MappedClient:
     def __init__(self, routes: dict[str, _FakeResponse]) -> None:
         self.routes = routes
+        self.requested: list[str] = []
         self.request_headers: dict[str, str] | None = None
 
     async def __aenter__(self):
@@ -92,6 +93,7 @@ class _MappedClient:
 
     def stream(self, method: str, url: str, **kwargs):
         del method
+        self.requested.append(url)
         self.request_headers = kwargs["headers"]
         return self.routes[url]
 
@@ -223,6 +225,40 @@ async def test_download_follows_https_redirect_off_allowlist_host(
     assert body.startswith(b"<?xml")
     assert final_url == "https://cdn.other.example/feed.xml"
 
+
+@pytest.mark.asyncio
+@patch("app.services.rss.socket.getaddrinfo")
+async def test_download_upgrades_http_redirect_location_to_https(
+    mock_getaddrinfo,
+    monkeypatch,
+) -> None:
+    mock_getaddrinfo.return_value = [(2, 1, 6, "", ("93.184.216.34", 443))]
+    fake = _MappedClient(
+        {
+            "https://security.example.com/feeds/posts/default": _FakeResponse(
+                peer="93.184.216.34",
+                status_code=302,
+                headers={"location": "http://feeds.cdn.example/GoogleOnlineSecurityBlog"},
+                chunks=[],
+            ),
+            "https://feeds.cdn.example/GoogleOnlineSecurityBlog": _FakeResponse(
+                peer="93.184.216.34",
+                headers={"content-type": "application/rss+xml"},
+                chunks=[_XML_FEED],
+            ),
+        }
+    )
+    monkeypatch.setattr("app.services.rss.httpx.AsyncClient", lambda **kwargs: fake)
+    body, final_url = await _download(
+        Settings(rss_allowed_hosts="example.com"),
+        "https://security.example.com/feeds/posts/default",
+    )
+    assert body.startswith(b"<?xml")
+    assert final_url == "https://feeds.cdn.example/GoogleOnlineSecurityBlog"
+    assert fake.requested == [
+        "https://security.example.com/feeds/posts/default",
+        "https://feeds.cdn.example/GoogleOnlineSecurityBlog",
+    ]
 
 @pytest.mark.asyncio
 @patch("app.services.rss.socket.getaddrinfo")

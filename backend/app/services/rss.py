@@ -35,6 +35,19 @@ _SNIFFABLE_CONTENT_TYPES = ALLOWED_FEED_CONTENT_TYPES | {
 _XML_PREFIXES = (b"<?xml", b"<rss", b"<feed", b"<rdf")
 
 
+def rewrite_http_redirect_to_https(current_url: str, location: str) -> str:
+    """Keep fetches on HTTPS when a source advertises an http:// Location.
+
+    The GET itself never uses HTTP. The rewritten URL is still shape-checked
+    (public hostname, no credentials, SSRF) before the next hop.
+    """
+    joined = urljoin(current_url, location)
+    parsed = urlparse(joined)
+    if parsed.scheme == "http":
+        return parsed._replace(scheme="https").geturl()
+    return joined
+
+
 def _host_is_allowed(hostname: str, allowed_hosts: set[str]) -> bool:
     return host_is_allowed(hostname, allowed_hosts)
 
@@ -158,7 +171,7 @@ async def _download(settings: Settings, url: str) -> tuple[bytes, str]:
                             status_code=status.HTTP_502_BAD_GATEWAY, detail="RSS redirect is invalid"
                         )
                     current_url = validate_feed_url(
-                        urljoin(current_url, location),
+                        rewrite_http_redirect_to_https(current_url, location),
                         settings.rss_hosts,
                         enforce_allowlist=False,
                     )
