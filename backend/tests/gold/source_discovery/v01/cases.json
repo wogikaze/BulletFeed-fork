@@ -96,7 +96,7 @@
       "topics": ["Flutter"],
       "relevant_urls": [
         "https://github.com/flutter/flutter/releases",
-        "https://blog.flutter.dev/feed"
+        "https://flutter.dev/blog/feed.xml"
       ],
       "irrelevant_substrings": ["reactor"],
       "min_precision": 0.5,
