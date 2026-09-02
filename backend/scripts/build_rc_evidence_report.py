@@ -173,6 +173,8 @@ def _source_discovery_quality_gate(report: dict[str, Any]) -> dict[str, Any]:
         "deterministic_execution": report.get("execution_mode") == "deterministic_fixture",
         "blind_not_read": report.get("blind_read") is False,
         "gold_not_injected": report.get("gold_injected") is False,
+        "human_gold_not_claimed": report.get("human_gold") is False,
+        "no_builtin_hints": report.get("hint_scope") == "no_builtin_hints",
         "live_qualification_separate": live.get("included_in_metrics") is False,
         "authority_breakdown": all(
             name in authority for name in ("primary", "secondary", "discovery_only")
@@ -184,7 +186,10 @@ def _source_discovery_quality_gate(report: dict[str, Any]) -> dict[str, Any]:
             for name in ("acquisition_failed", "extraction_failed")
         ),
     }
-    quality_floors_pass = report.get("passed") is True
+    quality_floors_pass = (
+        report.get("passed") is True
+        and report.get("evaluation_status") == "scored"
+    )
     evidence_pass = all(checks.values())
     return {
         "status": "pass" if evidence_pass and quality_floors_pass else "partial" if evidence_pass else "fail",
