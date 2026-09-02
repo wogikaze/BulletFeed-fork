@@ -48,9 +48,15 @@ def build_report(*, pipeline_trace: Path = PIPELINE_TRACE) -> dict[str, Any]:
     corpus = load_real_world_validation(CORPUS)
     status = capacity_status(corpus)
     production = load_real_world_validation_for_production_scoring(CORPUS)
+    trace_scope = (
+        "m1_m7_deterministic_journey"
+        if pipeline_trace.resolve() == PIPELINE_TRACE.resolve()
+        else None
+    )
     pipeline_attribution = load_pipeline_trace(
         pipeline_trace,
         source_artifact=_relative_backend_path(pipeline_trace),
+        trace_scope=trace_scope,
     )
     report = {
         "report_version": "m2-corpus-readiness-v1",
@@ -112,9 +118,9 @@ def _check_report(report: dict[str, Any]) -> tuple[str, ...]:
         violations.append("failure taxonomy is unavailable")
     pipeline = report.get("pipeline_attribution", {})
     if pipeline.get("status") != "available":
-        violations.append("full-pipeline stage attribution is unavailable")
+        violations.append("pipeline stage trace integrity is unavailable")
     if pipeline.get("coverage_status") != "complete":
-        violations.append("full-pipeline trace coverage is incomplete")
+        violations.append("pipeline stage trace coverage is incomplete")
     if pipeline.get("labels_loaded") is not False:
         violations.append("pipeline attribution loaded labels")
     if pipeline.get("ranking_inference_used") is not False:

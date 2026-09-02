@@ -27,6 +27,7 @@ def attribute_pipeline_trace(
     *,
     source_artifact: str | None = None,
     source_artifact_sha256: str | None = None,
+    trace_scope: str | None = None,
 ) -> dict[str, Any]:
     """Build an attribution artifact from explicit stage observations.
 
@@ -176,6 +177,7 @@ def attribute_pipeline_trace(
     provenance = {
         "source_artifact": source_artifact,
         "source_artifact_sha256": source_artifact_sha256,
+        "trace_scope": trace_scope or root.get("trace_scope"),
         "trace_version": root.get("trace_version"),
         "harness_version": root.get("harness_version")
         or root.get("acceptance_version"),
@@ -223,6 +225,7 @@ def load_pipeline_trace(
     path: Path,
     *,
     source_artifact: str | None = None,
+    trace_scope: str | None = None,
 ) -> dict[str, Any]:
     """Load one non-blind trace artifact and return its attribution."""
 
@@ -237,6 +240,7 @@ def load_pipeline_trace(
         payload,
         source_artifact=source_artifact or path.as_posix(),
         source_artifact_sha256=hashlib.sha256(raw).hexdigest(),
+        trace_scope=trace_scope,
     )
 
 

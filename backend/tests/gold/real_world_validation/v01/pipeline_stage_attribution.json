@@ -10,6 +10,7 @@
   "provenance": {
     "source_artifact": "tests/gold/m1_personas/v01/deterministic_baseline.json",
     "source_artifact_sha256": "b44b7d035d6f9bec2e956553299ff2f5562243d451424e25aa012790ff669963",
+    "trace_scope": "m1_m7_deterministic_journey",
     "trace_version": null,
     "harness_version": "m1-zero-to-useful-v02",
     "mode": "deterministic_fixture",

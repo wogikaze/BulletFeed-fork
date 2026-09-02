@@ -111,6 +111,8 @@ def _m2_gate(
             and pipeline.get("coverage_status") == "complete"
             and pipeline.get("labels_loaded") is False
             and pipeline.get("ranking_inference_used") is False
+            and pipeline.get("provenance", {}).get("trace_scope")
+            == "m2_historical_corpus"
         ),
     }
     return {
@@ -121,7 +123,8 @@ def _m2_gate(
         "pipeline_attribution": pipeline,
         "note": (
             "Ranking misses remain ranking-only; acquisition/projection/evidence attribution "
-            "uses explicit journey trace stages only."
+            "uses explicit journey trace stages only. The checked-in M1/M7 deterministic "
+            "journey trace is not M2 historical-corpus evidence."
         ),
     }
 
@@ -463,6 +466,12 @@ def _unmet_gate_items(missions: dict[str, Any]) -> list[str]:
     unmet.append(
         "M4 broad phone/tablet/a11y/error/offline qualification and release field validation"
     )
+    m2 = missions.get("m2", {})
+    if not m2.get("evidence_checks", {}).get("full_pipeline_attribution", False):
+        unmet.append(
+            "M2 acquisition/projection/evidence attribution for the historical corpus "
+            "(no in-scope M2 pipeline trace)"
+        )
     oneshot = missions.get("m6", {}).get("oneshot_blind", {})
     if oneshot.get("aggregate_status") == "not_scorable":
         unmet.append(

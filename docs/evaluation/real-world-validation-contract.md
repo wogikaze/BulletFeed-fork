@@ -77,7 +77,10 @@ acquisition/projection/evidence を推測しない。したがって `coverage_s
 `labels_loaded=false` と `ranking_inference_used=false` は artifact 契約の必須値である。
 blind path または `split=blind` trace は読む前に reject する。M2 report の
 `metrics.stage_attribution` は従来どおり ranking replay 専用であり、full-pipeline の結果は
-独立した `pipeline_attribution` として保存する。
+独立した `pipeline_attribution` として保存する。ただし、M1/M7 deterministic journey
+trace は M2 historical corpus の acquisition/projection/evidence 証跡ではない。M2 の
+full-pipeline gate は、provenance の `trace_scope=m2_historical_corpus` を明示した trace
+だけを評価対象とし、それ以外は trace integrity が有効でも未達として扱う。
 
 ## CI
 

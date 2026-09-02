@@ -65,6 +65,7 @@ def main(argv: list[str] | None = None) -> int:
     report = load_pipeline_trace(
         args.trace,
         source_artifact=_artifact_name(args.trace),
+        trace_scope="m1_m7_deterministic_journey",
     )
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     args.output.parent.mkdir(parents=True, exist_ok=True)
