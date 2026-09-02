@@ -9,6 +9,10 @@ current SHA を刻んだ **pre-field** RC bundle を作る。Gold / blind ラベ
 Mission を PASS に書き換えない。`completion_gate_pass` は常に `false` である。
 M3 には `source_discovery/v02/current_main_measurement.json` の topic/family 品質、
 authority 分類、失敗分類を含める。source qualification の live artifact とは別集計である。
+source-discovery quality corpus は `hint_scope=no_builtin_hints` のとき curated/Japanese
+built-in hint を使わず、独立候補が無ければ `evaluation_status=not_evaluable` とする。
+この状態の数値は floor PASS として扱わず、before/after の remediation credit も与えない。
+`human_gold=false`、`blind_read=false`、`gold_injected=false` は measurement report に引き継ぐ。
 
 ## 再生成
 
