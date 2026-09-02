@@ -58,6 +58,15 @@ def test_ssrf_suite_uses_production_shape_and_does_not_claim_fetch() -> None:
         assert "not a public hostname" in str(exc)
     else:
         raise AssertionError("loopback must fail URL shape")
+    for blocked in ("https://224.0.0.1/", "https://[ff02::1]/"):
+        try:
+            validate_url_shape(blocked, source_name="SSRF")
+        except Exception as exc:  # noqa: BLE001 - shape reject is the measured outcome
+            assert "not a public hostname" in str(exc)
+        else:
+            raise AssertionError(f"multicast must fail URL shape: {blocked}")
+    assert report["shape_bypass_count"] == 0
+    assert report["bypasses"] == []
 
 
 def test_summary_only_article_extracts_body_not_nav() -> None:

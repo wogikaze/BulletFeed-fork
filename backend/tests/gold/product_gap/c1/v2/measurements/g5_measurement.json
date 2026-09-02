@@ -1,0 +1,28 @@
+{
+  "artifact_version": "product-gap-c1-g5-measurement-v1",
+  "path": "production_rss_fetch_and_redirect_identity",
+  "split": "dev",
+  "retrieved_at": "2026-09-02T08:19:19.346111+00:00",
+  "production_fetch_measured": true,
+  "identity_measured": true,
+  "shape_bypass_count": 0,
+  "ssrf": {
+    "suite_version": "product-gap-c1-ssrf-v1",
+    "case_count": 106,
+    "shape_bypass_count": 0,
+    "bypasses": [],
+    "production_path": "validate_url_shape"
+  },
+  "production_fetch": {
+    "url": "https://react.dev/rss.xml",
+    "status": "ok",
+    "final_url": "https://react.dev/rss.xml",
+    "item_count": 20
+  },
+  "redirect_identity": {
+    "start_url": "https://www.mongodb.com/products/updates/rss",
+    "final_url": "https://www.mongodb.com/products/updates/rss/",
+    "same_public_source": true,
+    "status": "ok"
+  }
+}

@@ -110,13 +110,18 @@ def _host_is_not_public_shape(hostname: str) -> bool:
         if 1 <= len(parts) <= 4 and all(_ip_like_label(part) for part in parts):
             return True
         return False
-    return not ip.is_global
+    return _ip_is_not_public(ip)
+
+
+def _ip_is_not_public(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    # CPython treats multicast as is_global=True; acquisition must still reject it.
+    return (not ip.is_global) or ip.is_multicast
 
 
 def reject_private_resolved_addresses(addresses: list, *, source_name: str) -> None:
     for address in addresses:
         ip = ipaddress.ip_address(address[4][0])
-        if not ip.is_global:
+        if _ip_is_not_public(ip):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"{source_name} host resolves to a private address",
@@ -179,7 +184,7 @@ def require_global_response_peer(response: httpx.Response, *, source_name: str =
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"{source_name} connection peer could not be verified",
         ) from exc
-    if not peer_ip.is_global:
+    if _ip_is_not_public(peer_ip):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"{source_name} connection reached a private address",
