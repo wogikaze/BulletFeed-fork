@@ -164,6 +164,19 @@ def test_well_known_paths_are_same_origin_and_capped() -> None:
     assert len(well_known_feed_urls("https://notes.example.com/blog/", limit=80)) == 16
 
 
+def test_well_known_probes_keep_origin_atom_when_site_has_blog_path() -> None:
+    vercel = {
+        canonicalize_url(url)
+        for url in well_known_feed_urls("https://vercel.com/blog", limit=16)
+    }
+    deno = {
+        canonicalize_url(url)
+        for url in well_known_feed_urls("https://deno.com/blog", limit=16)
+    }
+    assert "https://vercel.com/atom" in vercel
+    assert "https://deno.com/blog/rss.xml" in deno
+
+
 @pytest.mark.asyncio
 async def test_html_alternate_is_preferred_over_generic_web(tmp_path, monkeypatch) -> None:
     web = _ScriptedClient(
