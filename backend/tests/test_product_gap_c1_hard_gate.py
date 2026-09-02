@@ -33,6 +33,9 @@ def test_v2_hard_gate_reads_artifacts_only() -> None:
     assert report["gates"]["g4"]["completion_gate_pass"] is False
     assert "g4_n_lt_10" in report["gates"]["g4"]["blockers"]
     assert "g4_live_blog_unmeasured" in report["gates"]["g4"]["blockers"]
+    assert report["gates"]["g5"]["status"] == "measured"
+    assert report["gates"]["g5"]["completion_gate_pass"] is True
+    assert report["gates"]["g5"]["blockers"] == []
 
 
 def test_perfect_g4_fixture_scores_do_not_pass_hard_gate_when_n_lt_10(tmp_path: Path) -> None:
