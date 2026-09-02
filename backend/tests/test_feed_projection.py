@@ -1,8 +1,14 @@
+from pathlib import Path
+
+from app.evaluation.m1_zero_to_useful import load_persona_manifest
 from app.services.feed_projection import MAX_ADJACENT_CANDIDATE_EVENTS, FeedProjector
 from app.services.github_release_pipeline import ingest_github_release_events
 from app.services.ledger_projection import LedgerProjector
 from app.services.rss_pipeline import ingest_feed_events
 from app.services.statuspage_pipeline import StatuspagePipeline
+from app.services.user_interest import concept_neighbors, resolve_concept_id
+
+_MANIFEST = Path(__file__).parent / "gold" / "m1_personas" / "v01" / "personas.json"
 
 
 def _summary():
@@ -429,3 +435,79 @@ def test_project_events_for_user_rebuilds_ranking_once(database, monkeypatch):
     )
     assert created
     assert calls["n"] == 1
+
+
+def _llvm_expectation(topics: tuple[str, ...]) -> str:
+    exact = False
+    adjacent = False
+    for name in topics:
+        concept_id = resolve_concept_id(name)
+        if concept_id == "llvm":
+            exact = True
+        if "llvm" in concept_neighbors(concept_id):
+            adjacent = True
+    if exact:
+        return "exact"
+    if adjacent:
+        return "adjacent"
+    return "absent"
+
+
+def test_m1_personas_reproject_adjacent_llvm_without_horticulture(database) -> None:
+    personas = load_persona_manifest(_MANIFEST)
+    assert len(personas) == 30
+    llvm_event_id = _ingest_named_source(
+        database,
+        title="LLVM 20.1 pass manager",
+        summary="New LLVM pass pipeline for backends.",
+        slug="llvm-20-1-personas",
+    )
+    unrelated_id = _plant_unrelated_event(database, event_id="unrelated_persona_noise")
+    projector = FeedProjector(database)
+    adjacent_hits = 0
+    exact_hits = 0
+    for persona in personas:
+        user_id = persona.persona_id
+        with database.connect() as connection:
+            connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", (user_id,))
+            for order, topic in enumerate(persona.topics):
+                connection.execute(
+                    """
+                    INSERT INTO topics (
+                        id, user_id, name, type, priority, sort_order, created_at
+                    ) VALUES (?, ?, ?, 'technology', 'high', ?, 0)
+                    """,
+                    (f"topic_{user_id}_{order}", user_id, topic, order),
+                )
+        projector.reproject_user(user_id=user_id)
+        with database.connect() as connection:
+            llvm_rows = connection.execute(
+                """
+                SELECT relation_level FROM feed_items
+                WHERE user_id = ? AND event_id = ?
+                """,
+                (user_id, llvm_event_id),
+            ).fetchall()
+            unrelated_count = connection.execute(
+                """
+                SELECT COUNT(*) AS count FROM feed_items
+                WHERE user_id = ? AND event_id = ?
+                """,
+                (user_id, unrelated_id),
+            ).fetchone()["count"]
+        assert unrelated_count == 0, user_id
+        expected = _llvm_expectation(persona.topics)
+        if expected == "absent":
+            assert not llvm_rows, user_id
+            continue
+        assert llvm_rows, user_id
+        levels = {row["relation_level"] for row in llvm_rows}
+        if expected == "adjacent":
+            assert levels == {"adjacent"}, user_id
+            adjacent_hits += 1
+        else:
+            assert levels.issubset({"direct", "adjacent"}), user_id
+            exact_hits += 1
+    assert adjacent_hits >= 4
+    assert exact_hits >= 4
+    assert adjacent_hits + exact_hits < 30
