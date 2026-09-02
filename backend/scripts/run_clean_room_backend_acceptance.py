@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -39,6 +40,8 @@ from app.db.migrations import KNOWN_REVISIONS  # noqa: E402
 ANDROID_PACKAGE = "com.bulletfeed.app"
 ANDROID_TEST_CLASS = "com.bulletfeed.app.RealBackendAcceptanceTest"
 RELEASE_BASE_URL = "https://clean-room.invalid/"
+ADB_TIMEOUT_SECONDS = 20
+ADB_REASON_LIMIT = 300
 
 
 def _verify_representative_upgrade(path: Path) -> bool:
@@ -166,7 +169,13 @@ def _unavailable_lifecycle(reason: str) -> dict[str, Any]:
     }
 
 
-def _adb_run(adb: str, serial: str | None, arguments: list[str]) -> int | None:
+def _bounded_text(value: str | None) -> str | None:
+    if not value:
+        return None
+    return value.strip()[-ADB_REASON_LIMIT:]
+
+
+def _adb_run(adb: str, serial: str | None, arguments: list[str]) -> dict[str, Any]:
     command = [adb]
     if serial:
         command.extend(["-s", serial])
@@ -175,18 +184,80 @@ def _adb_run(adb: str, serial: str | None, arguments: list[str]) -> int | None:
         completed = subprocess.run(  # noqa: S603
             command,
             check=False,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=ADB_TIMEOUT_SECONDS,
         )
-    except OSError:
-        return None
-    return int(completed.returncode)
+    except subprocess.TimeoutExpired as exc:
+        return {
+            "status": "failed",
+            "failure_kind": "timeout",
+            "reason": f"adb command timed out after {ADB_TIMEOUT_SECONDS}s",
+            "stderr": _bounded_text(exc.stderr),
+        }
+    except OSError as exc:
+        return {
+            "status": "failed",
+            "failure_kind": "os_error",
+            "reason": f"adb could not execute: {type(exc).__name__}",
+            "stderr": _bounded_text(str(exc)),
+        }
+    result: dict[str, Any] = {
+        "status": "recorded" if completed.returncode == 0 else "failed",
+        "failure_kind": None if completed.returncode == 0 else "nonzero",
+        "exit_code": int(completed.returncode),
+        "stdout": _bounded_text(completed.stdout),
+        "stderr": _bounded_text(completed.stderr),
+    }
+    if completed.returncode != 0:
+        result["reason"] = "adb command returned a non-zero exit code"
+    return result
+
+
+def _adb_reason(result: dict[str, Any], fallback: str) -> str:
+    reason = result.get("reason", fallback)
+    stderr = result.get("stderr")
+    return f"{reason}; stderr={stderr}" if stderr else reason
+
+
+def _apk_identity(apk: Path) -> dict[str, Any]:
+    aapt = shutil.which("aapt")
+    if aapt is None:
+        return {"status": "not_available", "reason": "aapt is not installed"}
+    try:
+        completed = subprocess.run(  # noqa: S603
+            [aapt, "dump", "badging", str(apk)],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=ADB_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {
+            "status": "not_available",
+            "reason": f"APK identity inspection unavailable: {type(exc).__name__}",
+        }
+    if completed.returncode != 0:
+        return {"status": "not_available", "reason": "aapt could not inspect APK identity"}
+    match = re.search(
+        r"package: name='([^']+)' versionCode='([^']+)'",
+        completed.stdout,
+    )
+    if match is None:
+        return {"status": "not_available", "reason": "APK package/versionCode was not reported"}
+    return {
+        "status": "recorded",
+        "package": match.group(1),
+        "version_code": match.group(2),
+    }
 
 
 def _run_android_lifecycle(
     apk: Path | None,
     previous_apk: Path | None,
     serial: str | None,
+    *,
+    allow_adb_data_wipe: bool = False,
 ) -> dict[str, Any]:
     adb = shutil.which("adb")
     if adb is None:
@@ -195,20 +266,54 @@ def _run_android_lifecycle(
         return _unavailable_lifecycle("release APK was not assembled")
     if apk.name.endswith("-unsigned.apk"):
         return _unavailable_lifecycle("release APK is unsigned and cannot be installed by adb")
-    if _adb_run(adb, serial, ["get-state"]) != 0:
-        return _unavailable_lifecycle("no ready Android emulator or device is connected")
-
-    uninstall_code = _adb_run(adb, serial, ["uninstall", ANDROID_PACKAGE])
-    if uninstall_code is None:
+    if not allow_adb_data_wipe:
+        return _unavailable_lifecycle(
+            "destructive package removal requires --allow-adb-data-wipe; "
+            "no uninstall or clean install was attempted"
+        )
+    state = _adb_run(adb, serial, ["get-state"])
+    if state["status"] != "recorded":
+        if state.get("failure_kind") == "nonzero":
+            return _unavailable_lifecycle("no ready Android emulator or device is connected")
         return {
-            **_unavailable_lifecycle("adb stopped responding before clean install"),
+            **_unavailable_lifecycle(_adb_reason(state, "adb state check failed")),
             "status": "failed",
         }
-    install_code = _adb_run(adb, serial, ["install", str(apk)])
+    emulator = _adb_run(adb, serial, ["shell", "getprop", "ro.kernel.qemu"])
+    if emulator["status"] != "recorded":
+        return {
+            **_unavailable_lifecycle(_adb_reason(emulator, "emulator check failed")),
+            "status": "failed",
+        }
+    if emulator.get("stdout") != "1":
+        return _unavailable_lifecycle(
+            "target is not an Android emulator; refusing package data wipe on a real device"
+        )
+
+    uninstall = _adb_run(adb, serial, ["uninstall", ANDROID_PACKAGE])
+    if uninstall["status"] != "recorded":
+        return {
+            **_unavailable_lifecycle("adb uninstall failed"),
+            "status": "failed",
+            "install": _lifecycle_stage(
+                "failed",
+                _adb_reason(uninstall, "adb uninstall failed"),
+                exit_code=uninstall.get("exit_code"),
+            ),
+        }
+    install = _adb_run(adb, serial, ["install", str(apk)])
     install = (
-        _lifecycle_stage("recorded", "release APK installed after package removal", exit_code=install_code)
-        if install_code == 0
-        else _lifecycle_stage("failed", "adb install failed", exit_code=install_code)
+        _lifecycle_stage(
+            "recorded",
+            "release APK installed after package removal",
+            exit_code=install.get("exit_code"),
+        )
+        if install["status"] == "recorded"
+        else _lifecycle_stage(
+            "failed",
+            _adb_reason(install, "adb install failed"),
+            exit_code=install.get("exit_code"),
+        )
     )
 
     if previous_apk is None or not previous_apk.is_file():
@@ -217,30 +322,66 @@ def _run_android_lifecycle(
             "a distinct previous APK was not supplied; package replacement was not claimed as an upgrade",
         )
     else:
-        _adb_run(adb, serial, ["uninstall", ANDROID_PACKAGE])
-        previous_code = _adb_run(adb, serial, ["install", str(previous_apk)])
-        current_code = _adb_run(adb, serial, ["install", "-r", str(apk)])
-        upgrade_status = "recorded" if previous_code == 0 and current_code == 0 else "failed"
-        upgrade = {
-            "status": upgrade_status,
-            "reason": "previous APK installed, then current release APK replaced it with -r",
-            "previous_install_exit_code": previous_code,
-            "current_install_exit_code": current_code,
-        }
+        previous_identity = _apk_identity(previous_apk)
+        current_identity = _apk_identity(apk)
+        if previous_identity["status"] != "recorded" or current_identity["status"] != "recorded":
+            upgrade = _unavailable_lifecycle(
+                "APK package/versionCode identity could not be validated"
+            )["upgrade"]
+            upgrade["validation"] = "not_available"
+            upgrade["identity"] = {
+                "previous": previous_identity,
+                "current": current_identity,
+            }
+        elif (
+            previous_identity["package"] != ANDROID_PACKAGE
+            or current_identity["package"] != ANDROID_PACKAGE
+            or previous_identity["package"] != current_identity["package"]
+            or previous_identity["version_code"] == current_identity["version_code"]
+        ):
+            upgrade = _unavailable_lifecycle(
+                "previous/current APKs are not the same package with distinct versionCode values"
+            )["upgrade"]
+            upgrade["validation"] = "rejected"
+        else:
+            previous_install = _adb_run(adb, serial, ["install", "-r", str(previous_apk)])
+            current_replace = _adb_run(adb, serial, ["install", "-r", str(apk)])
+            if previous_install["status"] != "recorded" or current_replace["status"] != "recorded":
+                upgrade = _lifecycle_stage(
+                    "failed",
+                    _adb_reason(
+                        previous_install
+                        if previous_install["status"] != "recorded"
+                        else current_replace,
+                        "adb package replacement failed",
+                    ),
+                )
+            else:
+                upgrade = _lifecycle_stage(
+                    "not_available",
+                    "package replacement completed; data retention was not verified",
+                )
+            upgrade["validation"] = "package_replacement_only"
+            upgrade["previous_install_exit_code"] = previous_install.get("exit_code")
+            upgrade["current_replace_exit_code"] = current_replace.get("exit_code")
 
     if install["status"] == "recorded":
-        stop_code = _adb_run(adb, serial, ["shell", "am", "force-stop", ANDROID_PACKAGE])
-        start_code = _adb_run(
+        stop = _adb_run(adb, serial, ["shell", "am", "force-stop", ANDROID_PACKAGE])
+        start = _adb_run(
             adb,
             serial,
             ["shell", "am", "start", "-W", "-n", f"{ANDROID_PACKAGE}/.MainActivity"],
         )
         recovery = _lifecycle_stage(
-            "recorded" if stop_code == 0 and start_code == 0 else "failed",
+            "recorded" if stop["status"] == "recorded" and start["status"] == "recorded" else "failed",
             "process force-stop and launcher activity relaunch only; session recovery is not claimed",
         )
-        recovery["force_stop_exit_code"] = stop_code
-        recovery["start_exit_code"] = start_code
+        recovery["force_stop_exit_code"] = stop.get("exit_code")
+        recovery["start_exit_code"] = start.get("exit_code")
+        if stop["status"] != "recorded":
+            recovery["reason"] = _adb_reason(stop, recovery["reason"])
+        elif start["status"] != "recorded":
+            recovery["reason"] = _adb_reason(start, recovery["reason"])
     else:
         recovery = _lifecycle_stage(
             "not_available",
@@ -271,6 +412,7 @@ def _run_android_release_client(
     run_lifecycle: bool,
     previous_apk: Path | None,
     serial: str | None,
+    allow_adb_data_wipe: bool,
 ) -> tuple[dict[str, Any], int]:
     acceptance_code, acceptance_error = _run_gradle(
         root,
@@ -322,7 +464,12 @@ def _run_android_release_client(
         release["error"] = release_error
 
     lifecycle = (
-        _run_android_lifecycle(release_apk, previous_apk, serial)
+        _run_android_lifecycle(
+            release_apk,
+            previous_apk,
+            serial,
+            allow_adb_data_wipe=allow_adb_data_wipe,
+        )
         if run_lifecycle
         else _unavailable_lifecycle(
             "not requested; use --run-android-lifecycle with a ready emulator or device"
@@ -375,7 +522,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--adb-serial", default=os.environ.get("ANDROID_SERIAL"))
     parser.add_argument("--previous-apk", type=Path, default=None)
+    parser.add_argument(
+        "--allow-adb-data-wipe",
+        action="store_true",
+        help="allow destructive package removal, only after confirming an emulator target",
+    )
     args = parser.parse_args(argv)
+    if args.require_android_lifecycle and not args.android_release_client:
+        parser.error("--require-android-lifecycle requires --android-release-client")
     workdir = Path(tempfile.mkdtemp(prefix="bulletfeed-clean-room-"))
     database_path = workdir / "data" / "bulletfeed.db"
     database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -656,6 +810,7 @@ def main(argv: list[str] | None = None) -> int:
                 run_lifecycle=args.run_android_lifecycle or args.require_android_lifecycle,
                 previous_apk=args.previous_apk,
                 serial=args.adb_serial,
+                allow_adb_data_wipe=args.allow_adb_data_wipe,
             )
             result["android"] = android
             result["status"] = android["status"]

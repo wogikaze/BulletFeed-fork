@@ -31,10 +31,12 @@ assemble し、公開 backend への接続や field validation は行わない�
 report には `lifecycle.install`、`lifecycle.upgrade`、`lifecycle.recovery` を必ず含める。
 通常 CI は ADB の実行を試みるが、ready な emulator/device が無ければ各 status は
 `not_available` となり、全体 status は `partial`、`completion_gate_pass` は `false` の
-ままである。`--run-android-lifecycle` は ready な emulator/device がある環境だけで使い、
-package data を消去するため disposable な emulator に限定し、
-upgrade を `recorded` にするには
-`--previous-apk` で別バージョンの APK を明示する。これは package/process 操作の証跡で
+ままである。デフォルトでは端末データを変更せず、install/uninstall を実行しない。
+破壊的な clean install を行う場合は `--allow-adb-data-wipe` を明示し、runner は
+`ro.kernel.qemu=1` の disposable emulator 以外を拒否する。ADB の timeout、起動後の
+OS error、unexpected non-zero は `failed` として bounded な理由を保存する。upgrade は
+previous/current APK の同一 package・異なる versionCode とデータ保持を検証できない限り
+`not_available` であり、package replacement を upgrade として記録しない。これは package/process 操作の証跡で
 あり、Android UI、OAuth、session/credential recovery、device breadth、field evidence
 を代替しない。必須化する場合だけ `--require-android-lifecycle` を追加し、未実行・未提供
 なら exit 1 にする。

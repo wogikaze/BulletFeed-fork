@@ -44,6 +44,7 @@ jobs:
 
       - name: Run M7 clean-room Android release-client acceptance
         run: |
+          # Lifecycle evidence remains partial in CI; no device-data wipe is allowed.
           python backend/scripts/run_clean_room_backend_acceptance.py \
             --android-release-client \
             --run-android-lifecycle \
