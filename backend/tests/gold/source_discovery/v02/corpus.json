@@ -1,0 +1,291 @@
+{
+  "dataset_id": "bulletfeed-source-discovery-quality",
+  "dataset_version": "source-discovery-quality-v0.1",
+  "production_version": "source-discovery-v1",
+  "split": "dev",
+  "execution_mode": "deterministic_fixture",
+  "blind_read": false,
+  "gold_injected": false,
+  "human_gold": false,
+  "label_source": "curated public source set pending operator attestation",
+  "precision_k": 20,
+  "recall_k": 50,
+  "floors": {
+    "primary_recall_at_20": 0.9,
+    "relevant_recall_at_50": 0.85,
+    "precision_at_20": 0.8,
+    "japanese_recall_at_50": 0.85,
+    "min_topic_primary_recall_at_20": 0.7
+  },
+  "live_qualification": {
+    "status": "separate",
+    "artifact": "tests/gold/source_qualification/v01/live_sample_200_report.json",
+    "execution_mode": "live_network",
+    "included_in_metrics": false
+  },
+  "cases": [
+    {
+      "case_id": "sdq-react-release",
+      "topic": "React",
+      "canonical_url": "https://github.com/facebook/react/releases",
+      "family": "github_release",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": false,
+      "rationale": "Official React repository release endpoint."
+    },
+    {
+      "case_id": "sdq-react-blog",
+      "topic": "React",
+      "canonical_url": "https://react.dev/rss.xml",
+      "family": "rss_atom",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official React blog feed."
+    },
+    {
+      "case_id": "sdq-react-docs",
+      "topic": "React",
+      "canonical_url": "https://react.dev/learn",
+      "family": "generic_web",
+      "authority": "discovery_only",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official documentation candidate is watchable but not Claim evidence."
+    },
+    {
+      "case_id": "sdq-react-blog-index",
+      "topic": "React",
+      "canonical_url": "https://react.dev/blog",
+      "family": "generic_web",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official blog index remains a separate expected source for discovery coverage."
+    },
+    {
+      "case_id": "sdq-react-lycorp",
+      "topic": "React",
+      "canonical_url": "https://techblog.lycorp.co.jp/ja/feed/index.xml",
+      "family": "rss_atom",
+      "authority": "secondary",
+      "language": "ja",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Japanese corporate engineering feed; publisher authority is evaluated independently."
+    },
+    {
+      "case_id": "sdq-react-mercari",
+      "topic": "React",
+      "canonical_url": "https://engineering.mercari.com/blog/feed.xml",
+      "family": "rss_atom",
+      "authority": "secondary",
+      "language": "ja",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Japanese corporate engineering feed covering frontend work."
+    },
+    {
+      "case_id": "sdq-react-freee",
+      "topic": "React",
+      "canonical_url": "https://developers.freee.co.jp/feed",
+      "family": "rss_atom",
+      "authority": "secondary",
+      "language": "ja",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Japanese corporate developer feed discovered through the publisher graph."
+    },
+    {
+      "case_id": "sdq-react-dena",
+      "topic": "React",
+      "canonical_url": "https://engineering.dena.com/blog/index.xml",
+      "family": "rss_atom",
+      "authority": "secondary",
+      "language": "ja",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Japanese corporate engineering feed discovered through the publisher graph."
+    },
+    {
+      "case_id": "sdq-react-zozo",
+      "topic": "React",
+      "canonical_url": "https://techblog.zozo.com/feed",
+      "family": "rss_atom",
+      "authority": "secondary",
+      "language": "ja",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Japanese corporate technology feed discovered through the publisher graph."
+    },
+    {
+      "case_id": "sdq-python-release",
+      "topic": "Python",
+      "canonical_url": "https://github.com/python/cpython/releases",
+      "family": "github_release",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": false,
+      "rationale": "Official CPython repository release endpoint."
+    },
+    {
+      "case_id": "sdq-python-blog",
+      "topic": "Python",
+      "canonical_url": "https://blog.python.org/feeds/posts/default",
+      "family": "rss_atom",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official Python blog feed."
+    },
+    {
+      "case_id": "sdq-python-docs",
+      "topic": "Python",
+      "canonical_url": "https://docs.python.org/3",
+      "family": "generic_web",
+      "authority": "discovery_only",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official Python documentation candidate is not Claim evidence."
+    },
+    {
+      "case_id": "sdq-python-osv",
+      "topic": "Python",
+      "canonical_url": "https://api.osv.dev/v1/query",
+      "family": "osv",
+      "authority": "secondary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": false,
+      "rationale": "Secondary vulnerability index is discoverable but has no subscription action."
+    },
+    {
+      "case_id": "sdq-github-api",
+      "topic": "GitHub",
+      "canonical_url": "https://api.github.com/",
+      "family": "github_release",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": false,
+      "rationale": "Official GitHub API endpoint."
+    },
+    {
+      "case_id": "sdq-github-advisory",
+      "topic": "GitHub",
+      "canonical_url": "https://api.github.com/advisories",
+      "family": "github_advisory",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": false,
+      "rationale": "Official advisory endpoint is relevant but unsupported for direct subscription."
+    },
+    {
+      "case_id": "sdq-github-blog",
+      "topic": "GitHub",
+      "canonical_url": "https://github.blog/feed",
+      "family": "rss_atom",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official GitHub blog feed."
+    },
+    {
+      "case_id": "sdq-github-status",
+      "topic": "GitHub",
+      "canonical_url": "https://kctbh9vrtdwd.statuspage.io/api/v2/summary.json",
+      "family": "statuspage",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official GitHub status endpoint."
+    },
+    {
+      "case_id": "sdq-cloudflare-blog",
+      "topic": "Cloudflare Workers",
+      "canonical_url": "https://blog.cloudflare.com/rss",
+      "family": "rss_atom",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official Cloudflare blog feed covering Workers."
+    },
+    {
+      "case_id": "sdq-cloudflare-docs",
+      "topic": "Cloudflare Workers",
+      "canonical_url": "https://developers.cloudflare.com/workers",
+      "family": "generic_web",
+      "authority": "discovery_only",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official Workers documentation candidate is discovery-only."
+    },
+    {
+      "case_id": "sdq-openai-blog",
+      "topic": "OpenAI API",
+      "canonical_url": "https://openai.com/news/rss.xml",
+      "family": "rss_atom",
+      "authority": "primary",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official OpenAI news feed."
+    },
+    {
+      "case_id": "sdq-openai-docs",
+      "topic": "OpenAI API",
+      "canonical_url": "https://platform.openai.com/docs",
+      "family": "generic_web",
+      "authority": "discovery_only",
+      "language": "en",
+      "expected_discovered": true,
+      "expected_subscribable": true,
+      "rationale": "Official API documentation candidate is discovery-only."
+    }
+  ],
+  "probes": [
+    {
+      "probe_id": "sdq-transport-http-503",
+      "stage": "acquisition",
+      "status_code": 503,
+      "content_type": "application/rss+xml",
+      "hinted_family": "rss_atom",
+      "body": "",
+      "fixture_reference": "deterministic transport HTTP error",
+      "expected_outcome": "acquisition_failed"
+    },
+    {
+      "probe_id": "sdq-extraction-html-shell",
+      "stage": "extraction",
+      "status_code": 200,
+      "content_type": "application/rss+xml; charset=utf-8",
+      "hinted_family": "rss_atom",
+      "body": "<html><head><title>Fixture shell</title></head><body>No feed content.</body></html>",
+      "fixture_reference": "feed_discover:no_feed.html",
+      "expected_outcome": "extraction_failed"
+    },
+    {
+      "probe_id": "sdq-extraction-rss-channel",
+      "stage": "extraction",
+      "status_code": 200,
+      "content_type": "application/rss+xml",
+      "hinted_family": "rss_atom",
+      "body": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>Fixture feed</title></channel></rss>",
+      "fixture_reference": "deterministic empty RSS channel",
+      "expected_outcome": "covered"
+    }
+  ]
+}
