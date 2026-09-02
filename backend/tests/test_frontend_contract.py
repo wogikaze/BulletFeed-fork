@@ -1,3 +1,4 @@
+import inspect
 import time
 
 import pytest
@@ -7,8 +8,10 @@ from fastapi import HTTPException
 from app.config import Settings
 from app.db.seed import seed_catalog, seed_user_workspace
 from app.routers import auth as auth_router
+from app.routers.feed import get_feed
 from app.security import TokenCipher
 from app.services import github
+from app.services.feed_projection import FeedProjector
 
 _REAL_LIST_REPOSITORIES = github.list_repositories
 
@@ -38,6 +41,25 @@ def test_feed_contract_includes_traceable_sources(client, auth_headers, database
     assert source["evidence"]
     assert source["publishedAt"]
     assert source["retrievedAt"]
+
+
+def test_get_feed_does_not_reproject_or_scan_all_events(client, auth_headers, monkeypatch) -> None:
+    source = inspect.getsource(get_feed)
+    assert "reproject_user" not in source
+    assert "_candidate_event_ids" not in source
+
+    def _blocked_reproject(self, *, user_id: str) -> int:
+        del self, user_id
+        raise AssertionError("GET /feed must not call reproject_user")
+
+    def _blocked_candidates(connection, *, user_id: str) -> list[str]:
+        del connection, user_id
+        raise AssertionError("GET /feed must not scan all events")
+
+    monkeypatch.setattr(FeedProjector, "reproject_user", _blocked_reproject)
+    monkeypatch.setattr(FeedProjector, "_candidate_event_ids", _blocked_candidates)
+    response = client.get("/v1/feed", headers=auth_headers, params={"limit": 10})
+    assert response.status_code == 200
 
 
 @pytest.mark.asyncio
