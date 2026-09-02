@@ -53,12 +53,12 @@ _WELL_KNOWN_PATHS = (
     "/feed",
     "/rss",
     "/atom.xml",
+    "/atom",
     "/feed.xml",
     "/index.xml",
     "/rss.xml",
     "/feed.rss",
     "/feed.atom",
-    "/atom",
     "/feed/",
     "/rss/",
     "/news.xml",
@@ -154,7 +154,7 @@ def well_known_feed_urls(site_url: str, *, limit: int = _MAX_WELL_KNOWN_PROBES) 
         origin = _site_origin(site_url)
     except ValueError:
         return ()
-    bases: list[str] = []
+    bases: list[str] = [origin]
     try:
         parsed = urlparse(canonicalize_url(site_url))
     except ValueError:
@@ -163,7 +163,6 @@ def well_known_feed_urls(site_url: str, *, limit: int = _MAX_WELL_KNOWN_PROBES) 
         directory = parsed.path.rstrip("/")
         if directory:
             bases.append(f"https://{parsed.netloc}{directory}/")
-    bases.append(origin)
     extra_bases = list(bases)
     if parsed is not None and parsed.hostname:
         segments = [part for part in parsed.path.split("/") if part]
