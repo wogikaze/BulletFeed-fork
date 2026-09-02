@@ -97,6 +97,7 @@ class SourceDiscoveryQualityCorpus(_StrictModel):
     gold_injected: Literal[False]
     human_gold: Literal[False]
     label_source: str = Field(min_length=1)
+    hint_scope: Literal["no_builtin_hints"]
     precision_k: int = Field(ge=1, le=80)
     recall_k: int = Field(ge=1, le=80)
     floors: dict[str, float]
@@ -113,7 +114,9 @@ class QualityCaseOutcome:
     family: str
     language: str
     expected_authority: str
+    expected_discovered: bool
     observed_authority: str | None
+    identity_match: bool
     authority_match: bool
     expected_subscribable: bool
     observed_subscribable: bool | None
@@ -143,16 +146,22 @@ class SourceDiscoveryQualityReport:
     dataset_version: str
     measurement_version: str
     production_version: str
+    source_sha: str | None
     split: str
     execution_mode: str
     blind_read: bool
     gold_injected: bool
+    human_gold: bool
+    label_source: str
+    hint_scope: str
+    evaluation_status: str
     live_qualification: dict[str, Any]
     metrics: dict[str, float]
     by_topic: dict[str, dict[str, float | int]]
     by_family: dict[str, dict[str, float | int]]
     authority: dict[str, dict[str, float | int]]
     outcome_counts: dict[str, int]
+    negative_outcome_counts: dict[str, int]
     failure_class_counts: dict[str, int]
     probe_outcomes: tuple[ProbeOutcome, ...]
     cases: tuple[QualityCaseOutcome, ...]
@@ -165,11 +174,16 @@ class SourceDiscoveryQualityReport:
             "artifact_version": self.measurement_version,
             "dataset_version": self.dataset_version,
             "production_version": self.production_version,
+            "source_sha": self.source_sha,
             "path": "production_discovery",
             "split": self.split,
             "execution_mode": self.execution_mode,
             "blind_read": self.blind_read,
             "gold_injected": self.gold_injected,
+            "human_gold": self.human_gold,
+            "label_source": self.label_source,
+            "hint_scope": self.hint_scope,
+            "evaluation_status": self.evaluation_status,
             "live_qualification": self.live_qualification,
             "case_count": len(self.cases),
             "topic_count": len(self.by_topic),
@@ -179,6 +193,7 @@ class SourceDiscoveryQualityReport:
             "by_family": self.by_family,
             "authority": self.authority,
             "outcome_counts": self.outcome_counts,
+            "negative_outcome_counts": self.negative_outcome_counts,
             "failure_class_counts": self.failure_class_counts,
             "probe_outcomes": [row.as_dict() for row in self.probe_outcomes],
             "cases": [row.as_dict() for row in self.cases],
@@ -240,10 +255,22 @@ def validate_source_discovery_quality_corpus(
     ):
         raise ValueError("corpus must contain a found-but-unsubscribable candidate")
 
-    probe_outcomes = {classify_deterministic_probe(probe) for probe in corpus.probes}
-    expected_probe_outcomes = {probe.expected_outcome for probe in corpus.probes}
-    if probe_outcomes != expected_probe_outcomes:
-        raise ValueError("deterministic probe expected_outcome does not match production classifier")
+    probe_ids = [probe.probe_id for probe in corpus.probes]
+    if len(probe_ids) != len(set(probe_ids)):
+        raise ValueError("duplicate deterministic probe ids")
+    observed_by_id = {
+        probe.probe_id: classify_deterministic_probe(probe) for probe in corpus.probes
+    }
+    mismatches = [
+        probe.probe_id
+        for probe in corpus.probes
+        if observed_by_id[probe.probe_id] != probe.expected_outcome
+    ]
+    if mismatches:
+        raise ValueError(
+            "deterministic probe outcome mismatch: " + ", ".join(sorted(mismatches))
+        )
+    probe_outcomes = set(observed_by_id.values())
     if "acquisition_failed" not in probe_outcomes:
         raise ValueError("corpus must contain an acquisition failure probe")
     if "extraction_failed" not in probe_outcomes:
@@ -274,6 +301,7 @@ def evaluate_source_discovery_quality(
     corpus: SourceDiscoveryQualityCorpus,
     *,
     registry: SourceRegistry | None = None,
+    source_sha: str | None = None,
 ) -> SourceDiscoveryQualityReport:
     validate_source_discovery_quality_corpus(corpus)
     source_registry = registry or SourceRegistry()
@@ -283,6 +311,8 @@ def evaluate_source_discovery_quality(
             (topic,),
             source_registry,
             persist_registry=False,
+            include_curated_seeds=False,
+            include_builtin_hints=False,
             limit=corpus.recall_k,
         )
         for topic in topics
@@ -304,35 +334,51 @@ def evaluate_source_discovery_quality(
         )
         for probe in corpus.probes
     )
-    outcome_counts = dict(sorted(Counter(row.outcome for row in outcomes).items()))
+    positive_outcomes = [row for row in outcomes if row.expected_discovered]
+    negative_outcomes = [row for row in outcomes if not row.expected_discovered]
+    outcome_counts = dict(sorted(Counter(row.outcome for row in positive_outcomes).items()))
+    negative_outcome_counts = dict(
+        sorted(Counter(row.outcome for row in negative_outcomes).items())
+    )
     failures = Counter()
-    for row in outcomes:
+    for row in positive_outcomes:
         if row.outcome == "undiscovered":
             failures["undiscovered"] += 1
         elif row.outcome == "found_but_unsubscribable":
             failures["unsubscribable"] += 1
     failures.update(row.outcome for row in probe_outcomes if row.outcome != "covered")
-    violations = _quality_violations(metrics, by_topic, corpus.floors)
+    violations = list(_quality_violations(metrics, by_topic, corpus.floors))
+    evaluation_status = (
+        "scored" if any(results[topic].items for topic in topics) else "not_evaluable"
+    )
+    if evaluation_status == "not_evaluable":
+        violations.append("evaluation_not_evaluable:no_independent_hints")
     return SourceDiscoveryQualityReport(
         dataset_version=corpus.dataset_version,
         measurement_version=MEASUREMENT_VERSION,
         production_version=corpus.production_version,
+        source_sha=source_sha,
         split=corpus.split,
         execution_mode=corpus.execution_mode,
         blind_read=corpus.blind_read,
         gold_injected=corpus.gold_injected,
+        human_gold=corpus.human_gold,
+        label_source=corpus.label_source,
+        hint_scope=corpus.hint_scope,
+        evaluation_status=evaluation_status,
         live_qualification=corpus.live_qualification.model_dump(mode="json"),
         metrics=metrics,
         by_topic=by_topic,
         by_family=by_family,
         authority=authority,
         outcome_counts=outcome_counts,
+        negative_outcome_counts=negative_outcome_counts,
         failure_class_counts=dict(sorted(failures.items())),
         probe_outcomes=probe_outcomes,
         cases=outcomes,
         floors=dict(sorted(corpus.floors.items())),
-        violations=violations,
-        passed=not violations,
+        violations=tuple(violations),
+        passed=evaluation_status == "scored" and not violations,
     )
 
 
@@ -360,15 +406,27 @@ def _case_outcome(
             rank = index
             candidate = item
             break
-    found = candidate is not None
+    identity_match = candidate is not None and candidate.family == case.family
     observed_authority = _observed_authority(candidate) if candidate is not None else None
     observed_subscribable = (
         recommendation_can_subscribe(candidate) if candidate is not None else None
     )
+    authority_match = identity_match and observed_authority == case.authority
+    subscribability_match = (
+        observed_subscribable == case.expected_subscribable if identity_match else None
+    )
+    found = identity_match and authority_match and subscribability_match is True
     if not case.expected_discovered:
         outcome = "unexpectedly_found" if found else "not_expected"
     elif not found:
-        outcome = "undiscovered"
+        if candidate is None:
+            outcome = "undiscovered"
+        elif not identity_match:
+            outcome = "identity_mismatch"
+        elif not authority_match:
+            outcome = "authority_mismatch"
+        else:
+            outcome = "actionability_mismatch"
     elif not actionability_allows_approve(candidate.actionability):
         outcome = "found_but_unsubscribable"
     else:
@@ -380,13 +438,13 @@ def _case_outcome(
         family=case.family,
         language=case.language,
         expected_authority=case.authority,
+        expected_discovered=case.expected_discovered,
         observed_authority=observed_authority,
-        authority_match=found and observed_authority == case.authority,
+        identity_match=identity_match,
+        authority_match=authority_match,
         expected_subscribable=case.expected_subscribable,
         observed_subscribable=observed_subscribable,
-        subscribability_match=(
-            observed_subscribable == case.expected_subscribable if found else None
-        ),
+        subscribability_match=subscribability_match,
         found=found,
         rank=rank,
         candidate_family=candidate.family if candidate is not None else None,
@@ -401,28 +459,26 @@ def _topic_metrics(
     rows: dict[str, dict[str, float | int]] = {}
     for topic in sorted({case.topic for case in corpus.cases}):
         cases = [case for case in corpus.cases if case.topic == topic and case.expected_discovered]
-        relevant = {_canonical(case.canonical_url) for case in cases}
         items = tuple(results[topic].items)
         top20 = items[: corpus.precision_k]
         top50 = items[: corpus.recall_k]
-        hits20 = sum(_canonical(item.canonical_url) in relevant for item in top20)
-        hits50 = sum(_canonical(item.canonical_url) in relevant for item in top50)
+        hits20 = sum(any(_candidate_matches_case(item, case) for case in cases) for item in top20)
+        hits50 = sum(any(_candidate_matches_case(item, case) for case in cases) for item in top50)
         primary = [case for case in cases if case.authority == "primary"]
-        primary_urls = {_canonical(case.canonical_url) for case in primary}
         primary_hits = sum(
-            _canonical(item.canonical_url) in primary_urls for item in top20
+            any(_candidate_matches_case(item, case) for case in primary) for item in top20
         )
         rows[topic] = {
             "case_count": len(cases),
             "candidate_count": len(items),
             "predicted_count_at_20": len(top20),
             "relevant_hits_at_20": hits20,
-            "precision_at_20": _ratio(hits20, len(top20)),
+            "precision_at_20": _ratio(hits20, corpus.precision_k),
             "relevant_hits_at_50": hits50,
-            "relevant_recall_at_50": _ratio(hits50, len(relevant)),
+            "relevant_recall_at_50": _ratio(hits50, len(cases)),
             "primary_count": len(primary),
             "primary_hits_at_20": primary_hits,
-            "primary_recall_at_20": _ratio(primary_hits, len(primary_urls)),
+            "primary_recall_at_20": _ratio(primary_hits, len(primary)),
         }
     return rows
 
@@ -440,19 +496,27 @@ def _family_metrics(
         ]
         expected_by_topic = defaultdict(set)
         for case in cases:
-            expected_by_topic[case.topic].add(_canonical(case.canonical_url))
+            expected_by_topic[case.topic].add(case.case_id)
         predicted: list[SourceCandidate] = []
         for topic in expected_by_topic:
             predicted.extend(results[topic].items[: corpus.precision_k])
         hits20 = sum(
             item.family == family
-            and _canonical(item.canonical_url) in expected_by_topic[topic]
+            and any(
+                _candidate_matches_case(item, case)
+                for case in cases
+                if case.topic == topic
+            )
             for topic in expected_by_topic
             for item in results[topic].items[: corpus.precision_k]
         )
         predicted_family = [item for item in predicted if item.family == family]
         hits50 = sum(
-            _canonical(item.canonical_url) in expected_by_topic[topic]
+            any(
+                _candidate_matches_case(item, case)
+                for case in cases
+                if case.topic == topic
+            )
             for topic in expected_by_topic
             for item in results[topic].items[: corpus.recall_k]
             if item.family == family
@@ -461,7 +525,10 @@ def _family_metrics(
             "case_count": len(cases),
             "predicted_count_at_20": len(predicted_family),
             "relevant_hits_at_20": hits20,
-            "precision_at_20": _ratio(hits20, len(predicted_family)),
+            "precision_at_20": _ratio(
+                hits20,
+                len(expected_by_topic) * corpus.precision_k,
+            ),
             "relevant_hits_at_50": hits50,
             "recall_at_50": _ratio(hits50, len(cases)),
         }
@@ -475,22 +542,32 @@ def _authority_metrics(
 ) -> dict[str, dict[str, float | int]]:
     rows: dict[str, dict[str, float | int]] = {}
     for authority in ("primary", "secondary", "discovery_only"):
-        expected = [case for case in corpus.cases if case.authority == authority]
+        expected = [
+            case
+            for case in corpus.cases
+            if case.expected_discovered and case.authority == authority
+        ]
         found = [
             row
             for row in outcomes
             if row.expected_authority == authority
+            and row.expected_discovered
             and row.rank is not None
             and row.rank <= recall_k
         ]
-        observed = sum(row.observed_authority == authority for row in outcomes)
+        observed = sum(
+            row.expected_discovered and row.observed_authority == authority
+            for row in outcomes
+        )
         rows[authority] = {
             "expected_count": len(expected),
             "found_count_at_50": len(found),
             "recall_at_50": _ratio(len(found), len(expected)),
             "observed_count": observed,
             "authority_match_count": sum(
-                row.authority_match for row in outcomes if row.expected_authority == authority
+                row.authority_match
+                for row in outcomes
+                if row.expected_discovered and row.expected_authority == authority
             ),
         }
     return rows
@@ -511,28 +588,29 @@ def _overall_metrics(
     japanese_hits50 = 0
     for topic in sorted({case.topic for case in corpus.cases}):
         cases = [case for case in relevant if case.topic == topic]
-        relevant_urls = {_canonical(case.canonical_url) for case in cases}
-        primary_urls = {
-            _canonical(case.canonical_url)
-            for case in cases
-            if case.authority == "primary"
-        }
-        japanese_urls = {
-            _canonical(case.canonical_url)
-            for case in cases
-            if case.language == "ja"
-        }
         top20 = results[topic].items[: corpus.precision_k]
         top50 = results[topic].items[: corpus.recall_k]
-        total_predictions += len(top20)
-        relevant_hits20 += sum(_canonical(item.canonical_url) in relevant_urls for item in top20)
-        relevant_hits50 += sum(_canonical(item.canonical_url) in relevant_urls for item in top50)
-        primary_total += len(primary_urls)
-        primary_hits20 += sum(_canonical(item.canonical_url) in primary_urls for item in top20)
-        japanese_total += len(japanese_urls)
-        japanese_hits50 += sum(_canonical(item.canonical_url) in japanese_urls for item in top50)
-    authority_matches = sum(row.authority_match for row in outcomes if row.found)
-    found_count = sum(row.found for row in outcomes)
+        total_predictions += corpus.precision_k
+        relevant_hits20 += sum(any(_candidate_matches_case(item, case) for case in cases) for item in top20)
+        relevant_hits50 += sum(any(_candidate_matches_case(item, case) for case in cases) for item in top50)
+        primary = [case for case in cases if case.authority == "primary"]
+        japanese = [case for case in cases if case.language == "ja"]
+        primary_total += len(primary)
+        primary_hits20 += sum(any(_candidate_matches_case(item, case) for case in primary) for item in top20)
+        japanese_total += len(japanese)
+        japanese_hits50 += sum(
+            any(_candidate_matches_case(item, case) for case in japanese)
+            for item in top50
+        )
+    authority_matches = sum(
+        row.authority_match
+        for row in outcomes
+        if row.expected_discovered and row.identity_match
+    )
+    found_count = sum(
+        row.expected_discovered and row.identity_match
+        for row in outcomes
+    )
     return {
         "precision_at_20": _ratio(relevant_hits20, total_predictions),
         "relevant_recall_at_50": _ratio(relevant_hits50, len(relevant)),
@@ -569,6 +647,19 @@ def _observed_authority(candidate: SourceCandidate) -> AuthorityName:
     if candidate.authority_status == AuthorityStatus.AUTHORITATIVE.value:
         return "primary"
     return "secondary"
+
+
+def _candidate_matches_case(
+    candidate: SourceCandidate,
+    case: SourceDiscoveryQualityCase,
+) -> bool:
+    return (
+        case.expected_discovered
+        and _canonical(candidate.canonical_url) == _canonical(case.canonical_url)
+        and candidate.family == case.family
+        and _observed_authority(candidate) == case.authority
+        and recommendation_can_subscribe(candidate) == case.expected_subscribable
+    )
 
 
 def _canonical(url: str) -> str:

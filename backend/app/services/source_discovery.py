@@ -204,15 +204,16 @@ def discover_sources(
     hn_items: Sequence[Mapping[str, Any]] = (),
     include_ignored: bool = False,
     include_curated_seeds: bool = True,
+    include_builtin_hints: bool = True,
     persist_registry: bool = True,
     limit: int = _DEFAULT_LIMIT,
 ) -> SourceDiscoveryResult:
     source_registry = registry or SourceRegistry()
-    seed_hints = _hints_from_seeds() if include_curated_seeds else ()
+    seed_hints = _hints_from_seeds() if include_curated_seeds and include_builtin_hints else ()
     merged_hints = (
         *seed_hints,
         *_hints_from_selected_repositories(state),
-        *_hints_from_japanese_sources(state),
+        *(_hints_from_japanese_sources(state) if include_builtin_hints else ()),
         *hints,
         *hints_from_hacker_news(hn_items, state),
     )

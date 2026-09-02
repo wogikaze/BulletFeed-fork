@@ -8,6 +8,7 @@
   "gold_injected": false,
   "human_gold": false,
   "label_source": "curated public source set pending operator attestation",
+  "hint_scope": "no_builtin_hints",
   "precision_k": 20,
   "recall_k": 50,
   "floors": {
@@ -62,11 +63,11 @@
       "topic": "React",
       "canonical_url": "https://react.dev/blog",
       "family": "generic_web",
-      "authority": "primary",
+      "authority": "discovery_only",
       "language": "en",
       "expected_discovered": true,
       "expected_subscribable": true,
-      "rationale": "Official blog index remains a separate expected source for discovery coverage."
+      "rationale": "Official blog index is discovery-only and cannot serve as Claim evidence."
     },
     {
       "case_id": "sdq-react-lycorp",
