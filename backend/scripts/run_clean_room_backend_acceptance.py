@@ -325,6 +325,7 @@ def main(argv: list[str] | None = None) -> int:
             f"/v1/feed/items/{first.get('id')}/read",
             method="PUT",
             access_token=access_token,
+            timeout=8,
         )
         _stage(
             stages,
@@ -336,6 +337,7 @@ def main(argv: list[str] | None = None) -> int:
             base_url,
             "/v1/feed?status=unread&limit=5",
             access_token=access_token,
+            timeout=8,
         )
         unread_ids = {item.get("id") for item in subsequent.get("items", []) if isinstance(item, dict)}
         _stage(

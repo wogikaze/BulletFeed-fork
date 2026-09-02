@@ -18,3 +18,4 @@ def test_clean_room_harness_does_not_live_crawl_during_seed() -> None:
     source = (SCRIPTS_DIR / "run_clean_room_backend_acceptance.py").read_text(encoding="utf-8")
     assert 'BULLETFEED_EMBED_SOURCE_SYNC_WORKER": "0"' in source
     assert 'BULLETFEED_REQUEST_TIMEOUT_SECONDS": "1"' in source
+    assert "timeout=8" in source
