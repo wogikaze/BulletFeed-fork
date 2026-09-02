@@ -1,8 +1,13 @@
 from pathlib import Path
 
+import pytest
+
+from app.config import Settings
 from app.database import Database
-from app.services.rss_pipeline import ingest_feed_events
+from app.services.rss_pipeline import crawl_feed_events, ingest_feed_events
 from app.services.source_subscriptions import add_subscription_user
+
+INDEX = "https://b.hatena.ne.jp/entrylist/it.rss"
 
 
 def _preview(summary: str, updated: str) -> dict:
@@ -106,3 +111,40 @@ def test_rss_ingest_projects_feed_for_subscribed_users_only(tmp_path: Path) -> N
     assert audience >= 1
     assert outsider == 0
     assert exposures == 0
+
+
+@pytest.mark.asyncio
+async def test_index_feed_crawl_does_not_fetch_article_bodies(tmp_path: Path, monkeypatch) -> None:
+    database = Database(tmp_path / "index-crawl.db")
+    database.initialize()
+
+    async def fake_preview(_settings: Settings, _url: str) -> dict:
+        return {
+            "title": "はてなブックマーク",
+            "source_url": INDEX,
+            "items": [
+                {
+                    "title": "Example corp post",
+                    "link": "https://engineering.example.com/posts/one",
+                    "published": "2026-09-01T00:00:00Z",
+                    "summary": "Short teaser.",
+                    "content": "",
+                }
+            ],
+        }
+
+    async def fail_enrichment(*_args, **_kwargs):
+        raise AssertionError("index teaser must not trigger article enrichment")
+
+    monkeypatch.setattr("app.services.rss_pipeline.preview_feed", fake_preview)
+    monkeypatch.setattr("app.services.rss_article_enrichment.enrich_feed_item", fail_enrichment)
+
+    result = await crawl_feed_events(
+        Settings(),
+        database,
+        url=INDEX,
+        retrieved_at="2026-09-01T00:01:00Z",
+    )
+
+    assert result.event_ids == ()
+    assert result.claim_ids == ()

@@ -12,7 +12,8 @@ from app.services.index_publisher_discovery import (
 from app.services.japanese_source_catalog import INDEX_DERIVED_SLUG_PREFIX
 from app.services.rss_pipeline import ingest_feed_events
 from app.services.source_discovery_runtime import load_runtime_discovery_hints
-from app.services.source_registry import AuthorityStatus
+from app.services.source_registry import AuthorityStatus, SourceRegistry, VerificationStatus
+from app.stores.discovery_store import DiscoveryStore
 
 INDEX = "https://b.hatena.ne.jp/entrylist/it.rss"
 
@@ -69,28 +70,75 @@ def test_non_index_preview_does_not_emit_publisher_probes() -> None:
 def test_ingesting_index_preview_persists_unconfirmed_publisher_hints(tmp_path: Path) -> None:
     database = Database(tmp_path / "index-hints.db")
     database.initialize()
-    ingest_feed_events(
+    preview = {
+        "title": "はてなブックマーク",
+        "source_url": INDEX,
+        "items": [
+            {
+                "title": "Example corp post",
+                "link": "https://engineering.example.com/posts/one",
+                "published": "2026-09-01T00:00:00Z",
+                "summary": "Short teaser.",
+            }
+        ],
+    }
+    first = ingest_feed_events(
         database,
-        preview={
-            "title": "はてなブックマーク",
-            "source_url": INDEX,
-            "items": [
-                {
-                    "title": "Example corp post",
-                    "link": "https://engineering.example.com/posts/one",
-                    "published": "2026-09-01T00:00:00Z",
-                    "summary": "Short teaser.",
-                }
-            ],
-        },
+        preview=preview,
         retrieved_at="2026-09-01T00:01:00Z",
     )
+    second = ingest_feed_events(
+        database,
+        preview=preview,
+        retrieved_at="2026-09-01T00:02:00Z",
+    )
+    assert first.event_ids == second.event_ids == ()
+    assert first.claim_ids == second.claim_ids == ()
+    with database.connect() as connection:
+        assert connection.execute("SELECT COUNT(*) FROM observations").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM state_claims").fetchone()[0] == 0
     hints = load_runtime_discovery_hints(database)
     assert any(
         item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX)
         and item.url.startswith("https://engineering.example.com/")
         for item in hints
     )
+    stored = [
+        item
+        for item in DiscoveryStore(database).list_all()
+        if str(item.metadata.get("publisher_slug", "")).startswith(INDEX_DERIVED_SLUG_PREFIX)
+    ]
+    assert len(stored) == 1
+    assert stored[0].first_seen_at == "2026-09-01T00:01:00Z"
+    assert stored[0].last_seen_at == "2026-09-01T00:02:00Z"
+
+
+def test_index_discovery_write_failure_does_not_fail_ingest(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    database = Database(tmp_path / "index-hints-failure.db")
+    database.initialize()
+
+    def fail_persist(*_args, **_kwargs):
+        raise OSError("discovery store unavailable")
+
+    monkeypatch.setattr(
+        "app.services.source_discovery_runtime.persist_runtime_discovery_hints",
+        fail_persist,
+    )
+    result = ingest_feed_events(
+        database,
+        preview={
+            "title": "はてなブックマーク",
+            "source_url": INDEX,
+            "items": [{"link": "https://engineering.example.com/posts/one"}],
+        },
+        retrieved_at="2026-09-01T00:01:00Z",
+    )
+
+    assert result.event_ids == ()
+    assert result.claim_ids == ()
 
 
 def test_index_derived_probe_stays_unverified_and_not_authoritative() -> None:
@@ -112,6 +160,36 @@ def test_index_derived_probe_stays_unverified_and_not_authoritative() -> None:
     probe = next(item for item in result.items if item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX))
     assert probe.authority_status == AuthorityStatus.UNKNOWN.value
     assert probe.verification_status == "unverified"
+
+
+def test_existing_index_endpoint_is_reclassified_from_authoritative(tmp_path: Path) -> None:
+    from app.services.source_discovery import discover_sources_for_topics
+
+    database = Database(tmp_path / "registry-reconcile.db")
+    database.initialize()
+    registry = SourceRegistry(database, seed_mvp=False)
+    registry.register_endpoint(
+        url=INDEX,
+        family="rss_atom",
+        verification_status=VerificationStatus.VERIFIED,
+        authority_status=AuthorityStatus.AUTHORITATIVE,
+    )
+
+    result = discover_sources_for_topics(
+        ("Rust",),
+        registry,
+        persist_registry=True,
+        limit=80,
+    )
+    candidate = next(item for item in result.items if item.canonical_url == INDEX)
+    assert candidate.verification_status == VerificationStatus.VERIFIED.value
+    assert candidate.authority_status == AuthorityStatus.NON_AUTHORITATIVE.value
+    endpoint = SourceRegistry(database, seed_mvp=False).find_duplicate_endpoint(
+        INDEX,
+        family="rss_atom",
+    )
+    assert endpoint is not None
+    assert endpoint.authority_status == AuthorityStatus.NON_AUTHORITATIVE.value
 
 
 def test_approving_index_derived_probe_does_not_register_it_as_authoritative(
@@ -165,16 +243,18 @@ def test_approving_index_derived_probe_does_not_register_it_as_authoritative(
     )
     items = list_source_recommendations_for_user(database, "user_a", limit=80).items
     probe = next(item for item in items if item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX))
-    record_source_recommendation_decision(
-        database,
-        user_id="user_a",
-        candidate_id=probe.candidate_id,
-        decision="approved",
-    )
+    with pytest.raises(ValueError, match="confirmed"):
+        record_source_recommendation_decision(
+            database,
+            user_id="user_a",
+            candidate_id=probe.candidate_id,
+            decision="approved",
+        )
     endpoint = SourceRegistry(database).find_duplicate_endpoint(probe.canonical_url, family="rss_atom")
-    assert endpoint is not None
-    assert endpoint.authority_status == AuthorityStatus.UNKNOWN.value
-    assert endpoint.verification_status == "unverified"
+    assert endpoint is None
+    with database.connect() as connection:
+        assert connection.execute("SELECT COUNT(*) FROM source_sync_subscription_users").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM source_discovery_decisions").fetchone()[0] == 0
 
 
 def test_homepage_url_from_probe_strips_well_known_path() -> None:
@@ -192,21 +272,25 @@ async def test_confirm_index_publisher_feed_prefers_html_alternate(monkeypatch) 
     from app.services.index_publisher_discovery import confirm_index_publisher_feed
 
     async def fake_discover(settings, url, **kwargs):
-        assert url == "https://engineering.example.com/"
         assert kwargs.get("persist_registry") is False
         assert kwargs.get("probe_well_known") is False
-        assert "engineering.example.com" in settings.web_allowed_hosts
+        if url == "https://engineering.example.com/":
+            return SimpleNamespace(
+                items=(
+                    SimpleNamespace(
+                        family="rss_atom",
+                        discovery_method="html_link_alternate",
+                        canonical_url="https://engineering.example.com/blog/feed.xml",
+                    ),
+                )
+            )
+        assert url == "https://engineering.example.com/blog/feed.xml"
         return SimpleNamespace(
             items=(
                 SimpleNamespace(
-                    family="generic_web",
-                    discovery_method="site_url_fallback",
-                    canonical_url="https://engineering.example.com/",
-                ),
-                SimpleNamespace(
                     family="rss_atom",
-                    discovery_method="html_link_alternate",
-                    canonical_url="https://engineering.example.com/blog/feed.xml",
+                    discovery_method="direct_feed_url",
+                    canonical_url=url,
                 ),
             )
         )
@@ -223,7 +307,7 @@ async def test_confirm_index_publisher_feed_prefers_html_alternate(monkeypatch) 
 
 
 @pytest.mark.asyncio
-async def test_confirm_index_publisher_feed_keeps_probe_when_html_fails(monkeypatch) -> None:
+async def test_confirm_index_publisher_feed_rejects_probe_when_html_fails(monkeypatch) -> None:
     from fastapi import HTTPException
 
     from app.config import Settings
@@ -237,7 +321,7 @@ async def test_confirm_index_publisher_feed_keeps_probe_when_html_fails(monkeypa
         fake_discover,
     )
     probe = "https://engineering.example.com/feed"
-    assert await confirm_index_publisher_feed(Settings(), probe_url=probe) == probe
+    assert await confirm_index_publisher_feed(Settings(), probe_url=probe) is None
 
 
 def test_approving_index_derived_probe_subscribes_html_confirmed_feed(
