@@ -7,23 +7,22 @@
   "selected_sources": 234,
   "feed_sources": 55,
   "metrics": {
-    "feed_recall": 0.6363636363636364,
-    "precision_at_3": 0.7125,
+    "feed_recall": 0.6545454545454545,
+    "precision_at_3": 0.6125,
     "japanese_feed_recall": 0.5833333333333334,
     "family_recall": {
       "corp_tech_blog": 0.5,
-      "official_blog": 0.625,
+      "official_blog": 0.6875,
       "personal_dev_blog": 0.8333333333333334,
       "rss_atom_json": 1.0
     },
-    "no_feed_fallback_rate": 0.3430232558139535
+    "no_feed_fallback_rate": 0.7383720930232558
   },
   "status_counts": {
-    "acquisition_failed": 19,
-    "fallback_failed": 68,
-    "ok": 94,
-    "policy_blocked": 37,
-    "undiscovered": 5,
+    "acquisition_failed": 21,
+    "ok": 163,
+    "policy_blocked": 35,
+    "undiscovered": 4,
     "unsubscribable": 11
   },
   "rows": [
@@ -31,8 +30,8 @@
       "source_id": "c1_en_off_005",
       "family": "official_blog",
       "language": "en",
-      "status": "policy_blocked",
-      "http_status": 403
+      "status": "acquisition_failed",
+      "http_status": 502
     },
     {
       "source_id": "c1_en_off_006",
@@ -80,13 +79,15 @@
       "source_id": "c1_en_off_013",
       "family": "official_blog",
       "language": "en",
-      "status": "undiscovered",
+      "status": "ok",
       "expected_feed": "https://blog.python.org/feeds/posts/default",
-      "candidate_count": 1,
+      "candidate_count": 3,
       "candidate_urls": [
-        "https://blog.python.org/rss.xml"
+        "https://blog.python.org/rss.xml",
+        "https://blog.python.org/rss",
+        "https://blog.python.org/feeds/posts/default"
       ],
-      "top3_hit": false
+      "top3_hit": true
     },
     {
       "source_id": "c1_en_off_014",
@@ -104,9 +105,10 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://blog.jetbrains.com/kotlin/feed",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://blog.jetbrains.com/kotlin/feed"
+        "https://blog.jetbrains.com/kotlin/feed",
+        "https://blog.jetbrains.com/feed"
       ],
       "top3_hit": true
     },
@@ -178,10 +180,12 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://android-developers.googleblog.com/feeds/posts/default",
-      "candidate_count": 2,
+      "candidate_count": 4,
       "candidate_urls": [
         "https://android-developers.googleblog.com/feeds/posts/default",
-        "https://android-developers.googleblog.com/feeds/posts/default?alt=rss"
+        "https://android-developers.googleblog.com/feeds/posts/default?alt=rss",
+        "https://android-developers.googleblog.com/atom.xml",
+        "https://android-developers.googleblog.com/rss.xml"
       ],
       "top3_hit": true
     },
@@ -238,7 +242,7 @@
       "source_id": "c1_en_off_031",
       "family": "docs_changelog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://kernel.org/feeds/all.atom.xml",
@@ -297,10 +301,11 @@
       "source_id": "c1_en_off_036",
       "family": "docs_changelog",
       "language": "en",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://redis.io/docs/latest/index.xml"
+        "https://redis.io/docs/latest/index.xml",
+        "https://redis.io/blog/feed"
       ]
     },
     {
@@ -329,10 +334,11 @@
       "source_id": "c1_en_off_043",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://webassembly.org/feed.xml"
+        "https://webassembly.org/feed.xml",
+        "https://webassembly.org/feed"
       ]
     },
     {
@@ -368,7 +374,7 @@
       "source_id": "c1_en_off_048",
       "family": "docs_changelog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://neovim.io/news.xml"
@@ -399,9 +405,10 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://aws.amazon.com/blogs/opensource/feed",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://aws.amazon.com/blogs/opensource/feed"
+        "https://aws.amazon.com/blogs/opensource/feed",
+        "https://aws.amazon.com/about-aws/whats-new/recent/feed"
       ],
       "top3_hit": true
     },
@@ -442,10 +449,11 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://github.blog/feed",
-      "candidate_count": 2,
+      "candidate_count": 3,
       "candidate_urls": [
         "https://github.blog/feed",
-        "https://github.blog/comments/feed"
+        "https://github.blog/comments/feed",
+        "https://github.blog/all.atom"
       ],
       "top3_hit": true
     },
@@ -455,9 +463,10 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://blog.jetbrains.com/feed",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://blog.jetbrains.com/feed"
+        "https://blog.jetbrains.com/feed",
+        "https://blog.jetbrains.com/blog/feed"
       ],
       "top3_hit": true
     },
@@ -465,7 +474,7 @@
       "source_id": "c1_en_corp_016",
       "family": "corp_tech_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://feed.infoq.com/java"
@@ -511,7 +520,7 @@
       "source_id": "c1_en_corp_023",
       "family": "corp_tech_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://redis.io/blog/feed"
@@ -528,7 +537,7 @@
       "source_id": "c1_en_corp_025",
       "family": "corp_tech_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://deno.com/feed"
@@ -538,10 +547,11 @@
       "source_id": "c1_en_corp_027",
       "family": "corp_tech_blog",
       "language": "en",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://bytecodealliance.org/feed.xml"
+        "https://bytecodealliance.org/feed.xml",
+        "https://bytecodealliance.org/feed"
       ]
     },
     {
@@ -555,14 +565,14 @@
       "source_id": "c1_en_corp_030",
       "family": "corp_tech_blog",
       "language": "en",
-      "status": "policy_blocked",
-      "http_status": 403
+      "status": "acquisition_failed",
+      "http_status": 502
     },
     {
       "source_id": "c1_en_corp_031",
       "family": "corp_tech_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://engineering.atspotify.com/feed"
@@ -581,9 +591,10 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://aws.amazon.com/blogs/containers/feed",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://aws.amazon.com/blogs/containers/feed"
+        "https://aws.amazon.com/blogs/containers/feed",
+        "https://aws.amazon.com/about-aws/whats-new/recent/feed"
       ],
       "top3_hit": true
     },
@@ -607,7 +618,7 @@
       "source_id": "c1_en_corp_036",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 5,
       "candidate_urls": [
         "https://dev.to/feed",
@@ -666,10 +677,12 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://dave.cheney.net/feed",
-      "candidate_count": 2,
+      "candidate_count": 4,
       "candidate_urls": [
         "https://dave.cheney.net/feed",
-        "https://dave.cheney.net/comments/feed"
+        "https://dave.cheney.net/comments/feed",
+        "https://dave.cheney.net/feed/atom",
+        "https://dave.cheney.net/blog/feed"
       ],
       "top3_hit": true
     },
@@ -691,9 +704,10 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://nedbatchelder.com/blog/rss.xml",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://nedbatchelder.com/blog/rss.xml"
+        "https://nedbatchelder.com/blog/rss.xml",
+        "https://nedbatchelder.com/blog/atom.xml"
       ],
       "top3_hit": true
     },
@@ -720,9 +734,10 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://swiftbysundell.com/rss",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://swiftbysundell.com/rss"
+        "https://swiftbysundell.com/rss",
+        "https://swiftbysundell.com/feed.rss"
       ],
       "top3_hit": true
     },
@@ -730,7 +745,7 @@
       "source_id": "c1_en_misc_014",
       "family": "personal_dev_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://jakewharton.com/atom.xml"
@@ -757,7 +772,7 @@
       "source_id": "c1_en_misc_019",
       "family": "personal_dev_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://antirez.com/rss"
@@ -809,7 +824,7 @@
       "source_id": "c1_en_misc_024",
       "family": "personal_dev_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://blog.evanyou.me/atom.xml"
@@ -847,10 +862,12 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://pyfound.blogspot.com/feeds/posts/default",
-      "candidate_count": 2,
+      "candidate_count": 4,
       "candidate_urls": [
         "https://pyfound.blogspot.com/feeds/posts/default",
-        "https://pyfound.blogspot.com/feeds/posts/default?alt=rss"
+        "https://pyfound.blogspot.com/feeds/posts/default?alt=rss",
+        "https://pyfound.blogspot.com/atom.xml",
+        "https://pyfound.blogspot.com/rss.xml"
       ],
       "top3_hit": true
     },
@@ -880,7 +897,7 @@
       "source_id": "c1_en_misc_033",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://kernel.org/feeds/all.atom.xml",
@@ -891,7 +908,7 @@
       "source_id": "c1_en_misc_034",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://k8s.af/rss.xml"
@@ -958,9 +975,10 @@
       "language": "ja",
       "status": "ok",
       "expected_feed": "https://developers.cyberagent.co.jp/blog/feed",
-      "candidate_count": 1,
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://developers.cyberagent.co.jp/blog/feed"
+        "https://developers.cyberagent.co.jp/blog/feed",
+        "https://developers.cyberagent.co.jp/blog/sitemap.rss"
       ],
       "top3_hit": true
     },
@@ -977,10 +995,11 @@
       "language": "ja",
       "status": "undiscovered",
       "expected_feed": "https://tech.pepabo.com/atom.xml",
-      "candidate_count": 2,
+      "candidate_count": 3,
       "candidate_urls": [
         "https://tech.pepabo.com/feed.rss",
-        "https://tech.pepabo.com/feed.xml"
+        "https://tech.pepabo.com/feed.xml",
+        "https://tech.pepabo.com/feed"
       ],
       "top3_hit": false
     },
@@ -1008,7 +1027,7 @@
       "source_id": "c1_ja_corp_011",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://tech.andpad.co.jp/feed",
@@ -1019,10 +1038,11 @@
       "source_id": "c1_ja_corp_012",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://engineering.dena.com/blog/index.xml"
+        "https://engineering.dena.com/blog/index.xml",
+        "https://engineering.dena.com/index.xml"
       ]
     },
     {
@@ -1042,11 +1062,13 @@
       "source_id": "c1_ja_corp_014",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 2,
+      "status": "ok",
+      "candidate_count": 4,
       "candidate_urls": [
         "https://tech.plaid.co.jp/rss.xml",
-        "https://tech.plaid.co.jp/atom.xml"
+        "https://tech.plaid.co.jp/atom.xml",
+        "https://tech.plaid.co.jp/rss",
+        "https://tech.plaid.co.jp/atom"
       ]
     },
     {
@@ -1079,7 +1101,7 @@
       "source_id": "c1_ja_corp_022",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://tech.nri-net.com/feed",
@@ -1090,21 +1112,21 @@
       "source_id": "c1_ja_corp_023",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 2,
+      "status": "ok",
+      "candidate_count": 1,
       "candidate_urls": [
-        "https://engineering.mercari.com/blog/feed.xml",
-        "https://engineering.mercari.com/en/blog/feed.xml"
+        "https://engineering.mercari.com/"
       ]
     },
     {
       "source_id": "c1_ja_corp_025",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://developers.cyberagent.co.jp/blog/feed"
+        "https://developers.cyberagent.co.jp/blog/feed",
+        "https://developers.cyberagent.co.jp/blog/sitemap.rss"
       ]
     },
     {
@@ -1156,7 +1178,7 @@
       "source_id": "c1_ja_corp_036",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://tech.bm-sms.co.jp/feed",
@@ -1195,7 +1217,7 @@
       "source_id": "c1_ja_off_003",
       "family": "official_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://python.jp/all.atom.xml",
@@ -1287,7 +1309,7 @@
       "source_id": "c1_ja_per_003",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://blog.ojisan.io/rss.xml"
@@ -1297,60 +1319,66 @@
       "source_id": "c1_ja_per_004",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/mizchi/feed"
+        "https://zenn.dev/mizchi/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_005",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/uhyo/feed"
+        "https://zenn.dev/uhyo/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_006",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/p/chot/feed"
+        "https://zenn.dev/p/chot/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_007",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/akfm/feed"
+        "https://zenn.dev/akfm/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_008",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/dora_e_m/feed"
+        "https://zenn.dev/dora_e_m/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_009",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/yusukebe/feed"
+        "https://zenn.dev/yusukebe/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
@@ -1364,100 +1392,110 @@
       "source_id": "c1_ja_per_011",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/koduki/feed"
+        "https://zenn.dev/koduki/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_012",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/masahiro_toba/feed"
+        "https://zenn.dev/masahiro_toba/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_013",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/razokulover/feed"
+        "https://zenn.dev/razokulover/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_014",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/kshibata101/feed"
+        "https://zenn.dev/kshibata101/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_015",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/kato_k/feed"
+        "https://zenn.dev/kato_k/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_016",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/hsaki/feed"
+        "https://zenn.dev/hsaki/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_017",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/skanehira/feed"
+        "https://zenn.dev/skanehira/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_018",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/kawarimidoll/feed"
+        "https://zenn.dev/kawarimidoll/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_019",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/p/vim_jp/feed"
+        "https://zenn.dev/p/vim_jp/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
       "source_id": "c1_ja_per_020",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/hokaccha/feed"
+        "https://zenn.dev/hokaccha/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
@@ -1471,7 +1509,7 @@
       "source_id": "c1_ja_per_027",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://blog.jnito.com/feed",
@@ -1515,10 +1553,11 @@
       "source_id": "c1_ja_web_004",
       "family": "rss_atom_json",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://publickey1.jp/atom.xml"
+        "https://publickey1.jp/atom.xml",
+        "https://publickey1.jp/atom"
       ]
     },
     {
@@ -1532,7 +1571,7 @@
       "source_id": "c1_ja_web_006",
       "family": "no_rss_web",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://atmarkit.itmedia.co.jp/rss.xml"
@@ -1552,7 +1591,7 @@
       "source_id": "c1_ja_web_008",
       "family": "no_rss_web",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://jvndb.jvn.jp/en/rss/jvndb_new.rdf"
@@ -1666,7 +1705,7 @@
       "source_id": "c1_extra_013",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://deno.com/feed"
@@ -1676,10 +1715,11 @@
       "source_id": "c1_extra_015",
       "family": "docs_changelog",
       "language": "en",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://webassembly.org/feed.xml"
+        "https://webassembly.org/feed.xml",
+        "https://webassembly.org/feed"
       ]
     },
     {
@@ -1723,7 +1763,7 @@
       "source_id": "c1_extra_024",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://discuss.python.org/news.xml"
@@ -1733,7 +1773,7 @@
       "source_id": "c1_extra_025",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://discourse.llvm.org/news.xml"
@@ -1757,7 +1797,7 @@
       "source_id": "c1_v2_003",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://linuxfoundation.org/blog/rss.xml"
@@ -1767,7 +1807,7 @@
       "source_id": "c1_v2_004",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://debian.org/news",
@@ -1780,10 +1820,11 @@
       "language": "en",
       "status": "ok",
       "expected_feed": "https://fedoramagazine.org/feed",
-      "candidate_count": 2,
+      "candidate_count": 3,
       "candidate_urls": [
         "https://fedoramagazine.org/feed",
-        "https://fedoramagazine.org/comments/feed"
+        "https://fedoramagazine.org/comments/feed",
+        "https://fedoramagazine.org/feed/atom"
       ],
       "top3_hit": true
     },
@@ -1791,7 +1832,7 @@
       "source_id": "c1_v2_006",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://archlinux.org/feeds/news"
@@ -1801,7 +1842,7 @@
       "source_id": "c1_v2_007",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://alpinelinux.org/atom.xml"
@@ -1835,7 +1876,7 @@
       "source_id": "c1_v2_011",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://debian.org/dsa",
@@ -1846,7 +1887,7 @@
       "source_id": "c1_v2_014",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://forums.swift.org/news.xml"
@@ -1856,11 +1897,12 @@
       "source_id": "c1_v2_015",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
-      "candidate_count": 2,
+      "status": "ok",
+      "candidate_count": 3,
       "candidate_urls": [
         "https://discuss.kotlinlang.org/posts.rss",
-        "https://discuss.kotlinlang.org/latest.rss"
+        "https://discuss.kotlinlang.org/latest.rss",
+        "https://discuss.kotlinlang.org/news.xml"
       ]
     },
     {
@@ -1877,7 +1919,7 @@
       "source_id": "c1_v2_019",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://wiki.postgresql.org/index.php?feed=atom&title=Special%3ARecentChanges"
@@ -1887,7 +1929,7 @@
       "source_id": "c1_v2_020",
       "family": "docs_changelog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://peps.python.org/peps.rss"
@@ -1927,7 +1969,7 @@
       "source_id": "c1_v2_024",
       "family": "no_rss_web",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://pypi.org/rss/updates.xml",
@@ -1985,7 +2027,7 @@
       "source_id": "c1_v2_033",
       "family": "official_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://debian.or.jp/blog/index.cgi/index.rss"
@@ -2025,7 +2067,7 @@
       "source_id": "c1_v2_038",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://sosukesuzuki.dev/feed.xml"
@@ -2035,7 +2077,7 @@
       "source_id": "c1_v2_040",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://blog.uhy.ooo/rss.xml"
@@ -2045,7 +2087,7 @@
       "source_id": "c1_v2_041",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://blog.64p.org/feed"
@@ -2055,7 +2097,7 @@
       "source_id": "c1_v2_042",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://mametter.hatenablog.com/feed",
@@ -2066,7 +2108,7 @@
       "source_id": "c1_v2_045",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://t-wada.hatenablog.jp/feed",
@@ -2077,10 +2119,11 @@
       "source_id": "c1_v2_046",
       "family": "personal_dev_blog",
       "language": "ja",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://zenn.dev/takeyuweb/feed"
+        "https://zenn.dev/takeyuweb/feed",
+        "https://zenn.dev/feed"
       ]
     },
     {
@@ -2101,7 +2144,7 @@
       "source_id": "c1_v2_049",
       "family": "corp_tech_blog",
       "language": "ja",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 2,
       "candidate_urls": [
         "https://buildersbox.corp-sansan.com/feed",
@@ -2176,7 +2219,7 @@
       "source_id": "c1_v2_059",
       "family": "official_blog",
       "language": "en",
-      "status": "fallback_failed",
+      "status": "ok",
       "candidate_count": 1,
       "candidate_urls": [
         "https://deno.com/feed"
@@ -2210,10 +2253,11 @@
       "source_id": "c1_v2_065",
       "family": "docs_changelog",
       "language": "en",
-      "status": "fallback_failed",
-      "candidate_count": 1,
+      "status": "ok",
+      "candidate_count": 2,
       "candidate_urls": [
-        "https://webassembly.org/feed.xml"
+        "https://webassembly.org/feed.xml",
+        "https://webassembly.org/feed"
       ]
     },
     {
