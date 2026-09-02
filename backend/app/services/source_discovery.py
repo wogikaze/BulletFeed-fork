@@ -430,6 +430,21 @@ def record_source_recommendation_decision(
     if chosen is None:
         raise KeyError(candidate_id)
     normalized = _normalize_decision(decision)
+    if (
+        normalized == "approved"
+        and chosen.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX)
+    ):
+        if not subscribe_url:
+            raise ValueError("Index-derived feed must be confirmed before approval")
+        if verification_status != VerificationStatus.VERIFIED.value:
+            raise ValueError("Index-derived feed confirmation must be verified")
+        try:
+            probe_host = (urlparse(canonicalize_url(chosen.canonical_url)).hostname or "").lower()
+            confirmed_host = (urlparse(canonicalize_url(subscribe_url)).hostname or "").lower()
+        except ValueError as exc:
+            raise ValueError("Index-derived feed confirmation URL is invalid") from exc
+        if not probe_host or probe_host != confirmed_host:
+            raise ValueError("Index-derived feed confirmation must stay same-origin")
     if normalized == "approved" and not actionability_allows_approve(chosen.actionability):
         raise ValueError("This recommendation cannot be approved")
     if normalized == "approved" and recommendation_can_subscribe(chosen):
@@ -449,6 +464,27 @@ def record_source_recommendation_decision(
                 verification_status=status,
                 authority_status=chosen.authority_status,
             )
+            if (
+                chosen.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX)
+                and verification_status == VerificationStatus.VERIFIED.value
+            ):
+                verified_registry = SourceRegistry(database)
+                endpoint = verified_registry.find_duplicate_endpoint(
+                    feed_url,
+                    family=chosen.family,
+                )
+                if endpoint is not None:
+                    verified_registry.record_verification(
+                        endpoint.endpoint_id,
+                        verification_status=VerificationStatus.VERIFIED,
+                        verification_method="index_publisher_confirmation",
+                        verification_reference=feed_url,
+                        verified_at=_utc_now(),
+                        authority_status=endpoint.authority_status,
+                        authority_method=endpoint.authority_method,
+                        authority_reference=endpoint.authority_reference,
+                        authority_verified_at=endpoint.authority_verified_at,
+                    )
         except HTTPException as exc:
             raise ValueError(str(exc.detail)) from exc
     save_discovery_decision(database, user_id=user_id, candidate_id=candidate_id, decision=normalized)
@@ -611,7 +647,15 @@ def _register_or_reuse(
 ) -> Endpoint:
     existing = registry.find_duplicate_endpoint(url, family=family)
     if existing is not None:
-        return existing
+        return _reconcile_catalog_status(
+            registry,
+            existing,
+            url=url,
+            family=family,
+            publisher_slug=publisher_slug,
+            verification_status=verification_status,
+            authority_status=authority_status,
+        )
     if not persist_registry:
         try:
             method = get_source_policy(family).discovery_method.value
@@ -640,6 +684,62 @@ def _register_or_reuse(
         publisher_slug=publisher_slug,
         verification_status=verification_status,
         authority_status=authority_status,
+    )
+
+
+def _reconcile_catalog_status(
+    registry: SourceRegistry,
+    endpoint: Endpoint,
+    *,
+    url: str,
+    family: SourceKind,
+    publisher_slug: str | None,
+    verification_status: str,
+    authority_status: str,
+) -> Endpoint:
+    """Apply explicit Japanese/index safety classifications to old registry rows."""
+    if family != SourceKind.RSS_ATOM:
+        return endpoint
+    authority_class = japanese_feed_authority_class(url)
+    index_derived = str(publisher_slug or "").startswith(INDEX_DERIVED_SLUG_PREFIX)
+    if authority_class is None and not index_derived:
+        return endpoint
+    if index_derived:
+        resolved_verification = (
+            endpoint.verification_status
+            if endpoint.verification_status in {
+                VerificationStatus.VERIFIED.value,
+                VerificationStatus.DISCOVERY_ONLY.value,
+            }
+            else verification_status
+        )
+        resolved_authority = AuthorityStatus.UNKNOWN.value
+    else:
+        resolved_verification = verification_status
+        resolved_authority = authority_status
+    if (
+        endpoint.verification_status == resolved_verification
+        and endpoint.authority_status == resolved_authority
+        and endpoint.verification_method
+        and endpoint.verification_reference
+        and endpoint.verified_at
+    ):
+        return endpoint
+    stamp = _utc_now()
+    verified_at = endpoint.verified_at
+    if resolved_verification == VerificationStatus.VERIFIED.value and not verified_at:
+        verified_at = stamp
+    return registry.record_verification(
+        endpoint.endpoint_id,
+        verification_status=resolved_verification,
+        verification_method=endpoint.verification_method or "japanese_source_catalog",
+        verification_reference=endpoint.verification_reference or url,
+        verified_at=verified_at,
+        authority_status=resolved_authority,
+        authority_method=endpoint.authority_method or "japanese_source_catalog",
+        authority_reference=endpoint.authority_reference or url,
+        authority_verified_at=endpoint.authority_verified_at
+        or (stamp if resolved_authority != AuthorityStatus.UNKNOWN.value else None),
     )
 
 

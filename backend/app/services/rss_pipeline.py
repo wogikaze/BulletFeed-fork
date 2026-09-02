@@ -32,10 +32,25 @@ def ingest_feed_events(
     preview: dict[str, Any],
     retrieved_at: str,
 ) -> RssIngestResult:
+    source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""
+    retrieved_stamp = canonical_timestamp(retrieved_at) or retrieved_at
+    from app.services.index_publisher_discovery import is_japanese_index_feed
+
+    if is_japanese_index_feed(source_url):
+        items = preview.get("items")
+        if isinstance(items, list):
+            _persist_index_publisher_hints(
+                database,
+                items=items,
+                index_url=source_url,
+                retrieved_at=retrieved_stamp,
+            )
+        return RssIngestResult(event_ids=(), claim_ids=())
+
     normalized = normalize_feed_preview(preview)
     observations = SourceIngestionPipeline(database).ingest_many(
         normalized,
-        retrieved_at=canonical_timestamp(retrieved_at) or retrieved_at,
+        retrieved_at=retrieved_stamp,
     )
     ledger = ClaimLedgerStore(database)
     projector = LedgerProjector(database)
@@ -76,22 +91,6 @@ def ingest_feed_events(
         claim_ids.append(claim.claim_id)
 
     unique_event_ids = tuple(dict.fromkeys(event_ids))
-    source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else ""
-    items = preview.get("items")
-    if source_url and isinstance(items, list):
-        from app.services.index_publisher_discovery import publisher_feed_hints_from_index_preview
-        from app.services.japanese_source_catalog import japanese_broad_tech_concepts
-        from app.services.source_discovery_runtime import persist_runtime_discovery_hints
-
-        persist_runtime_discovery_hints(
-            database,
-            publisher_feed_hints_from_index_preview(
-                items,
-                index_url=source_url,
-                concept_ids=japanese_broad_tech_concepts(),
-            ),
-            persist_registry=False,
-        )
     project_events_for_subscription_audience(
         database,
         source_type="rss_atom",
@@ -104,6 +103,34 @@ def ingest_feed_events(
     )
 
 
+def _persist_index_publisher_hints(
+    database: Database,
+    *,
+    items: list[Any],
+    index_url: str,
+    retrieved_at: str,
+) -> None:
+    from app.services.index_publisher_discovery import publisher_feed_hints_from_index_preview
+    from app.services.japanese_source_catalog import japanese_broad_tech_concepts
+    from app.services.source_discovery_runtime import persist_runtime_discovery_hints
+
+    try:
+        hints = publisher_feed_hints_from_index_preview(
+            items,
+            index_url=index_url,
+            concept_ids=japanese_broad_tech_concepts(),
+        )
+        if hints:
+            persist_runtime_discovery_hints(
+                database,
+                hints,
+                seen_at=retrieved_at,
+                persist_registry=False,
+            )
+    except Exception as exc:  # noqa: BLE001 - discovery is auxiliary to feed ingestion
+        record("index_publisher_discovery_failed", error=type(exc).__name__)
+
+
 async def crawl_feed_events(
     settings: Settings,
     database: Database,
@@ -114,7 +141,10 @@ async def crawl_feed_events(
     record("fetch", source_type="rss_atom")
     preview = await preview_feed(settings, url)
     items = preview.get("items")
-    if isinstance(items, list):
+    source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else url
+    from app.services.index_publisher_discovery import is_japanese_index_feed
+
+    if isinstance(items, list) and not is_japanese_index_feed(source_url):
         from app.services.rss_article_enrichment import enrich_feed_item
 
         enriched = []

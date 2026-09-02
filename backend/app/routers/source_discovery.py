@@ -25,7 +25,7 @@ from app.services.source_discovery import (
     record_source_recommendation_decision,
 )
 from app.services.source_feed_discover import SiteFeedCandidate, discover_feeds_from_site_url
-from app.services.source_registry import VerificationStatus, canonicalize_url
+from app.services.source_registry import VerificationStatus
 
 router = APIRouter(prefix="/v1", tags=["source-discovery"])
 
@@ -89,41 +89,43 @@ async def decide_source_recommendation(
     user: Annotated[dict, Depends(require_user)],
     database: Annotated[Database, Depends(get_database)],
     settings: Annotated[Settings, Depends(get_settings)],
+    request: Request,
 ) -> SourceRecommendationItem:
-    extra: dict[str, str] = {}
-    if body.decision.strip().casefold() in {"approve", "approved"}:
-        listed = list_source_recommendations_for_user(
-            database,
-            user["user_id"],
-            include_ignored=True,
-            limit=80,
-        )
-        chosen = next((item for item in listed.items if item.candidate_id == candidate_id), None)
-        if chosen is not None and chosen.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX):
-            confirmed = await confirm_index_publisher_feed(settings, probe_url=chosen.canonical_url)
-            extra["subscribe_url"] = confirmed
-            try:
-                confirmed_canonical = canonicalize_url(confirmed)
-                probe_canonical = canonicalize_url(chosen.canonical_url)
-            except ValueError:
-                confirmed_canonical = confirmed
-                probe_canonical = chosen.canonical_url
-            if confirmed_canonical != probe_canonical:
+    with SourceAccessPolicy(database).acquire(
+        user["user_id"],
+        client_key=request_client_key(request),
+    ):
+        extra: dict[str, str] = {}
+        if body.decision.strip().casefold() in {"approve", "approved"}:
+            listed = list_source_recommendations_for_user(
+                database,
+                user["user_id"],
+                include_ignored=True,
+                limit=80,
+            )
+            chosen = next((item for item in listed.items if item.candidate_id == candidate_id), None)
+            if chosen is not None and chosen.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX):
+                confirmed = await confirm_index_publisher_feed(settings, probe_url=chosen.canonical_url)
+                if confirmed is None:
+                    raise unprocessable(
+                        "Index-derived feed must be confirmed by its publisher before approval"
+                    )
+                extra["subscribe_url"] = confirmed
                 extra["verification_status"] = VerificationStatus.VERIFIED.value
-    try:
-        item = record_source_recommendation_decision(
-            database,
-            user_id=user["user_id"],
-            candidate_id=candidate_id,
-            decision=body.decision,
-            subscribe_url=extra.get("subscribe_url"),
-            verification_status=extra.get("verification_status"),
-        )
-    except KeyError as exc:
-        raise not_found("Source recommendation was not found") from exc
-    except ValueError as exc:
-        raise unprocessable(str(exc)) from exc
-    return _public_item(item)
+        try:
+            item = record_source_recommendation_decision(
+                database,
+                user_id=user["user_id"],
+                candidate_id=candidate_id,
+                decision=body.decision,
+                subscribe_url=extra.get("subscribe_url"),
+                verification_status=extra.get("verification_status"),
+            )
+        except KeyError as exc:
+            raise not_found("Source recommendation was not found") from exc
+        except ValueError as exc:
+            raise unprocessable(str(exc)) from exc
+        return _public_item(item)
 
 
 def _policy(database: Annotated[Database, Depends(get_database)]) -> SourceAccessPolicy:
