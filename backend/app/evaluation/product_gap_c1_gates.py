@@ -5,12 +5,14 @@ from __future__ import annotations
 import html
 import json
 import re
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 import feedparser
 
+from app.database import Database
 from app.evaluation.product_gap_c1 import G0Source, evaluate_g0, load_g0_sources
 from app.evaluation.product_gap_ssrf import evaluate_ssrf_suite
 from app.services.rss_article_enrichment import enrich_html_bytes, is_summary_only
@@ -315,66 +317,158 @@ def evaluate_g3(sources: list[G0Source], *, floors: dict[str, float], fixtures: 
     }
 
 
+_G4_ARTICLE_URL = "https://blog.example.com/compiler-change"
+_G4_BODY_CASES = (
+    ("article_with_boilerplate.html", _G4_ARTICLE_URL, True, "unsafe transform"),
+    ("article_body_updated.html", _G4_ARTICLE_URL, True, "rollback path"),
+    ("article_boilerplate_only.html", _G4_ARTICLE_URL, True, "unsafe transform"),
+    ("nav_only.html", "https://blog.example.com/nav", False, None),
+)
+
+
+def _g4_robots(url: str) -> RobotsDecision:
+    return RobotsDecision(
+        source_url=url,
+        robots_url=None,
+        allowed=True,
+        reason="fixture",
+        retrieved_at="2026-08-01T00:00:00Z",
+    )
+
+
+def _g4_enrich(fixtures: Path, name: str, *, url: str):
+    return enrich_html_bytes(
+        url=url,
+        body=(fixtures / "rss" / name).read_bytes(),
+        robots=_g4_robots(url),
+        retrieved_at="2026-08-01T00:00:00Z",
+    )
+
+
+def _g4_preview(enrichment, *, updated: str, url: str) -> dict[str, Any]:
+    return {
+        "title": "Acme Engineering",
+        "source_url": "https://blog.example.com/feed.xml",
+        "items": [
+            {
+                "title": "Important compiler change",
+                "link": url,
+                "published": "2026-08-01T00:00:00Z",
+                "updated": updated,
+                "summary": "Short teaser.",
+                "article_text": enrichment.article_text,
+                "evidence_locator": enrichment.evidence_locator,
+                "article_content_hash": enrichment.article_content_hash,
+            }
+        ],
+    }
+
+
+def _g4_ingest_pair(first, second, *, url: str) -> tuple[tuple[str, ...], bool]:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+        database = Database(Path(tmp) / "g4.db")
+        database.initialize()
+        original = ingest_feed_events(
+            database,
+            preview=_g4_preview(first, updated="2026-08-01T00:01:00Z", url=url),
+            retrieved_at="2026-08-01T00:02:00Z",
+        )
+        revised = ingest_feed_events(
+            database,
+            preview=_g4_preview(second, updated="2026-08-02T00:00:00Z", url=url),
+            retrieved_at="2026-08-02T00:01:00Z",
+        )
+        same_event = original.event_ids == revised.event_ids
+        event_id = original.event_ids[0]
+        with database.connect() as connection:
+            types = tuple(
+                row["type"]
+                for row in connection.execute(
+                    """
+                    SELECT type FROM deltas
+                    WHERE event_id = ? AND active = 1
+                    ORDER BY occurred_at, id
+                    """,
+                    (event_id,),
+                )
+            )
+        return types, same_event
+
+
 def evaluate_g4(*, fixtures: Path, floors: dict[str, float]) -> dict[str, Any]:
-    cases = [
-        (
-            "article_with_boilerplate.html",
-            "https://blog.example.com/compiler-change",
-            True,
-            "unsafe transform",
-        ),
-        ("nav_only.html", "https://blog.example.com/nav", False, None),
-    ]
+    rss = fixtures / "rss"
     body_hits = 0
+    body_expected = 0
     boilerplate_fp = 0
     locator_ok = 0
     measured = 0
-    for name, url, expect_body, needle in cases:
-        path = fixtures / "rss" / name
+    enrichments: dict[str, Any] = {}
+    for name, url, expect_body, needle in _G4_BODY_CASES:
+        path = rss / name
         if not path.is_file():
             continue
         measured += 1
-        robots = RobotsDecision(
-            source_url=url,
-            robots_url=None,
-            allowed=True,
-            reason="fixture",
-            retrieved_at="2026-08-01T00:00:00Z",
-        )
-        enrichment = enrich_html_bytes(
-            url=url,
-            body=path.read_bytes(),
-            robots=robots,
-            retrieved_at="2026-08-01T00:00:00Z",
-        )
+        enrichment = _g4_enrich(fixtures, name, url=url)
+        enrichments[name] = enrichment
         has_body = enrichment.reason == "enriched" and bool(enrichment.article_text)
-        if expect_body and has_body and needle and needle in enrichment.article_text:
-            body_hits += 1
+        if expect_body:
+            body_expected += 1
+            if has_body and needle and needle in enrichment.article_text:
+                body_hits += 1
+            if enrichment.evidence_locator.startswith("dom:"):
+                locator_ok += 1
         if "Site chrome" in enrichment.article_text:
             boilerplate_fp += 1
-        if expect_body and enrichment.evidence_locator.startswith("dom:"):
-            locator_ok += 1
     skip_fetch = not is_summary_only("x" * 400, feed_body="y" * 400)
-    body_success = body_hits / measured if measured else 0.0
-    failures = [
-        "g4_sample_insufficient",
-        "g4_update_detection_unmeasured",
-        "g4_article_split_unmeasured",
-    ]
+    body_success = body_hits / body_expected if body_expected else 0.0
+
+    update_recall = None
+    update_precision = None
+    article_split = None
+    original = enrichments.get("article_with_boilerplate.html")
+    updated = enrichments.get("article_body_updated.html")
+    chrome = enrichments.get("article_boilerplate_only.html")
+    if original is not None and updated is not None and chrome is not None:
+        update_types, update_same = _g4_ingest_pair(original, updated, url=_G4_ARTICLE_URL)
+        chrome_types, chrome_same = _g4_ingest_pair(original, chrome, url=_G4_ARTICLE_URL)
+        true_positive = update_same and "detail" in update_types
+        false_positive = "detail" in chrome_types or not chrome_same
+        update_recall = 1.0 if true_positive else 0.0
+        update_precision = (
+            1.0 if true_positive and not false_positive else 0.0
+        )
+        article_split = 0.0 if update_same else 1.0
+
+    failures: list[str] = ["g4_live_blog_unmeasured"]
     if measured < 10:
+        failures.append("g4_sample_insufficient")
         failures.append("g4_n_lt_10")
+    if update_recall is None:
+        failures.append("g4_update_detection_unmeasured")
+    elif update_recall < floors["g4_update_recall"]:
+        failures.append("g4_update_recall")
+    if update_precision is not None and update_precision < floors["g4_update_precision"]:
+        failures.append("g4_update_precision")
+    if article_split is None:
+        failures.append("g4_article_split_unmeasured")
+    elif article_split > floors["g4_article_split"]:
+        failures.append("g4_article_split")
     if body_success < floors["g4_body_success"]:
         failures.append("g4_body_success")
+    chrome_rate = boilerplate_fp / measured if measured else None
+    if chrome_rate is not None and chrome_rate > floors["g4_boilerplate_fp"]:
+        failures.append("g4_boilerplate_fp")
     if not skip_fetch:
         failures.append("g4_skip_sufficient_feed")
     return {
         "sample_count": measured,
+        "live_blog_measured": False,
         "body_success": body_success,
         "important_body_recall": body_success,
-        "boilerplate_fp": boilerplate_fp / measured if measured else None,
-        "article_split": None,
-        "update_recall": None,
-        "update_precision": None,
+        "boilerplate_fp": chrome_rate,
+        "article_split": article_split,
+        "update_recall": update_recall,
+        "update_precision": update_precision,
         "evidence_locator_ok": locator_ok,
         "sufficient_feed_skips_fetch": skip_fetch,
         "passed": False,

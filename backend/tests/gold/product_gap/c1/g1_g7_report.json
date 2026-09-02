@@ -104,7 +104,7 @@
         "family": "official_blog"
       }
     ],
-    "pass": false,
+    "passed": false,
     "failures": [
       "g1_production_confirm_unmeasured",
       "g1_live_path_unmeasured",
@@ -117,11 +117,11 @@
     ]
   },
   "g2": {
-    "primary_recall_at_20": 0.1566265060240964,
-    "relevant_recall_at_50": 0.07251908396946564,
-    "precision_at_20": 0.3392857142857143,
+    "primary_recall_at_20": 0.1686746987951807,
+    "relevant_recall_at_50": 0.08015267175572519,
+    "precision_at_20": 0.3442622950819672,
     "japanese_recall_at_50": 0.0,
-    "blog_recall_at_50": 0.049689440993788817,
+    "blog_recall_at_50": 0.055900621118012424,
     "no_rss_recall_at_50": 0.14634146341463414,
     "weak_primary_topics": [
       "android",
@@ -213,9 +213,9 @@
       },
       {
         "topic_id": "llvm",
-        "primary_recall_at_20": 0.3333333333333333,
-        "relevant_recall_at_50": 0.14285714285714285,
-        "predicted_count": 4
+        "primary_recall_at_20": 0.6666666666666666,
+        "relevant_recall_at_50": 0.2857142857142857,
+        "predicted_count": 6
       },
       {
         "topic_id": "neovim",
@@ -268,8 +268,8 @@
       {
         "topic_id": "rust",
         "primary_recall_at_20": 0.25,
-        "relevant_recall_at_50": 0.14285714285714285,
-        "predicted_count": 4
+        "relevant_recall_at_50": 0.21428571428571427,
+        "predicted_count": 6
       },
       {
         "topic_id": "swift",
@@ -293,10 +293,10 @@
         "topic_id": "webassembly",
         "primary_recall_at_20": 0.0,
         "relevant_recall_at_50": 0.0,
-        "predicted_count": 2
+        "predicted_count": 3
       }
     ],
-    "pass": false,
+    "passed": false,
     "failures": [
       "g2_production_retrieval_below_floor",
       "g2_primary_recall_at_20",
@@ -318,7 +318,7 @@
     "breadth_superiority_pp": null,
     "family_regression_measured": false,
     "live_oracle_unmeasured": true,
-    "pass": false,
+    "passed": false,
     "failures": [
       "g3_live_oracle_unmeasured",
       "g3_family_regression_unmeasured",
@@ -352,22 +352,21 @@
     }
   },
   "g4": {
-    "sample_count": 2,
-    "body_success": 0.5,
-    "important_body_recall": 0.5,
+    "sample_count": 4,
+    "live_blog_measured": false,
+    "body_success": 1.0,
+    "important_body_recall": 1.0,
     "boilerplate_fp": 0.0,
-    "article_split": null,
-    "update_recall": null,
-    "update_precision": null,
-    "evidence_locator_ok": 1,
+    "article_split": 0.0,
+    "update_recall": 1.0,
+    "update_precision": 1.0,
+    "evidence_locator_ok": 3,
     "sufficient_feed_skips_fetch": true,
-    "pass": false,
+    "passed": false,
     "failures": [
+      "g4_live_blog_unmeasured",
       "g4_sample_insufficient",
-      "g4_update_detection_unmeasured",
-      "g4_article_split_unmeasured",
-      "g4_n_lt_10",
-      "g4_body_success"
+      "g4_n_lt_10"
     ],
     "floors": {
       "g1_feed_recall": 0.98,
@@ -407,7 +406,7 @@
       ],
       "production_path": "validate_url_shape",
       "production_fetch_measured": false,
-      "pass": false,
+      "passed": false,
       "failures": [
         "g5_production_fetch_unmeasured",
         "g5_ssrf_shape_bypass"
@@ -419,7 +418,7 @@
       "discovery_never_evidence": true,
       "robots_not_success_measured": false
     },
-    "pass": false,
+    "passed": false,
     "failures": [
       "g5_production_fetch_unmeasured",
       "g5_ssrf_shape_bypass",
@@ -427,7 +426,7 @@
       "g5_robots_unmeasured"
     ]
   },
-  "pass": false,
+  "passed": false,
   "g6": {
     "policy": {
       "min_consecutive_days": 7,
@@ -457,5 +456,6 @@
     "one_command": true,
     "deterministic": true,
     "pass": false
-  }
+  },
+  "pass": false
 }

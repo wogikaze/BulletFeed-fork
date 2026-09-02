@@ -237,6 +237,21 @@ def test_c1_gate_harness_does_not_invent_pass() -> None:
     assert report["passed"] is False
 
 
+def test_g4_fixture_update_is_measured_and_live_n_stays_fail() -> None:
+    report = evaluate_c1_gates(GOLD / "c1")
+    g4 = report["g4"]
+    assert g4["update_recall"] == 1.0
+    assert g4["update_precision"] == 1.0
+    assert g4["article_split"] == 0.0
+    assert g4["body_success"] == 1.0
+    assert g4["live_blog_measured"] is False
+    assert g4["sample_count"] < 10
+    assert "g4_update_detection_unmeasured" not in g4["failures"]
+    assert "g4_n_lt_10" in g4["failures"]
+    assert "g4_live_blog_unmeasured" in g4["failures"]
+    assert g4["passed"] is False
+
+
 def test_g1_precision_counts_false_positives_in_top3() -> None:
     from app.evaluation.product_gap_c1 import load_g0_sources
 
