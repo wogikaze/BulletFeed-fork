@@ -1,12 +1,16 @@
 from pathlib import Path
 
+import pytest
+from fastapi import HTTPException
+
+from app.config import Settings
 from app.database import Database
 from app.services.rss_article_enrichment import (
     enrich_html_bytes,
     format_claim_evidence,
     is_summary_only,
 )
-from app.services.rss_pipeline import ingest_feed_events
+from app.services.rss_pipeline import MAX_ARTICLE_FETCHES_PER_FEED, crawl_feed_events, ingest_feed_events
 from app.services.web_snapshots import RobotsDecision
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "rss"
@@ -151,3 +155,46 @@ def test_format_claim_evidence_keeps_body_before_locator() -> None:
     )
     assert formatted.startswith("The mid-end")
     assert "根拠位置: dom:article>p;off:0-40" in formatted
+
+
+@pytest.mark.asyncio
+async def test_worker_caps_article_fetches_per_feed(monkeypatch, tmp_path: Path) -> None:
+    fetches = {"n": 0}
+
+    async def fake_preview(settings: Settings, url: str) -> dict:
+        del settings
+        return {
+            "title": "t",
+            "source_url": url,
+            "items": [
+                {
+                    "title": f"Item {index}",
+                    "link": f"https://blog.example.com/p{index}",
+                    "summary": "short teaser",
+                    "content": "",
+                    "published": "2026-08-01T00:00:00Z",
+                }
+                for index in range(8)
+            ],
+        }
+
+    async def fake_fetch(settings: Settings, url: str, **kwargs):
+        del settings, url, kwargs
+        fetches["n"] += 1
+        raise HTTPException(status_code=403, detail="not fetching live html")
+
+    monkeypatch.setattr("app.services.rss_pipeline.preview_feed", fake_preview)
+    monkeypatch.setattr("app.services.rss_article_enrichment.fetch_html_page", fake_fetch)
+    monkeypatch.setattr(
+        "app.services.rss_pipeline.ingest_feed_events",
+        lambda *args, **kwargs: type("R", (), {"event_ids": (), "claim_ids": ()})(),
+    )
+    database = Database(tmp_path / "cap.db")
+    database.initialize()
+    await crawl_feed_events(
+        Settings(rss_allowed_hosts="example.com", web_allowed_hosts="example.com"),
+        database,
+        url="https://blog.example.com/feed.xml",
+        retrieved_at="2026-08-01T00:00:00Z",
+    )
+    assert fetches["n"] == MAX_ARTICLE_FETCHES_PER_FEED
