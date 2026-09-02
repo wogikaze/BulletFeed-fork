@@ -152,6 +152,12 @@ def test_rc_evidence_report_can_include_runtime_android_report(tmp_path: Path, m
     assert integrated["evidence_checks"]["field_validation_excluded"] is True
     assert integrated["evidence_checks"]["completion_gate_not_claimed"] is True
 
+    android_report["android"]["lifecycle"]["status"] = "failed"
+    path.write_text(json.dumps(android_report), encoding="utf-8")
+    failed_lifecycle = build_report(path)["missions"]["m7"]["integrated_android"]
+    assert failed_lifecycle["status"] == "fail"
+
+    android_report["android"]["lifecycle"]["status"] = "not_available"
     android_report["repository_sha"] = "different-sha"
     path.write_text(json.dumps(android_report), encoding="utf-8")
     mismatched = build_report(path)["missions"]["m7"]["integrated_android"]

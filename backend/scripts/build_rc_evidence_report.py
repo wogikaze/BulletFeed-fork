@@ -500,8 +500,9 @@ def _m7_android_gate(
             "completion_gate_not_claimed",
         )
     )
+    status = "fail" if lifecycle.get("status") == "failed" else "partial" if base_evidence else "fail"
     return {
-        "status": "partial" if base_evidence else "fail",
+        "status": status,
         "evidence_checks": checks,
         "lifecycle_status": lifecycle.get("status", "not_available"),
         "limitations": android.get("limitations", []),
