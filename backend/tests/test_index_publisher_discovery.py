@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from app.database import Database
 from app.services.index_publisher_discovery import (
     original_article_hosts,
@@ -173,3 +175,140 @@ def test_approving_index_derived_probe_does_not_register_it_as_authoritative(
     assert endpoint is not None
     assert endpoint.authority_status == AuthorityStatus.UNKNOWN.value
     assert endpoint.verification_status == "unverified"
+
+
+def test_homepage_url_from_probe_strips_well_known_path() -> None:
+    from app.services.index_publisher_discovery import homepage_url_from_probe
+
+    assert homepage_url_from_probe("https://engineering.example.com/feed") == "https://engineering.example.com/"
+    assert homepage_url_from_probe("https://www.news.example.jp/rss.xml") == "https://news.example.jp/"
+
+
+@pytest.mark.asyncio
+async def test_confirm_index_publisher_feed_prefers_html_alternate(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from app.config import Settings
+    from app.services.index_publisher_discovery import confirm_index_publisher_feed
+
+    async def fake_discover(settings, url, **kwargs):
+        assert url == "https://engineering.example.com/"
+        assert kwargs.get("persist_registry") is False
+        assert kwargs.get("probe_well_known") is False
+        assert "engineering.example.com" in settings.web_allowed_hosts
+        return SimpleNamespace(
+            items=(
+                SimpleNamespace(
+                    family="generic_web",
+                    discovery_method="site_url_fallback",
+                    canonical_url="https://engineering.example.com/",
+                ),
+                SimpleNamespace(
+                    family="rss_atom",
+                    discovery_method="html_link_alternate",
+                    canonical_url="https://engineering.example.com/blog/feed.xml",
+                ),
+            )
+        )
+
+    monkeypatch.setattr(
+        "app.services.source_feed_discover.discover_feeds_from_site_url",
+        fake_discover,
+    )
+    confirmed = await confirm_index_publisher_feed(
+        Settings(),
+        probe_url="https://engineering.example.com/feed",
+    )
+    assert confirmed == "https://engineering.example.com/blog/feed.xml"
+
+
+@pytest.mark.asyncio
+async def test_confirm_index_publisher_feed_keeps_probe_when_html_fails(monkeypatch) -> None:
+    from fastapi import HTTPException
+
+    from app.config import Settings
+    from app.services.index_publisher_discovery import confirm_index_publisher_feed
+
+    async def fake_discover(*_args, **_kwargs):
+        raise HTTPException(status_code=403, detail="Web fetching is disabled")
+
+    monkeypatch.setattr(
+        "app.services.source_feed_discover.discover_feeds_from_site_url",
+        fake_discover,
+    )
+    probe = "https://engineering.example.com/feed"
+    assert await confirm_index_publisher_feed(Settings(), probe_url=probe) == probe
+
+
+def test_approving_index_derived_probe_subscribes_html_confirmed_feed(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from app.config import get_settings
+    from app.db.topic_catalog import install_topic_catalog
+    from app.services.source_discovery import (
+        list_source_recommendations_for_user,
+        record_source_recommendation_decision,
+    )
+    from app.services.source_registry import SourceRegistry, VerificationStatus, canonicalize_url
+
+    monkeypatch.setenv(
+        "BULLETFEED_RSS_ALLOWED_HOSTS",
+        "b.hatena.ne.jp,engineering.example.com,blog.rust-lang.org",
+    )
+    get_settings.cache_clear()
+    monkeypatch.setattr(
+        "app.services.source_subscriptions.validate_feed_url",
+        lambda url, _hosts, **_kwargs: url,
+    )
+    database = Database(tmp_path / "index-confirm.db")
+    database.initialize()
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", ("user_a",))
+        connection.execute(
+            """
+            INSERT INTO topics (id, user_id, name, type, priority, sort_order, created_at)
+            VALUES (?, ?, ?, 'technology', ?, ?, 1)
+            """,
+            ("user_a-topic-0", "user_a", "Rust", "high", 0),
+        )
+    ingest_feed_events(
+        database,
+        preview={
+            "title": "はてなブックマーク",
+            "source_url": INDEX,
+            "items": [
+                {
+                    "title": "Example corp post",
+                    "link": "https://engineering.example.com/posts/one",
+                    "published": "2026-09-01T00:00:00Z",
+                    "summary": "Short teaser.",
+                }
+            ],
+        },
+        retrieved_at="2026-09-01T00:01:00Z",
+    )
+    items = list_source_recommendations_for_user(database, "user_a", limit=80).items
+    probe = next(item for item in items if item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX))
+    confirmed = "https://engineering.example.com/blog/feed.xml"
+    record_source_recommendation_decision(
+        database,
+        user_id="user_a",
+        candidate_id=probe.candidate_id,
+        decision="approved",
+        subscribe_url=confirmed,
+        verification_status=VerificationStatus.VERIFIED.value,
+    )
+    endpoint = SourceRegistry(database).find_duplicate_endpoint(confirmed, family="rss_atom")
+    assert endpoint is not None
+    assert endpoint.authority_status == AuthorityStatus.UNKNOWN.value
+    assert endpoint.verification_status == VerificationStatus.VERIFIED.value
+    with database.connect() as connection:
+        keys = [
+            row["source_key"]
+            for row in connection.execute(
+                "SELECT source_key FROM source_sync_subscriptions"
+            ).fetchall()
+        ]
+    assert canonicalize_url(confirmed) in keys

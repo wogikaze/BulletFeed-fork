@@ -410,6 +410,8 @@ def record_source_recommendation_decision(
     user_id: str,
     candidate_id: str,
     decision: str,
+    subscribe_url: str | None = None,
+    verification_status: str | None = None,
 ) -> SourceCandidate:
     """Record approve/ignore. Supported families subscribe atomically on approve."""
     from fastapi import HTTPException
@@ -431,14 +433,20 @@ def record_source_recommendation_decision(
     if normalized == "approved" and not actionability_allows_approve(chosen.actionability):
         raise ValueError("This recommendation cannot be approved")
     if normalized == "approved" and recommendation_can_subscribe(chosen):
+        feed_url = chosen.canonical_url
+        status = chosen.verification_status
+        if chosen.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX) and subscribe_url:
+            feed_url = subscribe_url
+            if verification_status:
+                status = verification_status
         try:
             add_user_source_subscription(
                 database,
                 get_settings(),
                 user_id=user_id,
                 kind=chosen.family,
-                url=chosen.canonical_url,
-                verification_status=chosen.verification_status,
+                url=feed_url,
+                verification_status=status,
                 authority_status=chosen.authority_status,
             )
         except HTTPException as exc:
