@@ -16,6 +16,10 @@ from urllib.parse import urlparse
 
 from app.database import Database
 from app.db.source_discovery_schema import ensure_source_discovery_schema
+from app.services.japanese_source_catalog import (
+    japanese_feed_authority_class,
+    japanese_feed_specs,
+)
 from app.services.source_actionability import (
     actionability_allows_approve,
     resolve_source_actionability,
@@ -207,6 +211,7 @@ def discover_sources(
     merged_hints = (
         *seed_hints,
         *_hints_from_selected_repositories(state),
+        *_hints_from_japanese_sources(state),
         *hints,
         *hints_from_hacker_news(hn_items, state),
     )
@@ -446,6 +451,25 @@ def _hints_from_seeds() -> tuple[DiscoveryHint, ...]:
     return tuple(_hint_from_seed(seed) for seed in CURATED_SOURCE_SEEDS)
 
 
+def _hints_from_japanese_sources(state: UserInterestState) -> tuple[DiscoveryHint, ...]:
+    active = {concept.concept_id for concept in state.active_concepts()}
+    return tuple(
+        DiscoveryHint(
+            url=spec.url,
+            provenance=DiscoveryProvenance.WEBSITE_FEED.value,
+            family=SourceKind.RSS_ATOM,
+            concept_ids=spec.concept_ids,
+            title=spec.display_name,
+            publisher_slug=spec.publisher_slug,
+            publisher_name=spec.publisher_name,
+            homepage_url=spec.homepage_url,
+            why=spec.why,
+            display_name=spec.display_name,
+        )
+        for spec in japanese_feed_specs(active)
+    )
+
+
 def _hint_from_seed(seed: SourceSeed) -> DiscoveryHint:
     return DiscoveryHint(
         url=seed.url,
@@ -605,6 +629,11 @@ def _register_or_reuse(
 def _hint_registry_status(hint: DiscoveryHint, family: SourceKind) -> tuple[str, str]:
     if hint.provenance == DiscoveryProvenance.EXTERNAL_INDEX.value:
         return VerificationStatus.DISCOVERY_ONLY.value, AuthorityStatus.NON_AUTHORITATIVE.value
+    authority_class = japanese_feed_authority_class(hint.url) if family == SourceKind.RSS_ATOM else None
+    if authority_class == "community":
+        return VerificationStatus.VERIFIED.value, AuthorityStatus.NON_AUTHORITATIVE.value
+    if authority_class == "secondary":
+        return VerificationStatus.VERIFIED.value, AuthorityStatus.UNKNOWN.value
     try:
         policy = get_source_policy(family)
     except ValueError:
@@ -677,6 +706,8 @@ def _match_hint(
 def _authority_confidence(endpoint: Endpoint, discovery_only: bool) -> float:
     if discovery_only:
         return 0.12
+    if endpoint.authority_status == AuthorityStatus.NON_AUTHORITATIVE.value:
+        return 0.42 if endpoint.verification_status == VerificationStatus.VERIFIED.value else 0.22
     if (
         endpoint.verification_status == VerificationStatus.VERIFIED.value
         and endpoint.authority_status == AuthorityStatus.AUTHORITATIVE.value
@@ -722,6 +753,10 @@ def _explanation(
     ]
     if discovery_only:
         parts.append("Discovery-only: not authoritative and not Claim evidence")
+    elif endpoint.authority_status == AuthorityStatus.NON_AUTHORITATIVE.value:
+        parts.append("Community source: article content may be surfaced, but publisher authority is not assumed")
+    elif endpoint.authority_status == AuthorityStatus.UNKNOWN.value:
+        parts.append("Verified feed endpoint; authority is evaluated independently")
     else:
         parts.append("Verified official sources are preferred; discovery is not evidence")
     return ". ".join(part.rstrip(".") for part in parts if part) + "."
@@ -774,4 +809,3 @@ def _normalize_decision(value: str) -> RecommendationStatus:
 
 def _utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
