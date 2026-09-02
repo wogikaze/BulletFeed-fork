@@ -36,6 +36,7 @@ STAGES = (
     "subscription",
     "worker_subscription",
     "acquisition",
+    "projection",
     "feed",
     "evidence",
     "exposure",
@@ -429,6 +430,18 @@ def _run_persona(app, database: Database, persona: M1Persona) -> dict[str, Any]:
                 "worker_failed": worker_result.failed,
                 "observation_count": int(observation_count),
             },
+        )
+        with database.connect() as connection:
+            projected_count = connection.execute(
+                "SELECT COUNT(*) AS count FROM feed_items WHERE user_id = ?",
+                (user_id,),
+            ).fetchone()["count"]
+        _stage(
+            stages,
+            "projection",
+            ok=int(projected_count) > 0,
+            detail=f"feed_items={projected_count}",
+            metrics={"projected_item_count": int(projected_count)},
         )
         status, feed = _call(client, "/v1/feed?limit=5", access_token=auth)
         items = feed.get("items", [])

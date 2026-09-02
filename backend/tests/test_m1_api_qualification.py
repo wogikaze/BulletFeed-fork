@@ -1,5 +1,15 @@
 from app.evaluation.m1_zero_to_useful import M1Persona
-from scripts.run_m1_api_qualification import _summary, _topic_selection
+from scripts.run_m1_api_qualification import STAGES, _summary, _topic_selection
+
+
+def test_api_trace_keeps_acquisition_projection_and_evidence_ordered() -> None:
+    assert [
+        STAGES.index(stage)
+        for stage in ("acquisition", "projection", "feed", "evidence")
+    ] == sorted(
+        STAGES.index(stage)
+        for stage in ("acquisition", "projection", "feed", "evidence")
+    )
 
 
 def test_topic_selection_keeps_persona_interest_and_deduplicates_fillers() -> None:

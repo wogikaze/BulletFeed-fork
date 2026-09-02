@@ -57,6 +57,31 @@ bootstrap (seed と replicate 数を report に保存) で計算する。product
 AI-silver label は Human Gold として扱わない。acquisition / projection / evidence の earliest-stage
 attribution は ranking 採点だけでは推定せず、別の journey trace で保存する。
 
+## full-pipeline trace attribution
+
+```text
+python backend/scripts/run_pipeline_stage_attribution.py \
+  --trace backend/tests/gold/m1_personas/v01/deterministic_baseline.json \
+  --output backend/tests/gold/real_world_validation/v01/pipeline_stage_attribution.json \
+  --check
+```
+
+この utility は M1/M7 の JSON trace (`reports` または単一 `stages`) を読み、各 trace の
+明示された `ok=false` stage を `acquisition` → `projection` → `evidence` → `ranking` の順で
+最初に観測された failure として保存する。入力の source artifact、hash、harness、repository、
+trace/tenant ID、stage detail/metrics を artifact に残し、trace ごとに tenant 境界を保つ。
+`feed` や `acquisition_projection` のような未分割 stage、欠落 stage、ranking の結果から
+acquisition/projection/evidence を推測しない。したがって `coverage_status=partial` は
+未観測を failure 0 とみなす意味ではない。
+
+`labels_loaded=false` と `ranking_inference_used=false` は artifact 契約の必須値である。
+blind path または `split=blind` trace は読む前に reject する。M2 report の
+`metrics.stage_attribution` は従来どおり ranking replay 専用であり、full-pipeline の結果は
+独立した `pipeline_attribution` として保存する。ただし、M1/M7 deterministic journey
+trace は M2 historical corpus の acquisition/projection/evidence 証跡ではない。M2 の
+full-pipeline gate は、provenance の `trace_scope=m2_historical_corpus` を明示した trace
+だけを評価対象とし、それ以外は trace integrity が有効でも未達として扱う。
+
 ## CI
 
 通常 PR CI は契約検証、split 漏洩、artifact hash、M2 deterministic qualification を実行する。live network の追加収集は manual の collection tool で行い、取得後の corpus は通常 CI で再検証する。

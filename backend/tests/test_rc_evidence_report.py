@@ -1,4 +1,4 @@
-from scripts.build_rc_evidence_report import _repository_sha, build_report
+from scripts.build_rc_evidence_report import _m2_gate, _repository_sha, build_report
 
 
 def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch) -> None:
@@ -16,6 +16,14 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m1"]["evidence_checks"]["persona_count"] is True
     assert report["missions"]["m1"]["api_qualification"]["evidence_checks"]["stage_failures"] is True
     assert report["missions"]["m2"]["evidence_checks"]["blind_isolation"] is True
+    assert report["missions"]["m2"]["evidence_checks"]["full_pipeline_attribution"] is False
+    assert (
+        report["missions"]["m2"]["pipeline_attribution"]["provenance"]["trace_scope"]
+        == "m1_m7_deterministic_journey"
+    )
+    assert report["missions"]["m2"]["pipeline_artifact"].endswith(
+        "pipeline_stage_attribution.json"
+    )
     assert report["missions"]["m3"]["evidence_checks"]["replay_failures"] is True
     assert report["missions"]["m3"]["live_sample"]["evidence_checks"]["success_rate"] is True
     quality = report["missions"]["m3"]["source_discovery_quality"]
@@ -62,6 +70,29 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
     assert report["missions"]["m7"]["evidence_checks"]["no_user_id_in_report"] is True
     assert any("GitHub OAuth" in item for item in report["human_only_or_field_validation"])
     assert any("#327" in item for item in report["human_only_or_field_validation"])
+
+
+def test_m2_pipeline_attribution_requires_historical_corpus_scope() -> None:
+    report = {
+        "capacity": {"meets_targets": True},
+        "metrics": {
+            "blind_records_loaded": False,
+            "uncertainty": {"headline": {"at_10": {"status": "available"}}},
+            "failure_taxonomy": {"status": "available"},
+        },
+    }
+    complete = {
+        "status": "available",
+        "coverage_status": "complete",
+        "labels_loaded": False,
+        "ranking_inference_used": False,
+        "provenance": {"trace_scope": "m1_m7_deterministic_journey"},
+    }
+
+    assert _m2_gate(report, complete)["evidence_checks"]["full_pipeline_attribution"] is False
+
+    complete["provenance"]["trace_scope"] = "m2_historical_corpus"
+    assert _m2_gate(report, complete)["evidence_checks"]["full_pipeline_attribution"] is True
 
 
 def test_rc_evidence_report_resolves_git_sha_when_env_missing(monkeypatch) -> None:
