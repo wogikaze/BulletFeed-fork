@@ -464,6 +464,27 @@ def record_source_recommendation_decision(
                 verification_status=status,
                 authority_status=chosen.authority_status,
             )
+            if (
+                chosen.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX)
+                and verification_status == VerificationStatus.VERIFIED.value
+            ):
+                verified_registry = SourceRegistry(database)
+                endpoint = verified_registry.find_duplicate_endpoint(
+                    feed_url,
+                    family=chosen.family,
+                )
+                if endpoint is not None:
+                    verified_registry.record_verification(
+                        endpoint.endpoint_id,
+                        verification_status=VerificationStatus.VERIFIED,
+                        verification_method="index_publisher_confirmation",
+                        verification_reference=feed_url,
+                        verified_at=_utc_now(),
+                        authority_status=endpoint.authority_status,
+                        authority_method=endpoint.authority_method,
+                        authority_reference=endpoint.authority_reference,
+                        authority_verified_at=endpoint.authority_verified_at,
+                    )
         except HTTPException as exc:
             raise ValueError(str(exc.detail)) from exc
     save_discovery_decision(database, user_id=user_id, candidate_id=candidate_id, decision=normalized)

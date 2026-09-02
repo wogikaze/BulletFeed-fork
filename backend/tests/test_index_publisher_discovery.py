@@ -388,6 +388,9 @@ def test_approving_index_derived_probe_subscribes_html_confirmed_feed(
     assert endpoint is not None
     assert endpoint.authority_status == AuthorityStatus.UNKNOWN.value
     assert endpoint.verification_status == VerificationStatus.VERIFIED.value
+    assert endpoint.verification_method == "index_publisher_confirmation"
+    assert endpoint.verification_reference == confirmed
+    assert endpoint.verified_at
     with database.connect() as connection:
         keys = [
             row["source_key"]
