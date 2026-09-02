@@ -11,6 +11,7 @@ from typing import Literal
 from urllib.parse import urlparse
 
 JapaneseAuthorityClass = Literal["community", "secondary"]
+INDEX_DERIVED_SLUG_PREFIX = "idx-"
 
 
 @dataclass(frozen=True)
@@ -25,10 +26,18 @@ class JapaneseFeedSpec:
     authority_class: JapaneseAuthorityClass
 
 
-# Community platforms are useful discovery surfaces but must never inherit the
-# RSS family's historical "authoritative" default merely because they speak
-# Atom/RSS.
-_COMMUNITY_HOSTS = frozenset({"zenn.dev", "qiita.com"})
+# Community platforms and broad indexes are useful discovery surfaces but must
+# never inherit the RSS family's historical "authoritative" default merely
+# because they speak Atom/RSS. Broad-index entries link onward to original
+# publishers; the index host itself is not publisher authority.
+_COMMUNITY_HOSTS = frozenset(
+    {
+        "b.hatena.ne.jp",
+        "qiita.com",
+        "yamadashy.github.io",
+        "zenn.dev",
+    }
+)
 _SECONDARY_HOSTS = frozenset(
     {
         "developers.freee.co.jp",
@@ -55,6 +64,64 @@ _PLATFORM_TAGS: dict[str, str] = {
     "webassembly": "webassembly",
 }
 
+# Broad Japanese discovery feeds are intentionally topic-wide. They replace
+# "keep hand-adding companies" as the coverage mechanism: Hatena discovers a
+# wide Japanese IT web surface, while tech-blog-rss-feed aggregates articles
+# from a large, independently maintained set of Japanese company tech blogs.
+_BROAD_TECH_CONCEPTS = tuple(
+    sorted(
+        set(_PLATFORM_TAGS)
+        | {
+            "ai",
+            "backend",
+            "cloud",
+            "compiler",
+            "database",
+            "devops",
+            "linux",
+            "llm",
+            "machine_learning",
+            "server",
+            "web",
+        }
+    )
+)
+_BROAD_DISCOVERY_FEEDS: tuple[JapaneseFeedSpec, ...] = (
+    JapaneseFeedSpec(
+        publisher_slug="hatena-bookmark-it-new",
+        publisher_name="はてなブックマーク テクノロジー新着",
+        homepage_url="https://b.hatena.ne.jp/entrylist/it",
+        url="https://b.hatena.ne.jp/entrylist/it.rss",
+        concept_ids=_BROAD_TECH_CONCEPTS,
+        display_name="はてなブックマーク テクノロジー新着",
+        why="Broad Japanese IT discovery feed; entry links point to original publishers",
+        authority_class="community",
+    ),
+    JapaneseFeedSpec(
+        publisher_slug="hatena-bookmark-it-hot",
+        publisher_name="はてなブックマーク テクノロジー人気",
+        homepage_url="https://b.hatena.ne.jp/hotentry/it",
+        url="https://b.hatena.ne.jp/hotentry/it.rss",
+        concept_ids=_BROAD_TECH_CONCEPTS,
+        display_name="はてなブックマーク テクノロジー人気",
+        why="Broad Japanese IT popularity feed; entry links point to original publishers",
+        authority_class="community",
+    ),
+    JapaneseFeedSpec(
+        publisher_slug="tech-blog-rss-feed",
+        publisher_name="企業テックブログRSS",
+        homepage_url="https://yamadashy.github.io/tech-blog-rss-feed/",
+        url="https://yamadashy.github.io/tech-blog-rss-feed/feeds/rss.xml",
+        concept_ids=_BROAD_TECH_CONCEPTS,
+        display_name="企業テックブログRSS",
+        why="Broad Japanese company-tech-blog aggregate; entry links point to original publishers",
+        authority_class="community",
+    ),
+)
+
+# Keep a small set of known direct feeds as regression/fallback coverage. Product
+# coverage must not depend on this list; the broad feeds above are the expansion
+# mechanism.
 _ENGINEERING_BLOGS: tuple[JapaneseFeedSpec, ...] = (
     JapaneseFeedSpec(
         publisher_slug="lycorp-tech",
@@ -143,11 +210,12 @@ def japanese_feed_specs(active_concept_ids: set[str]) -> tuple[JapaneseFeedSpec,
                 seen.add(spec.url)
                 specs.append(spec)
 
-    for spec in _ENGINEERING_BLOGS:
-        if active_concept_ids.isdisjoint(spec.concept_ids) or spec.url in seen:
-            continue
-        seen.add(spec.url)
-        specs.append(spec)
+    for group in (_BROAD_DISCOVERY_FEEDS, _ENGINEERING_BLOGS):
+        for spec in group:
+            if active_concept_ids.isdisjoint(spec.concept_ids) or spec.url in seen:
+                continue
+            seen.add(spec.url)
+            specs.append(spec)
     return tuple(specs)
 
 
@@ -158,6 +226,15 @@ def japanese_feed_authority_class(url: str) -> JapaneseAuthorityClass | None:
     if host in _SECONDARY_HOSTS:
         return "secondary"
     return None
+
+
+def japanese_index_feed_urls() -> frozenset[str]:
+    """Aggregate feeds whose entries point at original publishers."""
+    return frozenset(spec.url for spec in _BROAD_DISCOVERY_FEEDS)
+
+
+def japanese_broad_tech_concepts() -> tuple[str, ...]:
+    return _BROAD_TECH_CONCEPTS
 
 
 def japanese_feed_hosts() -> tuple[str, ...]:

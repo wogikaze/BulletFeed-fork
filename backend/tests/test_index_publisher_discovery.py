@@ -1,0 +1,175 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from app.database import Database
+from app.services.index_publisher_discovery import (
+    original_article_hosts,
+    publisher_feed_hints_from_index_preview,
+)
+from app.services.japanese_source_catalog import INDEX_DERIVED_SLUG_PREFIX
+from app.services.rss_pipeline import ingest_feed_events
+from app.services.source_discovery_runtime import load_runtime_discovery_hints
+from app.services.source_registry import AuthorityStatus
+
+INDEX = "https://b.hatena.ne.jp/entrylist/it.rss"
+
+
+def test_index_preview_keeps_original_hosts_and_skips_index_and_community() -> None:
+    hosts = original_article_hosts(
+        (
+            {"link": "https://engineering.example.com/posts/one"},
+            {"link": "https://b.hatena.ne.jp/entry/s/engineering.example.com/posts/one"},
+            {"link": "https://zenn.dev/team/articles/one"},
+            {"link": "https://blog.company.example.jp/entry"},
+        ),
+        index_url=INDEX,
+    )
+    assert hosts == ("engineering.example.com", "blog.company.example.jp")
+
+
+def test_hatena_entry_permalink_unwraps_to_original_host() -> None:
+    from app.services.index_publisher_discovery import unwrap_index_article_url
+
+    assert (
+        unwrap_index_article_url("https://b.hatena.ne.jp/entry/s/engineering.example.com/posts/one")
+        == "https://engineering.example.com/posts/one"
+    )
+    hosts = original_article_hosts(
+        ({"link": "https://b.hatena.ne.jp/entry/s/news.example.com/tech/rust"},),
+        index_url=INDEX,
+    )
+    assert hosts == ("news.example.com",)
+
+
+def test_index_preview_emits_unconfirmed_publisher_feed_probes() -> None:
+    hints = publisher_feed_hints_from_index_preview(
+        ({"link": "https://engineering.example.com/posts/one", "title": "One"},),
+        index_url=INDEX,
+        concept_ids=("rust",),
+    )
+    assert len(hints) == 1
+    hint = hints[0]
+    assert hint.url.startswith("https://engineering.example.com/")
+    assert hint.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX)
+    assert hint.family.value == "rss_atom"
+    assert "not publisher authority" in hint.why
+
+
+def test_non_index_preview_does_not_emit_publisher_probes() -> None:
+    hints = publisher_feed_hints_from_index_preview(
+        ({"link": "https://engineering.example.com/posts/one"},),
+        index_url="https://blog.rust-lang.org/feed.xml",
+    )
+    assert hints == ()
+
+
+def test_ingesting_index_preview_persists_unconfirmed_publisher_hints(tmp_path: Path) -> None:
+    database = Database(tmp_path / "index-hints.db")
+    database.initialize()
+    ingest_feed_events(
+        database,
+        preview={
+            "title": "はてなブックマーク",
+            "source_url": INDEX,
+            "items": [
+                {
+                    "title": "Example corp post",
+                    "link": "https://engineering.example.com/posts/one",
+                    "published": "2026-09-01T00:00:00Z",
+                    "summary": "Short teaser.",
+                }
+            ],
+        },
+        retrieved_at="2026-09-01T00:01:00Z",
+    )
+    hints = load_runtime_discovery_hints(database)
+    assert any(
+        item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX)
+        and item.url.startswith("https://engineering.example.com/")
+        for item in hints
+    )
+
+
+def test_index_derived_probe_stays_unverified_and_not_authoritative() -> None:
+    from app.services.source_discovery import discover_sources_for_topics
+    from app.services.source_registry import SourceRegistry
+
+    hints = publisher_feed_hints_from_index_preview(
+        ({"link": "https://engineering.example.com/posts/one"},),
+        index_url=INDEX,
+        concept_ids=("rust",),
+    )
+    result = discover_sources_for_topics(
+        ("Rust",),
+        SourceRegistry(seed_mvp=False),
+        persist_registry=False,
+        limit=80,
+        hints=hints,
+    )
+    probe = next(item for item in result.items if item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX))
+    assert probe.authority_status == AuthorityStatus.UNKNOWN.value
+    assert probe.verification_status == "unverified"
+
+
+def test_approving_index_derived_probe_does_not_register_it_as_authoritative(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from app.config import get_settings
+    from app.db.topic_catalog import install_topic_catalog
+    from app.services.source_discovery import (
+        list_source_recommendations_for_user,
+        record_source_recommendation_decision,
+    )
+    from app.services.source_registry import SourceRegistry
+
+    monkeypatch.setenv(
+        "BULLETFEED_RSS_ALLOWED_HOSTS",
+        "b.hatena.ne.jp,engineering.example.com,blog.rust-lang.org",
+    )
+    get_settings.cache_clear()
+    monkeypatch.setattr(
+        "app.services.source_subscriptions.validate_feed_url",
+        lambda url, _hosts, **_kwargs: url,
+    )
+    database = Database(tmp_path / "index-approve.db")
+    database.initialize()
+    install_topic_catalog(database)
+    with database.connect() as connection:
+        connection.execute("INSERT INTO users (id, created_at) VALUES (?, 0)", ("user_a",))
+        connection.execute(
+            """
+            INSERT INTO topics (id, user_id, name, type, priority, sort_order, created_at)
+            VALUES (?, ?, ?, 'technology', ?, ?, 1)
+            """,
+            ("user_a-topic-0", "user_a", "Rust", "high", 0),
+        )
+    ingest_feed_events(
+        database,
+        preview={
+            "title": "はてなブックマーク",
+            "source_url": INDEX,
+            "items": [
+                {
+                    "title": "Example corp post",
+                    "link": "https://engineering.example.com/posts/one",
+                    "published": "2026-09-01T00:00:00Z",
+                    "summary": "Short teaser.",
+                }
+            ],
+        },
+        retrieved_at="2026-09-01T00:01:00Z",
+    )
+    items = list_source_recommendations_for_user(database, "user_a", limit=80).items
+    probe = next(item for item in items if item.publisher_slug.startswith(INDEX_DERIVED_SLUG_PREFIX))
+    record_source_recommendation_decision(
+        database,
+        user_id="user_a",
+        candidate_id=probe.candidate_id,
+        decision="approved",
+    )
+    endpoint = SourceRegistry(database).find_duplicate_endpoint(probe.canonical_url, family="rss_atom")
+    assert endpoint is not None
+    assert endpoint.authority_status == AuthorityStatus.UNKNOWN.value
+    assert endpoint.verification_status == "unverified"

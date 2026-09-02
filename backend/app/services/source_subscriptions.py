@@ -15,7 +15,14 @@ from app.services.feed_projection import project_event_for_audience
 from app.services.follow_baseline import SUBJECT_SOURCE, record_follow_baseline
 from app.services.rss import validate_feed_url
 from app.services.source_catalog import SourceKind
-from app.services.source_registry import SourceRegistry, canonicalize_url, endpoint_id
+from app.services.source_registry import (
+    AuthorityStatus,
+    Endpoint,
+    SourceRegistry,
+    VerificationStatus,
+    canonicalize_url,
+    endpoint_id,
+)
 from app.services.statuspage import PAGE_ID_PATTERN
 from app.services.web_snapshots import validate_web_url
 
@@ -203,7 +210,16 @@ def subscribe_official_feeds_for_followed_topic(
     followed_at = int(time.time()) if now is None else now
     for seed, canonical in pending:
         duplicate = registry.find_duplicate_endpoint(canonical, family=seed.family)
-        endpoint = duplicate or registry.register_endpoint(url=canonical, family=seed.family)
+        if duplicate is None:
+            catalog = _japanese_registry_status(canonical)
+            endpoint = registry.register_endpoint(
+                url=canonical,
+                family=seed.family,
+                verification_status=catalog[0] if catalog else None,
+                authority_status=catalog[1] if catalog else None,
+            )
+        else:
+            endpoint = _align_endpoint_status(registry, duplicate, canonical)
         source_type = seed.family.value
         source_key = endpoint.canonical_url
         already = _user_has_subscription(
@@ -277,6 +293,8 @@ def add_user_source_subscription(
     now: int | None = None,
     registry: SourceRegistry | None = None,
     catch_up: bool = False,
+    verification_status: str | None = None,
+    authority_status: str | None = None,
 ) -> UserSourceSubscription:
     source_type, source_key, canonical_url, resolved_page_id = resolve_user_source_identity(
         settings,
@@ -284,6 +302,8 @@ def add_user_source_subscription(
         url=url,
         page_id=page_id,
         registry=registry or SourceRegistry(database),
+        verification_status=verification_status,
+        authority_status=authority_status,
     )
     already = _user_has_subscription(
         database,
@@ -443,6 +463,8 @@ def resolve_user_source_identity(
     url: str | None,
     page_id: str | None,
     registry: SourceRegistry,
+    verification_status: str | None = None,
+    authority_status: str | None = None,
 ) -> tuple[str, str, str, str | None]:
     """Validate and canonicalize before any subscription/job write.
 
@@ -486,8 +508,91 @@ def resolve_user_source_identity(
         raise unprocessable(str(exc)) from exc
     family = SourceKind.RSS_ATOM if kind == "rss_atom" else SourceKind.JSON_FEED
     duplicate = registry.find_duplicate_endpoint(canonical, family=family)
-    endpoint = duplicate or registry.register_endpoint(url=canonical, family=family)
+    desired = _resolved_rss_status(
+        canonical,
+        verification_status=verification_status,
+        authority_status=authority_status,
+    )
+    if duplicate is None:
+        endpoint = registry.register_endpoint(
+            url=canonical,
+            family=family,
+            verification_status=desired[0] if desired else None,
+            authority_status=desired[1] if desired else None,
+        )
+    else:
+        endpoint = _align_endpoint_status(
+            registry,
+            duplicate,
+            canonical,
+            verification_status=desired[0] if desired else None,
+            authority_status=desired[1] if desired else None,
+        )
     return kind, endpoint.canonical_url, endpoint.canonical_url, None
+
+
+def _japanese_registry_status(url: str) -> tuple[str, str] | None:
+    from app.services.japanese_source_catalog import japanese_feed_authority_class
+
+    authority_class = japanese_feed_authority_class(url)
+    if authority_class == "community":
+        return VerificationStatus.VERIFIED.value, AuthorityStatus.NON_AUTHORITATIVE.value
+    if authority_class == "secondary":
+        return VerificationStatus.VERIFIED.value, AuthorityStatus.UNKNOWN.value
+    return None
+
+
+def _resolved_rss_status(
+    url: str,
+    *,
+    verification_status: str | None = None,
+    authority_status: str | None = None,
+) -> tuple[str, str] | None:
+    """Catalog class wins. Candidate statuses may only keep a non-authoritative default."""
+    catalog = _japanese_registry_status(url)
+    if catalog is not None:
+        return catalog
+    if (
+        verification_status
+        and authority_status
+        and authority_status != AuthorityStatus.AUTHORITATIVE.value
+    ):
+        return verification_status, authority_status
+    return None
+
+
+def _align_endpoint_status(
+    registry: SourceRegistry,
+    endpoint: Endpoint,
+    url: str,
+    verification_status: str | None = None,
+    authority_status: str | None = None,
+) -> Endpoint:
+    desired = _resolved_rss_status(
+        url,
+        verification_status=verification_status,
+        authority_status=authority_status,
+    )
+    if desired is None:
+        return endpoint
+    resolved_verification, resolved_authority = desired
+    if (
+        endpoint.verification_status == resolved_verification
+        and endpoint.authority_status == resolved_authority
+    ):
+        return endpoint
+    stamp = iso_timestamp(int(time.time())) or datetime.now(UTC).replace(microsecond=0).isoformat()
+    verified = resolved_verification == VerificationStatus.VERIFIED.value
+    return registry.record_verification(
+        endpoint.endpoint_id,
+        verification_status=resolved_verification,
+        verification_method=(
+            "japanese_source_catalog" if _japanese_registry_status(url) else "source_recommendation"
+        ),
+        verification_reference=url,
+        verified_at=stamp if verified else None,
+        authority_status=resolved_authority,
+    )
 
 
 def parse_statuspage_page_id(*, page_id: str | None, url: str | None) -> str:

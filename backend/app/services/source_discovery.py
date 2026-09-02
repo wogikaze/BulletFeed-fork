@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 from app.database import Database
 from app.db.source_discovery_schema import ensure_source_discovery_schema
 from app.services.japanese_source_catalog import (
+    INDEX_DERIVED_SLUG_PREFIX,
     japanese_feed_authority_class,
     japanese_feed_specs,
 )
@@ -276,6 +277,8 @@ def _select_ranked_items(ranked: list[SourceCandidate], capped: int) -> tuple[So
             break
         if japanese_feed_authority_class(item.canonical_url) is not None:
             continue
+        if str(item.publisher_slug).startswith(INDEX_DERIVED_SLUG_PREFIX):
+            continue
         if item.match_kind != "direct":
             if neighbors_used >= neighbor_budget:
                 continue
@@ -435,6 +438,8 @@ def record_source_recommendation_decision(
                 user_id=user_id,
                 kind=chosen.family,
                 url=chosen.canonical_url,
+                verification_status=chosen.verification_status,
+                authority_status=chosen.authority_status,
             )
         except HTTPException as exc:
             raise ValueError(str(exc.detail)) from exc
@@ -633,6 +638,8 @@ def _register_or_reuse(
 def _hint_registry_status(hint: DiscoveryHint, family: SourceKind) -> tuple[str, str]:
     if hint.provenance == DiscoveryProvenance.EXTERNAL_INDEX.value:
         return VerificationStatus.DISCOVERY_ONLY.value, AuthorityStatus.NON_AUTHORITATIVE.value
+    if str(hint.publisher_slug or "").startswith(INDEX_DERIVED_SLUG_PREFIX):
+        return VerificationStatus.UNVERIFIED.value, AuthorityStatus.UNKNOWN.value
     authority_class = japanese_feed_authority_class(hint.url) if family == SourceKind.RSS_ATOM else None
     if authority_class == "community":
         return VerificationStatus.VERIFIED.value, AuthorityStatus.NON_AUTHORITATIVE.value
