@@ -148,6 +148,51 @@ def test_ranking_trace_stays_ranking_only() -> None:
     assert report["ranking_inference_used"] is False
 
 
+@pytest.mark.parametrize(
+    ("trace", "message"),
+    [
+        (
+            _trace(
+                "tenant-leak",
+                [_stage("tenant_isolation", True)],
+            )
+            | {"tenant_leak": True},
+            "tenant boundary violation",
+        ),
+        (
+            _trace("tenant-unknown", [_stage("acquisition", True)]),
+            "tenant boundary is unknown",
+        ),
+    ],
+)
+def test_tenant_boundary_problems_invalidate_attribution(
+    trace: dict, message: str
+) -> None:
+    report = attribute_pipeline_trace(_payload(trace))
+
+    assert report["status"] == "invalid"
+    assert report["coverage_status"] == "invalid"
+    assert report["tenant_boundary"]["tenant_boundary_unknown_count"] == (
+        1 if message.endswith("unknown") else 0
+    )
+    assert report["tenant_boundary"]["tenant_boundary_violation_count"] == (
+        1 if message.endswith("violation") else 0
+    )
+
+
+@pytest.mark.parametrize(
+    "marker",
+    [
+        {"human_gold": True},
+        {"label_source": "human"},
+        {"evaluation_label": "constructed"},
+    ],
+)
+def test_human_or_arbitrary_label_markers_are_rejected(marker: dict) -> None:
+    with pytest.raises(ValueError, match="label"):
+        attribute_pipeline_trace(_payload(_trace("labeled", [_stage("ranking", True)])) | marker)
+
+
 def test_existing_m1_trace_has_full_pipeline_coverage_without_labels() -> None:
     report = load_pipeline_trace(_M1_TRACE)
 
@@ -167,11 +212,12 @@ def test_existing_m1_trace_has_full_pipeline_coverage_without_labels() -> None:
 def test_clean_room_trace_uses_the_split_pipeline_stages() -> None:
     report = load_pipeline_trace(_CLEAN_ROOM_TRACE)
 
-    assert report["status"] == "available"
-    assert report["coverage_status"] == "complete"
+    assert report["status"] == "invalid"
+    assert report["coverage_status"] == "invalid"
     assert report["trace_count"] == 1
     assert report["provenance"]["harness_version"] == "m7-clean-room-backend-v1"
     assert report["traces"][0]["trace_id"] == "m7-clean-room"
+    assert report["tenant_boundary"]["tenant_boundary_unknown_count"] == 1
     assert report["tenant_boundary"]["cross_tenant_joins"] is False
 
 

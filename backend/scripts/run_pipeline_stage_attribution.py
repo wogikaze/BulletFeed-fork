@@ -41,6 +41,7 @@ def _artifact_name(path: Path) -> str:
 
 def _check(report: dict[str, Any]) -> tuple[str, ...]:
     violations: list[str] = []
+    tenant_boundary = report["tenant_boundary"]
     if report["status"] != "available":
         violations.append("full pipeline stage coverage is unavailable")
     if report["coverage_status"] != "complete":
@@ -49,6 +50,10 @@ def _check(report: dict[str, Any]) -> tuple[str, ...]:
         violations.append("labels were loaded")
     if report["ranking_inference_used"] is not False:
         violations.append("pipeline attribution inferred from ranking")
+    if tenant_boundary["tenant_boundary_unknown_count"] > 0:
+        violations.append("tenant boundary is unknown for one or more traces")
+    if tenant_boundary["tenant_boundary_violation_count"] > 0:
+        violations.append("tenant boundary violation observed")
     for stage in FULL_PIPELINE_STAGES:
         if report["coverage"][stage]["observed_trace_count"] == 0:
             violations.append(f"{stage} has no observed trace")
