@@ -32,7 +32,7 @@ def test_official_seeds_for_rust_and_llvm_include_rss() -> None:
     llvm_urls = {canonicalize_url(seed.url) for seed in llvm}
     assert canonicalize_url("https://blog.rust-lang.org/feed.xml") in rust_urls
     assert canonicalize_url("https://this-week-in-rust.org/rss.xml") in rust_urls
-    assert canonicalize_url("https://blog.llvm.org/feed.xml") in llvm_urls
+    assert canonicalize_url("https://blog.llvm.org/index.xml") in llvm_urls
 
 
 @patch("app.services.rss.socket.getaddrinfo")
@@ -79,7 +79,7 @@ def test_following_rust_and_llvm_subscribes_official_feeds(tmp_path: Path) -> No
         ).fetchone()["count"]
         observations = connection.execute("SELECT COUNT(*) AS count FROM observations").fetchone()["count"]
     assert canonicalize_url("https://blog.rust-lang.org/feed.xml") in urls
-    assert canonicalize_url("https://blog.llvm.org/feed.xml") in urls
+    assert canonicalize_url("https://blog.llvm.org/index.xml") in urls
     assert jobs >= 2
     assert observations == 0
 

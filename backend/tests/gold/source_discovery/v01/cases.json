@@ -19,7 +19,7 @@
       "topics": ["compiler optimization"],
       "relevant_urls": [
         "https://github.com/llvm/llvm-project/releases",
-        "https://blog.llvm.org/feed.xml",
+        "https://blog.llvm.org/index.xml",
         "https://llvm.org/docs/"
       ],
       "irrelevant_substrings": ["react.dev", "fastapi"],
