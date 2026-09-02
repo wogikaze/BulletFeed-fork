@@ -169,3 +169,27 @@ def test_feed_backfills_official_feeds_for_existing_topics(
             )
         }
     assert canonicalize_url("https://blog.rust-lang.org/feed.xml") in urls
+
+
+def test_get_feed_does_not_reregister_already_attached_official_feeds(
+    client: TestClient,
+    auth_headers: dict[str, str],
+    database: Database,
+) -> None:
+    install_topic_catalog(database)
+    created = client.post(
+        "/v1/me/topics",
+        headers=auth_headers,
+        json={"name": "Rust", "type": "technology"},
+    )
+    assert created.status_code == 201
+    with (
+        patch("app.services.source_subscriptions.SourceRegistry.register_endpoint") as register,
+        patch("app.services.source_subscriptions.ensure_source_sync_job") as enqueue,
+    ):
+        register.side_effect = AssertionError("GET /feed must not re-register attached official feeds")
+        enqueue.side_effect = AssertionError("GET /feed must not re-enqueue attached official feeds")
+        listed = client.get("/v1/feed", headers=auth_headers, params={"limit": 10})
+    assert listed.status_code == 200
+    register.assert_not_called()
+    enqueue.assert_not_called()
