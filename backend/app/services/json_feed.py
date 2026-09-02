@@ -3,14 +3,14 @@ from __future__ import annotations
 import html
 import json
 from typing import Any
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 import bleach
 import httpx
 from fastapi import HTTPException, status
 
 from app.config import Settings
-from app.services.rss import require_global_response_peer, validate_feed_url
+from app.services.rss import require_global_response_peer, rewrite_http_redirect_to_https, validate_feed_url
 from app.services.source_ingestion import NormalizedObservation
 from app.services.timestamps import canonical_timestamp
 
@@ -40,7 +40,10 @@ async def fetch_json_feed(settings: Settings, url: str) -> tuple[dict[str, Any],
                             status_code=status.HTTP_502_BAD_GATEWAY,
                             detail="JSON Feed redirect is invalid",
                         )
-                    current_url = validate_feed_url(urljoin(current_url, location), settings.rss_hosts)
+                    current_url = validate_feed_url(
+                        rewrite_http_redirect_to_https(current_url, location),
+                        settings.rss_hosts,
+                    )
                     continue
                 if response.status_code >= 400:
                     raise HTTPException(
