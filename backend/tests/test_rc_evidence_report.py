@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 
 from scripts.build_rc_evidence_report import _m2_gate, _repository_sha, build_report
@@ -77,6 +78,7 @@ def test_rc_evidence_report_references_all_current_mission_artifacts(monkeypatch
 
 def test_m2_pipeline_attribution_requires_historical_corpus_scope() -> None:
     report = {
+        "dataset_version": "real-world-validation-v0.2",
         "capacity": {"meets_targets": True},
         "metrics": {
             "blind_records_loaded": False,
@@ -94,8 +96,57 @@ def test_m2_pipeline_attribution_requires_historical_corpus_scope() -> None:
 
     assert _m2_gate(report, complete)["evidence_checks"]["full_pipeline_attribution"] is False
 
-    complete["provenance"]["trace_scope"] = "m2_historical_corpus"
+    source = Path(__file__)
+    complete["provenance"].update(
+        {
+            "trace_scope": "m2_historical_corpus",
+            "source_artifact": str(source),
+            "source_artifact_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+            "dataset_version": "real-world-validation-v0.2",
+            "harness_version": "m2-harness-v1",
+        }
+    )
+    complete["tenant_boundary"] = {
+        "tenant_boundary_unknown_count": 0,
+        "tenant_boundary_violation_count": 0,
+    }
     assert _m2_gate(report, complete)["evidence_checks"]["full_pipeline_attribution"] is True
+
+
+def test_m2_pipeline_attribution_rejects_stale_source_hash(tmp_path) -> None:
+    source = tmp_path / "trace.json"
+    source.write_text("{}", encoding="utf-8")
+    report = {
+        "dataset_version": "real-world-validation-v0.2",
+        "capacity": {"meets_targets": True},
+        "metrics": {
+            "blind_records_loaded": False,
+            "uncertainty": {"headline": {"at_10": {"status": "available"}}},
+            "failure_taxonomy": {"status": "available"},
+        },
+    }
+    pipeline = {
+        "status": "available",
+        "coverage_status": "complete",
+        "labels_loaded": False,
+        "ranking_inference_used": False,
+        "provenance": {
+            "source_artifact": str(source),
+            "source_artifact_sha256": "0" * 64,
+            "trace_scope": "m2_historical_corpus",
+            "dataset_version": "real-world-validation-v0.2",
+            "harness_version": "m2-harness-v1",
+        },
+        "tenant_boundary": {
+            "tenant_boundary_unknown_count": 0,
+            "tenant_boundary_violation_count": 0,
+        },
+    }
+
+    gate = _m2_gate(report, pipeline)
+
+    assert gate["evidence_checks"]["pipeline_source_hash"] is False
+    assert gate["evidence_checks"]["full_pipeline_attribution"] is False
 
 
 def test_rc_evidence_report_resolves_git_sha_when_env_missing(monkeypatch) -> None:
