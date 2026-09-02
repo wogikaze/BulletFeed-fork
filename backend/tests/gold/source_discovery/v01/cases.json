@@ -6,7 +6,7 @@
       "topics": ["React"],
       "relevant_urls": [
         "https://github.com/facebook/react/releases",
-        "https://react.dev/blog/rss.xml",
+        "https://react.dev/rss.xml",
         "https://react.dev/learn"
       ],
       "irrelevant_substrings": ["reactor", "project-reactor", "news.ycombinator.com"],

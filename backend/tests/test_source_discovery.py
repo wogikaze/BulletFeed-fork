@@ -164,7 +164,7 @@ def test_duplicate_endpoints_canonicalize_through_registry() -> None:
         registry,
         hints=(
             DiscoveryHint(
-                url="http://www.react.dev/blog/rss.xml?utm_source=share",
+                url="http://www.react.dev/rss.xml?utm_source=share",
                 provenance=DiscoveryProvenance.WEBSITE_FEED.value,
                 family=SourceKind.RSS_ATOM,
                 concept_ids=("react",),
@@ -175,10 +175,10 @@ def test_duplicate_endpoints_canonicalize_through_registry() -> None:
     )
     feeds = [item for item in result.items if item.family == SourceKind.RSS_ATOM.value]
     urls = {item.canonical_url for item in feeds}
-    assert canonicalize_url("https://react.dev/blog/rss.xml") in urls
+    assert canonicalize_url("https://react.dev/rss.xml") in urls
     assert len({item.endpoint_id for item in feeds}) == len(feeds)
     duplicate = registry.find_duplicate_endpoint(
-        "https://react.dev/blog/rss.xml/",
+        "https://react.dev/rss.xml/",
         family=SourceKind.RSS_ATOM,
     )
     assert duplicate is not None

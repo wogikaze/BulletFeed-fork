@@ -63,7 +63,7 @@ def test_react_first_rss_candidate_stays_activatable_without_japanese_allowlist(
         limit=80,
     )
     first_rss = next(item for item in result.items if item.family == SourceKind.RSS_ATOM.value)
-    assert first_rss.canonical_url == canonicalize_url("https://react.dev/blog/rss.xml")
+    assert first_rss.canonical_url == canonicalize_url("https://react.dev/rss.xml")
 
 
 def test_short_react_page_does_not_pad_with_japanese_catalog() -> None:
@@ -74,7 +74,7 @@ def test_short_react_page_does_not_pad_with_japanese_catalog() -> None:
         limit=6,
     )
     urls = {item.canonical_url for item in result.items}
-    assert canonicalize_url("https://react.dev/blog/rss.xml") in urls
+    assert canonicalize_url("https://react.dev/rss.xml") in urls
     assert not any("zenn.dev" in url or "qiita.com" in url for url in urls)
 
 
