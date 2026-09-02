@@ -456,6 +456,63 @@ def _m7_gate(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _m7_android_gate(
+    report: dict[str, Any],
+    *,
+    expected_repository_sha: str | None,
+) -> dict[str, Any]:
+    android = report.get("android", {})
+    acceptance = android.get("acceptance", {})
+    release = android.get("release_build", {})
+    lifecycle = android.get("lifecycle", {})
+    checks = {
+        "same_clean_room_backend": (
+            report.get("backend_status") == "passed"
+            and acceptance.get("backend") == "same_clean_room_backend"
+        ),
+        "repository_sha_matches": (
+            expected_repository_sha is not None
+            and report.get("repository_sha") == expected_repository_sha
+        ),
+        "acceptance": (
+            acceptance.get("status") == "passed"
+            and acceptance.get("gradle_exit_code") == 0
+        ),
+        "release_build": (
+            release.get("status") == "passed"
+            and release.get("artifact_present") is True
+        ),
+        "signed_release": release.get("signed") is True,
+        "install_evidence": lifecycle.get("install", {}).get("status") == "recorded",
+        "upgrade_evidence": lifecycle.get("upgrade", {}).get("status") == "recorded",
+        "recovery_evidence": lifecycle.get("recovery", {}).get("status") == "recorded",
+        "field_validation_excluded": report.get("field_validation") is False,
+        "completion_gate_not_claimed": report.get("completion_gate_pass") is False,
+    }
+    base_evidence = all(
+        checks[name]
+        for name in (
+            "same_clean_room_backend",
+            "repository_sha_matches",
+            "acceptance",
+            "release_build",
+            "field_validation_excluded",
+            "completion_gate_not_claimed",
+        )
+    )
+    status = "fail" if lifecycle.get("status") == "failed" else "partial" if base_evidence else "fail"
+    return {
+        "status": status,
+        "evidence_checks": checks,
+        "lifecycle_status": lifecycle.get("status", "not_available"),
+        "limitations": android.get("limitations", []),
+        "note": (
+            "This is shared-backend JVM/release-package evidence. Install, upgrade, recovery, "
+            "OAuth, UI breadth, and field validation remain separate unless explicitly recorded."
+        ),
+    }
+
+
 def _unmet_gate_items(missions: dict[str, Any]) -> list[str]:
     unmet = [
         "M1 Android journey and cross-surface breadth for all 30 personas",
@@ -491,8 +548,19 @@ def _unmet_gate_items(missions: dict[str, Any]) -> list[str]:
     return unmet
 
 
-def build_report() -> dict[str, Any]:
+def build_report(android_report_path: Path | None = None) -> dict[str, Any]:
     loaded = {name: _load(path) for name, path in ARTIFACTS.items()}
+    repository_sha = _repository_sha()
+    m7 = {
+        "artifact": _relative(ARTIFACTS["m7_backend"]),
+        **_m7_gate(loaded["m7_backend"]),
+    }
+    if android_report_path is not None:
+        m7["integrated_android"] = _m7_android_gate(
+            _load(android_report_path),
+            expected_repository_sha=repository_sha,
+        )
+
     missions = {
         "m1": {
             "artifact": _relative(ARTIFACTS["m1"]),
@@ -541,14 +609,11 @@ def build_report() -> dict[str, Any]:
             "capacity_diagnosis": _m6_capacity_gate(loaded["m6_capacity"]),
             "oneshot_blind": _m6_oneshot_blind_gate(loaded["m6_oneshot_blind"]),
         },
-        "m7": {
-            "artifact": _relative(ARTIFACTS["m7_backend"]),
-            **_m7_gate(loaded["m7_backend"]),
-        },
+        "m7": m7,
     }
     return {
         "report_version": REPORT_VERSION,
-        "repository_sha": _repository_sha(),
+        "repository_sha": repository_sha,
         "status": "pre_field_release_candidate",
         "completion_gate_pass": False,
         "blind_read": False,
@@ -579,9 +644,15 @@ def build_report() -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--android-report",
+        type=Path,
+        default=None,
+        help="include a runtime M7 shared-backend Android release-client report",
+    )
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
-    report = build_report()
+    report = build_report(args.android_report)
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(payload, encoding="utf-8")
