@@ -1,4 +1,4 @@
-"""Run the clean-room backend portion of the M7 integrated journey."""
+"""Run the M7 clean-room backend journey and optional Android release client."""
 
 from __future__ import annotations
 
@@ -6,12 +6,25 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
 from cryptography.fernet import Fernet
-from run_process_recovery_drill import (
+
+BACKEND = Path(__file__).resolve().parents[1]
+ROOT = BACKEND.parent
+SCRIPTS = BACKEND / "scripts"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+if str(BACKEND) not in sys.path:
+    sys.path.insert(0, str(BACKEND))
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+from run_process_recovery_drill import (  # noqa: E402
     _free_port,
     _request,
     _start_api,
@@ -20,10 +33,12 @@ from run_process_recovery_drill import (
     _wait_for_status,
 )
 
-from app.database import Database
-from app.db.migrations import KNOWN_REVISIONS
+from app.database import Database  # noqa: E402
+from app.db.migrations import KNOWN_REVISIONS  # noqa: E402
 
-BACKEND = Path(__file__).resolve().parents[1]
+ANDROID_PACKAGE = "com.bulletfeed.app"
+ANDROID_TEST_CLASS = "com.bulletfeed.app.RealBackendAcceptanceTest"
+RELEASE_BASE_URL = "https://clean-room.invalid/"
 
 
 def _verify_representative_upgrade(path: Path) -> bool:
@@ -54,7 +69,7 @@ def _json_request(
     method: str = "GET",
     payload: dict[str, Any] | None = None,
     access_token: str | None = None,
-    timeout: float = 2,
+    timeout: float = 8,
 ) -> tuple[int | None, dict[str, Any]]:
     status, body = _request(
         f"{base_url}{path}",
@@ -94,9 +109,272 @@ def _emit(result: dict[str, Any], output: Path | None) -> None:
     print(payload, end="")
 
 
+def _gradle_command(root: Path) -> list[str]:
+    if os.name == "nt":
+        return [str(root / "gradlew.bat")]
+    return ["bash", str(root / "gradlew")]
+
+
+def _repository_sha(root: Path) -> str | None:
+    env_sha = os.environ.get("GITHUB_SHA")
+    if env_sha:
+        return env_sha
+    git = shutil.which("git")
+    if git is None:
+        return None
+    try:
+        completed = subprocess.run(  # noqa: S603
+            [git, "rev-parse", "HEAD"],
+            cwd=str(root),
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return None
+    sha = completed.stdout.strip()
+    return sha or None
+
+
+def _run_gradle(root: Path, arguments: list[str]) -> tuple[int | None, str | None]:
+    try:
+        completed = subprocess.run(  # noqa: S603
+            [*_gradle_command(root), *arguments],
+            cwd=str(root),
+            check=False,
+        )
+    except OSError as exc:
+        return None, f"{type(exc).__name__}: {exc}"
+    return int(completed.returncode), None
+
+
+def _lifecycle_stage(status: str, reason: str, *, exit_code: int | None = None) -> dict[str, Any]:
+    stage: dict[str, Any] = {"status": status, "reason": reason}
+    if exit_code is not None:
+        stage["exit_code"] = exit_code
+    return stage
+
+
+def _unavailable_lifecycle(reason: str) -> dict[str, Any]:
+    return {
+        "status": "not_available",
+        "runner": "adb",
+        "scope": "package install/replace and process relaunch only",
+        "install": _lifecycle_stage("not_available", reason),
+        "upgrade": _lifecycle_stage("not_available", reason),
+        "recovery": _lifecycle_stage("not_available", reason),
+    }
+
+
+def _adb_run(adb: str, serial: str | None, arguments: list[str]) -> int | None:
+    command = [adb]
+    if serial:
+        command.extend(["-s", serial])
+    command.extend(arguments)
+    try:
+        completed = subprocess.run(  # noqa: S603
+            command,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        return None
+    return int(completed.returncode)
+
+
+def _run_android_lifecycle(
+    apk: Path | None,
+    previous_apk: Path | None,
+    serial: str | None,
+) -> dict[str, Any]:
+    adb = shutil.which("adb")
+    if adb is None:
+        return _unavailable_lifecycle("adb is not installed on this runner")
+    if apk is None or not apk.is_file():
+        return _unavailable_lifecycle("release APK was not assembled")
+    if apk.name.endswith("-unsigned.apk"):
+        return _unavailable_lifecycle("release APK is unsigned and cannot be installed by adb")
+    if _adb_run(adb, serial, ["get-state"]) != 0:
+        return _unavailable_lifecycle("no ready Android emulator or device is connected")
+
+    uninstall_code = _adb_run(adb, serial, ["uninstall", ANDROID_PACKAGE])
+    if uninstall_code is None:
+        return {
+            **_unavailable_lifecycle("adb stopped responding before clean install"),
+            "status": "failed",
+        }
+    install_code = _adb_run(adb, serial, ["install", str(apk)])
+    install = (
+        _lifecycle_stage("recorded", "release APK installed after package removal", exit_code=install_code)
+        if install_code == 0
+        else _lifecycle_stage("failed", "adb install failed", exit_code=install_code)
+    )
+
+    if previous_apk is None or not previous_apk.is_file():
+        upgrade = _lifecycle_stage(
+            "not_available",
+            "a distinct previous APK was not supplied; package replacement was not claimed as an upgrade",
+        )
+    else:
+        _adb_run(adb, serial, ["uninstall", ANDROID_PACKAGE])
+        previous_code = _adb_run(adb, serial, ["install", str(previous_apk)])
+        current_code = _adb_run(adb, serial, ["install", "-r", str(apk)])
+        upgrade_status = "recorded" if previous_code == 0 and current_code == 0 else "failed"
+        upgrade = {
+            "status": upgrade_status,
+            "reason": "previous APK installed, then current release APK replaced it with -r",
+            "previous_install_exit_code": previous_code,
+            "current_install_exit_code": current_code,
+        }
+
+    if install["status"] == "recorded":
+        stop_code = _adb_run(adb, serial, ["shell", "am", "force-stop", ANDROID_PACKAGE])
+        start_code = _adb_run(
+            adb,
+            serial,
+            ["shell", "am", "start", "-W", "-n", f"{ANDROID_PACKAGE}/.MainActivity"],
+        )
+        recovery = _lifecycle_stage(
+            "recorded" if stop_code == 0 and start_code == 0 else "failed",
+            "process force-stop and launcher activity relaunch only; session recovery is not claimed",
+        )
+        recovery["force_stop_exit_code"] = stop_code
+        recovery["start_exit_code"] = start_code
+    else:
+        recovery = _lifecycle_stage(
+            "not_available",
+            "process relaunch was not attempted because clean install failed",
+        )
+
+    statuses = [install["status"], upgrade["status"], recovery["status"]]
+    if "failed" in statuses:
+        overall_status = "failed"
+    elif all(status == "recorded" for status in statuses):
+        overall_status = "recorded"
+    else:
+        overall_status = "partial"
+    return {
+        "status": overall_status,
+        "runner": "adb",
+        "scope": "package install/replace and process relaunch only",
+        "install": install,
+        "upgrade": upgrade,
+        "recovery": recovery,
+    }
+
+
+def _run_android_release_client(
+    root: Path,
+    base_url: str,
+    *,
+    run_lifecycle: bool,
+    previous_apk: Path | None,
+    serial: str | None,
+) -> tuple[dict[str, Any], int]:
+    acceptance_code, acceptance_error = _run_gradle(
+        root,
+        [
+            ":app:testDebugUnitTest",
+            "--tests",
+            ANDROID_TEST_CLASS,
+            f"-Pbulletfeed.acceptance.baseUrl={base_url}/",
+        ],
+    )
+    acceptance: dict[str, Any] = {
+        "status": "passed" if acceptance_code == 0 else "failed",
+        "test_class": ANDROID_TEST_CLASS,
+        "gradle_exit_code": acceptance_code,
+        "backend": "same_clean_room_backend",
+    }
+    if acceptance_error is not None:
+        acceptance["error"] = acceptance_error
+
+    release_code, release_error = _run_gradle(
+        root,
+        [
+            ":app:assembleRelease",
+            f"-PBULLETFEED_RELEASE_BASE_URL={RELEASE_BASE_URL}",
+        ],
+    )
+    release_dir = root / "app" / "build" / "outputs" / "apk" / "release"
+    release_apk = next(
+        (
+            candidate
+            for candidate in (
+                release_dir / "app-release.apk",
+                release_dir / "app-release-unsigned.apk",
+            )
+            if candidate.is_file()
+        ),
+        None,
+    )
+    release: dict[str, Any] = {
+        "status": "passed" if release_code == 0 and release_apk is not None else "failed",
+        "variant": "release",
+        "gradle_exit_code": release_code,
+        "artifact": release_apk.relative_to(root).as_posix() if release_apk is not None else None,
+        "artifact_present": release_apk is not None,
+        "signed": release_apk is not None and not release_apk.name.endswith("-unsigned.apk"),
+        "base_url": "synthetic_https_placeholder",
+    }
+    if release_error is not None:
+        release["error"] = release_error
+
+    lifecycle = (
+        _run_android_lifecycle(release_apk, previous_apk, serial)
+        if run_lifecycle
+        else _unavailable_lifecycle(
+            "not requested; use --run-android-lifecycle with a ready emulator or device"
+        )
+    )
+    critical_pass = acceptance["status"] == "passed" and release["status"] == "passed"
+    status = "partial" if critical_pass else "failed"
+    if lifecycle["status"] == "failed":
+        status = "failed"
+    report = {
+        "report_version": "m7-clean-room-android-release-client-v1",
+        "status": status,
+        "completion_gate_pass": False,
+        "field_validation": False,
+        "acceptance": acceptance,
+        "release_build": release,
+        "lifecycle": lifecycle,
+        "limitations": [
+            "The JVM acceptance uses the same ephemeral clean-room backend; "
+            "it is not Android field evidence.",
+            "The release APK is assembled with a synthetic HTTPS placeholder "
+            "and is not network-tested.",
+            "A default unsigned release output is package evidence, not a signed field APK.",
+            "ADB lifecycle evidence covers package/process operations only; "
+            "it does not cover UI, OAuth, session, or credential recovery.",
+            "ADB clean install removes this app's package data and is intended only for "
+            "a disposable emulator.",
+        ],
+    }
+    return report, 0 if critical_pass and lifecycle["status"] != "failed" else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--android-release-client",
+        action="store_true",
+        help="run the existing Android real-backend test and release assembly on this backend",
+    )
+    parser.add_argument(
+        "--run-android-lifecycle",
+        action="store_true",
+        help="opt in to package install/replace and process relaunch checks through adb",
+    )
+    parser.add_argument(
+        "--require-android-lifecycle",
+        action="store_true",
+        help="fail if install, upgrade, or recovery lifecycle evidence is unavailable",
+    )
+    parser.add_argument("--adb-serial", default=os.environ.get("ANDROID_SERIAL"))
+    parser.add_argument("--previous-apk", type=Path, default=None)
     args = parser.parse_args(argv)
     workdir = Path(tempfile.mkdtemp(prefix="bulletfeed-clean-room-"))
     database_path = workdir / "data" / "bulletfeed.db"
@@ -124,8 +402,16 @@ def main(argv: list[str] | None = None) -> int:
     worker = None
     stages: list[dict[str, Any]] = []
     result: dict[str, Any] = {
-        "acceptance_version": "m7-clean-room-backend-v1",
-        "mode": "fresh_ephemeral_backend",
+        "acceptance_version": (
+            "m7-clean-room-android-release-client-v1"
+            if args.android_release_client
+            else "m7-clean-room-backend-v1"
+        ),
+        "mode": (
+            "fresh_ephemeral_backend_with_android_release_client"
+            if args.android_release_client
+            else "fresh_ephemeral_backend"
+        ),
         "trace_id": "m7-clean-room",
         "tenant_scope": "single_ephemeral_user",
         "stages": stages,
@@ -134,6 +420,8 @@ def main(argv: list[str] | None = None) -> int:
             "live OAuth and real user enrollment are excluded"
         ],
     }
+    if args.android_release_client:
+        result["repository_sha"] = _repository_sha(ROOT)
     try:
         upgrade_path = workdir / "data" / "representative-upgrade.db"
         _stage(
@@ -360,6 +648,21 @@ def main(argv: list[str] | None = None) -> int:
             ok=status == 200 and first.get("id") not in unread_ids,
             detail=f"HTTP {status}; cards={len(subsequent.get('items', []))}",
         )
+        if args.android_release_client:
+            result["backend_status"] = "passed"
+            android, android_exit_code = _run_android_release_client(
+                ROOT,
+                base_url,
+                run_lifecycle=args.run_android_lifecycle or args.require_android_lifecycle,
+                previous_apk=args.previous_apk,
+                serial=args.adb_serial,
+            )
+            result["android"] = android
+            result["status"] = android["status"]
+            _emit(result, args.output)
+            if args.require_android_lifecycle and android["lifecycle"]["status"] != "recorded":
+                return 1
+            return android_exit_code
         result["status"] = "passed"
         _emit(result, args.output)
         return 0

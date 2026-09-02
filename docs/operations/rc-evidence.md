@@ -25,6 +25,22 @@ CI と同じ検査（SHA が空なら失敗、PASS にはしない）:
 python backend/scripts/build_rc_evidence_report.py --check --output "$RUNNER_TEMP/rc-evidence-report.json"
 ```
 
+Android clean-room runner の出力を同じ RC bundle に含める場合は、runner artifact を
+追加で指定する。
+
+```text
+python backend/scripts/build_rc_evidence_report.py \
+  --check \
+  --android-report "$RUNNER_TEMP/m7-clean-room-android.json" \
+  --output "$RUNNER_TEMP/rc-evidence-with-android.json"
+```
+
+この追加 section は shared-backend JVM acceptance と release package の状態に加え、
+install/upgrade/recovery の各 status をそのまま保存する。`not_available` は PASS に
+変換されず、署名の有無も `signed` として保持される。runner と RC bundle の
+repository SHA が一致しない report は統合されない。`completion_gate_pass` は false
+のままである。
+
 M4 / M6 など依存レーンが main に入ったあとは、integrator が current SHA で再実行する。
 出力の `status` は `pre_field_release_candidate` のまま残す。
 
