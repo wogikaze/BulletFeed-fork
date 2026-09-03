@@ -1,6 +1,6 @@
 {
   "report_version": "m7-rc-evidence-v1",
-  "repository_sha": "716a88f73a33d898d4e9742a2686765e59bcad5f",
+  "repository_sha": "ffac3517fddb19daac58bf23f206c4d43b1917a6",
   "status": "pre_field_release_candidate",
   "completion_gate_pass": false,
   "blind_read": false,
@@ -52,6 +52,9 @@
         "blind_isolation": true,
         "uncertainty": true,
         "failure_taxonomy": true,
+        "pipeline_source_hash": true,
+        "pipeline_metadata": false,
+        "pipeline_tenant_boundary": true,
         "full_pipeline_attribution": false
       },
       "capacity": {
@@ -94,6 +97,7 @@
           "trace_scope": "m1_m7_deterministic_journey",
           "trace_version": null,
           "harness_version": "m1-zero-to-useful-v02",
+          "dataset_version": null,
           "mode": "deterministic_fixture",
           "repository_sha": null,
           "label_source": "constructed"
@@ -1767,6 +1771,10 @@
             "tenant_boundary_ok": true
           }
         ]
+      },
+      "pipeline_validation": {
+        "source_artifact_hash_matches": true,
+        "metadata_valid": false
       },
       "note": "Ranking misses remain ranking-only; acquisition/projection/evidence attribution uses explicit journey trace stages only. The checked-in M1/M7 deterministic journey trace is not M2 historical-corpus evidence."
     },

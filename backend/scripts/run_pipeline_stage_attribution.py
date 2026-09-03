@@ -30,6 +30,7 @@ DEFAULT_OUTPUT = (
     / "v01"
     / "pipeline_stage_attribution.json"
 )
+M1_DEFAULT_TRACE_SCOPE = "m1_m7_deterministic_journey"
 
 
 def _artifact_name(path: Path) -> str:
@@ -39,8 +40,17 @@ def _artifact_name(path: Path) -> str:
         return path.as_posix()
 
 
+def _resolve_trace_scope(path: Path) -> str | None:
+    """Keep the legacy M1 default; custom traces must carry their own scope."""
+
+    if path.resolve() == DEFAULT_TRACE.resolve():
+        return M1_DEFAULT_TRACE_SCOPE
+    return None
+
+
 def _check(report: dict[str, Any]) -> tuple[str, ...]:
     violations: list[str] = []
+    tenant_boundary = report["tenant_boundary"]
     if report["status"] != "available":
         violations.append("full pipeline stage coverage is unavailable")
     if report["coverage_status"] != "complete":
@@ -49,6 +59,10 @@ def _check(report: dict[str, Any]) -> tuple[str, ...]:
         violations.append("labels were loaded")
     if report["ranking_inference_used"] is not False:
         violations.append("pipeline attribution inferred from ranking")
+    if tenant_boundary["tenant_boundary_unknown_count"] > 0:
+        violations.append("tenant boundary is unknown for one or more traces")
+    if tenant_boundary["tenant_boundary_violation_count"] > 0:
+        violations.append("tenant boundary violation observed")
     for stage in FULL_PIPELINE_STAGES:
         if report["coverage"][stage]["observed_trace_count"] == 0:
             violations.append(f"{stage} has no observed trace")
@@ -65,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
     report = load_pipeline_trace(
         args.trace,
         source_artifact=_artifact_name(args.trace),
-        trace_scope="m1_m7_deterministic_journey",
+        trace_scope=_resolve_trace_scope(args.trace),
     )
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     args.output.parent.mkdir(parents=True, exist_ok=True)

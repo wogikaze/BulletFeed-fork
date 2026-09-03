@@ -20,6 +20,8 @@ FULL_PIPELINE_STAGES = ("acquisition", "projection", "evidence")
 RANKING_STAGE = "ranking"
 KNOWN_STAGES = (*FULL_PIPELINE_STAGES, RANKING_STAGE)
 UNATTRIBUTED_STAGE = "unattributed"
+ALLOWED_LABEL_SOURCES = {"constructed", "AI-silver", "no-label"}
+_ALLOWED_LABEL_KEYS = {"label_source", "labels_loaded", "human_gold", "blind_read"}
 
 
 def attribute_pipeline_trace(
@@ -42,6 +44,7 @@ def attribute_pipeline_trace(
         raise ValueError("blind trace artifacts are not allowed")
     rows, root = _trace_rows(payload)
     _assert_not_blind(root, rows)
+    _assert_no_disallowed_labels(root, rows)
     if source_artifact_sha256 is not None and not _is_sha256(source_artifact_sha256):
         raise ValueError("source_artifact_sha256 must be a 64-character hex digest")
 
@@ -160,9 +163,21 @@ def attribute_pipeline_trace(
     complete_trace_count = sum(
         not result["missing_pipeline_stages"] for result in trace_results
     )
+    tenant_boundary_unknown_count = sum(
+        result["tenant_boundary_ok"] is None for result in trace_results
+    )
+    tenant_boundary_violations = sum(
+        result["tenant_boundary_ok"] is False for result in trace_results
+    )
+    tenant_boundary_valid = (
+        tenant_boundary_unknown_count == 0 and tenant_boundary_violations == 0
+    )
     if not trace_results:
         status = "not_available"
         coverage_status = "not_available"
+    elif not tenant_boundary_valid:
+        status = "invalid"
+        coverage_status = "invalid"
     elif all(row["observed_trace_count"] > 0 for row in coverage.values()):
         status = "available"
         coverage_status = "complete" if complete_trace_count == trace_count else "partial"
@@ -171,9 +186,6 @@ def attribute_pipeline_trace(
         coverage_status = "partial"
 
     tenant_ids = {result["tenant_id"] for result in trace_results}
-    tenant_boundary_violations = sum(
-        result["tenant_boundary_ok"] is False for result in trace_results
-    )
     provenance = {
         "source_artifact": source_artifact,
         "source_artifact_sha256": source_artifact_sha256,
@@ -181,6 +193,7 @@ def attribute_pipeline_trace(
         "trace_version": root.get("trace_version"),
         "harness_version": root.get("harness_version")
         or root.get("acceptance_version"),
+        "dataset_version": root.get("dataset_version"),
         "mode": root.get("mode"),
         "repository_sha": root.get("repository_sha"),
         "label_source": root.get("label_source"),
@@ -200,9 +213,7 @@ def attribute_pipeline_trace(
             "cross_tenant_joins": False,
             "trace_count": trace_count,
             "unique_tenant_count": len(tenant_ids),
-            "tenant_boundary_unknown_count": sum(
-                result["tenant_boundary_ok"] is None for result in trace_results
-            ),
+            "tenant_boundary_unknown_count": tenant_boundary_unknown_count,
             "tenant_boundary_violation_count": tenant_boundary_violations,
         },
         "coverage": coverage,
@@ -274,6 +285,32 @@ def _assert_not_blind(root: Mapping[str, Any], rows: Sequence[Mapping[str, Any]]
         raise ValueError("trace claims blind records were loaded")
     if any(row.get("split") == "blind" for row in rows):
         raise ValueError("blind trace records are not allowed")
+
+
+def _assert_no_disallowed_labels(
+    root: Mapping[str, Any], rows: Sequence[Mapping[str, Any]]
+) -> None:
+    def visit(value: Any, path: str) -> None:
+        if isinstance(value, Mapping):
+            for key, child in value.items():
+                key_text = str(key)
+                lowered = key_text.casefold()
+                child_path = f"{path}.{key_text}"
+                if "label" in lowered or "gold" in lowered:
+                    if key_text not in _ALLOWED_LABEL_KEYS:
+                        raise ValueError(f"unsupported label marker: {child_path}")
+                    if key_text == "label_source" and child not in ALLOWED_LABEL_SOURCES:
+                        raise ValueError(f"unsupported label source: {child_path}")
+                    if key_text in {"labels_loaded", "human_gold"} and child is not False:
+                        raise ValueError(f"label marker must be false: {child_path}")
+                visit(child, child_path)
+        elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+            for index, child in enumerate(value):
+                visit(child, f"{path}[{index}]")
+
+    visit(root, "root")
+    for index, row in enumerate(rows):
+        visit(row, f"trace[{index}]")
 
 
 def _stage_observations(
