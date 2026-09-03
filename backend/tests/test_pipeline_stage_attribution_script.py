@@ -14,7 +14,7 @@ def _stage(name: str) -> dict:
 
 
 def test_default_trace_keeps_legacy_m1_m7_scope() -> None:
-    assert _resolve_trace_scope(DEFAULT_TRACE, None) == M1_DEFAULT_TRACE_SCOPE
+    assert _resolve_trace_scope(DEFAULT_TRACE) == M1_DEFAULT_TRACE_SCOPE
 
 
 def test_custom_m2_trace_preserves_embedded_scope(tmp_path: Path) -> None:
@@ -44,6 +44,7 @@ def test_custom_m2_trace_preserves_embedded_scope(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
+    assert _resolve_trace_scope(trace) is None
     assert main(["--trace", str(trace), "--output", str(output), "--check"]) == 0
 
     report = json.loads(output.read_text(encoding="utf-8"))
@@ -54,7 +55,7 @@ def test_custom_m2_trace_preserves_embedded_scope(tmp_path: Path) -> None:
     assert report["provenance"]["harness_version"] == "m2-harness-v1"
 
 
-def test_explicit_trace_scope_override_is_available_for_generated_traces(tmp_path: Path) -> None:
+def test_custom_trace_without_scope_does_not_gain_m2_scope(tmp_path: Path) -> None:
     trace = tmp_path / "generated.json"
 
-    assert _resolve_trace_scope(trace, "m2_historical_corpus") == "m2_historical_corpus"
+    assert _resolve_trace_scope(trace) is None
