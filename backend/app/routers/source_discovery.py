@@ -26,6 +26,10 @@ from app.services.source_discovery import (
 )
 from app.services.source_feed_discover import SiteFeedCandidate, discover_feeds_from_site_url
 from app.services.source_registry import VerificationStatus
+from app.services.user_source_grants import (
+    record_user_source_discovery_grants,
+    settings_for_site_discovery,
+)
 
 router = APIRouter(prefix="/v1", tags=["source-discovery"])
 
@@ -159,6 +163,19 @@ def _public_feed_item(item: SiteFeedCandidate) -> SiteFeedDiscoverItem:
     )
 
 
+def _grant_feed_items(
+    database: Database,
+    *,
+    user_id: str,
+    payload: SiteFeedDiscoverResult,
+) -> None:
+    record_user_source_discovery_grants(
+        database,
+        user_id=user_id,
+        sources=((item.family, item.canonical_url) for item in payload.items),
+    )
+
+
 @router.post("/me/sources/discover", response_model=SiteFeedDiscoverResult)
 async def discover_site_feeds(
     body: SiteFeedDiscoverRequest,
@@ -172,9 +189,12 @@ async def discover_site_feeds(
     with policy.acquire(user["user_id"], client_key=request_client_key(request)):
         cached = policy.get_cached("site_feed_discover", cache_args)
         if cached is not None:
-            return SiteFeedDiscoverResult.model_validate(cached)
+            payload = SiteFeedDiscoverResult.model_validate(cached)
+            _grant_feed_items(database, user_id=user["user_id"], payload=payload)
+            return payload
+        discovery_settings = settings_for_site_discovery(settings, body.url)
         result = await discover_feeds_from_site_url(
-            settings,
+            discovery_settings,
             body.url,
             database=database,
         )
@@ -185,6 +205,7 @@ async def discover_site_feeds(
             preferred_family=result.preferred_family,
             items=[_public_feed_item(item) for item in result.items],
         )
+        _grant_feed_items(database, user_id=user["user_id"], payload=payload)
         policy.put_cached(
             "site_feed_discover",
             cache_args,
