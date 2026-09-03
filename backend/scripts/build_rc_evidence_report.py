@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -97,6 +98,31 @@ def _m2_gate(
     capacity = report.get("capacity", {})
     metrics = report.get("metrics", {})
     pipeline = pipeline_report or report.get("pipeline_attribution", {})
+    provenance = pipeline.get("provenance", {})
+    tenant_boundary = pipeline.get("tenant_boundary", {})
+    source_artifact = provenance.get("source_artifact")
+    source_path = (
+        Path(source_artifact)
+        if isinstance(source_artifact, str) and Path(source_artifact).is_absolute()
+        else BACKEND / source_artifact
+        if isinstance(source_artifact, str)
+        else None
+    )
+    source_hash_matches = False
+    if source_path is not None and source_path.is_file():
+        source_hash_matches = (
+            hashlib.sha256(source_path.read_bytes()).hexdigest()
+            == provenance.get("source_artifact_sha256")
+        )
+    pipeline_metadata_valid = (
+        provenance.get("trace_scope") == "m2_historical_corpus"
+        and provenance.get("dataset_version") == report.get("dataset_version")
+        and bool(provenance.get("harness_version"))
+    )
+    pipeline_tenant_boundary = (
+        tenant_boundary.get("tenant_boundary_unknown_count") == 0
+        and tenant_boundary.get("tenant_boundary_violation_count") == 0
+    )
     checks = {
         "capacity_targets": bool(capacity.get("meets_targets")),
         "blind_isolation": metrics.get("blind_records_loaded") is False,
@@ -106,13 +132,17 @@ def _m2_gate(
         .get("status")
         == "available",
         "failure_taxonomy": metrics.get("failure_taxonomy", {}).get("status") == "available",
+        "pipeline_source_hash": source_hash_matches,
+        "pipeline_metadata": pipeline_metadata_valid,
+        "pipeline_tenant_boundary": pipeline_tenant_boundary,
         "full_pipeline_attribution": (
             pipeline.get("status") == "available"
             and pipeline.get("coverage_status") == "complete"
             and pipeline.get("labels_loaded") is False
             and pipeline.get("ranking_inference_used") is False
-            and pipeline.get("provenance", {}).get("trace_scope")
-            == "m2_historical_corpus"
+            and source_hash_matches
+            and pipeline_metadata_valid
+            and pipeline_tenant_boundary
         ),
     }
     return {
@@ -121,6 +151,10 @@ def _m2_gate(
         "capacity": capacity,
         "stage_attribution": metrics.get("stage_attribution", {}),
         "pipeline_attribution": pipeline,
+        "pipeline_validation": {
+            "source_artifact_hash_matches": source_hash_matches,
+            "metadata_valid": pipeline_metadata_valid,
+        },
         "note": (
             "Ranking misses remain ranking-only; acquisition/projection/evidence attribution "
             "uses explicit journey trace stages only. The checked-in M1/M7 deterministic "

@@ -13,6 +13,7 @@
     "trace_scope": "m1_m7_deterministic_journey",
     "trace_version": null,
     "harness_version": "m1-zero-to-useful-v02",
+    "dataset_version": null,
     "mode": "deterministic_fixture",
     "repository_sha": null,
     "label_source": "constructed"
