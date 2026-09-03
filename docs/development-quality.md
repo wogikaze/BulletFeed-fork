@@ -2,7 +2,7 @@
 
 ## CI
 
-GitHub Actions の quality workflow は **`main` への push だけ** 実行する（Pull Request では走らない）。
+GitHub Actionsの品質チェックは、**`main` へのpush時に実行する**。Pull Requestでは実行しない。
 
 Android（`.github/workflows/android-quality.yml`）:
 
@@ -10,30 +10,32 @@ Android（`.github/workflows/android-quality.yml`）:
 ./gradlew ktlintCheck lint testDebugUnitTest
 ```
 
-Backend（`.github/workflows/backend-quality.yml`、リポジトリルート）:
+バックエンド（`.github/workflows/backend-quality.yml`、リポジトリルート）:
 
 ```text
 ruff check backend
 pytest backend -q --tb=short
 ```
 
-- `ktlintCheck`: Kotlin / Kotlin DSL のフォーマットとスタイルを検査
-- `lint`: Android Lint
-- `testDebugUnitTest`: Android debug unit tests
-- `ruff check backend`: Backend lint
-- `pytest backend`: Backend tests
+各コマンドの役割は次のとおり。
 
-`main` への push ではこのほか Backend security（`pip-audit` / Bandit / Semgrep）と、backend lock 変更時の Dependency lock、Backend Docker build も走る。
+- `ktlintCheck`: Kotlin / Kotlin DSLのフォーマットとスタイルを検査する
+- `lint`: Android Lintを実行する
+- `testDebugUnitTest`: Androidのデバッグ用ユニットテストを実行する
+- `ruff check backend`: バックエンドのlintを実行する
+- `pytest backend`: バックエンドのテストを実行する
 
-## ローカル
+`main` へのpush時には、このほかにBackend security（`pip-audit` / Bandit / Semgrep）、依存関係のlockファイル変更時のDependency lock、Backend Docker buildも実行する。
 
-自動整形だけを行う場合:
+## ローカルでの確認
+
+Kotlinの自動整形だけを行う場合:
 
 ```text
 ./gradlew ktlintFormat
 ```
 
-CI と同じ検査:
+CIと同じ検査を行う場合:
 
 ```text
 ./gradlew ktlintCheck lint testDebugUnitTest
@@ -41,14 +43,14 @@ ruff check backend
 pytest backend -q --tb=short
 ```
 
-`backend/` をカレントにする場合は `ruff check .` と `pytest -q` でも同じ対象になる。
+`backend/` をカレントディレクトリにしている場合は、`ruff check .` と `pytest -q` でも同じ範囲を検査できる。
 
 ## コミット時の自動整形
 
-このリポジトリには `.githooks/pre-commit` を含めている。次の一度だけ実行すると、コミット前にKotlinを自動整形し、整形チェックとAndroid Lintを実行する。
+このリポジトリには `.githooks/pre-commit` を含めている。最初に次の設定を一度だけ実行すると、コミット前にKotlinを自動整形し、整形チェックとAndroid Lintを実行できる。
 
 ```text
 git config core.hooksPath .githooks
 ```
 
-hookは、すでにステージした `.kt` / `.kts` ファイルだけを再ステージする。意図しない未ステージ変更をコミット対象にしないためである。
+このhookは、すでにステージされている `.kt` / `.kts` ファイルだけを整形後に再ステージする。意図していない未ステージの変更をコミット対象へ含めないためである。
