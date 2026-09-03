@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import time
 from collections.abc import Iterable
-from urllib.parse import urlparse
 
 from app.config import Settings
 from app.database import Database
