@@ -1,36 +1,36 @@
-# フロントエンド stacked PR
+# フロントエンドの積み上げPR
 
-このブランチは、親バックエンドPR #1（`completion-pr`）を土台にフロントエンド実装を進めるためのstacked PRです。
+このブランチは、親となるバックエンドPR #1（`completion-pr`）を土台に、フロントエンド実装を進めるための積み上げPRである。
 
 ## 前提
 
-- baseは `completion-pr` とする。
+- ベースブランチは `completion-pr` とする。
 - PR #1が `main` にマージされるまでは、フロントエンドPRを `main` へ直接向けない。
-- バックエンドAPIの契約をフロントエンド側で推測して補完しない。
-- API契約の変更が必要な場合は、バックエンド側の変更を先に明示的な差分として積む。
+- バックエンドAPIの契約をフロントエンド側の推測で補わない。
+- API契約の変更が必要な場合は、先にバックエンド側へ明示的な変更を入れる。
 
 ## 実装済み
 
-- Remote Repositoryを既定化し、session、Feed、EventDetail、profile、topics、GitHub、security、notificationsを実APIへ接続。
-- Feedはbackendのrelation filterとcursor paginationを利用し、重要 / 不要 / 既読 / フォローを明示操作に統一。
-- FeedItemの意味のある画面露出（dwell + 可視割合、または detail を開く）をdeliveryId単位で `/v1/feed/exposures` へ記録。一瞬の交差は送らない。
-- 空Feedからテーマ管理またはGitHub連携へ遷移可能。
-- Topicsはcatalog検索、technology / service / company追加、priority変更、order変更、削除を実APIへ接続。
-- Settingsのprofile編集を実APIへ接続。
-- GitHub OAuth、repository pagination/選択、権限喪失、security alerts、notificationsを実データで扱う。
-- loading / empty / error / pagination、401 / 403 / 404を画面状態として扱う。
-- API contract helperとpagination mergeにunit testを追加。
+- `RemoteBulletFeedRepository` を既定の実装とし、セッション、フィード、更新詳細、プロフィール、テーマ、GitHub、セキュリティ、通知を実APIへ接続した。
+- フィードはバックエンドの関連度フィルターとカーソル方式のページングを利用し、`重要 / 不要 / 既読 / フォロー` を明示的な操作として扱う。
+- フィード項目が十分に画面へ表示された場合、または詳細画面を開いた場合に、`deliveryId` 単位で `/v1/feed/exposures` へ閲覧情報を記録する。一瞬だけ画面を通過した項目は記録しない。
+- 空のフィードからテーマ管理またはGitHub連携へ移動できる。
+- テーマ画面では、候補検索、技術・サービス・企業の追加、優先度変更、並び替え、削除を実APIへ接続した。
+- 設定画面のプロフィール編集を実APIへ接続した。
+- GitHub OAuth、リポジトリのページングと選択、権限喪失、セキュリティ情報、通知を実データで扱う。
+- 読み込み中、空状態、エラー、ページング、401 / 403 / 404を画面状態として扱う。
+- API契約の補助処理とページング時の結合処理にユニットテストを追加した。
 
 ## 実装方針
 
-- APIレスポンス型、nullable、pagination、認証、error responseを現在のバックエンド契約に合わせる。
-- private repositoryの権限失効や認証切れを含む境界条件をUIで安全に扱う。
-- importance、relation、semantic deltaはバックエンドをsource of truthとし、Android側で再計算しない。
-- UI変更には対応するテストを追加する。
-- Android qualityをgreenに保つ。
+- APIレスポンスの型、null許容、ページング、認証、エラーレスポンスを現在のバックエンド契約に合わせる。
+- 非公開リポジトリの権限失効や認証切れなどの境界条件を、UIで安全に扱う。
+- 重要度、関連度、変更内容の判定はバックエンドを正とし、Android側では再計算しない。
+- UIを変更するときは、対応するテストも更新する。
+- Androidの品質チェックを常に通る状態に保つ。
 
-## stackの扱い
+## ブランチの扱い
 
-PR #1が `main` にマージされた後、このPRのbaseを `main` へ変更またはrebaseする。それまでは `completion-pr` の上でフロントエンド差分のみを積む。
+PR #1が `main` にマージされた後、このPRのベースを `main` へ変更するか、`main` 上へリベースする。それまでは `completion-pr` の上にフロントエンド差分だけを積む。
 
-最終レビュー対象は、通常のAndroid quality・Backend quality・Backend security gateがすべてgreenであるheadとする。
+最終レビューは、Android quality、Backend quality、Backend security の各チェックがすべて成功しているコミットを対象とする。
