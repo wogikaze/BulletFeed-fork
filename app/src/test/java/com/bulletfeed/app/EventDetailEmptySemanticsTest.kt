@@ -39,9 +39,9 @@ class EventDetailEmptySemanticsTest {
 
     @Test
     fun emptySourcesAnnouncesPoliteLiveRegion() {
-        composeRule.setContent { EmptyDetailSection("追跡できるソースはありません。") }
+        composeRule.setContent { EmptyDetailSection("参照できる情報源はありません。") }
 
-        composeRule.onNodeWithText("追跡できるソースはありません。").assert(
+        composeRule.onNodeWithText("参照できる情報源はありません。").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
     }
@@ -89,14 +89,14 @@ class EventDetailEmptySemanticsTest {
             }
         }
 
-        composeRule.onNodeWithText("元ソースを開く").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("情報源を開く").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
     fun emptyUnknownFactsAnnouncesPoliteLiveRegion() {
         composeRule.setContent { UnknownFactsCard(emptyList()) }
 
-        composeRule.onNodeWithText("この出来事について、まだ知らない事実はありません。").assert(
+        composeRule.onNodeWithText("この更新について、未確認の事実はありません。").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
     }
@@ -105,12 +105,12 @@ class EventDetailEmptySemanticsTest {
     fun unknownFactsListShowsBulletText() {
         composeRule.setContent {
             MaterialTheme {
-                UnknownFactsCard(listOf(UnknownFact("f1", "原因はランタイム飽和です。")))
+                UnknownFactsCard(listOf(UnknownFact("f1", "原因はランタイムの飽和です。")))
             }
         }
 
-        composeRule.onNodeWithText("まだ知らない事実（1）").assertExists()
-        composeRule.onNodeWithText("原因はランタイム飽和です。").assertExists()
+        composeRule.onNodeWithText("未確認の事実（1）").assertExists()
+        composeRule.onNodeWithText("原因はランタイムの飽和です。").assertExists()
     }
 
     @Test
@@ -153,7 +153,7 @@ class EventDetailEmptySemanticsTest {
 
         composeRule.onNodeWithText("1.0 が公開された。").assertExists()
         composeRule.onAllNodesWithText("変更前").assertCountEquals(0)
-        composeRule.onNodeWithText("前後の差分を表示").assertExists()
+        composeRule.onNodeWithText("変更前後を表示").assertExists()
     }
 
     @Test
