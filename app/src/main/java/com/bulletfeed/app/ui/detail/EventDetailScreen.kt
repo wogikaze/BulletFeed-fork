@@ -227,10 +227,10 @@ private fun CurrentStateCard(state: CurrentState) =
         Column(Modifier.padding(16.dp)) {
             Text("現在の状態", color = Color(0xFF006A67), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(5.dp))
-            Text(state.phase, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(state.phaseLabel(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(state.summary, modifier = Modifier.padding(top = 5.dp), style = MaterialTheme.typography.bodyMedium)
             Text(
-                "${state.since} から · 信頼度 ${state.confidence}",
+                "${state.since} から · 信頼度 ${state.confidence.confidenceLabel()}",
                 modifier = Modifier.padding(top = 8.dp),
                 color = Color(0xFF655F69),
                 style = MaterialTheme.typography.labelMedium,
@@ -268,7 +268,7 @@ private fun ImpactCard(impact: EventImpact) =
                 shape = RoundedCornerShape(14.dp),
             ).padding(13.dp),
     ) {
-        Text("${impact.kindLabel()} · 信頼度 ${impact.confidence}", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
+        Text("${impact.kindLabel()} · 信頼度 ${impact.confidence.confidenceLabel()}", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
         Text(impact.text, modifier = Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium)
     }
 
@@ -287,6 +287,7 @@ private fun TimelineEntryCard(entry: EventTimelineEntry) =
             )
         }
     }
+}
 
 @Composable
 internal fun EventSourceCard(source: EventSource) {
@@ -517,9 +518,9 @@ private fun TimelineType.label(): String =
 private fun SourceKind.label(): String =
     when (this) {
         SourceKind.STATUSPAGE -> "Statuspage"
-        SourceKind.GITHUB_ADVISORY -> "GitHubアドバイザリ"
+        SourceKind.GITHUB_ADVISORY -> "GitHubセキュリティ情報"
         SourceKind.OSV -> "OSV"
-        SourceKind.GITHUB_RELEASE -> "GitHub Releases"
+        SourceKind.GITHUB_RELEASE -> "GitHubリリース"
         SourceKind.GITHUB_SBOM -> "GitHub SBOM"
         SourceKind.RSS_ATOM -> "RSS / Atom"
         SourceKind.JSON_FEED -> "JSON Feed"
@@ -532,4 +533,33 @@ private fun EventImpact.kindLabel(): String =
         "inferred" -> "推定される影響"
         "explicit" -> "明示された影響"
         else -> "影響"
+    }
+
+private fun CurrentState.phaseLabel(): String =
+    when (phase.trim().lowercase()) {
+        "identified" -> "確認済み"
+        "investigating" -> "調査中"
+        "monitoring" -> "監視中"
+        "resolved" -> "解決済み"
+        "released", "shipping", "available" -> "公開済み"
+        "prerelease", "release_candidate" -> "公開前"
+        "planned", "scheduled" -> "予定"
+        "active", "ongoing" -> "進行中"
+        "deprecated" -> "非推奨"
+        "ended", "closed" -> "終了"
+        else -> if (phase.hasJapaneseText()) phase else "現在の状況"
+    }
+
+private fun String.confidenceLabel(): String =
+    when (trim().lowercase()) {
+        "high" -> "高"
+        "medium" -> "中"
+        "low" -> "低"
+        "none" -> "未評価"
+        else -> if (hasJapaneseText()) trim() else "未評価"
+    }
+
+private fun String.hasJapaneseText(): Boolean =
+    any { character ->
+        character in '\u3040'..'\u30FF' || character in '\u3400'..'\u9FFF'
     }
