@@ -40,11 +40,9 @@ def _artifact_name(path: Path) -> str:
         return path.as_posix()
 
 
-def _resolve_trace_scope(path: Path, explicit_scope: str | None) -> str | None:
-    """Keep the legacy M1 default while allowing real M2 traces to self-identify."""
+def _resolve_trace_scope(path: Path) -> str | None:
+    """Keep the legacy M1 default; custom traces must carry their own scope."""
 
-    if explicit_scope is not None:
-        return explicit_scope
     if path.resolve() == DEFAULT_TRACE.resolve():
         return M1_DEFAULT_TRACE_SCOPE
     return None
@@ -75,20 +73,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--trace", type=Path, default=DEFAULT_TRACE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument(
-        "--trace-scope",
-        help=(
-            "Override provenance trace_scope. Custom traces otherwise preserve their embedded "
-            "trace_scope; the built-in M1 trace keeps its legacy M1/M7 scope."
-        ),
-    )
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
 
     report = load_pipeline_trace(
         args.trace,
         source_artifact=_artifact_name(args.trace),
-        trace_scope=_resolve_trace_scope(args.trace, args.trace_scope),
+        trace_scope=_resolve_trace_scope(args.trace),
     )
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     args.output.parent.mkdir(parents=True, exist_ok=True)
