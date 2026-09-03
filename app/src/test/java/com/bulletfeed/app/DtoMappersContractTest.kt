@@ -108,7 +108,7 @@ class DtoMappersContractTest {
     }
 
     @Test
-    fun `topic recommendation page maps cohort provenance and abstention`() {
+    fun `topic recommendation page localizes user facing recommendation metadata`() {
         val mapped = TopicRecommendationListDto(
             version = "topic-recommendations-v1",
             items = listOf(
@@ -129,13 +129,15 @@ class DtoMappersContractTest {
         ).toDomain()
 
         assertEquals("empty_profile", mapped.cohort)
-        assertEquals("inferred", mapped.items.single().provenance)
+        assertEquals("利用状況から推定", mapped.items.single().provenance)
+        assertEquals("中", mapped.items.single().confidence)
+        assertEquals("まだ興味の情報が少ないため、人気のあるテーマから提案しています。", mapped.items.single().reason)
         assertEquals("obscure", mapped.abstentions.single().name)
         assertTrue(mapped.version.isNotBlank())
     }
 
     @Test
-    fun `source recommendation maps discovery-only and never becomes evidence`() {
+    fun `source recommendation localizes metadata and hides technical explanation`() {
         val mapped = SourceRecommendationDto(
             id = "cand-1",
             endpointId = "ep-1",
@@ -163,12 +165,16 @@ class DtoMappersContractTest {
         assertEquals(false, mapped.evidenceEligible)
         assertEquals(SourceRecommendationStatus.PENDING, mapped.recommendationStatus)
         assertEquals("Hacker News", mapped.publisher?.displayName)
+        assertEquals("外部インデックス", mapped.discoveryProvenance)
+        assertEquals("情報集約サイト", mapped.authorityStatus)
+        assertEquals("興味のある分野に関連する情報源です。", mapped.reason)
+        assertEquals("", mapped.explanation)
         assertEquals("approved", SourceRecommendationDecision.APPROVED.name.lowercase())
         assertEquals("ignored", SourceRecommendationDecision.IGNORED.name.lowercase())
     }
 
     @Test
-    fun `site feed discover maps candidates as discovery-only never evidence`() {
+    fun `site feed discover hides technical English explanation`() {
         val mapped = SiteFeedDiscoverResultDto(
             version = "site-feed-discover-v1",
             siteUrl = "https://notes.example.com/",
@@ -203,6 +209,7 @@ class DtoMappersContractTest {
         assertEquals(false, item.evidenceEligible)
         assertEquals(SourceActionability.SUBSCRIBE, item.actionability)
         assertEquals("https://notes.example.com/feed.xml", item.canonicalUrl)
+        assertEquals("", item.explanation)
     }
 
     @Test
