@@ -12,6 +12,7 @@ from app.services.ledger_projection import LedgerProjector
 from app.services.source_ingestion import SourceIngestionPipeline
 from app.services.source_subscriptions import project_events_for_subscription_audience
 from app.services.timestamps import canonical_timestamp
+from app.services.user_source_grants import settings_for_active_source
 from app.stores.claim_ledger_store import ClaimLedgerStore
 
 
@@ -86,7 +87,13 @@ async def crawl_json_feed_events(
     retrieved_at: str,
 ) -> JsonFeedIngestResult:
     record("fetch", source_type="json_feed")
-    feed, final_url = await fetch_json_feed(settings, url)
+    effective_settings = settings_for_active_source(
+        database,
+        settings,
+        source_type="json_feed",
+        source_key=url,
+    )
+    feed, final_url = await fetch_json_feed(effective_settings, url)
     result = ingest_json_feed_events(
         database,
         feed=feed,
