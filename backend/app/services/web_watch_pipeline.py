@@ -14,6 +14,7 @@ from pathlib import Path
 from app.config import Settings
 from app.database import Database
 from app.services.source_registry import SourceRegistry, canonicalize_url
+from app.services.user_source_grants import settings_for_active_source
 from app.services.web_changes import extract_web_snapshot_changes
 from app.services.web_claims import WebClaimIngestResult, ingest_web_changeset
 from app.services.web_snapshots import SnapshotStore, WebSnapshot, fetch_web_snapshot
@@ -54,11 +55,17 @@ async def crawl_web_watch(
     store: SnapshotStore | None = None,
     registry: SourceRegistry | None = None,
 ) -> WebWatchCrawlResult:
-    snapshot_store = store or web_snapshot_store(settings)
+    effective_settings = settings_for_active_source(
+        database,
+        settings,
+        source_type="generic_web",
+        source_key=url,
+    )
+    snapshot_store = store or web_snapshot_store(effective_settings)
     canonical = canonicalize_url(url)
     previous = snapshot_store.latest_for(canonical)
     snapshot = await fetch_web_snapshot(
-        settings,
+        effective_settings,
         url,
         store=snapshot_store,
         retrieved_at=retrieved_at,
