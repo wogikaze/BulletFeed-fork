@@ -101,7 +101,7 @@ fun BulletFeedApp(
         uiState.pendingGithubAuthUrl?.let { url ->
             if (!lifecycleState.isAtLeast(Lifecycle.State.RESUMED)) return@LaunchedEffect
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                .onFailure { viewModel.showError("GitHub認可画面を開けませんでした。") }
+                .onFailure { viewModel.showError("GitHubの認可画面を開けませんでした。") }
             viewModel.clearPendingAuthUrl()
         }
     }
@@ -385,7 +385,7 @@ private fun ReadyApplication(
                     NotificationTargetType.EVENT -> onSelectEventTarget(notification.targetId)
                     NotificationTargetType.VULNERABILITY -> onSelectVulnerabilityTarget(notification.targetId)
                     NotificationTargetType.UNKNOWN -> viewModel.showError(
-                        "未対応の通知target type: ${notification.targetTypeRaw}",
+                        "この種類の通知にはまだ対応していません。",
                     )
                 }
             },
@@ -479,9 +479,9 @@ private fun SelectedEventPane(
             },
             isSavingKnowledgeBootstrap = uiState.isSavingKnowledgeBootstrap,
         )
-        uiState.isEventDetailLoading -> DetailLoadingScreen("Eventを読み込み中", onClearEvent)
+        uiState.isEventDetailLoading -> DetailLoadingScreen("更新を読み込み中", onClearEvent)
         else -> DetailErrorScreen(
-            message = uiState.eventDetailError ?: "Eventを表示できません。",
+            message = uiState.eventDetailError ?: "更新を表示できません。",
             onBack = onClearEvent,
             onRetry = { viewModel.loadEventDetail(selectedEventId, selectedFeedItemId) },
         )
@@ -502,9 +502,9 @@ private fun SelectedVulnerabilityPane(
             onBack = onClearVulnerability,
             onStatusChange = { viewModel.updateVulnerabilityStatus(selectedVulnerabilityId, it) },
         )
-        uiState.isVulnerabilityDetailLoading -> DetailLoadingScreen("Alertを読み込み中", onClearVulnerability)
+        uiState.isVulnerabilityDetailLoading -> DetailLoadingScreen("脆弱性情報を読み込み中", onClearVulnerability)
         else -> DetailErrorScreen(
-            message = uiState.vulnerabilityDetailError ?: "Alertを表示できません。",
+            message = uiState.vulnerabilityDetailError ?: "脆弱性情報を表示できません。",
             onBack = onClearVulnerability,
             onRetry = { viewModel.loadVulnerabilityDetail(selectedVulnerabilityId) },
         )
@@ -873,7 +873,7 @@ internal fun ReauthenticationScreen(
     verticalArrangement = Arrangement.Center,
 ) {
     Text(
-        "同じアカウントへ再認証",
+        "アカウントを再認証",
         modifier = Modifier.semantics {
             heading()
             liveRegion = LiveRegionMode.Assertive
@@ -882,7 +882,7 @@ internal fun ReauthenticationScreen(
         fontWeight = FontWeight.Bold,
     )
     Text(
-        "期限切れの保護データは画面から破棄しました。refresh tokenを回転し、利用できない場合はGitHub identityで既存のBulletFeed userを復旧します。新しい匿名userは作成しません。",
+        "セッションの有効期限が切れました。GitHubで再認証すると、既存のBulletFeedアカウントをそのまま復旧します。新しいアカウントは作成されません。",
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
@@ -893,7 +893,7 @@ internal fun ReauthenticationScreen(
         modifier = Modifier.testTag("session-reauth-button"),
     ) {
         if (isAuthorizing) CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp))
-        Text(if (isAuthorizing) "GitHub認証を確認中" else "アカウントを復旧")
+        Text(if (isAuthorizing) "GitHub認証を確認中" else "GitHubで再認証")
     }
 }
 
@@ -910,7 +910,7 @@ internal fun GithubAuthorizationRequiredScreen(
     verticalArrangement = Arrangement.Center,
 ) {
     Text(
-        "GitHub連携を完了",
+        "GitHub連携を完了してください",
         modifier = Modifier.semantics {
             heading()
             liveRegion = if (errorMessage != null) LiveRegionMode.Assertive else LiveRegionMode.Polite
@@ -919,7 +919,7 @@ internal fun GithubAuthorizationRequiredScreen(
         fontWeight = FontWeight.Bold,
     )
     Text(
-        "GitHubを使うonboardingは、OAuth成功とrepository選択が完了するまでreadyになりません。",
+        "GitHubを使って初期設定する場合は、認証とリポジトリの選択を完了してください。",
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
@@ -959,8 +959,8 @@ internal fun GithubReauthorizationRequiredScreen(
     )
     Text(
         accountLogin?.let {
-            "$it のGitHub credentialが失効したか、repository accessが失われました。BulletFeed userは維持したまま再認証します。"
-        } ?: "GitHub credentialが失効したか、repository accessが失われました。BulletFeed userは維持したまま再認証します。",
+            "$it のGitHub認証が失効したか、リポジトリへのアクセス権がなくなりました。BulletFeedのアカウント情報を維持したまま再認証します。"
+        } ?: "GitHub認証が失効したか、リポジトリへのアクセス権がなくなりました。BulletFeedのアカウント情報を維持したまま再認証します。",
         modifier = Modifier.padding(top = 10.dp),
         color = Color(0xFF655F69),
     )
@@ -1080,8 +1080,8 @@ internal fun KnowledgeBootstrapPromptDialog(
 ) {
     val kindLabel =
         when (prompt.subjectKind) {
-            BootstrapSubjectKind.EVENT -> "この Event"
-            BootstrapSubjectKind.TOPIC -> "この Topic"
+            BootstrapSubjectKind.EVENT -> "この更新"
+            BootstrapSubjectKind.TOPIC -> "このテーマ"
             BootstrapSubjectKind.GLOBAL -> "全体"
         }
     AlertDialog(
@@ -1092,29 +1092,29 @@ internal fun KnowledgeBootstrapPromptDialog(
                 Text("$kindLabel「${prompt.title}」をフォローしました。")
                 if (prompt.currentStateSummary.isNotBlank()) {
                     Text(
-                        "現在状態: ${prompt.currentStateSummary}",
+                        "現在の状態: ${prompt.currentStateSummary}",
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
                 Text(
-                    "「すでに知っている」は、いま真である現在状態だけを既知にします。途中経過は既知にしません。",
+                    "「すでに知っている」を選ぶと、現在成立している事実だけを既知として記録します。途中経過は含めません。",
                     modifier = Modifier.padding(top = 8.dp),
                 )
                 Text(
-                    "「これから追う（catch up）」は開始時刻だけを残し、過去は既知にしません。",
+                    "「ここから追跡する」を選ぶと開始時刻だけを記録し、過去の内容は既知として扱いません。",
                     modifier = Modifier.padding(top = 6.dp),
                 )
             }
         },
         confirmButton = {
             AccessiblePrimaryButton(onClick = onAlreadyKnew, enabled = !isSaving) {
-                Text("この現在状態は知っている")
+                Text("この状態はすでに知っている")
             }
         },
         dismissButton = {
             Column {
                 AccessibleOutlinedButton(onClick = onCatchUp, enabled = !isSaving) {
-                    Text("これから追う")
+                    Text("ここから追跡する")
                 }
                 AccessibleTextButton(onClick = onDismiss, enabled = !isSaving) {
                     Text("あとで")

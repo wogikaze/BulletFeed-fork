@@ -1,22 +1,24 @@
 # BulletFeed
 
-追っている技術・サービス・企業に起きた重要な変化を、**自分との関係**・**重要度**・**根拠**と一緒に届けるAndroidアプリです。MVPの中心は、単なる記事一覧ではなく `previous known state -> meaningful delta -> evidence` をユーザーごとに成立させることです。
+追跡している技術・サービス・企業に起きた重要な変化を、**自分との関係**・**重要度**・**根拠**とあわせて届けるAndroidアプリです。MVPの中心は単なる記事一覧ではなく、ユーザーごとに「これまでに知っていた状態 → 意味のある差分 → その根拠」を成立させることです。
 
 ## 現在の実装
 
-Androidは `RemoteBulletFeedRepository` を本線としてFastAPI backendへ接続します。Feedはserver ordering/cursor paginationをそのまま使い、カードからEvent detailへ遷移すると変更前後、impact、timeline、Evidence/Source、元URLを表示します。Feedで意味のある viewport 露出（`viewport-exposure-v2`: 最短 1000ms かつ可視割合 0.50、または detail を開く。現行 Android は dwell/ratio を必ず送る。欠損は displayed にしない）だけを `/v1/feed/exposures` へ送り、backendが `KIND_DISPLAYED` を記録します。一瞬の交差やごく一部だけの可視は displayed にしません。`GET /feed` しただけではknownになりません。delivered は displayed ではありません。
+Androidアプリは `RemoteBulletFeedRepository` を通常の経路としてFastAPIバックエンドへ接続します。フィードはサーバー側の並び順とカーソルページングをそのまま利用します。カードから更新の詳細を開くと、変更前後、影響、タイムライン、根拠・情報源、元のURLを表示します。
 
-プロフィール・テーマ・priority/orderはserver-side personalizationへ反映され、変更時に既存Feedを再projectionします。GitHub連携は実OAuth、repository選択、private repository access、Security Alert、通知までbackend contractへ接続されています。GitHub onboardingは `profile -> github_pending -> repository_pending -> ready` のstate machineで、OAuthやrepository選択を途中離脱した状態をready扱いにしません。
+フィードでは、意味のある表示だけを `/v1/feed/exposures` へ送信します。`viewport-exposure-v2` の条件は、1000ms以上かつ表示割合0.50以上、または詳細画面を開いた場合です。現在のAndroidアプリは滞在時間と表示割合を必ず送信し、値が欠けている場合は表示済みとして扱いません。バックエンドは条件を満たした表示に `KIND_DISPLAYED` を記録します。一瞬だけ画面に入った場合や、ごく一部しか見えていない場合は表示済みになりません。`GET /feed` を呼び出しただけでは既知にならず、配信済みと表示済みも区別します。
 
-セッションはaccess token + rotating refresh tokenです。期限切れ時は同じBulletFeed userをrefreshし、refresh credentialを失った場合はGitHub identity recoveryへ進みます。既存userを暗黙に新しい匿名userへ置き換えません。Android上のaccess/refresh/OAuth poll tokenはAndroid Keystore鍵によるAES/GCM暗号化ストレージへ保存します。
+プロフィール、テーマ、優先度、並び順はサーバー側のパーソナライズに反映され、変更時には既存のフィードを再生成します。GitHub連携は実際のOAuth認証、リポジトリ選択、非公開リポジトリへのアクセス、セキュリティ警告、通知までバックエンドのAPI契約に接続しています。GitHubを使う初期設定は `profile -> github_pending -> repository_pending -> ready` の状態遷移で管理し、OAuth認証やリポジトリ選択を途中で離脱した状態を設定完了とは扱いません。
 
-Feedはforeground復帰時、foreground中の定期更新、明示的な更新操作で再取得します。高度なpush notification最適化はMVPのこのrelease sliceには含めません。Searchタブは現時点では**現在ロード済みFeed内のローカル絞り込み**であり、全Event履歴を検索するserver-side Event Searchではありません。
+セッションはアクセストークンとローテーションするリフレッシュトークンで管理します。有効期限が切れた場合は同じBulletFeedアカウントのセッションを更新し、リフレッシュ用の認証情報を失った場合はGitHubアカウントを使った復旧へ進みます。既存アカウントを暗黙に新しい匿名アカウントへ置き換えることはありません。Android上のアクセストークン、リフレッシュトークン、OAuthポーリング用トークンは、Android Keystoreの鍵を使ったAES/GCM暗号化ストレージへ保存します。
 
-`app/src/main/.../data` に残るMock/Demo実装はfixture・UI回帰用途です。通常のアプリ起動経路はRemote Repositoryを生成します。Mock-only Maestro flowはproduction backend acceptanceの代替ではありません。
+フィードは、アプリがフォアグラウンドへ戻ったとき、フォアグラウンド中の定期更新、明示的な更新操作で再取得します。高度なプッシュ通知の最適化は、このMVPのリリース範囲には含めません。検索タブは現時点では**現在読み込まれているフィード内のローカル検索**であり、全更新履歴を対象にしたサーバー側検索ではありません。
+
+`app/src/main/.../data` に残るMock/Demo実装は、テストデータとUI回帰テスト用です。通常のアプリ起動ではRemote Repositoryを生成します。Mockだけを使うMaestroフローは、実バックエンドを使った受け入れテストの代替にはなりません。
 
 ## Backend
 
-`backend/` はAndroidが依存する実backendです。ローカル開発では次のように起動できます。
+`backend/` はAndroidアプリが利用する実バックエンドです。ローカル開発では次のように起動できます。
 
 ```bash
 cd backend
@@ -27,27 +29,27 @@ cp .env.example .env
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-ローカルの `uvicorn` は source-sync worker を同じプロセスに埋め込みます（テーマ追加後に公式RSSを取得するため）。`BULLETFEED_EMBED_SOURCE_SYNC_WORKER=0` で無効化できます。公開MVPでは `backend/compose.release.yml` がAPI + 専用 worker + durable shared SQLite volume + worker health + maintenance backup jobを定義し、API側では埋め込みworkerを止めます。公開TLS、secret management、backupのoff-host保管等を含む運用条件は [backend/RELEASE_OPERATIONS.md](backend/RELEASE_OPERATIONS.md) を参照してください。
+ローカルの `uvicorn` は、情報源の同期ワーカーを同じプロセスで起動します。これはテーマ追加後に公式RSSなどを取得するためのものです。`BULLETFEED_EMBED_SOURCE_SYNC_WORKER=0` で無効化できます。公開MVPでは `backend/compose.release.yml` がAPI、専用ワーカー、永続共有SQLiteボリューム、ワーカーのヘルスチェック、定期バックアップ処理を定義し、API側の組み込みワーカーは停止します。公開TLS、シークレット管理、バックアップの外部保管などを含む運用条件は [backend/RELEASE_OPERATIONS.md](backend/RELEASE_OPERATIONS.md) を参照してください。
 
-公開releaseでUvicornの8000番portを直接internetへ露出しません。所有HTTPS originのreverse proxy/load balancerの背後へ置き、GitHub callbackも同じ公開HTTPS構成で設定します。
+公開環境ではUvicornの8000番ポートを直接インターネットへ公開しません。管理下のHTTPSオリジンを持つリバースプロキシまたはロードバランサーの背後に配置し、GitHubのコールバックも同じ公開HTTPS構成で設定します。
 
 ## Android起動
 
-必要環境はAndroid Studio、JDK 17、Android SDK Platform 36です。
+必要な環境はAndroid Studio、JDK 17、Android SDK Platform 36です。
 
-Debug の `BuildConfig.BASE_URL` は `http://10.0.2.2:8000/` です。`BulletFeedApiFactory.resolveBaseUrl` は次の1手順だけです。ホストで backend を `127.0.0.1:8000` で起動します。Emulator では Factory が `10.0.2.2` をそのまま使い、エミュレータのホスト別名で backend に届きます。実機では Factory が `10.0.2.2` を `127.0.0.1` に置換するので、先に `adb reverse tcp:8000 tcp:8000` を実行します。debug だけ cleartext を許可します。
+Debug版の `BuildConfig.BASE_URL` は `http://10.0.2.2:8000/` です。`BulletFeedApiFactory.resolveBaseUrl` の扱いは次のとおりです。まずホスト側でバックエンドを `127.0.0.1:8000` で起動します。エミュレーターでは `10.0.2.2` をそのまま使い、ホスト上のバックエンドへ接続します。実機では `10.0.2.2` を `127.0.0.1` に置き換えるため、先に `adb reverse tcp:8000 tcp:8000` を実行します。平文HTTPを許可するのはDebug版だけです。
 
 ```bash
 ./gradlew :app:assembleDebug
 ```
 
-Release buildはbackend URLを暗黙に決めません。所有する公開HTTPS originを明示しない限りrelease package taskは失敗します。
+ReleaseビルドではバックエンドURLを自動決定しません。管理下の公開HTTPSオリジンを明示しない限り、Releaseパッケージのビルドは失敗します。
 
 ```bash
 BULLETFEED_RELEASE_BASE_URL=https://api.example.com/ ./gradlew :app:assembleRelease
 ```
 
-`BULLETFEED_RELEASE_BASE_URL` はHTTPS、非localhost、末尾 `/` が必須です。release manifestではcleartext trafficを禁止します。
+`BULLETFEED_RELEASE_BASE_URL` には、HTTPS、localhost以外のホスト、末尾の `/` が必要です。Release版のmanifestでは平文通信を禁止します。
 
 ## 品質チェック
 
@@ -60,26 +62,26 @@ ruff check .
 pytest -q
 ```
 
-GitHub ActionsではAndroid quality、Backend quality、Backend security、Dependency lockを実行します。Mock Maestroはfixture-level UI regressionです。MVPのDraft解除条件として使うreal-backend acceptanceは [docs/real-backend-acceptance.md](docs/real-backend-acceptance.md) を参照してください。
+GitHub ActionsではAndroid quality、Backend quality、Backend security、Dependency lockを実行します。Mockを使うMaestroテストは、テストデータを使ったUI回帰テストです。MVPのDraft解除条件に使う実バックエンドの受け入れテストは [docs/real-backend-acceptance.md](docs/real-backend-acceptance.md) を参照してください。
 
 ## Security / data lifecycle
 
-GitHub upstream tokenはbackendで暗号化して保持し、GitHub disconnectで不要なcredentialを破棄します。Settingsからのaccount deletionはprofile、topics、feedback/knownness、Feed state、follows、GitHub watches、Security Alert、notifications、sessions等のuser-scoped dataを削除します。
+GitHubのアクセストークンはバックエンドで暗号化して保持し、GitHub連携を解除すると不要な認証情報を破棄します。設定画面からアカウントを削除すると、プロフィール、テーマ、評価・既知情報、フィードの状態、フォロー、GitHubの監視対象、セキュリティ警告、通知、セッションなど、そのユーザーに属するデータを削除します。
 
-source kindごとにauthority、terms URL、content license、raw retention可否、redistribution、retention days、private scope、policy versionを `source_policies` へ登録し、未登録source kindがpublic evidence tableへ入ることをfail-closedにします。詳細は [backend/LEGAL_AND_SOURCE_POLICY.md](backend/LEGAL_AND_SOURCE_POLICY.md) と [backend/RELEASE_OPERATIONS.md](backend/RELEASE_OPERATIONS.md) を参照してください。
+情報源の種類ごとに、信頼性、利用規約URL、コンテンツライセンス、生データ保持の可否、再配布、保持日数、非公開範囲、ポリシーバージョンを `source_policies` へ登録します。未登録の情報源が公開根拠テーブルへ入らないよう、未登録時は安全側に失敗させます。詳細は [backend/LEGAL_AND_SOURCE_POLICY.md](backend/LEGAL_AND_SOURCE_POLICY.md) と [backend/RELEASE_OPERATIONS.md](backend/RELEASE_OPERATIONS.md) を参照してください。
 
-2026-08-21の監査文書は当時のcommitを対象にした履歴です。現行release lifecycleの監査差分は [docs/security-audit-2026-08-23.md](docs/security-audit-2026-08-23.md) を参照してください。
+2026-08-21の監査文書は、当時のコミットを対象にした履歴です。現在のリリース運用との差分を確認した監査は [docs/security-audit-2026-08-23.md](docs/security-audit-2026-08-23.md) を参照してください。
 
 ## ドキュメント
 
 | ドキュメント | 内容 |
 | --- | --- |
-| [フロントエンドMVP仕様](docs/frontend-mvp-spec.md) | 画面構成とCompose責務 |
-| [API契約 v1](docs/api-contract-v1.md) | Android / FastAPI間の通信契約 |
-| [データソース方針](docs/data-sources-mvp.md) | MVP source、取得条件、evidence方針 |
-| [Release operations](backend/RELEASE_OPERATIONS.md) | API/worker、durable storage、readiness、backup/restore、rollback |
-| [Real backend acceptance](docs/real-backend-acceptance.md) | Draft解除前の実backend E2E受け入れ手順 |
-| [セキュリティ監査差分（2026-08-23）](docs/security-audit-2026-08-23.md) | session、Keystore、HTTPS、GitHub recovery、knownness等の再評価 |
+| [フロントエンドMVP仕様](docs/frontend-mvp-spec.md) | 画面構成とComposeの責務 |
+| [API契約 v1](docs/api-contract-v1.md) | AndroidとFastAPI間の通信契約 |
+| [データソース方針](docs/data-sources-mvp.md) | MVPで扱う情報源、取得条件、根拠の扱い |
+| [Release operations](backend/RELEASE_OPERATIONS.md) | API・ワーカー、永続ストレージ、準備状態、バックアップ・復元、ロールバック |
+| [Real backend acceptance](docs/real-backend-acceptance.md) | Draft解除前に実バックエンドで行うE2E受け入れ手順 |
+| [セキュリティ監査差分（2026-08-23）](docs/security-audit-2026-08-23.md) | セッション、Keystore、HTTPS、GitHub復旧、既知情報などの再評価 |
 
 ## プロジェクト構成
 
@@ -95,4 +97,4 @@ backend/
 maestro/           # fixture-level UI regression only
 ```
 
-新しいAPI、source、永続化、認証方式を追加するときは、API contract・source policy・security assumptionsを同じ差分で更新します。
+新しいAPI、情報源、永続化方式、認証方式を追加するときは、API契約、情報源ポリシー、セキュリティ上の前提を同じ変更内で更新します。

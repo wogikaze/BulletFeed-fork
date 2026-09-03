@@ -367,7 +367,7 @@ class BulletFeedViewModel(
                         feedDeliveryIds = current.feedDeliveryIds + page.deliveryIdMap(),
                         feedNextCursor = if (repeatedCursor) null else page.nextCursor,
                         isFeedLoadingMore = false,
-                        feedLoadMoreError = if (repeatedCursor) "ページングcursorが進まなかったため読み込みを停止しました。" else null,
+                        feedLoadMoreError = if (repeatedCursor) "次のページを取得できなかったため、読み込みを停止しました。" else null,
                     )
                 }
             } catch (error: CancellationException) {
@@ -698,7 +698,7 @@ class BulletFeedViewModel(
                             _uiState.update {
                                 it.copy(
                                     isGithubAuthorizing = false,
-                                    errorMessage = status.detail ?: "GitHub連携を完了できませんでした。もう一度認可してください。",
+                                    errorMessage = status.detail ?: "GitHub連携を完了できませんでした。もう一度GitHubで認証してください。",
                                 )
                             }
                             return@launch
@@ -802,7 +802,7 @@ class BulletFeedViewModel(
                         githubNextCursor = if (repeatedCursor) null else page.nextCursor,
                         isGithubRepositoriesLoading = false,
                         isGithubLoadingMore = false,
-                        githubRepositoryError = if (repeatedCursor) "ページングcursorが進まなかったため読み込みを停止しました。" else null,
+                        githubRepositoryError = if (repeatedCursor) "次のページを取得できなかったため、読み込みを停止しました。" else null,
                     )
                 }
             } catch (error: CancellationException) {
@@ -860,7 +860,7 @@ class BulletFeedViewModel(
                         githubConnection = result.connection,
                         isGithubSaving = false,
                         githubTopicSyncMessage = if (result.topicSyncState == GithubTopicSyncState.PENDING) {
-                            "保存しました。GitHubからトピックを確認中です。"
+                            "保存しました。GitHubからトピックを確認しています。"
                         } else {
                             githubTopicSyncMessage(result, selectedRepositoryCount)
                         },
@@ -938,7 +938,7 @@ class BulletFeedViewModel(
                     throw error
                 } catch (error: Throwable) {
                     _uiState.update {
-                        it.copy(githubTopicSyncMessage = "トピックの確認状態を取得できませんでした。")
+                        it.copy(githubTopicSyncMessage = "トピックの確認状況を取得できませんでした。")
                     }
                 }
             }
@@ -954,7 +954,7 @@ class BulletFeedViewModel(
                 throw error
             } catch (error: Throwable) {
                 _uiState.update {
-                    it.copy(githubTopicSyncMessage = "保存は完了しました。トピックの確認状態を取得できませんでした。")
+                    it.copy(githubTopicSyncMessage = "保存は完了しましたが、トピックの確認状況を取得できませんでした。")
                 }
             }
         }
@@ -971,7 +971,7 @@ class BulletFeedViewModel(
                 GithubTopicSyncState.FAILED -> {
                     _uiState.update {
                         it.copy(
-                            githubTopicSyncMessage = "トピックの確認に失敗しました。時間をおいて再試行します。",
+                            githubTopicSyncMessage = "トピックの確認に失敗しました。時間をおいて再試行してください。",
                         )
                     }
                     return
@@ -981,7 +981,7 @@ class BulletFeedViewModel(
                 GithubTopicSyncState.RUNNING,
                 -> {
                     _uiState.update {
-                        it.copy(githubTopicSyncMessage = "保存しました。GitHubからトピックを確認中です。")
+                        it.copy(githubTopicSyncMessage = "保存しました。GitHubからトピックを確認しています。")
                     }
                 }
             }
@@ -989,7 +989,7 @@ class BulletFeedViewModel(
             status = repository.getGithubTopicSyncStatus()
         }
         _uiState.update {
-            it.copy(githubTopicSyncMessage = "トピックの確認に時間がかかっています。処理はバックグラウンドで継続します。")
+            it.copy(githubTopicSyncMessage = "トピックの確認に時間がかかっています。処理はこのまま続きます。")
         }
     }
 
@@ -1300,7 +1300,7 @@ class BulletFeedViewModel(
                     subjectKind = BootstrapSubjectKind.TOPIC,
                     subjectId = created.name,
                     title = created.name,
-                    currentStateSummary = "このトピックに関する、いま真である現在状態だけを対象にできます。",
+                    currentStateSummary = "このトピックについて、現在わかっている内容だけを「知っている」として記録できます。",
                 ),
             )
         }
@@ -1741,7 +1741,7 @@ private fun Throwable.toUserMessage(): String {
         httpCode() == 404 -> "対象は削除されたか、現在はアクセスできません。"
         apiValidationMessage != null -> apiValidationMessage
         httpCode() == 409 -> "サーバー上の状態が更新されています。再読み込みしてからやり直してください。"
-        httpCode() == 422 -> "入力または要求がAPI契約を満たしていません。内容を確認してください。"
+        httpCode() == 422 -> "入力内容を処理できませんでした。内容を確認してください。"
         httpCode() == 429 -> "リクエストが集中しています。少し後に再試行してください。"
         (httpCode() ?: 0) >= 500 -> serviceUnavailableMessage()
         else -> "処理を完了できませんでした。再試行してください。"
@@ -1752,7 +1752,7 @@ private fun Throwable.serviceUnavailableMessage(): String {
     val detail = fastApiDetail()?.lowercase().orEmpty()
     return when {
         "worker" in detail || "heartbeat" in detail ->
-            "情報源の同期ワーカーが応答していません。再試行してください。"
+            "情報源の同期処理が応答していません。再試行してください。"
         "database" in detail ->
             "データベースの準備ができていません。再試行してください。"
         else -> "サーバーで処理できませんでした。再試行してください。"
@@ -1781,15 +1781,15 @@ private fun Throwable.apiValidationMessage(): String? {
             "GitHub連携なしではテーマを5件以上選んでください。"
         "url is required" -> "URLを入力してください。"
         "Unsupported source kind" -> "この種類の情報源は購読できません。"
-        "Invalid Statuspage ID" -> "Statuspage の page ID が正しくありません。"
-        "pageId or url is required for statuspage" -> "Statuspage は page ID または URL が必要です。"
+        "Invalid Statuspage ID" -> "Statuspage のページIDが正しくありません。"
+        "pageId or url is required for statuspage" -> "Statuspage のページIDまたはURLを入力してください。"
         "Statuspage URL must use a statuspage.io page host" -> "Statuspage は statuspage.io のページURLを指定してください。"
         "Statuspage URL must be HTTP or HTTPS" -> "Statuspage URL は HTTP または HTTPS で指定してください。"
-        "RSS fetching is disabled" -> "RSS/JSON Feed の取得は現在無効です。"
+        "RSS fetching is disabled" -> "RSS / JSON Feed の取得は現在無効です。"
         "Web fetching is disabled" -> "Webページの取得は現在無効です。"
         "RSS host is not in the allowlist" -> "このホストのフィードは許可されていません。"
         "RSS host cannot be resolved" -> "フィードのホスト名を解決できません。"
-        else -> message?.takeIf { it.isNotBlank() && it.length <= 180 }
+        else -> null
     }
 }
 
@@ -1831,10 +1831,10 @@ internal fun githubTopicSyncMessage(
         alreadyTracked.isNotEmpty() ->
             "検出したテーマはすでに追跡中です: ${alreadyTracked.joinToString("、")}"
         failedAll ->
-            "選択したrepositoryからテーマを読み取れませんでした。権限と接続を確認してください。"
+            "選択したリポジトリからテーマを読み取れませんでした。権限と接続を確認してください。"
         selectedRepositoryCount == 0 ->
-            "監視するrepositoryを選ぶと、使っている技術がテーマに追加されます。"
+            "監視するリポジトリを選ぶと、利用している技術がテーマに追加されます。"
         else ->
-            "選択したrepositoryから新しいテーマは見つかりませんでした。"
+            "選択したリポジトリから新しいテーマは見つかりませんでした。"
     }
 }

@@ -1,56 +1,69 @@
-# Real backend MVP acceptance
+# 実バックエンドを使ったMVP受け入れ試験
 
-## Automated Android remote-client suite
+## Androidリモートクライアントの自動試験
 
-JVM integration harness that drives production `BulletFeedApi` + `RemoteBulletFeedRepository` against an ephemeral local FastAPI + SQLite instance. Maestro mock fixtures are not this gate. No GitHub OAuth.
+本番と同じ `BulletFeedApi` と `RemoteBulletFeedRepository` を使い、一時的に起動したFastAPI + SQLiteへ接続するJVM統合試験を用意する。Maestroのモックデータを使った試験は、この受け入れ条件の代替にはしない。GitHub OAuthはこの自動試験の対象外とする。
 
 ```bash
 ./gradlew :app:realBackendAcceptanceTest
 ```
 
-Requires a backend Python environment with package extras installable as `pip install -e '.[dev]'` (or an equivalent venv that can import `app` and `uvicorn`). The task starts a 127.0.0.1 harness with `BULLETFEED_ACCEPTANCE_HARNESS=1`, then runs `RealBackendAcceptanceTest`.
+バックエンド側では、`pip install -e '.[dev]'` で開発用依存関係を導入できるPython環境、または `app` と `uvicorn` を読み込める同等の仮想環境が必要になる。このタスクは `127.0.0.1` に `BULLETFEED_ACCEPTANCE_HARNESS=1` を設定した試験用サーバーを起動し、その後 `RealBackendAcceptanceTest` を実行する。
 
-Default `./gradlew :app:testDebugUnitTest` stays offline and excludes that class unless `-Pbulletfeed.acceptance.baseUrl=` is set.
+通常の `./gradlew :app:testDebugUnitTest` はオフラインのまま実行し、`-Pbulletfeed.acceptance.baseUrl=` が指定されていない限り、この統合試験を含めない。
 
 ---
 
-この手順はPR #81系のDraft解除条件です。Mock Repository、固定demo seed、Mock初期状態のMaestro flowだけでは合格にしません。Android debug/release candidateと実FastAPI + source-sync workerを同じbackend contractで動かし、server stateを直接確認できるtest environmentで実施します。
+以下はPR #81系のDraft解除条件として使う手動受け入れ手順である。Mock Repository、固定デモデータ、モック初期状態を使うMaestroフローだけでは合格としない。Androidのデバッグ版またはリリース候補版を実FastAPIと情報源同期処理へ接続し、バックエンドの状態まで確認できる試験環境で実施する。
 
-## Preconditions
+## 前提条件
 
-- Backend PR #83相当のcontractがfrontendの接続先へdeployされている。
-- APIとsource-sync workerが同じdurable databaseを使用し、`GET /health/ready` が200。
-- Android release candidateは所有HTTPS originを `BULLETFEED_RELEASE_BASE_URL` としてbuildし、cleartextを使用しない。
-- GitHub test accountを用意し、少なくとも1つのpublic repositoryと、permission revokeを安全に試せるprivate repositoryへaccessできる。
-- test accountの秘密情報やOAuth tokenをtest script、log、screenshot、repositoryへ保存しない。
+- Backend PR #83相当のAPI契約が、フロントエンドの接続先へ反映されている。
+- APIと情報源同期処理が同じ永続データベースを利用し、`GET /health/ready` が200を返す。
+- Androidのリリース候補版は、管理下のHTTPS URLを `BULLETFEED_RELEASE_BASE_URL` に指定してビルドし、平文HTTPを利用しない。
+- GitHubの試験用アカウントを用意し、少なくとも1つの公開リポジトリと、権限取り消しを安全に試せる非公開リポジトリへアクセスできるようにする。
+- 試験用アカウントの秘密情報やOAuthトークンを、テストスクリプト、ログ、スクリーンショット、リポジトリへ保存しない。
 
-## Required end-to-end chain
+## 必須の一連試験
 
-1. Clean installで起動し、初回sessionを作成する。backend上の`user_id`を記録する。
-2. Profile/Topicsを設定し、GitHub modeを選ぶ。OAuth browserを閉じた場合にstateが`github_pending`のまま残り、再起動後もonboardingを再開できることを確認する。
-3. GitHub OAuthを完了する。repositoryをまだ保存していない状態が`repository_pending`であり、main Feedへready遷移しないことを確認する。
-4. public/private repositoryを選択して保存する。repository選択後にtopic inferenceが反映され、stateが`ready`になることを確認する。
-5. source workerが取り込んだ実EventをFeedで表示する。Feed cardでtitle、importance、relation、timestamp、source publisher/provenanceが確認できること。
-6. Feed pageを取得した直後、まだviewportへ表示していないdeliveryについて `displayed`/`read` watermark が増えていないことを確認する。GET は `delivered` になり得る。高速スクロールの一瞬交差だけでは `displayed` にならないこと。意味のある表示（最短滞在と可視割合、または detail を開く）のあと `/feed/exposures` が成功したdeliveryだけcanonical claim knownnessへ反映されることを確認する。
-7. 通信を一時的に失敗させてexposure POSTを失敗させ、同じprocess内でviewportを再表示したとき再送されることを確認する。失敗したdeliveryをclientがrecorded扱いしないこと。
-8. Event detailを開き、opened/latest deltaのbefore/after、current state、impact、timeline、Evidence/Source、published/retrieved time、元URLがserver EventDetailと一致することを確認する。deep link `bulletfeed://event/{id}` からも同じdetailへ到達する。
-9. follow/unfollow、read、important、not relevantを操作し、client-side optimistic fictionではなくserver再取得後の状態へ収束することを確認する。50件より後ろのpage itemでもread/feedbackが成功する。
-10. cursor paginationを複数page進め、server orderingを保ち、重複itemを表示せず、cursorが進まない異常時に無限loadしないことを確認する。
-11. Profile、Topic priority/orderを変更し、既存Feedのrelation/personalization rankがserver-sideで再projectionされ、同じold relationを読み直すだけでないことを確認する。
-12. Security Alert一覧/detailを開き、notification targetからEvent/Security detailへ遷移する。対象が削除・permission lossになった場合は403/404でstale detailを画面に残さない。
-13. Android processをkillして再起動する。token、pending OAuth state、selected IDs/deep-link navigationが必要な範囲で安全に復旧し、plaintext bearer/poll tokenがSharedPreferencesに存在しないことを確認する。
-14. access token expiryを発生させ、rotating refresh tokenで**同じuser_id**へ戻ることを確認する。Profile、Topics、feedback、knownness、GitHub linkageが維持されること。
-15. refresh credentialも利用できない状態を作り、GitHub identity recoveryを完了する。既存GitHub identityに紐づく**同じBulletFeed user_id**へ戻り、新しいanonymous userを作らないことを確認する。旧refresh token replayは401。
-16. 選択private repositoryのGitHub permissionをrevocation相当にする。worker/APIがcredential/repository access lossを検出し、`reauthorization_required`へ収束すること。Androidは「connected」の通常repo UIで行き止まりにならず、同じBulletFeed userのGitHub再認証を提示する。
-17. GitHubをdisconnectし、watchesが外れ、他userから参照されないupstream encrypted credentialが削除されることを確認する。private repository由来のアクセス不能Event/Alertがfrontendに残らないこと。
-18. Settingsからaccount deletionを実行する。確認dialogなしに即削除されないこと。削除後はuser-scoped profile/topics/feed/deliveries/exposures/knownness/feedback/follows/watches/alerts/notifications/sessionsが残らず、旧access/refresh tokenで認証できないこと。
-19. public HTTPS release candidateで上記主要chainを再度smokeし、`10.0.2.2`やHTTPへ接続していないことをnetwork inspectionで確認する。
-20. API processを生かしたままworkerを停止し、`/health/ready`が503になることを確認する。worker再開後heartbeatがfreshになり200へ戻ることを確認する。backup jobを実行し、別test DBへのrestore drillを行う。
+1. 新規インストール後に起動し、初回セッションを作成する。バックエンド上の `user_id` を記録する。
+2. プロフィールとテーマを設定し、GitHub連携を選択する。OAuth画面を途中で閉じた場合は状態が `github_pending` のまま保持され、アプリ再起動後も初期設定を再開できることを確認する。
+3. GitHub OAuthを完了する。リポジトリをまだ保存していない段階では `repository_pending` のままで、通常のフィード画面へ進まないことを確認する。
+4. 公開・非公開リポジトリを選択して保存する。選択したリポジトリから推定したテーマが反映され、状態が `ready` になることを確認する。
+5. 情報源同期処理が取得した実際の更新をフィードに表示する。カードでタイトル、重要度、関連度、日時、情報源を確認できること。
+6. フィードを取得しただけでは、その項目が「表示済み」または「既読」として記録されないことを確認する。高速スクロールで一瞬だけ画面を通過した項目も表示済みとして扱わない。十分な時間と割合で表示された場合、または詳細を開いた場合にだけ `/feed/exposures` を送信し、成功した項目だけが既知情報へ反映されることを確認する。
+7. 一時的に通信を失敗させて閲覧情報の送信を失敗させる。同じアプリプロセス内で項目を再表示したときに再送され、送信に失敗した項目をクライアントが記録済みとして扱わないことを確認する。
+8. 更新の詳細を開き、変更前後、現在の状態、影響、タイムライン、根拠となる情報源、公開日時、取得日時、元URLがバックエンドの `EventDetail` と一致することを確認する。ディープリンク `bulletfeed://event/{id}` からも同じ詳細へ移動できること。
+9. フォロー、フォロー解除、既読、重要、不要を操作する。画面上だけで仮の状態を確定せず、サーバーから再取得した結果へ収束することを確認する。50件より後ろのページにある項目でも既読やフィードバックを送信できること。
+10. カーソル方式のページングで複数ページを読み込む。サーバー側の順序を維持し、重複項目を表示せず、次のカーソルが進まない異常時にも無限に読み込み続けないことを確認する。
+11. プロフィール、テーマの優先度、テーマの並び順を変更する。既存フィードの関連度と個人向け順位がサーバー側で再計算され、古い関連度をそのまま再利用していないことを確認する。
+12. セキュリティ情報の一覧と詳細を開き、通知から更新または脆弱性の詳細へ移動できることを確認する。対象が削除された場合や権限を失った場合は、403 / 404を受けて古い詳細を画面に残さないこと。
+13. Androidアプリのプロセスを終了して再起動する。トークン、処理中のOAuth状態、選択中のID、ディープリンクによる遷移状態が必要な範囲で安全に復旧し、平文のBearerトークンやOAuth確認用トークンがSharedPreferencesに保存されていないことを確認する。
+14. アクセストークンを失効させ、ローテーションするリフレッシュトークンで**同じ `user_id`** に復旧することを確認する。プロフィール、テーマ、フィードバック、既知情報、GitHub連携が維持されること。
+15. リフレッシュ用の認証情報も利用できない状態を作り、GitHubアカウントを使った復旧を完了する。既存のGitHubアカウントに紐づく**同じBulletFeedの `user_id`** へ戻り、新しい匿名ユーザーを作成しないことを確認する。古いリフレッシュトークンの再利用は401になること。
+16. 選択済みの非公開リポジトリに対するGitHub権限を取り消す。同期処理またはAPIが認証情報やリポジトリへのアクセス喪失を検出し、`reauthorization_required` へ移行することを確認する。Android側は通常の「連携済み」画面で行き止まりにならず、同じBulletFeedアカウントのままGitHub再認証を案内すること。
+17. GitHub連携を解除する。監視対象が解除され、ほかのユーザーから参照されていないGitHub認証情報が削除されることを確認する。アクセスできなくなった非公開リポジトリ由来の更新や脆弱性情報が画面に残らないこと。
+18. 設定画面からアカウント削除を実行する。確認画面なしで即座に削除されないことを確認する。削除後は、プロフィール、テーマ、フィード、配信記録、閲覧記録、既知情報、フィードバック、フォロー、GitHub監視設定、脆弱性情報、通知、セッションなどのユーザー単位データが残らず、古いアクセストークンやリフレッシュトークンで認証できないこと。
+19. 公開HTTPS環境へ接続したリリース候補版でも主要な一連試験を再度実施し、`10.0.2.2` やHTTPへ接続していないことを通信内容から確認する。
+20. APIプロセスを動かしたまま情報源同期処理を停止し、`/health/ready` が503になることを確認する。同期処理を再開するとheartbeatが更新され、200へ戻ることを確認する。バックアップを実行し、別の試験用データベースへ復元できることも確認する。
 
-## Evidence to attach to the PR
+## PRへ添付する記録
 
-秘密情報を含まない範囲で、使用したfrontend/backend commit SHA、Android build variant、public backend environment、各stepのpass/fail、`user_id`がrecovery前後で同一だったこと、knownness件数のbefore/after、permission-loss時のcredential state、CI run linksをPRへ残します。OAuth code、access/refresh token、GitHub upstream token、private repository本文は添付しません。
+秘密情報を含まない範囲で、次の情報をPRへ残す。
 
-## Passing rule
+- 使用したフロントエンド・バックエンドのコミットSHA
+- Androidのビルド種別
+- 利用した公開バックエンド環境
+- 各手順の合否
+- 復旧前後で `user_id` が同一だったこと
+- 既知情報件数の前後比較
+- 権限喪失時の認証状態
+- CI実行結果へのリンク
 
-全Required stepがpassし、Android quality / Backend quality / Backend security / Dependency lockがgreen、未解決P0/P1が0になった時だけPR #81のDraft解除候補とします。P2（global Event Search、高度なnotification optimization、大量source coverage等）はこのgateへ混ぜません。
+OAuthコード、アクセストークン、リフレッシュトークン、GitHubの上流トークン、非公開リポジトリの本文は添付しない。
+
+## 合格条件
+
+上記の必須手順がすべて成功し、Android quality / Backend quality / Backend security / Dependency lock が成功状態で、未解決のP0 / P1が0件になった場合にだけ、PR #81のDraft解除候補とする。
+
+P2に分類している全体検索、高度な通知最適化、大規模な情報源拡張などは、この受け入れ条件へ含めない。

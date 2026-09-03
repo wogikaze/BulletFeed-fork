@@ -65,8 +65,8 @@ fun SearchScreen(
         LazyColumn(modifier = modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp)) {
             item {
                 Spacer(Modifier.height(12.dp))
-                SectionHeading("追跡中の変化を探す", style = MaterialTheme.typography.headlineSmall)
-                Text("テーマ、企業、技術、イベント内容、情報源から検索できます。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 6.dp))
+                SectionHeading("追跡中の更新を探す", style = MaterialTheme.typography.headlineSmall)
+                Text("テーマ、企業、技術、更新内容、情報源から検索できます。", color = Color(0xFF655F69), modifier = Modifier.padding(top = 6.dp))
                 Spacer(Modifier.height(16.dp))
                 AccessibleOutlinedTextField(
                     value = query,
@@ -79,7 +79,7 @@ fun SearchScreen(
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    if (query.isBlank()) "最近のイベント" else "${results.size}件の検索結果",
+                    if (query.isBlank()) "最近の更新" else "${results.size}件の検索結果",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
@@ -97,7 +97,7 @@ fun SearchScreen(
 @Composable
 internal fun SearchEmptyResults() {
     Text(
-        "一致するイベントはありません。別の言葉で検索してください。",
+        "一致する更新はありません。別のキーワードで検索してください。",
         color = Color(0xFF655F69),
         modifier = Modifier.padding(vertical = 28.dp).semantics {
             liveRegion = LiveRegionMode.Polite

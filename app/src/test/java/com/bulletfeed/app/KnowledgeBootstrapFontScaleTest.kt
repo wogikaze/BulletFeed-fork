@@ -79,8 +79,8 @@ class KnowledgeBootstrapFontScaleTest {
             }
         }
 
-        composeRule.onNodeWithText("この現在状態は知っている").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("これから追う").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("この状態はすでに知っている").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("ここから追跡する").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("あとで").assertHeightIsAtLeast(48.dp)
     }
 
@@ -116,7 +116,7 @@ class KnowledgeBootstrapFontScaleTest {
             }
         }
 
-        composeRule.onNodeWithText("bootstrap だけをリセット").performScrollTo().assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("既存知識の記録だけをリセット").performScrollTo().assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("knowledge-bootstrap-reset").performScrollTo().assertHeightIsAtLeast(48.dp)
     }
 }
