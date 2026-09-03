@@ -287,7 +287,6 @@ private fun TimelineEntryCard(entry: EventTimelineEntry) =
             )
         }
     }
-}
 
 @Composable
 internal fun EventSourceCard(source: EventSource) {
