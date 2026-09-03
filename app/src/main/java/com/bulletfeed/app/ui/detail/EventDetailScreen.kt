@@ -65,7 +65,7 @@ fun EventDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { AppBarTitle("変化の詳細", fontWeight = FontWeight.SemiBold) },
+                title = { AppBarTitle("更新の詳細", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     AccessibleIconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
@@ -118,7 +118,7 @@ fun EventDetailScreen(
                     }
                     Spacer(Modifier.height(22.dp))
                     SectionHeading(
-                        "Timeline",
+                        "タイムライン",
                         modifier = Modifier.padding(bottom = 8.dp),
                         tag = "event-detail-timeline-heading",
                     )
@@ -129,12 +129,12 @@ fun EventDetailScreen(
                     }
                     Spacer(Modifier.height(22.dp))
                     SectionHeading(
-                        "Evidence / Source",
+                        "根拠・情報源",
                         modifier = Modifier.padding(bottom = 8.dp),
                         tag = "event-detail-evidence-heading",
                     )
                     if (event.sources.isEmpty()) {
-                        EmptyDetailSection("追跡できるソースはありません。")
+                        EmptyDetailSection("参照できる情報源はありません。")
                     } else {
                         event.sources.forEach { EventSourceCard(it) }
                     }
@@ -159,12 +159,12 @@ private fun FeedContextHeader(event: FeedEvent) {
 @Composable
 internal fun UnknownFactsCard(facts: List<UnknownFact>) {
     SectionHeading(
-        if (facts.isEmpty()) "まだ知らない事実" else "まだ知らない事実（${facts.size}）",
+        if (facts.isEmpty()) "未確認の事実" else "未確認の事実（${facts.size}）",
         modifier = Modifier.padding(bottom = 8.dp),
         tag = "event-detail-unknown-facts-heading",
     )
     if (facts.isEmpty()) {
-        EmptyDetailSection("この出来事について、まだ知らない事実はありません。")
+        EmptyDetailSection("この更新について、未確認の事実はありません。")
         return
     }
     Card(
@@ -193,7 +193,7 @@ internal fun DeltaAccordion(delta: FeedDelta) {
     var expanded by remember { mutableStateOf(false) }
     Column {
         SectionHeading(
-            "世界側の変化",
+            "前回からの変更",
             modifier = Modifier.padding(bottom = 4.dp),
             tag = "event-detail-delta-heading",
         )
@@ -207,7 +207,7 @@ internal fun DeltaAccordion(delta: FeedDelta) {
                 modifier = Modifier.size(18.dp),
             )
             Text(
-                if (expanded) "前後の差分を閉じる" else "前後の差分を表示",
+                if (expanded) "変更前後を閉じる" else "変更前後を表示",
                 modifier = Modifier.padding(start = 5.dp),
             )
         }
@@ -225,12 +225,12 @@ private fun CurrentStateCard(state: CurrentState) =
         shape = RoundedCornerShape(18.dp),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("Current state", color = Color(0xFF006A67), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text("現在の状態", color = Color(0xFF006A67), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(5.dp))
             Text(state.phase, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(state.summary, modifier = Modifier.padding(top = 5.dp), style = MaterialTheme.typography.bodyMedium)
             Text(
-                "since ${state.since} · confidence ${state.confidence}",
+                "${state.since} から · 信頼度 ${state.confidence}",
                 modifier = Modifier.padding(top = 8.dp),
                 color = Color(0xFF655F69),
                 style = MaterialTheme.typography.labelMedium,
@@ -246,7 +246,7 @@ private fun DeltaCard(delta: FeedDelta) =
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(Modifier.padding(15.dp)) {
-            Text(delta.type.name.lowercase(), color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
+            Text(delta.type.label(), color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
             Text(delta.summary, modifier = Modifier.padding(top = 4.dp), fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(12.dp))
             Text("変更前", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
@@ -268,14 +268,14 @@ private fun ImpactCard(impact: EventImpact) =
                 shape = RoundedCornerShape(14.dp),
             ).padding(13.dp),
     ) {
-        Text("${impact.kind} · confidence ${impact.confidence}", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
+        Text("${impact.kindLabel()} · 信頼度 ${impact.confidence}", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
         Text(impact.text, modifier = Modifier.padding(top = 3.dp), style = MaterialTheme.typography.bodyMedium)
     }
 
 @Composable
 private fun TimelineEntryCard(entry: EventTimelineEntry) =
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-        Text("${entry.occurredAt} · ${entry.type.name.lowercase()}", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
+        Text("${entry.occurredAt} · ${entry.type.label()}", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
         Text(entry.title, modifier = Modifier.padding(top = 2.dp), fontWeight = FontWeight.Bold)
         Text(entry.description, modifier = Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodyMedium)
         if (entry.stateBefore != null || entry.stateAfter != null) {
@@ -299,7 +299,7 @@ internal fun EventSourceCard(source: EventSource) {
     ) {
         Column(Modifier.padding(15.dp)) {
             Text(
-                "${source.publisher} · ${source.kind.name.lowercase()}",
+                "${source.publisher} · ${source.kind.label()}",
                 color = Color(0xFF1769AA),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
@@ -307,14 +307,14 @@ internal fun EventSourceCard(source: EventSource) {
             Text(source.title, modifier = Modifier.padding(top = 3.dp), fontWeight = FontWeight.SemiBold)
             Text("根拠: ${source.evidence}", modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodySmall)
             Text(
-                "published ${source.publishedAt}\nretrieved ${source.retrievedAt}",
+                "公開: ${source.publishedAt}\n取得: ${source.retrievedAt}",
                 modifier = Modifier.padding(top = 7.dp),
                 color = Color(0xFF655F69),
                 style = MaterialTheme.typography.labelSmall,
             )
             AccessibleTextButton(onClick = { runCatching { uriHandler.openUri(source.url) } }) {
                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
-                Text("元ソースを開く", modifier = Modifier.padding(start = 5.dp))
+                Text("情報源を開く", modifier = Modifier.padding(start = 5.dp))
             }
         }
     }
@@ -332,31 +332,31 @@ internal fun KnowledgeBootstrapCard(
 ) {
     Column(Modifier.padding(16.dp)) {
         SectionHeading(
-            "アプリ外ですでに知っている場合",
+            "すでに知っている内容を記録",
             style = MaterialTheme.typography.titleMedium,
             tag = "knowledge-bootstrap-heading",
         )
         Text(
-            "現在状態「${currentState.summary}」を確認して登録します。Claim ID の入力は不要です。",
+            "現在の状態「${currentState.summary}」を、すでに知っている内容として記録できます。",
             modifier = Modifier.padding(top = 6.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF49454F),
         )
         Text(
-            "「現在より前を既知にする」は、この時点ですでに真だった事実だけを既知にします。途中経過は既知にしません。",
+            "この状態を既知として記録すると、現時点ですでに成立している事実だけを既知として扱います。途中経過は含めません。",
             modifier = Modifier.padding(top = 8.dp),
             style = MaterialTheme.typography.bodySmall,
             color = Color(0xFF655F69),
         )
         Text(
-            "「これから追う（catch up）」は開始時刻だけを残し、過去の事実は既知にしません。後から同じ再掲を隠す用途には使いません。",
+            "「ここから追跡する」は開始時刻だけを記録し、過去の事実を既知として扱いません。",
             modifier = Modifier.padding(top = 4.dp),
             style = MaterialTheme.typography.bodySmall,
             color = Color(0xFF655F69),
         )
         if (!following) {
             Text(
-                "初回フォロー時にも同じ確認が開きます。",
+                "初めてフォローするときにも同じ確認を表示します。",
                 modifier = Modifier.padding(top = 6.dp),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color(0xFF655F69),
@@ -368,7 +368,7 @@ internal fun KnowledgeBootstrapCard(
             enabled = !isSaving,
             modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-already-knew"),
         ) {
-            Text("この現在状態はすでに知っている")
+            Text("この状態はすでに知っている")
         }
         Spacer(Modifier.height(8.dp))
         AccessibleOutlinedButton(
@@ -376,7 +376,7 @@ internal fun KnowledgeBootstrapCard(
             enabled = !isSaving,
             modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-catch-up"),
         ) {
-            Text("これから追う（過去は既知にしない）")
+            Text("ここから追跡する")
         }
     }
 }
@@ -495,3 +495,41 @@ private fun KnowledgeChoiceButton(
         }
     }
 }
+
+private fun DeltaType.label(): String =
+    when (this) {
+        DeltaType.NEW_FACT -> "新しい事実"
+        DeltaType.DETAIL -> "詳細の追加"
+        DeltaType.STATE_UPDATE -> "状態の更新"
+        DeltaType.CORRECTION -> "訂正"
+        DeltaType.UNRESOLVED_CONTRADICTION -> "未解決の矛盾"
+    }
+
+private fun TimelineType.label(): String =
+    when (this) {
+        TimelineType.ANNOUNCED -> "発表"
+        TimelineType.STATE_CHANGED -> "状態変更"
+        TimelineType.INFORMATION_ADDED -> "情報追加"
+        TimelineType.CORRECTED -> "訂正"
+        TimelineType.RESOLVED -> "解決"
+    }
+
+private fun SourceKind.label(): String =
+    when (this) {
+        SourceKind.STATUSPAGE -> "Statuspage"
+        SourceKind.GITHUB_ADVISORY -> "GitHubアドバイザリ"
+        SourceKind.OSV -> "OSV"
+        SourceKind.GITHUB_RELEASE -> "GitHub Releases"
+        SourceKind.GITHUB_SBOM -> "GitHub SBOM"
+        SourceKind.RSS_ATOM -> "RSS / Atom"
+        SourceKind.JSON_FEED -> "JSON Feed"
+        SourceKind.OFFICIAL_CHANGELOG -> "公式変更履歴"
+        SourceKind.DOCUMENTATION -> "ドキュメント"
+    }
+
+private fun EventImpact.kindLabel(): String =
+    when (kind.lowercase()) {
+        "inferred" -> "推定される影響"
+        "explicit" -> "明示された影響"
+        else -> "影響"
+    }
