@@ -430,7 +430,7 @@ internal fun FeedDisplayReasonLine(
     reason: DisplayReason?,
     modifier: Modifier = Modifier,
 ) {
-    val text = reason?.userFacingTextOrNull() ?: return
+    val text = reason?.userFacingTextOrNull()?.naturalizeDisplayReason() ?: return
     val maxLines = if (LocalDensity.current.fontScale >= AppReadability.LARGE_FONT_SCALE) 3 else 2
     Text(
         text,
@@ -443,3 +443,10 @@ internal fun FeedDisplayReasonLine(
         overflow = TextOverflow.Ellipsis,
     )
 }
+
+private fun String.naturalizeDisplayReason(): String =
+    replace("直接フォロー中の対象に関連", "直接フォローしている対象に関連")
+        .replace("フォロー中トピックの周辺に関連", "フォロー中のテーマに関連する情報")
+        .replace("への推定上の関心に関連", "に関心があると推定されたため表示")
+        .replace("推定上の関心に関連", "関心があると推定されたため表示")
+        .replace("の周辺に関連", "に関連する周辺情報")
