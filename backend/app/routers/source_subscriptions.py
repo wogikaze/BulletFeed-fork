@@ -21,6 +21,7 @@ from app.services.source_subscriptions import (
     list_user_source_subscriptions,
     remove_user_source_subscription,
 )
+from app.services.user_source_grants import settings_for_user_subscription
 
 router = APIRouter(prefix="/v1", tags=["source-subscriptions"])
 
@@ -72,9 +73,16 @@ def add_my_source(
     database: Annotated[Database, Depends(get_database)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> SourceSubscription:
-    item = add_user_source_subscription(
+    effective_settings = settings_for_user_subscription(
         database,
         settings,
+        user_id=user["user_id"],
+        source_type=body.kind,
+        url=body.url,
+    )
+    item = add_user_source_subscription(
+        database,
+        effective_settings,
         user_id=user["user_id"],
         kind=body.kind,
         url=body.url,

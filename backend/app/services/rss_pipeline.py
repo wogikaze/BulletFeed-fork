@@ -14,6 +14,7 @@ from app.services.rss_source import normalize_feed_preview
 from app.services.source_ingestion import SourceIngestionPipeline
 from app.services.source_subscriptions import project_events_for_subscription_audience
 from app.services.timestamps import canonical_timestamp
+from app.services.user_source_grants import settings_for_active_source
 from app.stores.claim_ledger_store import ClaimLedgerStore
 
 # Worker-path cap. The G4 live harness still calls enrich_feed_item per item.
@@ -139,7 +140,13 @@ async def crawl_feed_events(
     retrieved_at: str,
 ) -> RssIngestResult:
     record("fetch", source_type="rss_atom")
-    preview = await preview_feed(settings, url)
+    effective_settings = settings_for_active_source(
+        database,
+        settings,
+        source_type="rss_atom",
+        source_key=url,
+    )
+    preview = await preview_feed(effective_settings, url)
     items = preview.get("items")
     source_url = preview.get("source_url") if isinstance(preview.get("source_url"), str) else url
     from app.services.index_publisher_discovery import is_japanese_index_feed
@@ -160,7 +167,9 @@ async def crawl_feed_events(
             if needs_fetch and article_fetches >= MAX_ARTICLE_FETCHES_PER_FEED:
                 enriched.append({**item, "article_fetch_skipped": True})
                 continue
-            enriched.append(await enrich_feed_item(settings, item, retrieved_at=retrieved_at))
+            enriched.append(
+                await enrich_feed_item(effective_settings, item, retrieved_at=retrieved_at)
+            )
             if needs_fetch:
                 article_fetches += 1
         preview = {**preview, "items": enriched}
