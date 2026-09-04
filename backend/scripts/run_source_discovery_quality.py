@@ -48,10 +48,33 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--independent-candidates",
+        type=Path,
+        default=None,
+        help=(
+            "Recorded external candidate artifact. When omitted, builtin and curated hints "
+            "remain disabled and the benchmark stays fail-closed if no candidates exist."
+        ),
+    )
     args = parser.parse_args(argv)
 
     corpus = load_source_discovery_quality_corpus(args.corpus)
-    report = evaluate_source_discovery_quality(corpus, source_sha=_repository_sha())
+    source_sha = _repository_sha()
+    if args.independent_candidates is None:
+        report = evaluate_source_discovery_quality(corpus, source_sha=source_sha)
+    else:
+        from app.evaluation.source_discovery_independent import (
+            evaluate_source_discovery_quality_with_independent_candidates,
+            load_independent_candidate_artifact,
+        )
+
+        candidates = load_independent_candidate_artifact(args.independent_candidates)
+        report = evaluate_source_discovery_quality_with_independent_candidates(
+            corpus,
+            candidates,
+            source_sha=source_sha,
+        )
     payload = report.as_dict()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -60,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "output": str(args.output),
                 "passed": payload["passed"],
+                "evaluation_status": payload["evaluation_status"],
                 "metrics": payload["metrics"],
                 "failure_class_counts": payload["failure_class_counts"],
             },
