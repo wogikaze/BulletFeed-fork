@@ -1,0 +1,10 @@
+{
+  "artifact_version": "source-discovery-topic-input-v0.1",
+  "topics": [
+    "Cloudflare Workers",
+    "GitHub",
+    "OpenAI API",
+    "Python",
+    "React"
+  ]
+}
