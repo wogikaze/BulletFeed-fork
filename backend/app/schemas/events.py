@@ -1,6 +1,22 @@
 from app.schemas.common import ApiModel, CurrentState, Delta, Impact, SourceEvidence, TimelineEntry
 
 
+class EventSearchItem(ApiModel):
+    id: str
+    title: str
+    summary: str
+    current_phase: str
+    current_summary: str
+    updated_at: str
+    following: bool
+    source_publisher: str | None = None
+
+
+class EventSearchPage(ApiModel):
+    items: list[EventSearchItem]
+    next_cursor: str | None = None
+
+
 class UnknownFact(ApiModel):
     id: str
     text: str
