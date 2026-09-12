@@ -78,38 +78,21 @@ class SettingsDetailSearchFontScaleTest {
 
     @Test
     fun largeFontScaleKeepsSearchQueryAndResultTouchTargets() {
+        val searchViewModel = EventSearchViewModel(StaticEventSearchRepository)
         composeRule.setContent {
             MaterialTheme {
                 CompositionLocalProvider(
                     LocalDensity provides Density(density = 1f, fontScale = AppReadability.LARGE_FONT_SCALE),
                 ) {
                     SearchScreen(
-                        events =
-                            listOf(
-                                FeedEvent(
-                                    id = "event-1",
-                                    title = "Release",
-                                    summary = "Summary",
-                                    importance = Importance.MEDIUM,
-                                    importanceReason = "reason",
-                                    relation = Relation.DIRECT,
-                                    relationReason = "reason",
-                                    announcedAt = "2026-08-30T00:00:00Z",
-                                    sourceCount = 1,
-                                    before = "",
-                                    after = "new",
-                                    explicitImpact = "impact",
-                                    inferredImpact = null,
-                                    sources = emptyList(),
-                                    timeline = emptyList(),
-                                    feedItemId = "feed-1",
-                                ),
-                            ),
+                        events = emptyList(),
                         onEventClick = {},
+                        viewModel = searchViewModel,
                     )
                 }
             }
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag("search-query-field", useUnmergedTree = true).assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("search-result-card").assertHeightIsAtLeast(48.dp)
@@ -169,4 +152,28 @@ class SettingsDetailSearchFontScaleTest {
         composeRule.waitForIdle()
         assertEquals(1, resets)
     }
+}
+
+private object StaticEventSearchRepository : EventSearchRepository {
+    override suspend fun searchEvents(
+        query: String,
+        cursor: String?,
+        limit: Int,
+    ): EventSearchPage =
+        EventSearchPage(
+            items =
+                listOf(
+                    EventSearchItem(
+                        id = "event-1",
+                        title = "Release",
+                        summary = "Summary",
+                        currentPhase = "released",
+                        currentSummary = "new",
+                        updatedAt = "2026-08-30T00:00:00Z",
+                        following = false,
+                        sourcePublisher = "Example",
+                    ),
+                ),
+            nextCursor = null,
+        )
 }
