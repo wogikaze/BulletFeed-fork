@@ -1,6 +1,6 @@
 # BulletFeed API 契約 v1
 
-更新日: 2026-08-29  
+更新日: 2026-09-13  
 用途: Android公開API。Observation / Claim ledger / Semantic Delta 判定などの内部処理は公開しない。
 
 ## 1. 基本方針
@@ -41,7 +41,7 @@ TopicPriority: high | normal | low
 
 NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有の investigating / identified は Timeline type に増やさず、`state.before/after` として保持する。
 
-互換: 旧契約の `Event` カード、`FeedbackType.read`、`EventStatus.dismissed` は使わない。既読は `PUT /feed/items/{id}/read`。検索 API は作らない。SearchScreen は取得済みフィードのローカル検索。`/me/devices` は Push 導入まで作らない。
+互換: 旧契約の `Event` カード、`FeedbackType.read`、`EventStatus.dismissed` は使わない。既読は `PUT /feed/items/{id}/read`。SearchScreen は `GET /events/search` でアクセス可能なEvent履歴を検索する。`/me/devices` は Push 導入まで作らない。
 
 ## 3. 公開モデル
 
@@ -79,6 +79,23 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 ```
 
 同一事実を後続ソースが言い直した場合、重複カードは出さず `additionalSources` に provenance を残す（[ADR-0014](adr/0014-cross-source-suppress-v1.md)）。新しい詳細・訂正・衝突は別カードとして残る。
+
+### EventSearchItem
+
+```json
+{
+  "id": "workers-runtime",
+  "title": "Cloudflare Workers の Node.js 互換性に破壊的変更予定",
+  "summary": "旧ランタイム挙動が段階的に廃止されます。",
+  "currentPhase": "identified",
+  "currentSummary": "移行期限と対象APIが公開されています。",
+  "updatedAt": "2026-08-18T04:30:00Z",
+  "following": false,
+  "sourcePublisher": "Cloudflare"
+}
+```
+
+Search resultはFeedItemではないため `deliveryId` / Relation / Importance / read stateを持たない。Event detailを直接開く。
 
 ### EventDetail
 
@@ -129,7 +146,7 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 
 ## 4. エンドポイント
 
-暫定認証: `POST /v1/sessions` → `{ accessToken, userId }`。外部 IdP 決定までローカルユーザーを発行する。GitHub は identity ではなく integration。
+暫定認証: `POST /v1/sessions` → `{ accessToken, refreshToken, userId, ... }`。GitHub integration / identity recoveryは既存OAuth flowを使う。
 
 ### Feed
 
@@ -145,7 +162,7 @@ NON_NOVEL な Delta は通常 FeedItem として配信しない。source 固有�
 
 `POST /feed/items/{feedItemId}/feedback` `{ type: important | not_relevant | follow | already_knew | learned_now | less_like_this | undo }`
 
-Append-only ledger. Latest row wins per `(userId, feedItemId, type-family)`. `undo` writes a new row that supersedes the latest family for that item; history is retained.
+Append-only ledger. Latest row wins per `(userId, feedItemId, type-family)`. `undo` writes a new row that supersedes the latest family for that item; history is retained。
 
 Families:
 
@@ -174,6 +191,17 @@ Behavior:
 - 未知 `deliveryId` は無視、バッチ上限 50、`deliveryId` で冪等。複数端末の同一 `claim` は先勝ち
 
 ### Event
+
+`GET /events/search?q=&cursor=&limit=`
+
+- 認証必須
+- limit 1–50、既定 20
+- q 最大100文字。空qはアクセス可能な最近のEvent一覧
+- title / summary / current state / active Delta の summary・before・after / source publisher・title・evidenceを検索
+- private Eventは `event_visibility` + 有効な `event_user_access` grantでfail-closedに絞る
+- 並び: `updatedAt desc, id desc`
+- cursorは検索version + `updatedAt` + `eventId` を含むopaque token
+- 応答: `{ items: EventSearchItem[], nextCursor }`
 
 `GET /events/{eventId}`  
 `PUT /events/{eventId}/following` `{ following }`  

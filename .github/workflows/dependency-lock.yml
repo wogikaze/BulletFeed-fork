@@ -8,6 +8,8 @@ on:
       - "backend/requirements.lock"
       - "backend/scripts/verify_locked_environment.py"
       - ".github/workflows/dependency-lock.yml"
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read

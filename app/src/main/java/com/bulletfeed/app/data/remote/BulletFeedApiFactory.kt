@@ -24,7 +24,18 @@ object BulletFeedApiFactory {
     fun create(
         baseUrl: String,
         sessionManager: SessionManager,
-    ): BulletFeedApi {
+    ): BulletFeedApi = createService(baseUrl, sessionManager, BulletFeedApi::class.java)
+
+    fun createEventSearch(context: Context): EventSearchApi {
+        val sessionManager = SessionManager(context)
+        return createService(resolveBaseUrl(), sessionManager, EventSearchApi::class.java)
+    }
+
+    internal fun <T> createService(
+        baseUrl: String,
+        sessionManager: SessionManager,
+        serviceClass: Class<T>,
+    ): T {
         val client = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
@@ -35,7 +46,7 @@ object BulletFeedApiFactory {
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
-            .create(BulletFeedApi::class.java)
+            .create(serviceClass)
     }
 
     private fun authInterceptor(sessionManager: SessionManager): Interceptor =

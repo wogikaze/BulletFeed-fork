@@ -1,0 +1,135 @@
+name: SQLite capacity boundary
+
+on:
+  pull_request:
+    paths:
+      - "backend/scripts/benchmark_capacity.py"
+      - "backend/scripts/benchmark_capacity_sweep.py"
+      - "backend/scripts/benchmark_sqlite_concurrency.py"
+      - "backend/app/services/event_coreference.py"
+      - "backend/app/services/source_ingestion.py"
+      - "backend/app/stores/feed_store.py"
+      - "backend/app/sync_worker.py"
+      - "docs/sqlite-storage-boundary.md"
+      - ".github/workflows/sqlite-boundary.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sqlite-boundary-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  boundary:
+    name: Validate SQLite single-writer boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Verify exact checked-out head
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+
+      - name: Install hash-locked backend dependencies
+        run: |
+          python -m pip install --require-hashes -r backend/requirements.lock
+          python -m pip check
+
+      - name: Find the first measured SQLite scale boundary
+        run: |
+          python backend/scripts/benchmark_capacity_sweep.py \
+            --sizes 100000 250000 500000 \
+            --stop-on-boundary \
+            --directory "$RUNNER_TEMP/sqlite-sweep" \
+            --output "$RUNNER_TEMP/sqlite-boundary-sweep.json"
+          python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "sqlite-boundary-sweep.json")
+          with open(path, encoding="utf-8") as handle:
+              report = json.load(handle)
+
+          requested = report["requested_sizes"]
+          completed = report["completed_sizes"]
+          boundary = report["first_boundary_observations"]
+          if requested != [100000, 250000, 500000]:
+              raise SystemExit(f"unexpected sweep plan: {requested}")
+          if not completed or completed[0] != 100000:
+              raise SystemExit(f"100k baseline was not measured: {completed}")
+          if boundary is None:
+              if completed != requested:
+                  raise SystemExit(f"sweep ended without a recorded boundary: {completed}")
+          elif completed[-1] != boundary:
+              raise SystemExit(
+                  f"boundary {boundary} does not match final completed point {completed[-1]}"
+              )
+          print(f"first measured boundary: {boundary or '>500000'}")
+          PY
+
+      - name: Measure contention at the detected boundary
+        run: |
+          OBSERVATIONS="$(python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "sqlite-boundary-sweep.json")
+          with open(path, encoding="utf-8") as handle:
+              report = json.load(handle)
+          print(report["first_boundary_observations"] or report["completed_sizes"][-1])
+          PY
+          )"
+          echo "contention observation scale: $OBSERVATIONS"
+          python backend/scripts/benchmark_sqlite_concurrency.py \
+            --observations "$OBSERVATIONS" \
+            --database "$RUNNER_TEMP/sqlite-contention.db" \
+            --output "$RUNNER_TEMP/sqlite-contention.json"
+          python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "sqlite-contention.json")
+          with open(path, encoding="utf-8") as handle:
+              report = json.load(handle)
+          required = {
+              "feed_reads",
+              "observation_writes",
+              "sync_claims",
+              "lock_errors",
+              "write_amplification_ratio",
+          }
+          missing = sorted(required - report.keys())
+          if missing:
+              raise SystemExit(f"contention evidence missing fields: {missing}")
+          print(
+              "contention evidence: "
+              f"locks={report['lock_errors']}, "
+              f"feed_p99={report['feed_reads']['p99_ms']}ms, "
+              f"write_p99={report['observation_writes']['p99_ms']}ms, "
+              f"sync_p99={report['sync_claims']['p99_ms']}ms, "
+              f"write_amp={report['write_amplification_ratio']}x"
+          )
+          PY
+
+      - name: Upload measured boundary evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sqlite-boundary-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/sqlite-boundary-sweep.json
+            ${{ runner.temp }}/sqlite-contention.json
+          if-no-files-found: ignore
+          retention-days: 7

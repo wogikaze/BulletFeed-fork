@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Query
 
 from app.database import Database
 from app.dependencies import get_database, require_user
-from app.schemas.events import EventDetail, FollowingRequest, FollowingResponse
+from app.schemas.events import EventDetail, EventSearchPage, FollowingRequest, FollowingResponse
+from app.stores.event_search_store import EventSearchStore
 from app.stores.event_store import EventStore
 
 router = APIRouter(prefix="/v1", tags=["events"])
@@ -12,6 +13,27 @@ router = APIRouter(prefix="/v1", tags=["events"])
 
 def _store(database: Annotated[Database, Depends(get_database)]) -> EventStore:
     return EventStore(database)
+
+
+def _search_store(database: Annotated[Database, Depends(get_database)]) -> EventSearchStore:
+    return EventSearchStore(database)
+
+
+@router.get("/events/search", response_model=EventSearchPage)
+def search_events(
+    user: Annotated[dict, Depends(require_user)],
+    store: Annotated[EventSearchStore, Depends(_search_store)],
+    q: Annotated[str, Query(max_length=100)] = "",
+    cursor: Annotated[str | None, Query()] = None,
+    limit: Annotated[int, Query(ge=1, le=50)] = 20,
+) -> EventSearchPage:
+    items, next_cursor = store.search(
+        user["user_id"],
+        query=q,
+        cursor=cursor,
+        limit=limit,
+    )
+    return EventSearchPage(items=items, next_cursor=next_cursor)
 
 
 @router.get("/events/{event_id}", response_model=EventDetail)

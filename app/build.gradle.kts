@@ -125,6 +125,18 @@ tasks.withType<Test>().configureEach {
     val url = acceptanceBaseUrl.orNull?.trim().orEmpty()
     if (url.isNotEmpty()) {
         systemProperty("bulletfeed.acceptance.baseUrl", url)
+        // The 30-persona product qualification has its own Backend quality gate.
+        // Keep Android real-backend acceptance focused on Android repository paths
+        // instead of running that expensive backend qualification a second time.
+        filter {
+            excludeTestsMatching(
+                "com.bulletfeed.app.RealBackendAcceptanceTest.thirty personas reach useful feed or abstain against real backend",
+            )
+        }
+        // Real-backend acceptance performs actual HTTP/SQLite work. Keep the
+        // ordinary unit-test timeout unchanged, but give this integration-only
+        // invocation enough wall time for CI runners.
+        systemProperty("kotlinx.coroutines.test.default_timeout", "3m")
     } else {
         exclude("**/RealBackendAcceptanceTest.class")
     }
