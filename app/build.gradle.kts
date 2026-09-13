@@ -125,6 +125,10 @@ tasks.withType<Test>().configureEach {
     val url = acceptanceBaseUrl.orNull?.trim().orEmpty()
     if (url.isNotEmpty()) {
         systemProperty("bulletfeed.acceptance.baseUrl", url)
+        // Real-backend acceptance performs actual HTTP/SQLite work, including a
+        // deterministic 30-persona journey. Keep the ordinary unit-test timeout
+        // unchanged, but give this integration-only invocation enough wall time.
+        systemProperty("kotlinx.coroutines.test.default_timeout", "3m")
     } else {
         exclude("**/RealBackendAcceptanceTest.class")
     }
