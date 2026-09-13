@@ -158,7 +158,7 @@ fun SearchScreen(
 @Composable
 internal fun SearchEmptyResults() {
     Text(
-        "一致する更新はありません。別の言葉で検索してください。",
+        "一致するイベントはありません。別の言葉で検索してください。",
         color = Color(0xFF655F69),
         modifier = Modifier.padding(vertical = 28.dp).semantics {
             liveRegion = LiveRegionMode.Polite
