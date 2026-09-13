@@ -154,7 +154,7 @@ class SettingsDetailSearchFontScaleTest {
     }
 }
 
-private object StaticEventSearchRepository : EventSearchRepository {
+internal object StaticEventSearchRepository : EventSearchRepository {
     override suspend fun searchEvents(
         query: String,
         cursor: String?,
