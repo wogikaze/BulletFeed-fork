@@ -21,7 +21,7 @@ class ListCardTouchTargetTest {
     fun searchResultCardMeetsMinimumTouchTargetHeight() {
         composeRule.setContent {
             MaterialTheme {
-                SearchResultCard(event = sampleFeedEvent(), onClick = {})
+                SearchResultCard(event = sampleSearchEvent(), onClick = {})
             }
         }
 
@@ -100,24 +100,16 @@ class ListCardTouchTargetTest {
     }
 }
 
-private fun sampleFeedEvent(): FeedEvent =
-    FeedEvent(
+private fun sampleSearchEvent(): EventSearchItem =
+    EventSearchItem(
         id = "event-1",
         title = "Release",
         summary = "Summary",
-        importance = Importance.MEDIUM,
-        importanceReason = "reason",
-        relation = Relation.DIRECT,
-        relationReason = "reason",
-        announcedAt = "2026-08-30T00:00:00Z",
-        sourceCount = 1,
-        before = "",
-        after = "new",
-        explicitImpact = "impact",
-        inferredImpact = null,
-        sources = emptyList(),
-        timeline = emptyList(),
-        feedItemId = "feed-1",
+        currentPhase = "resolved",
+        currentSummary = "Released",
+        updatedAt = "2026-08-30T00:00:00Z",
+        following = false,
+        sourcePublisher = "Example",
     )
 
 private fun sampleAlert(): VulnerabilityAlert =
