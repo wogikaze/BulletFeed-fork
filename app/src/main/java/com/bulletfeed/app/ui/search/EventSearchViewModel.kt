@@ -131,11 +131,25 @@ class EventSearchViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass.isAssignableFrom(EventSearchViewModel::class.java))
-            return EventSearchViewModel(
-                RemoteEventSearchRepository(BulletFeedApiFactory.createEventSearch(context)),
-            ) as T
+            val repository =
+                try {
+                    RemoteEventSearchRepository(BulletFeedApiFactory.createEventSearch(context))
+                } catch (error: Exception) {
+                    FailingEventSearchRepository(error)
+                }
+            return EventSearchViewModel(repository) as T
         }
     }
+}
+
+private class FailingEventSearchRepository(
+    private val creationError: Exception,
+) : EventSearchRepository {
+    override suspend fun searchEvents(
+        query: String,
+        cursor: String?,
+        limit: Int,
+    ): EventSearchPage = throw creationError
 }
 
 internal fun mergeEventSearchResults(
