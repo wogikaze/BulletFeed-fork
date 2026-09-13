@@ -227,7 +227,7 @@ private fun OnboardingActions(
                 val label =
                     when {
                         step < 2 -> "次へ"
-                        connectGithub -> "GitHubから自動設定を始める"
+                        connectGithub -> "GitHubから自動設定する"
                         else -> "BulletFeedを始める"
                     }
                 Text(label)
@@ -254,7 +254,7 @@ private fun ProfileStep(
     StepTitle(
         icon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color.White) },
         title = "あなたについて教えてください",
-        description = "職種と興味は、repositoryから推定した技術の優先順位付けにも利用します。",
+        description = "職種と興味は、リポジトリから推定した技術やサービスの優先順位付けにも利用します。",
     )
     SelectionLabel("職種")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -301,14 +301,14 @@ private fun GithubStep(
 ) {
     StepTitle(
         icon = { Icon(Icons.Default.Code, contentDescription = null, tint = Color.White) },
-        title = "追跡テーマの作り方",
-        description = "GitHubを連携すると、repositoryを選ぶだけで使用技術・サービスを自動選定します。",
+        title = "追跡テーマの設定方法",
+        description = "GitHubを連携すると、リポジトリを選ぶだけで利用している技術やサービスを自動で選定します。",
     )
     GithubChoiceCard(
         selected = connectGithub,
         title = "GitHubから自動選定する",
         description =
-            "認可後にrepositoryを選択します。言語、GitHub Topics、依存関係、manifest、CI/CD、infra設定からテーマを推定します。",
+            "認可後にリポジトリを選択します。言語、GitHub Topics、依存関係、マニフェスト、CI/CD、インフラ設定からテーマを推定します。",
         onClick = { onSelectionChange(true) },
     )
     Spacer(Modifier.height(10.dp))
@@ -324,7 +324,7 @@ private fun GithubStep(
         shape = RoundedCornerShape(18.dp),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("repositoryから読むもの", fontWeight = FontWeight.Bold)
+            Text("リポジトリから読み取る情報", fontWeight = FontWeight.Bold)
             HorizontalDivider(Modifier.padding(vertical = 10.dp), color = Color(0xFFE0D8D4))
             Text(
                 "Languages / GitHub Topics / package.json / pyproject・requirements / Gradle / Cargo / go.mod / Maven / Docker / GitHub Actions / Terraform などを読み取ります。",
@@ -332,7 +332,7 @@ private fun GithubStep(
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                "認可トークンはバックエンドだけで保持し、選択したrepositoryだけを解析します。",
+                "認可トークンはバックエンドだけで保持し、選択したリポジトリだけを解析します。",
                 modifier = Modifier.padding(top = 8.dp),
                 color = Color(0xFF655F69),
                 style = MaterialTheme.typography.bodyMedium,
@@ -355,10 +355,10 @@ private fun TopicsStep(
 ) {
     StepTitle(
         icon = { Icon(Icons.Default.Topic, contentDescription = null, tint = Color.White) },
-        title = if (connectGithub) "最初から追いたいテーマ（任意）" else "追いかけるテーマを選択",
+        title = if (connectGithub) "最初から追跡するテーマ（任意）" else "追跡するテーマを選択",
         description =
             if (connectGithub) {
-                "ここは空でも開始できます。GitHub認可後にrepositoryを選ぶと、実際の構成からテーマを自動追加します。"
+                "ここは空でも開始できます。GitHub認可後にリポジトリを選ぶと、実際の構成からテーマを自動追加します。"
             } else {
                 "技術・サービス・企業を5件以上選んでください。あとから変更できます。"
             },
@@ -378,8 +378,8 @@ private fun TopicsStep(
     ) {
         val message =
             when {
-                connectGithub && topics.isEmpty() -> "repo選択後に自動選定します"
-                connectGithub -> "${topics.size}件を初期テーマとして追加し、repoからさらに自動選定します"
+                connectGithub && topics.isEmpty() -> "リポジトリ選択後に自動選定します"
+                connectGithub -> "${topics.size}件を初期テーマとして追加し、リポジトリからさらに自動選定します"
                 topics.size >= MINIMUM_TOPIC_COUNT -> "${topics.size}件を追跡します"
                 else -> "あと${MINIMUM_TOPIC_COUNT - topics.size}件選択してください"
             }
@@ -396,7 +396,7 @@ private fun TopicsStep(
         )
     }
     if (recommendedTopics.isNotEmpty()) {
-        SelectionLabel("おすすめ（推薦API）")
+        SelectionLabel("おすすめ")
         recommendedTopics.filter { it.name !in topics }.forEach { item ->
             Card(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -419,7 +419,7 @@ private fun TopicsStep(
             }
         }
     }
-    SelectionLabel("スターター候補")
+    SelectionLabel("よく使われるテーマ")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         starterTopics.forEach { topic ->
             AccessibleFilterChip(
@@ -456,7 +456,7 @@ internal fun OnboardingTopicRecommendationActions(
         AccessibleOutlinedButton(
             onClick = onIgnore,
             modifier = Modifier.testTag("onboarding-recommendation-ignore"),
-        ) { Text("無視") }
+        ) { Text("表示しない") }
     }
 }
 
@@ -586,8 +586,8 @@ private val roleOptions =
         "Androidエンジニア",
         "iOSエンジニア",
         "Webエンジニア",
-        "バックエンド",
-        "インフラ/SRE",
+        "バックエンドエンジニア",
+        "インフラ / SRE",
         "MLエンジニア",
         "デザイナー",
         "PM",

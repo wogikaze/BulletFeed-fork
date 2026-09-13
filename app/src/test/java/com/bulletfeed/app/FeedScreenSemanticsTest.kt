@@ -45,7 +45,7 @@ class FeedScreenSemanticsTest {
             )
         }
 
-        composeRule.onNodeWithText("表示する変化はありません").assert(
+        composeRule.onNodeWithText("表示する更新はありません").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
     }
@@ -111,9 +111,9 @@ class FeedScreenSemanticsTest {
             }
         }
 
-        composeRule.onNodeWithText("すべての変化を見る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("すべての更新を見る").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("テーマを追加する").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("GitHubを連携・設定する").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("GitHub連携を設定する").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -146,7 +146,7 @@ class FeedScreenSemanticsTest {
             }
         }
 
-        composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithContentDescription("更新の操作").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("event-card").assertHeightIsAtLeast(48.dp)
     }
 
@@ -164,7 +164,7 @@ class FeedScreenSemanticsTest {
             }
         }
 
-        composeRule.onNodeWithContentDescription("Event操作").performClick()
+        composeRule.onNodeWithContentDescription("更新の操作").performClick()
         composeRule.onNodeWithText("重要").performClick()
         assertEquals(listOf("event-1" to Feedback.IMPORTANT), received)
     }
@@ -186,9 +186,9 @@ class FeedScreenSemanticsTest {
             }
         }
 
-        composeRule.onNodeWithText("すべての変化を見る").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("すべての更新を見る").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("テーマを追加する").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("GitHubを連携・設定する").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("GitHub連携を設定する").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -221,7 +221,7 @@ class FeedScreenSemanticsTest {
                             policyVersion = "display-reason-v1",
                             rankingPolicyVersion = "ranking-v1",
                             primaryCode = "relation.direct_topic",
-                            text = "フォロー中のRustに関連。まだ見ていない可能性が高い。",
+                            text = "フォロー中のRustに関連し、まだ確認していない可能性が高い情報です。",
                             codes = listOf("relation.direct_topic", "novelty.possibly_unread"),
                             matchKind = "direct",
                             deltaKind = "new_fact",
@@ -234,10 +234,10 @@ class FeedScreenSemanticsTest {
             }
         }
 
-        assertEquals(1, composeRule.onAllNodesWithText("フォロー中のRustに関連。まだ見ていない可能性が高い。").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("フォロー中のRustに関連し、まだ確認していない可能性が高い情報です。").fetchSemanticsNodes().size)
         assertEquals(
             1,
-            composeRule.onAllNodesWithContentDescription("表示理由: フォロー中のRustに関連。まだ見ていない可能性が高い。")
+            composeRule.onAllNodesWithContentDescription("表示理由: フォロー中のRustに関連し、まだ確認していない可能性が高い情報です。")
                 .fetchSemanticsNodes()
                 .size,
         )
@@ -245,7 +245,7 @@ class FeedScreenSemanticsTest {
         assertEquals(0, composeRule.onAllNodesWithText("novelty.possibly_unread").fetchSemanticsNodes().size)
         assertEquals(0, composeRule.onAllNodesWithText("未読です").fetchSemanticsNodes().size)
         assertEquals(0, composeRule.onAllNodesWithText("知っている").fetchSemanticsNodes().size)
-        composeRule.onNodeWithContentDescription("Event操作").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithContentDescription("更新の操作").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

@@ -158,7 +158,7 @@ fun SettingsScreen(
             onDismissRequest = { if (!isDeletingAccount) confirmDelete = false },
             title = { Text("アカウントを削除しますか？") },
             text = {
-                Text("プロフィール、テーマ、feedback、knownness、GitHub連携、通知など、このBulletFeed userに紐づく保存データを削除します。")
+                Text("プロフィール、テーマ、記事への評価、既読・既知の記録、GitHub連携、通知など、このアカウントに保存されたデータを削除します。")
             },
             confirmButton = {
                 AccessiblePrimaryButton(

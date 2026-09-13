@@ -17,7 +17,7 @@ enum class Relation(
     val color: Color,
 ) {
     DIRECT("直接影響", Color(0xFFC62828)),
-    ADJACENT("近接影響", Color(0xFFA15C00)),
+    ADJACENT("間接影響", Color(0xFFA15C00)),
     REFERENCE("参考情報", Color(0xFF5F6368)),
 }
 
@@ -49,7 +49,7 @@ enum class FeedFilter(
 ) {
     ALL("すべて"),
     DIRECT("直接影響"),
-    ADJACENT("近接影響"),
+    ADJACENT("間接影響"),
     REFERENCE("参考"),
 }
 

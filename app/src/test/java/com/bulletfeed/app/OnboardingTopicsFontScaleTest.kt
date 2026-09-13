@@ -44,7 +44,7 @@ class OnboardingTopicsFontScaleTest {
 
         composeRule.onNodeWithTag("onboarding-recommendation-add").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("onboarding-recommendation-ignore").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("無視").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("表示しない").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("onboarding-custom-topic-field", useUnmergedTree = true).assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithTag("onboarding-custom-topic-add").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithContentDescription("追加").assertHeightIsAtLeast(48.dp)

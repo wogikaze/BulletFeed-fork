@@ -78,7 +78,7 @@ fun SecurityDashboardScreen(
                     criticalCount = criticalCount,
                 )
                 Text(
-                    "GitHubで利用中の依存関係と公開アドバイザリを照合した結果です。",
+                    "GitHubで利用している依存関係を、公開アドバイザリと照合した結果です。",
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                     color = Color(0xFF655F69),
                     style = MaterialTheme.typography.bodySmall,
@@ -154,7 +154,7 @@ private fun SecuritySummaryCard(
                 Text("件", modifier = Modifier.padding(start = 3.dp, bottom = 5.dp), color = Color.White)
             }
             if (criticalCount > 0) {
-                Text("うち緊急 $criticalCount 件", color = Color(0xFFFFD8A8), style = MaterialTheme.typography.bodySmall)
+                Text("うち緊急: $criticalCount 件", color = Color(0xFFFFD8A8), style = MaterialTheme.typography.bodySmall)
             }
         }
         Spacer(Modifier.weight(1f))
@@ -270,5 +270,5 @@ internal fun SecurityEmptyState(filter: SecurityFilter) =
         Icon(Icons.Default.Security, contentDescription = null, tint = Color(0xFF006A67), modifier = Modifier.size(42.dp))
         Spacer(Modifier.height(10.dp))
         Text("${filter.label}の項目はありません", fontWeight = FontWeight.Bold)
-        Text("新しい検出結果が届くとここに表示されます。", color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+        Text("新しい検出結果が届くと、ここに表示されます。", color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
     }

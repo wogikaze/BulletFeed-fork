@@ -150,10 +150,10 @@ fun TopicRecommendationDto.toDomain(): TopicRecommendation =
         name = name,
         type = runCatching { TopicType.valueOf(type.uppercase()) }.getOrDefault(TopicType.TECHNOLOGY),
         score = score,
-        reason = reason,
-        provenance = provenance,
+        reason = reason.toTopicRecommendationReason(name),
+        provenance = provenance.toRecommendationProvenanceLabel(),
         alreadyFollowed = alreadyFollowed,
-        confidence = confidence,
+        confidence = confidence.toConfidenceLabel(),
         sourceSignals = sourceSignals,
     )
 
@@ -273,14 +273,14 @@ fun SourceRecommendationDto.toDomain(): SourceRecommendation =
         canonicalUrl = canonicalUrl,
         family = family,
         discoveryMethod = discoveryMethod,
-        discoveryProvenance = discoveryProvenance,
+        discoveryProvenance = discoveryProvenance.toDiscoveryProvenanceLabel(),
         verificationStatus = verificationStatus,
-        authorityStatus = authorityStatus,
+        authorityStatus = authorityStatus.toAuthorityStatusLabel(),
         authorityConfidence = authorityConfidence,
         evidenceEligible = evidenceEligible,
         discoveryOnly = discoveryOnly,
-        reason = reason,
-        explanation = explanation,
+        reason = reason.toSourceRecommendationReason(),
+        explanation = explanation.toSafeUserFacingExplanation(),
         matchedConcepts = matchedConcepts,
         matchOrigin = matchOrigin,
         matchKind = matchKind,
@@ -307,7 +307,7 @@ fun SiteFeedDiscoverItemDto.toDomain(): SiteFeedDiscoverItem =
         actionability = SourceActionability.valueOf(actionability.uppercase()),
         verificationStatus = verificationStatus,
         authorityStatus = authorityStatus,
-        explanation = explanation,
+        explanation = explanation.toSafeUserFacingExplanation(),
         siteUrl = siteUrl,
         publisher = publisher?.toDomain(),
     )
@@ -394,3 +394,84 @@ fun NotificationDto.toDomain(): AppNotification =
         read = read,
         targetTypeRaw = target.type,
     )
+
+private fun String.toTopicRecommendationReason(topicName: String): String {
+    val value = trim()
+    return when {
+        value.startsWith("Matches your explicit interest in ", ignoreCase = true) ->
+            "${value.substringAfter(" in ").trim()} に関心があるため"
+        value.startsWith("Inferred from ", ignoreCase = true) ->
+            "利用状況から $topicName に関心があると推定したため"
+        value.startsWith("Semantic neighbor of ", ignoreCase = true) ->
+            "${value.substringAfter(" of ").trim()} と関連の深いテーマのため"
+        value.startsWith("Appears in events related to your interests (", ignoreCase = true) ->
+            "興味のある分野に関連する更新で $topicName が取り上げられているため"
+        value.startsWith("Catalog fallback for ", ignoreCase = true) || value.equals("catalog fallback", ignoreCase = true) ->
+            "まだ興味の情報が少ないため、人気のあるテーマから提案しています。"
+        value.hasJapaneseText() -> value
+        else -> "興味や利用状況との関連から提案しています。"
+    }
+}
+
+private fun String.toSourceRecommendationReason(): String {
+    val value = trim()
+    return when {
+        value.startsWith("Matches your explicit interest in ", ignoreCase = true) ->
+            "${value.substringAfter(" in ").trim()} に関心があるため"
+        value.startsWith("Matches your inferred interest in ", ignoreCase = true) ->
+            "${value.substringAfter(" in ").trim()} に関心があると推定したため"
+        value.startsWith("Related to your explicit interest via ", ignoreCase = true) ->
+            "関心のある ${value.substringAfter(" via ").trim()} に関連するため"
+        value.startsWith("Related to your inferred interest via ", ignoreCase = true) ->
+            "${value.substringAfter(" via ").trim()} への関心があると推定され、関連性があるため"
+        value.hasJapaneseText() -> value
+        else -> "興味のある分野に関連する情報源です。"
+    }
+}
+
+private fun String.toRecommendationProvenanceLabel(): String =
+    when (trim().lowercase()) {
+        "explicit" -> "設定した興味"
+        "inferred" -> "利用状況から推定"
+        "catalog" -> "テーマ一覧"
+        else -> if (hasJapaneseText()) trim() else "自動推定"
+    }
+
+private fun String.toConfidenceLabel(): String =
+    when (trim().lowercase()) {
+        "high" -> "高"
+        "medium" -> "中"
+        "low" -> "低"
+        else -> if (hasJapaneseText()) trim() else "未評価"
+    }
+
+private fun String.toDiscoveryProvenanceLabel(): String =
+    when (trim().lowercase()) {
+        "curated_seed" -> "登録済みの情報源"
+        "repository_metadata" -> "GitHubリポジトリ"
+        "website_feed", "site_html_link" -> "Webサイトのフィード"
+        "statuspage_link" -> "ステータスページ"
+        "sitemap_link" -> "サイトマップ"
+        "package_homepage" -> "パッケージ情報"
+        "external_index" -> "外部インデックス"
+        else -> if (hasJapaneseText()) trim() else "自動検出"
+    }
+
+private fun String.toAuthorityStatusLabel(): String =
+    when (trim().lowercase()) {
+        "authoritative", "official" -> "公式"
+        "non_authoritative" -> "非公式"
+        "aggregator" -> "情報集約サイト"
+        "unknown", "unverified" -> "未確認"
+        else -> if (hasJapaneseText()) trim() else "未確認"
+    }
+
+private fun String.toSafeUserFacingExplanation(): String {
+    val value = trim()
+    return value.takeIf { it.hasJapaneseText() }.orEmpty()
+}
+
+private fun String.hasJapaneseText(): Boolean =
+    any { character ->
+        character in '\u3040'..'\u30FF' || character in '\u3400'..'\u9FFF'
+    }

@@ -185,8 +185,8 @@ internal fun SecurityShortcut(actionCount: Int, onClick: () -> Unit) =
                 Icon(Icons.Default.Security, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
             }
             Column(Modifier.padding(start = 11.dp).weight(1f)) {
-                Text("脆弱性への対応が $actionCount 件必要です", fontWeight = FontWeight.Bold, color = Color(0xFF8F1D18))
-                Text("影響するrepositoryと修正版を確認", color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+                Text("対応が必要な脆弱性が $actionCount 件あります", fontWeight = FontWeight.Bold, color = Color(0xFF8F1D18))
+                Text("影響を受けるリポジトリと修正版を確認", color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
             }
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "セキュリティを開く", tint = Color(0xFFB42318))
         }
@@ -209,8 +209,8 @@ internal fun TodaySummary(
             }
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f)) {
-                Text("今日の優先順位", color = Color.White, fontWeight = FontWeight.Bold)
-                Text("直接影響の未読が $directUnreadCount 件", color = Color(0xFFFFDAD5), style = MaterialTheme.typography.bodySmall)
+                Text("今日の重要な更新", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("直接影響する未読の更新が $directUnreadCount 件あります", color = Color(0xFFFFDAD5), style = MaterialTheme.typography.bodySmall)
             }
             Text("${urgentEvents.size}件", color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }
@@ -260,7 +260,7 @@ private fun FeedHeading(filter: FeedFilter, count: Int) =
         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SectionHeading("${filter.label}の変化")
+        SectionHeading("${filter.label}の更新")
         Spacer(Modifier.weight(1f))
         Text("${count}件", color = Color(0xFF655F69), style = MaterialTheme.typography.labelMedium)
     }
@@ -279,7 +279,7 @@ internal fun EmptyFeed(
     horizontalAlignment = Alignment.CenterHorizontally,
 ) {
     Text(
-        "表示する変化はありません",
+        "表示する更新はありません",
         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
@@ -287,10 +287,10 @@ internal fun EmptyFeed(
     Spacer(Modifier.height(6.dp))
     Text(
         when {
-            filter != FeedFilter.ALL -> "${filter.label}に当てはまるEventはありません。"
+            filter != FeedFilter.ALL -> "「${filter.label}」に該当する更新はありません。"
             hasFollowedTopics ->
-                "公式の更新情報は購読しました。最初の変化が届くまで待つか、設定の情報源を確認してください。"
-            else -> "追跡テーマやGitHub repositoryを追加すると、関係する変化がここに届きます。"
+                "公式の更新情報を購読しました。最初の更新が届くまで待つか、設定から情報源を確認してください。"
+            else -> "追跡するテーマやGitHubリポジトリを追加すると、関連する更新がここに表示されます。"
         },
         color = Color(0xFF655F69),
         style = MaterialTheme.typography.bodyMedium,
@@ -298,13 +298,13 @@ internal fun EmptyFeed(
     Spacer(Modifier.height(16.dp))
     if (filter != FeedFilter.ALL) {
         AccessibleOutlinedButton(onClick = { onFilterChange(FeedFilter.ALL) }, modifier = Modifier.fillMaxWidth()) {
-            Text("すべての変化を見る")
+            Text("すべての更新を見る")
         }
         Spacer(Modifier.height(8.dp))
     }
     AccessiblePrimaryButton(onClick = onTopicsClick, modifier = Modifier.fillMaxWidth()) { Text("テーマを追加する") }
     Spacer(Modifier.height(8.dp))
-    AccessibleOutlinedButton(onClick = onGithubClick, modifier = Modifier.fillMaxWidth()) { Text("GitHubを連携・設定する") }
+    AccessibleOutlinedButton(onClick = onGithubClick, modifier = Modifier.fillMaxWidth()) { Text("GitHub連携を設定する") }
 }
 
 @Composable
@@ -385,7 +385,7 @@ internal fun EventCard(
                 Text(event.announcedAt, modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = Color(0xFF655F69), maxLines = 2)
                 Box {
                     AccessibleIconButton(onClick = { menuExpanded = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Event操作")
+                        Icon(Icons.Default.MoreVert, contentDescription = "更新の操作")
                     }
                     DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                         DropdownMenuItem(
@@ -430,7 +430,7 @@ internal fun FeedDisplayReasonLine(
     reason: DisplayReason?,
     modifier: Modifier = Modifier,
 ) {
-    val text = reason?.userFacingTextOrNull() ?: return
+    val text = reason?.userFacingTextOrNull()?.naturalizeDisplayReason() ?: return
     val maxLines = if (LocalDensity.current.fontScale >= AppReadability.LARGE_FONT_SCALE) 3 else 2
     Text(
         text,
@@ -443,3 +443,10 @@ internal fun FeedDisplayReasonLine(
         overflow = TextOverflow.Ellipsis,
     )
 }
+
+private fun String.naturalizeDisplayReason(): String =
+    replace("直接フォロー中の対象に関連", "直接フォローしている対象に関連")
+        .replace("フォロー中トピックの周辺に関連", "フォロー中のテーマに関連する情報")
+        .replace("への推定上の関心に関連", "に関心があると推定されたため表示")
+        .replace("推定上の関心に関連", "関心があると推定されたため表示")
+        .replace("の周辺に関連", "に関連する周辺情報")

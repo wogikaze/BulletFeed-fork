@@ -90,8 +90,8 @@ class SiteFeedDiscoverSettingsTest {
         }
 
         assertEquals(1, composeRule.onAllNodesWithTag("site-feed-discover-preferred").fetchSemanticsNodes().size)
-        assertEquals(1, composeRule.onAllNodesWithText("発見のみ。購読するまで証拠には使いません。").fetchSemanticsNodes().size)
-        assertEquals(1, composeRule.onAllNodesWithText("証拠には未使用").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("候補として検出しただけで、購読するまでは根拠情報に使用しません。").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("根拠情報には未使用").fetchSemanticsNodes().size)
         composeRule.onNodeWithTag("site-feed-discover-subscribe").assertHeightIsAtLeast(48.dp)
         composeRule.onNodeWithText("このフィードを購読").performScrollTo().performClick()
         composeRule.waitForIdle()
@@ -141,12 +141,12 @@ class SiteFeedDiscoverSettingsTest {
 
         assertEquals(
             1,
-            composeRule.onAllNodesWithText("RSS / Atom / JSON Feed は見つかりませんでした。ページ監視の候補だけを表示しています。")
+            composeRule.onAllNodesWithText("RSS / Atom / JSON Feed は見つかりませんでした。Webページとして監視できる候補だけを表示しています。")
                 .fetchSemanticsNodes()
                 .size,
         )
         composeRule.onNodeWithTag("site-feed-discover-subscribe").assertHeightIsAtLeast(48.dp)
-        assertEquals(1, composeRule.onAllNodesWithText("Webとして追加").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("Webページとして追加").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -189,7 +189,7 @@ class SiteFeedDiscoverSettingsTest {
             }
         }
 
-        composeRule.onNodeWithText("このサイトから購読できるフィードは見つかりませんでした。下の Web として追加できます。").assert(
+        composeRule.onNodeWithText("このサイトから購読できるフィードは見つかりませんでした。必要であればWebページとして追加できます。").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
         )
         assertEquals(0, composeRule.onAllNodesWithTag("site-feed-discover-item").fetchSemanticsNodes().size)
@@ -254,7 +254,7 @@ class SiteFeedDiscoverSettingsTest {
         composeRule.onNodeWithTag("site-feed-discover-subscribe").performScrollTo().assertHeightIsAtLeast(48.dp)
         assertEquals(
             1,
-            composeRule.onAllNodesWithText("発見のみ。購読するまで証拠には使いません。").fetchSemanticsNodes().size,
+            composeRule.onAllNodesWithText("候補として検出しただけで、購読するまでは根拠情報に使用しません。").fetchSemanticsNodes().size,
         )
         assertEquals(0, subscribed)
     }
