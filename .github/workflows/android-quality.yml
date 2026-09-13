@@ -3,6 +3,8 @@ name: Android quality
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
@@ -68,7 +70,7 @@ jobs:
             app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
 
-  # Branch protection still requires this exact check name.
+  # Branch protection should require this exact check name.
   lint-and-format-check:
     name: Lint and format check
     needs: quality
