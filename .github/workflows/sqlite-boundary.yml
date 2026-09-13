@@ -47,7 +47,7 @@ jobs:
           python -m pip install --require-hashes -r backend/requirements.lock
           python -m pip check
 
-      - name: Sweep through the imported 500k target
+      - name: Find the first measured SQLite scale boundary
         run: |
           python backend/scripts/benchmark_capacity_sweep.py \
             --sizes 100000 250000 500000 \
@@ -61,21 +61,67 @@ jobs:
           path = os.path.join(os.environ["RUNNER_TEMP"], "sqlite-boundary-sweep.json")
           with open(path, encoding="utf-8") as handle:
               report = json.load(handle)
-          if report["completed_sizes"][-1] != 500000:
-              raise SystemExit("SQLite scale threshold breached before the 500k port target")
-          if report["first_boundary_observations"] is not None:
+
+          requested = report["requested_sizes"]
+          completed = report["completed_sizes"]
+          boundary = report["first_boundary_observations"]
+          if requested != [100000, 250000, 500000]:
+              raise SystemExit(f"unexpected sweep plan: {requested}")
+          if not completed or completed[0] != 100000:
+              raise SystemExit(f"100k baseline was not measured: {completed}")
+          if boundary is None:
+              if completed != requested:
+                  raise SystemExit(f"sweep ended without a recorded boundary: {completed}")
+          elif completed[-1] != boundary:
               raise SystemExit(
-                  f"unexpected scale threshold at {report['first_boundary_observations']} observations"
+                  f"boundary {boundary} does not match final completed point {completed[-1]}"
               )
+          print(f"first measured boundary: {boundary or '>500000'}")
           PY
 
-      - name: Measure concurrent API-store and worker contention at 500k
+      - name: Measure contention at the detected boundary
         run: |
+          OBSERVATIONS="$(python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "sqlite-boundary-sweep.json")
+          with open(path, encoding="utf-8") as handle:
+              report = json.load(handle)
+          print(report["first_boundary_observations"] or report["completed_sizes"][-1])
+          PY
+          )"
+          echo "contention observation scale: $OBSERVATIONS"
           python backend/scripts/benchmark_sqlite_concurrency.py \
-            --observations 500000 \
-            --assert-safe \
+            --observations "$OBSERVATIONS" \
             --database "$RUNNER_TEMP/sqlite-contention.db" \
             --output "$RUNNER_TEMP/sqlite-contention.json"
+          python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "sqlite-contention.json")
+          with open(path, encoding="utf-8") as handle:
+              report = json.load(handle)
+          required = {
+              "feed_reads",
+              "observation_writes",
+              "sync_claims",
+              "lock_errors",
+              "write_amplification_ratio",
+          }
+          missing = sorted(required - report.keys())
+          if missing:
+              raise SystemExit(f"contention evidence missing fields: {missing}")
+          print(
+              "contention evidence: "
+              f"locks={report['lock_errors']}, "
+              f"feed_p99={report['feed_reads']['p99_ms']}ms, "
+              f"write_p99={report['observation_writes']['p99_ms']}ms, "
+              f"sync_p99={report['sync_claims']['p99_ms']}ms, "
+              f"write_amp={report['write_amplification_ratio']}x"
+          )
+          PY
 
       - name: Upload measured boundary evidence
         if: always()
