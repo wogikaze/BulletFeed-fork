@@ -10,7 +10,7 @@ Androidは `RemoteBulletFeedRepository` を本線としてFastAPI backendへ接�
 
 セッションはaccess token + rotating refresh tokenです。期限切れ時は同じBulletFeed userをrefreshし、refresh credentialを失った場合はGitHub identity recoveryへ進みます。既存userを暗黙に新しい匿名userへ置き換えません。Android上のaccess/refresh/OAuth poll tokenはAndroid Keystore鍵によるAES/GCM暗号化ストレージへ保存します。
 
-Feedはforeground復帰時、foreground中の定期更新、明示的な更新操作で再取得します。高度なpush notification最適化はMVPのこのrelease sliceには含めません。Searchタブは現時点では**現在ロード済みFeed内のローカル絞り込み**であり、全Event履歴を検索するserver-side Event Searchではありません。
+Feedはforeground復帰時、foreground中の定期更新、明示的な更新操作で再取得します。高度なpush notification最適化はMVPのこのrelease sliceには含めません。Searchタブは `GET /v1/events/search` を使い、現在ロード済みFeedに限らずアクセス可能なEvent履歴をserver-sideで検索します。検索はtitle/summary/current state/active Delta/source evidenceを対象にし、private Eventはdetailと同じaccess policyでfail-closedに除外します。
 
 `app/src/main/.../data` に残るMock/Demo実装はfixture・UI回帰用途です。通常のアプリ起動経路はRemote Repositoryを生成します。Mock-only Maestro flowはproduction backend acceptanceの代替ではありません。
 
@@ -60,7 +60,7 @@ ruff check .
 pytest -q
 ```
 
-GitHub ActionsではAndroid quality、Backend quality、Backend security、Dependency lockを実行します。Mock Maestroはfixture-level UI regressionです。MVPのDraft解除条件として使うreal-backend acceptanceは [docs/real-backend-acceptance.md](docs/real-backend-acceptance.md) を参照してください。
+GitHub ActionsではAndroid quality、Backend quality、Backend security、Dependency lock、Backend Docker buildをpull requestでも実行します。SQLite/storage-critical変更ではSQLite capacity boundaryも実行します。Mock Maestroはfixture-level UI regressionです。MVPのDraft解除条件として使うreal-backend acceptanceは [docs/real-backend-acceptance.md](docs/real-backend-acceptance.md) を参照してください。
 
 ## Security / data lifecycle
 
@@ -79,6 +79,8 @@ source kindごとにauthority、terms URL、content license、raw retention可�
 | [データソース方針](docs/data-sources-mvp.md) | MVP source、取得条件、evidence方針 |
 | [Release operations](backend/RELEASE_OPERATIONS.md) | API/worker、durable storage、readiness、backup/restore、rollback |
 | [Real backend acceptance](docs/real-backend-acceptance.md) | Draft解除前の実backend E2E受け入れ手順 |
+| [SQLite storage boundary](docs/sqlite-storage-boundary.md) | 大規模SQLiteのp99/contention計測と移行条件 |
+| [Repository governance](docs/repository-governance.md) | main保護、required checks、emergency bypass、検証drill |
 | [セキュリティ監査差分（2026-08-23）](docs/security-audit-2026-08-23.md) | session、Keystore、HTTPS、GitHub recovery、knownness等の再評価 |
 
 ## プロジェクト構成
