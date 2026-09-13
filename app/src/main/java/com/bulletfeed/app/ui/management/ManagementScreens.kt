@@ -116,7 +116,7 @@ fun TopicsScreen(
                 Spacer(Modifier.height(12.dp))
                 SectionHeading("追跡中のテーマ", style = MaterialTheme.typography.headlineSmall)
                 Spacer(Modifier.height(6.dp))
-                Text("優先度をタップして切り替え · ${topics.size}/$MAX_TRACKED_TOPICS", color = Color(0xFF655F69))
+                Text("優先度はタップして変更できます · ${topics.size}/$MAX_TRACKED_TOPICS", color = Color(0xFF655F69))
                 if (topicLimitReached) {
                     Text(
                         "上限に達しています。別のテーマを追加するには、追跡中のテーマを1件削除してください。",
@@ -129,7 +129,7 @@ fun TopicsScreen(
             }
             if (orderedTopics.isEmpty()) {
                 item {
-                    PoliteEmptyStatus("追跡テーマはまだありません。候補検索か自由入力から追加してください。")
+                    PoliteEmptyStatus("追跡中のテーマはまだありません。候補を検索するか、自由入力で追加してください。")
                 }
             } else {
                 items(orderedTopics, key = { it.id }) { topic ->
@@ -154,12 +154,12 @@ fun TopicsScreen(
                 Spacer(Modifier.height(18.dp))
                 Text("おすすめテーマ", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "検索結果ではなく、興味・履歴から出した推薦です。",
+                    "興味や履歴をもとにしたおすすめです。",
                     color = Color(0xFF655F69),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 if (recommendedTopics.isEmpty()) {
-                    PoliteEmptyStatus("いま出せる推薦はありません。", modifier = Modifier.padding(top = 8.dp))
+                    PoliteEmptyStatus("現在おすすめできるテーマはありません。", modifier = Modifier.padding(top = 8.dp))
                 }
             }
             items(recommendedTopics, key = { "rec-${it.id}" }) { item ->
@@ -181,7 +181,7 @@ fun TopicsScreen(
                                 Text("追加")
                             }
                             Spacer(Modifier.width(8.dp))
-                            AccessibleTextButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("無視") }
+                            AccessibleTextButton(onClick = { onIgnoreRecommendation(item.id) }) { Text("表示しない") }
                         }
                     }
                 }
@@ -276,8 +276,8 @@ fun TopicsScreen(
                         Text(
                             when {
                                 !topicSyncMessage.isNullOrBlank() -> topicSyncMessage
-                                githubConnected -> "監視するrepositoryを保存すると、使っている技術がこの一覧に追加されます。"
-                                else -> "使っている技術を読み取り、あなたに関係する変更をより正確に届けます。"
+                                githubConnected -> "監視するリポジトリを保存すると、利用している技術がこの一覧に追加されます。"
+                                else -> "利用している技術を読み取り、あなたに関係する更新をより正確に届けます。"
                             },
                             modifier = Modifier.padding(top = 6.dp),
                             color = Color(0xFF3D5A56),
@@ -387,7 +387,7 @@ fun GithubConnectionScreen(
                     Text("$it として連携中", color = Color(0xFF006A67), modifier = Modifier.padding(top = 5.dp))
                 }
                 Text(
-                    "選択したrepositoryのメタデータと依存関係を関連性判定に利用します。",
+                    "選択したリポジトリのメタデータと依存関係を、関連性の判定に利用します。",
                     modifier = Modifier.padding(top = 8.dp),
                     color = Color(0xFF49454F),
                 )
@@ -406,7 +406,7 @@ fun GithubConnectionScreen(
             }
             if (!connection.connected) {
                 item {
-                    InfoBlock("必要な権限", "公開プロフィールと、選択したrepositoryに対してGitHubが現在許可しているメタデータ・依存関係情報")
+                    InfoBlock("必要な権限", "公開プロフィールと、選択したリポジトリについてGitHubが現在許可しているメタデータ・依存関係情報")
                     Spacer(Modifier.height(14.dp))
                     AccessiblePrimaryButton(
                         onClick = onConnect,
@@ -421,7 +421,7 @@ fun GithubConnectionScreen(
                         Text(if (isAuthorizing) "認可完了を確認中" else "GitHubで認可する")
                     }
                     Spacer(Modifier.height(24.dp))
-                    Text("public repositoryからテーマを取り込む", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text("公開リポジトリからテーマを取り込む", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     AccessibleOutlinedTextField(
                         value = repoInput,
                         onValueChange = { repoInput = it },
@@ -443,13 +443,13 @@ fun GithubConnectionScreen(
                 }
             } else {
                 item {
-                    SectionHeading("監視するrepository", tag = "github-repositories-heading")
+                    SectionHeading("監視するリポジトリ", tag = "github-repositories-heading")
                     Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         AccessibleOutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
                             modifier = Modifier.weight(1f).testTag("github-repo-search-field"),
-                            label = { Text("repositoryを検索") },
+                            label = { Text("リポジトリを検索") },
                             singleLine = true,
                         )
                         Spacer(Modifier.width(8.dp))
@@ -464,11 +464,11 @@ fun GithubConnectionScreen(
                     item {
                         Row(Modifier.fillMaxWidth().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
-                            Text("repositoryを取得中", modifier = Modifier.padding(start = 10.dp))
+                            Text("リポジトリを取得中", modifier = Modifier.padding(start = 10.dp))
                         }
                     }
                 } else if (repositories.isEmpty()) {
-                    item { PoliteEmptyStatus("該当するrepositoryはありません。", modifier = Modifier.padding(vertical = 24.dp)) }
+                    item { PoliteEmptyStatus("該当するリポジトリはありません。", modifier = Modifier.padding(vertical = 24.dp)) }
                 } else {
                     items(repositories, key = { it.id }) { repository ->
                         RepositoryChoiceCard(repository, onToggleRepository)
@@ -555,7 +555,7 @@ internal fun RepositoryChoiceCard(
             Text(repository.fullName, fontWeight = FontWeight.Bold, maxLines = 3, overflow = TextOverflow.Ellipsis)
             Text(
                 listOfNotNull(
-                    if (repository.isPrivate) "private" else "public",
+                    if (repository.isPrivate) "非公開" else "公開",
                     repository.language,
                     repository.updatedAt.takeIf { it.isNotBlank() },
                 ).joinToString(" · "),
@@ -575,7 +575,9 @@ internal fun RepositoryChoiceCard(
 fun SettingsScreen(
     profile: UserProfile,
     isSaving: Boolean,
+    isDeletingAccount: Boolean = false,
     onSaveProfile: (UserProfile) -> Unit,
+    onDeleteAccount: () -> Unit = {},
     recommendations: List<SourceRecommendation> = emptyList(),
     decidingRecommendationId: String? = null,
     onApproveRecommendation: (String) -> Unit = {},
@@ -707,6 +709,22 @@ fun SettingsScreen(
                 onApprove = onApproveRecommendation,
                 onIgnore = onIgnoreRecommendation,
             )
+            Spacer(Modifier.height(28.dp))
+            SectionHeading("アカウント", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "アカウントを削除すると、プロフィール、テーマ、評価、既知情報、GitHub連携など、このアカウントに保存されたデータが削除されます。",
+                modifier = Modifier.padding(top = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF655F69),
+            )
+            Spacer(Modifier.height(12.dp))
+            AccessibleOutlinedButton(
+                onClick = onDeleteAccount,
+                enabled = !isDeletingAccount,
+                modifier = Modifier.fillMaxWidth().testTag("settings-delete-account"),
+            ) {
+                Text(if (isDeletingAccount) "削除中" else "アカウントを削除", color = Color(0xFF8F1D18))
+            }
         }
     }
 }
@@ -724,13 +742,13 @@ private fun KnowledgeBootstrapSection(
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "記事への評価（重要・不要・知っていた・今知った）から、すでに知っている内容を推定します。フォロー時に自己申告は求めません。",
+        "フィードへの評価（重要・不要・知っていた・今知った）から、すでに知っている内容を推定します。フォロー時に毎回確認することはありません。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "以前の確認で残った記録があれば、ここからリセットできます。低信頼の推定は非表示には使いません。",
+        "以前の確認で残った記録があれば、ここからリセットできます。信頼度の低い推定は、情報を非表示にする判断には使いません。",
         style = MaterialTheme.typography.bodySmall,
         color = Color(0xFF655F69),
     )
@@ -750,8 +768,8 @@ private fun KnowledgeBootstrapSection(
                 Column(Modifier.padding(16.dp)) {
                     Text(
                         when (item.subjectKind) {
-                            BootstrapSubjectKind.EVENT -> "Event の現在状態"
-                            BootstrapSubjectKind.TOPIC -> "Topic の現在状態"
+                            BootstrapSubjectKind.EVENT -> "更新の現在状態"
+                            BootstrapSubjectKind.TOPIC -> "テーマの現在状態"
                             BootstrapSubjectKind.GLOBAL -> "全体"
                         },
                         fontWeight = FontWeight.Bold,
@@ -759,9 +777,9 @@ private fun KnowledgeBootstrapSection(
                     Text(item.subjectId, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
                     Text(
                         if (item.catchUp) {
-                            "catch up: 開始時刻のみ。過去は既知にしていません。"
+                            "追跡開始: 開始時刻だけを記録し、過去の内容は既知として扱っていません。"
                         } else {
-                            "現在より前の真である事実 ${item.knownFactCount} 件を既知にしました。"
+                            "この時点までに成立している事実 ${item.knownFactCount} 件を既知として記録しました。"
                         },
                     )
                 }
@@ -774,7 +792,7 @@ private fun KnowledgeBootstrapSection(
         enabled = !isSaving && (summary.checkpoints.isNotEmpty() || summary.explicitKnownFactCount > 0),
         modifier = Modifier.fillMaxWidth().testTag("knowledge-bootstrap-reset"),
     ) {
-        Text(if (isSaving) "リセット中" else "bootstrap だけをリセット")
+        Text(if (isSaving) "リセット中" else "既存知識の記録だけをリセット")
     }
 }
 
@@ -787,7 +805,7 @@ private fun LearnedRankingSection(onReset: () -> Unit) {
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "「重要」などのフィードバックで変わった GET /feed の並びを、学習前に戻します。feedback の記録自体は消しません。",
+        "「重要」などの評価をもとに調整されたフィードの並びを、学習前の状態に戻します。評価の履歴自体は削除されません。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
@@ -817,14 +835,14 @@ private fun SiteFeedDiscoverSection(
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "ブログや公式サイトのトップURLだけを入れると、RSS / Atom / JSON Feed の候補を探します。発見しただけでは購読にも証拠にもなりません。",
+        "ブログや公式サイトのトップURLを入力すると、RSS / Atom / JSON Feed の候補を探します。見つかった候補は、購読するまで根拠情報として使用しません。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
     AccessibleOutlinedTextField(
         value = siteUrl,
         onValueChange = { siteUrl = it },
-        label = { Text("サイト URL") },
+        label = { Text("サイトURL") },
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp)
@@ -852,12 +870,12 @@ private fun SiteFeedDiscoverSection(
         result == null -> Unit
         result.items.isEmpty() -> {
             Spacer(Modifier.height(12.dp))
-            PoliteEmptyStatus("このサイトから購読できるフィードは見つかりませんでした。下の Web として追加できます。")
+            PoliteEmptyStatus("このサイトから購読できるフィードは見つかりませんでした。必要であればWebページとして追加できます。")
         }
         else -> {
             if (result.preferredFamily == "generic_web" || result.items.all { it.family == "generic_web" }) {
                 Spacer(Modifier.height(12.dp))
-                PoliteEmptyStatus("RSS / Atom / JSON Feed は見つかりませんでした。ページ監視の候補だけを表示しています。")
+                PoliteEmptyStatus("RSS / Atom / JSON Feed は見つかりませんでした。Webページとして監視できる候補だけを表示しています。")
             }
             result.items.forEach { item ->
                 SiteFeedDiscoverCandidateCard(
@@ -896,10 +914,10 @@ private fun SiteFeedDiscoverCandidateCard(
                 Text("優先候補", fontWeight = FontWeight.Medium)
             }
             if (item.discoveryOnly) {
-                Text("発見のみ。購読するまで証拠には使いません。")
+                Text("候補として検出しただけで、購読するまでは根拠情報に使用しません。")
             }
             if (!item.evidenceEligible) {
-                Text("証拠には未使用", style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
+                Text("根拠情報には未使用", style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
             }
             if (item.explanation.isNotBlank()) {
                 Text(item.explanation, style = MaterialTheme.typography.bodySmall, color = Color(0xFF655F69))
@@ -913,7 +931,7 @@ private fun SiteFeedDiscoverCandidateCard(
                         .fillMaxWidth()
                         .testTag("site-feed-discover-subscribe"),
                 ) {
-                    Text(if (kind == UserSourceKind.GENERIC_WEB) "Webとして追加" else "このフィードを購読")
+                    Text(if (kind == UserSourceKind.GENERIC_WEB) "Webページとして追加" else "このフィードを購読")
                 }
             }
         }
@@ -959,7 +977,7 @@ private fun SourceSubscriptionsSection(
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "Statuspage / RSS / JSON Feed / Web を追加できます。失敗中の購読は状態を確認してください。",
+        "Statuspage / RSS / JSON Feed / Web を追加できます。取得に失敗している購読がある場合は、状態を確認してください。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
@@ -1024,7 +1042,7 @@ private fun SourceSubscriptionsSection(
         AccessibleOutlinedTextField(
             value = pageId,
             onValueChange = { pageId = it },
-            label = { Text("Statuspage page ID") },
+            label = { Text("StatuspageのページID") },
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
             singleLine = true,
         )
@@ -1035,9 +1053,9 @@ private fun SourceSubscriptionsSection(
         label = {
             Text(
                 when (selectedKind) {
-                    UserSourceKind.STATUSPAGE -> "または Statuspage URL"
-                    UserSourceKind.GENERIC_WEB -> "Web URL"
-                    else -> "フィード URL"
+                    UserSourceKind.STATUSPAGE -> "またはStatuspageのURL"
+                    UserSourceKind.GENERIC_WEB -> "WebページのURL"
+                    else -> "フィードURL"
                 },
             )
         },
@@ -1075,7 +1093,7 @@ internal fun SourceSubscriptionErrorStatus(message: String) {
 @Composable
 internal fun SourcePartialFailureStatus(failingCount: Int) {
     Text(
-        "${failingCount}件の情報源が失敗中です。他の購読とフィードはそのまま使えます。",
+        "${failingCount}件の情報源の取得に失敗しています。他の購読とフィードは引き続き利用できます。",
         color = Color(0xFFA6231C),
         style = MaterialTheme.typography.bodyMedium,
         modifier =
@@ -1099,13 +1117,13 @@ private fun SourceRecommendationsSection(
     )
     Spacer(Modifier.height(8.dp))
     Text(
-        "興味・テーマから見つけた候補です。承認すると購読できる系統だけが同期されます。",
+        "興味やテーマをもとに見つけた候補です。承認すると、購読可能な情報源だけが同期されます。",
         style = MaterialTheme.typography.bodyMedium,
         color = Color(0xFF655F69),
     )
     Spacer(Modifier.height(12.dp))
     if (recommendations.isEmpty()) {
-        PoliteEmptyStatus("いま表示できる候補はありません。テーマを追加すると候補が増えます。")
+        PoliteEmptyStatus("現在表示できる候補はありません。テーマを追加すると候補が増えます。")
         return
     }
     recommendations.forEach { item ->
@@ -1145,15 +1163,15 @@ private fun SourceRecommendationCard(
                 Text(item.explanation, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF655F69))
             }
             Spacer(Modifier.height(8.dp))
-            Text("系統: ${item.familyLabel()}")
+            Text("種類: ${item.familyLabel()}")
             Text("出典: ${item.discoveryProvenance}")
-            Text("権威: ${item.authorityStatus}（信頼度 ${"%.2f".format(item.authorityConfidence)}）")
+            Text("情報源の信頼性: ${item.authorityStatus}（信頼度 ${"%.2f".format(item.authorityConfidence)}）")
             Text("状態: ${item.recommendationStatus.label()}")
-            Text("操作: ${item.actionability.label()}")
+            Text("利用方法: ${item.actionability.label()}")
             if (item.discoveryOnly) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "情報発見用です。事実の根拠（truth source）には使いません。",
+                    "情報を見つけるための候補です。事実の根拠には使用しません。",
                     color = Color(0xFFA6231C),
                     fontWeight = FontWeight.Medium,
                 )
@@ -1179,7 +1197,7 @@ private fun SourceRecommendationCard(
                         onClick = onIgnore,
                         enabled = enabled,
                         modifier = Modifier.weight(1f),
-                    ) { Text("無視") }
+                    ) { Text("表示しない") }
                 }
             }
         }
@@ -1198,7 +1216,7 @@ private fun SourceSubscriptionState.label(): String =
     when (this) {
         SourceSubscriptionState.PENDING -> "同期待ち"
         SourceSubscriptionState.OK -> "正常"
-        SourceSubscriptionState.FAILING -> "失敗中"
+        SourceSubscriptionState.FAILING -> "取得失敗"
     }
 
 private fun UserSourceKind.label(): String =
@@ -1216,7 +1234,7 @@ private fun SourceRecommendation.familyLabel(): String =
         "statuspage" -> "Statuspage"
         "github_release" -> "GitHub Releases"
         "generic_web" -> "Web"
-        "hacker_news_discovery" -> "Hacker News（発見用）"
+        "hacker_news_discovery" -> "Hacker News（候補検索用）"
         else -> family
     }
 
@@ -1224,20 +1242,20 @@ private fun SourceRecommendationStatus.label(): String =
     when (this) {
         SourceRecommendationStatus.PENDING -> "未決定"
         SourceRecommendationStatus.APPROVED -> "承認済み"
-        SourceRecommendationStatus.IGNORED -> "無視"
+        SourceRecommendationStatus.IGNORED -> "表示しない"
     }
 
 private fun SourceActionability.label(): String =
     when (this) {
-        SourceActionability.SUBSCRIBE -> "購読できる"
-        SourceActionability.SELECT_REPOSITORY -> "リポジトリ選択へ"
-        SourceActionability.DISCOVERY_ONLY -> "発見のみ（承認不可）"
-        SourceActionability.UNSUPPORTED -> "未接続（承認不可）"
+        SourceActionability.SUBSCRIBE -> "購読可能"
+        SourceActionability.SELECT_REPOSITORY -> "リポジトリを選択"
+        SourceActionability.DISCOVERY_ONLY -> "候補表示のみ（承認不可）"
+        SourceActionability.UNSUPPORTED -> "未対応（承認不可）"
     }
 
 private fun SourceRecommendation.approveLabel(): String =
     when (actionability) {
-        SourceActionability.SELECT_REPOSITORY -> "リポジトリ候補として記録"
+        SourceActionability.SELECT_REPOSITORY -> "リポジトリ候補に追加"
         else -> "購読する"
     }
 

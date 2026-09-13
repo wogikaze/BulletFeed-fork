@@ -29,14 +29,14 @@ class SessionRecoverySemanticsTest {
     fun reauthenticationAnnouncesAssertiveLiveRegion() {
         composeRule.setContent { ReauthenticationScreen(isAuthorizing = false, onReauthenticate = {}) }
 
-        composeRule.onNodeWithText("同じアカウントへ再認証").assert(
+        composeRule.onNodeWithText("アカウントを再認証").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
-        composeRule.onNodeWithText("同じアカウントへ再認証").assert(
+        composeRule.onNodeWithText("アカウントを再認証").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Heading, Unit),
         )
         composeRule.onNodeWithTag("session-reauth-button").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("アカウントを復旧").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("GitHubで再認証").assertHeightIsAtLeast(48.dp)
     }
 
     @Test
@@ -77,7 +77,7 @@ class SessionRecoverySemanticsTest {
             )
         }
 
-        composeRule.onNodeWithText("GitHub連携を完了").assert(
+        composeRule.onNodeWithText("GitHub連携を完了してください").assert(
             SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Assertive),
         )
         composeRule.onNodeWithText("GitHubで認可する").assertHeightIsAtLeast(48.dp)
@@ -97,7 +97,7 @@ class SessionRecoverySemanticsTest {
         }
 
         composeRule.onNodeWithTag("session-reauth-button").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("アカウントを復旧").assertHeightIsAtLeast(48.dp)
+        composeRule.onNodeWithText("GitHubで再認証").assertHeightIsAtLeast(48.dp)
     }
 
     @Test

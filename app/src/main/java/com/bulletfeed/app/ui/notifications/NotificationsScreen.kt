@@ -81,7 +81,7 @@ fun NotificationsScreen(
                     if (unreadCount > 0) {
                         AccessibleTextButton(onClick = onMarkAllRead) {
                             Icon(Icons.Default.DoneAll, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Text("すべて既読", modifier = Modifier.padding(start = 4.dp))
+                            Text("すべて既読にする", modifier = Modifier.padding(start = 4.dp))
                         }
                     }
                 },
@@ -138,12 +138,12 @@ private fun NotificationSummary(unreadCount: Int) =
             }
             Column(Modifier.padding(start = 13.dp)) {
                 Text(
-                    if (unreadCount > 0) "確認していない変化が $unreadCount 件あります" else "すべて確認済みです",
+                    if (unreadCount > 0) "未確認の更新が $unreadCount 件あります" else "すべて確認済みです",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "重要度と自分への影響を基準に通知しています。",
+                    "重要度とあなたへの影響をもとに通知しています。",
                     color = Color(0xFF655F69),
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -239,5 +239,5 @@ internal fun NotificationEmptyState(filter: NotificationFilter) =
         Icon(Icons.Default.DoneAll, contentDescription = null, tint = Color(0xFF006A67), modifier = Modifier.size(44.dp))
         Spacer(Modifier.height(10.dp))
         Text(if (filter == NotificationFilter.UNREAD) "未読通知はありません" else "通知はありません", fontWeight = FontWeight.Bold)
-        Text("重要な変化が届くとここに表示されます。", color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
+        Text("重要な更新が届くと、ここに表示されます。", color = Color(0xFF655F69), style = MaterialTheme.typography.bodySmall)
     }

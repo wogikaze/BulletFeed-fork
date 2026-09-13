@@ -358,6 +358,7 @@ class BulletFeedViewModelStateTest {
         assertFalse(retrying.sessionExpired)
         assertNull(retrying.errorMessage)
         assertTrue(retrying.isLoading)
+        assertTrue(retrying.isRefreshing)
     }
 
     @Test
