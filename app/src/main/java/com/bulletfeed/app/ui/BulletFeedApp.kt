@@ -330,6 +330,7 @@ private fun ReadyApplication(
             onDiscoverSiteFeeds = viewModel::discoverSiteFeeds,
             onResetKnowledgeBootstrap = viewModel::resetKnowledgeBootstrap,
             onResetLearnedRanking = viewModel::resetLearnedRanking,
+            onRefresh = viewModel::refresh,
             onLoadMoreFeed = viewModel::loadMoreFeed,
             onVisibleFeedItems = viewModel::recordFeedViewportSnapshots,
         )
@@ -580,6 +581,7 @@ private fun MainNavigation(
     onDiscoverSiteFeeds: (String) -> Unit,
     onResetKnowledgeBootstrap: () -> Unit,
     onResetLearnedRanking: () -> Unit,
+    onRefresh: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
 ) {
@@ -613,6 +615,7 @@ private fun MainNavigation(
             onDiscoverSiteFeeds = onDiscoverSiteFeeds,
             onResetKnowledgeBootstrap = onResetKnowledgeBootstrap,
             onResetLearnedRanking = onResetLearnedRanking,
+            onRefresh = onRefresh,
             onLoadMoreFeed = onLoadMoreFeed,
             onVisibleFeedItems = onVisibleFeedItems,
         )
@@ -767,6 +770,7 @@ private fun AppTabPane(
     onDiscoverSiteFeeds: (String) -> Unit,
     onResetKnowledgeBootstrap: () -> Unit,
     onResetLearnedRanking: () -> Unit,
+    onRefresh: () -> Unit,
     onLoadMoreFeed: () -> Unit,
     onVisibleFeedItems: (List<ViewportItemSnapshot>) -> Unit,
 ) {
@@ -786,6 +790,8 @@ private fun AppTabPane(
             isLoadingMore = uiState.isFeedLoadingMore,
             isFiltering = uiState.isFeedFiltering,
             loadMoreError = uiState.feedLoadMoreError,
+            onRefresh = onRefresh,
+            isRefreshing = uiState.isRefreshing,
             onLoadMore = onLoadMoreFeed,
             onVisibleFeedItems = onVisibleFeedItems,
             onTopicsClick = { onTabChange(AppTab.TOPICS) },

@@ -4,7 +4,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -116,7 +118,7 @@ class SettingsDetailSearchFontScaleTest {
     }
 
     @Test
-    fun largeFontScaleKeepsFeedRefreshTouchTarget() {
+    fun feedDoesNotRenderManualRefreshButton() {
         composeRule.setContent {
             MaterialTheme {
                 CompositionLocalProvider(
@@ -147,8 +149,7 @@ class SettingsDetailSearchFontScaleTest {
             }
         }
 
-        composeRule.onNodeWithTag("feed-refresh-button").assertHeightIsAtLeast(48.dp)
-        composeRule.onNodeWithText("更新").assertHeightIsAtLeast(48.dp)
+        composeRule.onAllNodesWithTag("feed-refresh-button").assertCountEquals(0)
     }
 
     @Test

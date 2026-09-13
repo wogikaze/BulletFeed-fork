@@ -83,6 +83,7 @@ data class BulletFeedUiState(
     val topicRecommendations: List<TopicRecommendation> = emptyList(),
     val topicRecommendationCohort: String = "",
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val sessionExpired: Boolean = false,
     val isOffline: Boolean = false,
     val hasStaleFeed: Boolean = false,
@@ -247,6 +248,7 @@ class BulletFeedViewModel(
                         topics = topicItems.map { it.name },
                         topicItems = topicItems,
                         isLoading = false,
+                        isRefreshing = false,
                         sessionExpired = false,
                         isOffline = false,
                         hasStaleFeed = false,
@@ -1649,6 +1651,7 @@ class BulletFeedViewModel(
 internal fun BulletFeedUiState.beginRefresh(): BulletFeedUiState =
     copy(
         isLoading = true,
+        isRefreshing = true,
         sessionExpired = false,
         isOffline = false,
         hasStaleFeed = false,
@@ -1672,6 +1675,7 @@ internal fun BulletFeedUiState.reduceRootFailure(error: Throwable): BulletFeedUi
         eventDetail = if (unauthorized) null else eventDetail,
         vulnerabilityDetail = if (unauthorized) null else vulnerabilityDetail,
         isLoading = false,
+        isRefreshing = false,
         isFeedLoadingMore = false,
         isFeedFiltering = false,
         sessionExpired = unauthorized,
